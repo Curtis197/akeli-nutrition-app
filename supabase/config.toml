@@ -1,0 +1,48 @@
+[project]
+project_id = "akeli-v1"
+
+[functions.complete-onboarding]
+verify_jwt = true
+
+[functions.toggle-recipe-like]
+verify_jwt = true
+
+[functions.generate-meal-plan]
+verify_jwt = true
+
+[functions.log-meal-consumption]
+verify_jwt = true
+
+[functions.activate-fan-mode]
+verify_jwt = true
+
+[functions.cancel-fan-mode]
+verify_jwt = true
+
+[functions.get-creator-dashboard]
+verify_jwt = true
+
+[functions.ai-assistant-chat]
+verify_jwt = true
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+# Fonctions internes — pas de JWT Supabase (service key ou signature externe)
+[functions.process-fan-mode-transitions]
+verify_jwt = false
+
+[functions.compute-monthly-revenue]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.send-meal-reminders]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.translate-content]
+verify_jwt = false
