@@ -1,14 +1,154 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/user_profile_provider.dart';
 
-class SubscriptionPage extends ConsumerWidget {
+// Product ID must match what you created in Google Play Console and App Store Connect
+const _kProductId = 'akeli_premium_monthly';
+
+class SubscriptionPage extends ConsumerStatefulWidget {
   const SubscriptionPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SubscriptionPage> createState() => _SubscriptionPageState();
+}
+
+class _SubscriptionPageState extends ConsumerState<SubscriptionPage> {
+  final InAppPurchase _iap = InAppPurchase.instance;
+
+  StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
+  ProductDetails? _product;
+  bool _storeAvailable = true;
+  bool _loading = true;
+  bool _purchasing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _purchaseSubscription = _iap.purchaseStream.listen(
+      _onPurchaseUpdate,
+      onError: (_) {},
+    );
+    _loadProduct();
+  }
+
+  Future<void> _loadProduct() async {
+    final available = await _iap.isAvailable();
+    if (!available) {
+      setState(() {
+        _storeAvailable = false;
+        _loading = false;
+      });
+      return;
+    }
+
+    final response = await _iap.queryProductDetails({_kProductId});
+    setState(() {
+      _product = response.productDetails.isNotEmpty
+          ? response.productDetails.first
+          : null;
+      _loading = false;
+    });
+  }
+
+  Future<void> _onPurchaseUpdate(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      if (purchase.status == PurchaseStatus.purchased ||
+          purchase.status == PurchaseStatus.restored) {
+        await _validateAndActivate(purchase);
+      } else if (purchase.status == PurchaseStatus.error) {
+        setState(() => _purchasing = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  purchase.error?.message ?? 'Erreur lors du paiement'),
+            ),
+          );
+        }
+      } else if (purchase.status == PurchaseStatus.canceled) {
+        setState(() => _purchasing = false);
+      }
+
+      if (purchase.pendingCompletePurchase) {
+        await _iap.completePurchase(purchase);
+      }
+    }
+  }
+
+  Future<void> _validateAndActivate(PurchaseDetails purchase) async {
+    try {
+      // Server-side receipt validation — updates the subscription table
+      // which activate-fan-mode then checks before allowing Fan Mode
+      await supabase.functions.invoke(
+        'validate-store-purchase',
+        body: {
+          'platform': purchase.verificationData.source,
+          'purchase_token': purchase.verificationData.serverVerificationData,
+          'product_id': purchase.productID,
+        },
+      );
+
+      ref.invalidate(subscriptionProvider);
+      ref.invalidate(isPremiumProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Abonnement Premium activé !'),
+            backgroundColor: AkeliColors.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'Paiement reçu mais une erreur est survenue. Contactez le support.'),
+          ),
+        );
+      }
+    } finally {
+      setState(() => _purchasing = false);
+    }
+  }
+
+  Future<void> _subscribe() async {
+    if (_product == null || _purchasing) return;
+    setState(() => _purchasing = true);
+    final param = PurchaseParam(productDetails: _product!);
+    // Subscriptions are treated as non-consumable on both stores
+    await _iap.buyNonConsumable(purchaseParam: param);
+  }
+
+  void _openStoreSubscriptionSettings() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          Platform.isIOS
+              ? 'Allez dans Réglages > Votre nom > Abonnements pour gérer votre abonnement.'
+              : 'Allez dans le Play Store > Abonnements pour gérer votre abonnement.',
+        ),
+        duration: const Duration(seconds: 6),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _purchaseSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isPremium = ref.watch(isPremiumProvider);
     final subAsync = ref.watch(subscriptionProvider);
 
@@ -58,12 +198,15 @@ class SubscriptionPage extends ConsumerWidget {
             const SizedBox(height: AkeliSpacing.xl),
 
             if (isPremium) ...[
-              // Active subscription details
               subAsync.when(
-                loading: () => const CircularProgressIndicator(),
+                loading: () => const Center(
+                    child: CircularProgressIndicator()),
                 error: (_, __) => const SizedBox.shrink(),
                 data: (sub) => sub != null
-                    ? _ActiveSubCard(sub: sub)
+                    ? _ActiveSubCard(
+                        sub: sub,
+                        onManage: _openStoreSubscriptionSettings,
+                      )
                     : const SizedBox.shrink(),
               ),
             ] else ...[
@@ -104,31 +247,37 @@ class SubscriptionPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(AkeliSpacing.lg),
                   child: Column(
                     children: [
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '3€',
-                              style: TextStyle(
-                                color: AkeliColors.primary,
-                                fontSize: 48,
-                                fontWeight: FontWeight.w800,
+                      if (_loading)
+                        const CircularProgressIndicator()
+                      else if (!_storeAvailable)
+                        const Text('Store non disponible sur cet appareil.')
+                      else
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                // Show price from store if loaded, else fallback
+                                text: _product?.price ?? '3,99€',
+                                style: const TextStyle(
+                                  color: AkeliColors.primary,
+                                  fontSize: 48,
+                                  fontWeight: FontWeight.w800,
+                                ),
                               ),
-                            ),
-                            TextSpan(
-                              text: ' / mois',
-                              style: TextStyle(
-                                color: AkeliColors.textSecondary,
-                                fontSize: 18,
+                              const TextSpan(
+                                text: ' / mois',
+                                style: TextStyle(
+                                  color: AkeliColors.textSecondary,
+                                  fontSize: 18,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       const SizedBox(height: AkeliSpacing.xs),
                       const Text(
-                        'Annulable à tout moment',
+                        'Annulable à tout moment via le Store',
                         style: TextStyle(
                             color: AkeliColors.textSecondary,
                             fontSize: 12),
@@ -140,15 +289,34 @@ class SubscriptionPage extends ConsumerWidget {
               const SizedBox(height: AkeliSpacing.lg),
 
               FilledButton.icon(
-                onPressed: () => _startCheckout(context, ref),
-                icon: const Icon(Icons.payment_rounded),
-                label: const Text('Commencer mon abonnement'),
+                onPressed: (_loading || !_storeAvailable || _purchasing)
+                    ? null
+                    : _subscribe,
+                icon: _purchasing
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Icon(
+                        Platform.isIOS
+                            ? Icons.apple
+                            : Icons.android,
+                      ),
+                label: Text(_purchasing
+                    ? 'Traitement...'
+                    : 'S\'abonner via le Store'),
               ),
               const SizedBox(height: AkeliSpacing.sm),
-              const Center(
+              Center(
                 child: Text(
-                  'Paiement sécurisé par Stripe',
-                  style: TextStyle(
+                  Platform.isIOS
+                      ? 'Paiement géré par l\'App Store'
+                      : 'Paiement géré par le Google Play Store',
+                  style: const TextStyle(
                       color: AkeliColors.textSecondary, fontSize: 12),
                 ),
               ),
@@ -168,44 +336,21 @@ class SubscriptionPage extends ConsumerWidget {
     'Communauté et groupes de discussion',
     'Liste de courses automatique',
   ];
-
-  Future<void> _startCheckout(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    try {
-      final res = await supabase.functions.invoke(
-        'create-checkout-session',
-        body: {'plan': 'premium_monthly'},
-      );
-
-      final url = (res.data as Map<String, dynamic>)['url'] as String?;
-      if (url != null && context.mounted) {
-        // Open Stripe checkout URL in-app browser
-        // In a real app, use url_launcher or an in-app WebView
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Ouverture du paiement: $url')),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        scaffoldMessenger.showSnackBar(
-          const SnackBar(
-              content: Text('Erreur lors de l\'initiation du paiement.')),
-        );
-      }
-    }
-  }
 }
 
 class _ActiveSubCard extends StatelessWidget {
   final Map<String, dynamic> sub;
+  final VoidCallback onManage;
 
-  const _ActiveSubCard({required this.sub});
+  const _ActiveSubCard({required this.sub, required this.onManage});
 
   @override
   Widget build(BuildContext context) {
     final expiresAt = sub['current_period_end'] != null
-        ? DateTime.parse(sub['current_period_end'] as String)
+        ? DateTime.tryParse(sub['current_period_end'] as String)
         : null;
+
+    final platform = sub['store_platform'] as String? ?? '';
 
     return Card(
       child: Padding(
@@ -227,27 +372,29 @@ class _ActiveSubCard extends StatelessWidget {
             if (expiresAt != null) ...[
               const SizedBox(height: AkeliSpacing.sm),
               Text(
-                'Prochain renouvellement: ${_formatDate(expiresAt)}',
+                'Prochain renouvellement : ${_formatDate(expiresAt)}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AkeliColors.textSecondary,
+                    ),
+              ),
+            ],
+            if (platform.isNotEmpty) ...[
+              const SizedBox(height: AkeliSpacing.xs),
+              Text(
+                'Abonnement via ${platform == 'ios' ? 'App Store' : 'Google Play'}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: AkeliColors.textSecondary,
                     ),
               ),
             ],
             const SizedBox(height: AkeliSpacing.lg),
-            OutlinedButton(
-              onPressed: () {
-                // Handle cancellation through Stripe portal
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Gestion de l\'abonnement bientôt disponible.')),
-                );
-              },
+            OutlinedButton.icon(
+              onPressed: onManage,
+              icon: const Icon(Icons.open_in_new_rounded, size: 16),
+              label: const Text('Gérer l\'abonnement via le Store'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AkeliColors.error,
-                side: const BorderSide(color: AkeliColors.error),
+                foregroundColor: AkeliColors.textSecondary,
               ),
-              child: const Text('Annuler l\'abonnement'),
             ),
           ],
         ),
