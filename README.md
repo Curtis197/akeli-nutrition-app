@@ -42,7 +42,8 @@ Akeli is a mobile app that allows users to:
 | AI Assistant | OpenAI GPT-4o |
 | Translation | Google Gemini (African languages) |
 | Vectorization | Python FastAPI on Railway |
-| Payments | Stripe (subscriptions €3/month) |
+| User subscriptions | Google Play Store + Apple App Store (in-app purchase) |
+| Creator payouts | Stripe Connect (website only, not in the app) |
 | Push notifications | Firebase Cloud Messaging (FCM) |
 | Fonts | Outfit (display) + Poppins (body) — Google Fonts |
 | Charts | fl_chart |
@@ -57,19 +58,39 @@ User (Flutter app)
       ├── Supabase Auth (email/phone/social)
       ├── Supabase Database (PostgreSQL + RLS)
       ├── Supabase Storage (recipe images, avatars)
+      ├── Google Play Store / App Store ← user subscription (in-app purchase)
+      │         └── on purchase → validate-store-purchase Edge Function
       ├── Supabase Edge Functions (Deno/TypeScript)
+      │         ├── validate-store-purchase (Google/Apple receipt validation)
       │         ├── AI chat (OpenAI)
       │         ├── Meal plan generation
       │         ├── Fan Mode activation/cancellation
-      │         ├── Stripe checkout & webhooks
       │         ├── Push notifications (FCM)
       │         ├── CRON jobs (reminders, revenue compute)
       │         └── Content translation (Gemini)
       └── Python Service (Railway)
                 └── Recipe vectorization for semantic search
+
+Akeli Website (separate — not in the Flutter app)
+      │
+      └── Stripe Connect ← creator payouts only
+                ├── create-checkout-session Edge Function (admin → creator payout)
+                └── stripe-webhook Edge Function (payout events)
 ```
 
-**Key design decisions:**
+**Payment architecture — critical distinction:**
+
+| Who pays | Method | Where |
+|----------|--------|-------|
+| **User → Akeli** (Premium subscription) | Google Play / App Store in-app purchase | Inside the Flutter app |
+| **Akeli → Creator** (monthly payout) | Stripe Connect transfer | Akeli admin website only |
+
+**Why this matters:**
+- Apple and Google take 15–30% on in-app purchases — this is mandatory for subscriptions sold inside iOS/Android apps
+- Stripe is used exclusively on the backend to pay creators; it never appears in the Flutter app
+- The `validate-store-purchase` Edge Function verifies receipts with Google/Apple APIs and updates the `subscription` table, which `activate-fan-mode` then checks
+
+**Other key design decisions:**
 - No Firebase — Supabase handles everything (auth, DB, storage, realtime)
 - Feature-first folder structure in Flutter (`lib/features/`)
 - Row Level Security (RLS) on all Supabase tables
@@ -124,11 +145,12 @@ User (Flutter app)
 | `ai-assistant-chat` | HTTP POST | Nutritional AI chat (OpenAI) |
 | `toggle-recipe-like` | HTTP POST | Like/unlike a recipe |
 | `log-meal-consumption` | HTTP POST | Log a meal and update nutrition stats |
-| `activate-fan-mode` | HTTP POST | Create Stripe subscription + unlock creator content |
-| `cancel-fan-mode` | HTTP POST | Cancel subscription + revoke access |
-| `process-fan-mode-transitions` | CRON | Nightly check of expired subscriptions |
-| `create-checkout-session` | HTTP POST | Generate Stripe checkout URL |
-| `stripe-webhook` | HTTP POST | Handle Stripe payment events |
+| `validate-store-purchase` | HTTP POST | Validate Google Play / App Store receipt → activate subscription |
+| `activate-fan-mode` | HTTP POST | Unlock a specific creator's exclusive content (requires active subscription) |
+| `cancel-fan-mode` | HTTP POST | Revoke creator access (effective end of month) |
+| `process-fan-mode-transitions` | CRON | Nightly check of expired fan subscriptions |
+| `create-checkout-session` | HTTP POST | **Website only** — Stripe payout to a creator (admin action) |
+| `stripe-webhook` | HTTP POST | **Website only** — Handle Stripe Connect payout events |
 | `get-creator-dashboard` | HTTP GET | Creator revenue + subscriber stats |
 | `compute-monthly-revenue` | CRON | Monthly revenue aggregation |
 | `send-meal-reminders` | CRON | Daily push notification reminders |
@@ -237,11 +259,19 @@ User (Flutter app)
 - [ ] Set environment variables in Railway Dashboard (see `python/.env.example`)
 - [ ] Note deployed URL and add to `supabase/functions/.env` as `PYTHON_SERVICE_URL`
 
-### Priority 4 — Stripe Configuration
+### Priority 4 — Store subscription setup (Google Play + App Store)
 
-- [ ] Create product "Akeli Premium" at €3/month in Stripe Dashboard
-- [ ] Copy `price_xxx` ID into `STRIPE_PRICE_ID` env var
-- [ ] Add webhook endpoint pointing to `create-checkout-session` Edge Function URL
+- [ ] **Google Play Console** — Create a subscription product with ID `akeli_premium_monthly`
+- [ ] **App Store Connect** — Create an auto-renewable subscription with the same ID `akeli_premium_monthly`
+- [ ] Create a Google Cloud service account with `Financial data viewer` role on the Play Console project
+- [ ] Download the service account JSON and add it as `GOOGLE_SERVICE_ACCOUNT_JSON` env var
+- [ ] Get the Apple Shared Secret from App Store Connect and add it as `APPLE_SHARED_SECRET`
+
+### Priority 5 — Stripe Connect (creator payouts — website only)
+
+- [ ] Enable Stripe Connect in your Stripe Dashboard
+- [ ] Build onboarding flow for creators to connect their Stripe account
+- [ ] Add webhook endpoint pointing to `stripe-webhook` Edge Function URL
 - [ ] Copy `whsec_xxx` webhook secret into `STRIPE_WEBHOOK_SECRET`
 
 ### Priority 5 — iOS Configuration
@@ -406,9 +436,16 @@ SUPABASE_SERVICE_ROLE_KEY=...
 OPENAI_API_KEY=sk-...
 GEMINI_API_KEY=...
 FCM_SERVER_KEY=...
+
+# User subscriptions — Google Play & App Store
+APPLE_SHARED_SECRET=...               # App Store Connect > App > In-App Purchases
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}   # JSON on one line
+ANDROID_PACKAGE_NAME=app.akeli.nutrition
+
+# Creator payouts — Stripe Connect (website only)
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PRICE_ID=price_...
+
 PYTHON_SERVICE_URL=https://akeli-engine.railway.app
 ```
 

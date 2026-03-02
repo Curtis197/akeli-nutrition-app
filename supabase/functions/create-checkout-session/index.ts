@@ -1,22 +1,31 @@
-// Crée une session Stripe Checkout pour l'abonnement 3€/mois
+// Crée une session Stripe Checkout pour le PAIEMENT DES CRÉATEURS (website uniquement)
+// ⚠️  Les abonnements utilisateurs sont gérés via les stores (Google Play / App Store)
+//     Ce endpoint est appelé depuis le site web Akeli pour initier le paiement
+//     d'un créateur éligible (via Stripe Connect ou transfert Stripe).
+//
+// Flow :
+//   1. Admin/website déclenche un paiement créateur (mensuel)
+//   2. Ce endpoint crée une Stripe Checkout session de type "payment" vers le créateur
+//   3. Le créateur reçoit les fonds via son compte Stripe Connect
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { ok, err, unauthorized, serverError } from "../_shared/response.ts";
-import { getAuthUser } from "../_shared/supabase.ts";
+import { getAuthUser, serviceClient } from "../_shared/supabase.ts";
 
 const STRIPE_SECRET_KEY = Deno.env.get("STRIPE_SECRET_KEY")!;
-const STRIPE_PRICE_ID = Deno.env.get("STRIPE_PRICE_ID")!;  // Price ID du plan 3€/mois
 const STRIPE_API = "https://api.stripe.com/v1";
 
-async function stripePost(path: string, params: Record<string, string>): Promise<Response> {
-  const body = new URLSearchParams(params).toString();
+async function stripePost(
+  path: string,
+  params: Record<string, string>,
+): Promise<Response> {
   return fetch(`${STRIPE_API}${path}`, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${STRIPE_SECRET_KEY}`,
+      Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body,
+    body: new URLSearchParams(params).toString(),
   });
 }
 
@@ -25,62 +34,59 @@ serve(async (req) => {
   if (corsResponse) return corsResponse;
 
   try {
-    const { user, client } = await getAuthUser(req);
-    if (!user || !client) return unauthorized();
+    const { user } = await getAuthUser(req);
+    if (!user) return unauthorized();
 
-    const { success_url, cancel_url } = await req.json();
-    if (!success_url || !cancel_url) return err("success_url and cancel_url are required");
-
-    // Récupérer ou créer le Stripe customer
-    let { data: existingSub } = await client
-      .from("subscription")
-      .select("stripe_customer_id, status")
-      .eq("user_id", user.id)
+    // Only Akeli admins can trigger creator payouts
+    const admin = serviceClient();
+    const { data: profile } = await admin
+      .from("user_profile")
+      .select("role")
+      .eq("id", user.id)
       .single();
 
-    let stripeCustomerId = existingSub?.stripe_customer_id;
-
-    // Si l'abonnement est déjà actif
-    if (existingSub?.status === "active") {
-      return err("Subscription already active", 400);
+    if (profile?.role !== "admin") {
+      return err("Only admins can initiate creator payouts", 403);
     }
 
-    // Créer le customer Stripe si nécessaire
-    if (!stripeCustomerId) {
-      const { data: profile } = await client
-        .from("user_profile")
-        .select("first_name, last_name")
-        .eq("id", user.id)
-        .single();
+    const { creator_id, amount_cents, success_url, cancel_url } =
+      await req.json();
 
-      const customerRes = await stripePost("/customers", {
-        email: user.email ?? "",
-        name: `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim(),
-        metadata: `user_id=${user.id}`,
-      });
-
-      if (!customerRes.ok) throw new Error("Failed to create Stripe customer");
-      const customer = await customerRes.json();
-      stripeCustomerId = customer.id;
-
-      // Sauvegarder le customer_id en base
-      await client.from("subscription").upsert({
-        user_id: user.id,
-        stripe_customer_id: stripeCustomerId,
-        status: "trialing",
-      }, { onConflict: "user_id" });
+    if (!creator_id || !amount_cents || !success_url || !cancel_url) {
+      return err(
+        "creator_id, amount_cents, success_url and cancel_url are required",
+      );
     }
 
-    // Créer la session Checkout
+    // Retrieve the creator's Stripe Connect account ID
+    const { data: creator } = await admin
+      .from("creator")
+      .select("stripe_account_id, display_name")
+      .eq("id", creator_id)
+      .single();
+
+    if (!creator) return err("Creator not found", 404);
+    if (!creator.stripe_account_id) {
+      return err(
+        "Creator has no Stripe account configured. Ask them to onboard first.",
+        400,
+      );
+    }
+
+    // Create a Stripe Checkout session — payment mode (one-time payout)
     const sessionRes = await stripePost("/checkout/sessions", {
-      customer: stripeCustomerId,
-      mode: "subscription",
-      "line_items[0][price]": STRIPE_PRICE_ID,
+      mode: "payment",
+      "line_items[0][price_data][currency]": "eur",
+      "line_items[0][price_data][product_data][name]":
+        `Paiement créateur — ${creator.display_name}`,
+      "line_items[0][price_data][unit_amount]": String(amount_cents),
       "line_items[0][quantity]": "1",
+      // Transfer funds to the creator's Stripe Connect account
+      "payment_intent_data[transfer_data][destination]":
+        creator.stripe_account_id,
+      "metadata[creator_id]": creator_id,
       success_url,
       cancel_url,
-      "metadata[user_id]": user.id,
-      "subscription_data[trial_period_days]": "0",
     });
 
     if (!sessionRes.ok) {
@@ -89,7 +95,6 @@ serve(async (req) => {
     }
 
     const session = await sessionRes.json();
-
     return ok({ checkout_url: session.url, session_id: session.id });
   } catch (e) {
     return serverError(e);

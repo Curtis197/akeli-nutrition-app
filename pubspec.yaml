@@ -40,6 +40,9 @@ dependencies:
   # Internationalisation
   intl: ^0.19.0
 
+  # Paiements — abonnement via stores (Google Play + App Store)
+  in_app_purchase: ^3.2.0
+
   # Utils
   timeago: ^3.6.1
   logger: ^2.3.0
