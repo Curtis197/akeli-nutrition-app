@@ -21,11 +21,11 @@ serve(async (_req) => {
     if (activateError) throw activateError;
     console.log(`[process-fan-mode-transitions] Activated: ${toActivate?.length ?? 0}`);
 
-    // 2. Supprimer (ou laisser cancelled) les subscriptions dont effective_until <= today
+    // 2. Annuler les subscriptions actives dont effective_until <= today
     const { data: toDeactivate, error: deactivateError } = await admin
       .from("fan_subscription")
       .update({ status: "cancelled" })
-      .eq("status", "cancelled")
+      .eq("status", "active")
       .lte("effective_until", today)
       .select("user_id, creator_id");
 

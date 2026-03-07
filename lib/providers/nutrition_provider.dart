@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase_client.dart';
 import 'auth_provider.dart';
@@ -28,11 +31,11 @@ class DailyNutrition {
 
   factory DailyNutrition.fromJson(Map<String, dynamic> json) => DailyNutrition(
         date: DateTime.parse(json['log_date'] as String),
-        calories: (json['total_calories'] as num?)?.toDouble() ?? 0,
-        proteinG: (json['total_protein_g'] as num?)?.toDouble() ?? 0,
-        carbsG: (json['total_carbs_g'] as num?)?.toDouble() ?? 0,
-        fatG: (json['total_fat_g'] as num?)?.toDouble() ?? 0,
-        fiberG: (json['total_fiber_g'] as num?)?.toDouble() ?? 0,
+        calories: (json['calories'] as num?)?.toDouble() ?? 0,
+        proteinG: (json['protein_g'] as num?)?.toDouble() ?? 0,
+        carbsG: (json['carbs_g'] as num?)?.toDouble() ?? 0,
+        fatG: (json['fat_g'] as num?)?.toDouble() ?? 0,
+        fiberG: (json['fiber_g'] as num?)?.toDouble() ?? 0,
         waterMl: (json['water_ml'] as num?)?.toDouble() ?? 0,
       );
 

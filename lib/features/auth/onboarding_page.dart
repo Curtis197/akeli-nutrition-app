@@ -65,17 +65,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
     setState(() => _isSubmitting = true);
     try {
+      // Derive birth_date from age (approximated to Jan 1st of birth year)
+      final age = int.tryParse(_ageCtrl.text);
+      final birthYear = age != null ? DateTime.now().year - age : null;
+      final birthDate = birthYear != null ? '$birthYear-01-01' : null;
+
       await supabase.functions.invoke('complete-onboarding', body: {
         'display_name': _nameCtrl.text.trim(),
-        'health_profile': {
-          'age': int.tryParse(_ageCtrl.text),
-          'weight_kg': double.tryParse(_weightCtrl.text),
-          'height_cm': double.tryParse(_heightCtrl.text),
-          'target_weight_kg': double.tryParse(_targetWeightCtrl.text),
-          'gender': _gender,
-          'activity_level': _activityLevel,
-          'primary_goal': _primaryGoal,
-        },
+        // Flat structure matching the Edge Function signature
+        'sex': _gender,
+        'birth_date': birthDate,
+        'weight_kg': double.tryParse(_weightCtrl.text),
+        'height_cm': double.tryParse(_heightCtrl.text),
+        'target_weight_kg': double.tryParse(_targetWeightCtrl.text),
+        'activity_level': _activityLevel,
+        'goals': _primaryGoal != null ? [_primaryGoal] : [],
         'dietary_restrictions': _dietaryRestrictions.toList(),
         'cuisine_preferences': _cuisinePreferences.toList(),
       });
@@ -265,10 +269,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   Widget _buildGoalsPage() {
     const goals = [
-      ('lose_weight', 'Perdre du poids', Icons.trending_down_rounded),
-      ('maintain', 'Maintenir mon poids', Icons.balance_rounded),
-      ('gain_muscle', 'Prendre du muscle', Icons.fitness_center_rounded),
-      ('improve_health', 'Améliorer ma santé', Icons.favorite_border_rounded),
+      ('weight_loss', 'Perdre du poids', Icons.trending_down_rounded),
+      ('maintenance', 'Maintenir mon poids', Icons.balance_rounded),
+      ('muscle_gain', 'Prendre du muscle', Icons.fitness_center_rounded),
+      ('health', 'Améliorer ma santé', Icons.favorite_border_rounded),
     ];
 
     const activities = [
@@ -320,7 +324,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       ('vegetarian', 'Végétarien'),
       ('vegan', 'Végétalien'),
       ('gluten_free', 'Sans gluten'),
-      ('dairy_free', 'Sans lactose'),
+      ('lactose_free', 'Sans lactose'),
       ('halal', 'Halal'),
       ('no_pork', 'Sans porc'),
     ];

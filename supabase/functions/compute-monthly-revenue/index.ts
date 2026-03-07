@@ -67,19 +67,19 @@ serve(async (_req) => {
 
       // 3. Mettre à jour creator_balance si revenue > 0
       if (totalRevenue > 0) {
-        await admin.rpc("increment_creator_balance", {
-          p_creator_id: creator_id,
-          p_amount: totalRevenue,
-        }).catch(() => {
-          // Fallback si la fonction RPC n'existe pas encore — update direct
-          admin
-            .from("creator_balance")
-            .upsert({
-              creator_id,
-              balance: totalRevenue,
-              total_earned: totalRevenue,
-            });
-        });
+        try {
+          await admin.rpc("increment_creator_balance", {
+            p_creator_id: creator_id,
+            p_amount: totalRevenue,
+          });
+        } catch {
+          // Fallback si la fonction RPC n'existe pas encore — upsert direct
+          await admin.from("creator_balance").upsert({
+            creator_id,
+            balance: totalRevenue,
+            total_earned: totalRevenue,
+          });
+        }
       }
 
       processedCount++;
