@@ -16,7 +16,7 @@ final myFanSubscriptionProvider =
       .from('fan_subscription')
       .select()
       .eq('user_id', user.id)
-      .inFilter('status', ['active', 'pending'])
+      .in_('status', ['active', 'pending'])
       .maybeSingle();
 
   if (data == null) return null;

@@ -64,21 +64,25 @@ serve(async (req) => {
     }
 
     // 4. Remplacer les préférences culinaires
+    // cuisine_preferences est une liste de codes region (strings)
     await admin.from("user_cuisine_preference").delete().eq("user_id", user.id);
     if (cuisine_preferences?.length) {
       await admin.from("user_cuisine_preference").insert(
-        cuisine_preferences.map(({ region, score }: { region: string; score: number }) => ({
+        (cuisine_preferences as string[]).map((region) => ({
           user_id: user.id,
           region,
-          preference_score: score ?? 1.0,
+          preference_score: 1.0,
         })),
       );
     }
 
-    // 5. Marquer l'onboarding comme terminé
+    // 5. Mettre à jour le profil utilisateur (display_name + onboarding terminé)
     await admin
       .from("user_profile")
-      .update({ onboarding_done: true })
+      .update({
+        display_name: body.display_name ?? null,
+        onboarding_done: true,
+      })
       .eq("id", user.id);
 
     // 6. Déclencher le calcul du premier user_vector (non bloquant)
