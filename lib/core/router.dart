@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../providers/auth_provider.dart';
 import '../features/auth/auth_page.dart';
 import '../features/auth/onboarding_page.dart';
 import '../features/recipes/feed_page.dart';
@@ -17,45 +18,53 @@ import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
 import '../shared/widgets/main_shell.dart';
 
-// ---------------------------------------------------------------------------
 // Routes
-// ---------------------------------------------------------------------------
 
 abstract class AkeliRoutes {
-  static const auth = '/auth';
-  static const onboarding = '/onboarding';
-  static const home = '/home';
-  static const mealPlanner = '/meal-planner';
-  static const community = '/community';
-  static const profile = '/profile';
-  static const recipeDetail = '/recipe/:id';
-  static const shoppingList = '/shopping-list';
-  static const nutrition = '/nutrition';
-  static const fanMode = '/fan-mode';
-  static const subscription = '/subscription';
-  static const aiChat = '/ai-chat';
+  static const auth = "/auth";
+  static const onboarding = "/onboarding";
+  static const home = "/home";
+  static const mealPlanner = "/meal-planner";
+  static const community = "/community";
+  static const profile = "/profile";
+  static const recipeDetail = "/recipe/:id";
+  static const shoppingList = "/shopping-list";
+  static const nutrition = "/nutrition";
+  static const fanMode = "/fan-mode";
+  static const subscription = "/subscription";
+  static const aiChat = "/ai-chat";
 
-  static String recipeDetailPath(String id) => '/recipe/$id';
+  static String recipeDetailPath(String id) => "/recipe/$id";
 }
 
-// ---------------------------------------------------------------------------
+// RouterNotifier — triggers GoRouter refresh on auth state changes
+
+class _RouterNotifier extends ChangeNotifier {
+  _RouterNotifier(Ref ref) {
+    ref.listen(authStateProvider, (_, __) => notifyListeners());
+  }
+}
+
 // Router provider
-// ---------------------------------------------------------------------------
 
 final routerProvider = Provider<GoRouter>((ref) {
+  final notifier = _RouterNotifier(ref);
+
   return GoRouter(
     initialLocation: AkeliRoutes.home,
+    refreshListenable: notifier,
     redirect: (context, state) {
       final user = Supabase.instance.client.auth.currentUser;
       final isAuth = user != null;
       final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
+      final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
 
       if (!isAuth && !isOnAuthPage) return AkeliRoutes.auth;
       if (isAuth && isOnAuthPage) return AkeliRoutes.home;
+      if (isAuth && isOnOnboarding) return null;
       return null;
     },
     routes: [
-      // Pages hors shell (pas de bottom nav)
       GoRoute(
         path: AkeliRoutes.auth,
         builder: (context, state) => const AuthPage(),
@@ -67,7 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.recipeDetail,
         builder: (context, state) {
-          final id = state.pathParameters['id']!;
+          final id = state.pathParameters["id"]!;
           return RecipeDetailPage(recipeId: id);
         },
       ),
@@ -91,8 +100,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AkeliRoutes.aiChat,
         builder: (context, state) => const AiChatPage(),
       ),
-
-      // Shell avec bottom navigation bar
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
@@ -116,7 +123,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(child: Text('Page introuvable: ${state.error}')),
+      body: Center(child: Text("Page introuvable: ${state.error}")),
     ),
   );
 });
