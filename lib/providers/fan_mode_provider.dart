@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase_client.dart';
 import '../shared/models/creator.dart';
@@ -16,7 +17,7 @@ final myFanSubscriptionProvider =
       .from('fan_subscription')
       .select()
       .eq('user_id', user.id)
-      .in_('status', ['active', 'pending'])
+      .inFilter('status', ['active', 'pending'])
       .maybeSingle();
 
   if (data == null) return null;
