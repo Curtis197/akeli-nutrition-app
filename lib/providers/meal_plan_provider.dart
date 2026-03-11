@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/supabase_client.dart';
 import '../shared/models/meal_plan.dart';
