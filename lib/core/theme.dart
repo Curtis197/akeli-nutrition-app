@@ -96,12 +96,10 @@ ThemeData buildLightTheme() {
     primary: AkeliColors.primary,
     secondary: AkeliColors.secondary,
     tertiary: AkeliColors.tertiary,
-    background: AkeliColors.background,
     surface: AkeliColors.surface,
     error: AkeliColors.error,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: AkeliColors.textPrimary,
     onSurface: AkeliColors.textPrimary,
     brightness: Brightness.light,
   );
@@ -194,7 +192,7 @@ ThemeData buildLightTheme() {
     ),
     chipTheme: ChipThemeData(
       backgroundColor: AkeliColors.background,
-      selectedColor: AkeliColors.primary.withOpacity(0.15),
+      selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
       labelStyle: GoogleFonts.nunito(fontSize: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.full),
@@ -217,11 +215,9 @@ ThemeData buildDarkTheme() {
     seedColor: AkeliColors.primary,
     primary: AkeliColors.primary,
     secondary: AkeliColors.secondary,
-    background: AkeliColors.backgroundDark,
     surface: AkeliColors.surfaceDark,
     error: AkeliColors.error,
     onPrimary: Colors.white,
-    onBackground: AkeliColors.textPrimaryDark,
     onSurface: AkeliColors.textPrimaryDark,
     brightness: Brightness.dark,
   );
