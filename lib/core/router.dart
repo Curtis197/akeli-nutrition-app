@@ -16,6 +16,7 @@ import '../features/fan_mode/fan_mode_page.dart';
 import '../features/subscription/subscription_page.dart';
 import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
+import '../features/placeholders.dart';
 import '../shared/widgets/main_shell.dart';
 
 // Routes
@@ -25,6 +26,7 @@ abstract class AkeliRoutes {
   static const onboarding = "/onboarding";
   static const home = "/home";
   static const mealPlanner = "/meal-planner";
+  static const recipes = "/recipes";
   static const community = "/community";
   static const profile = "/profile";
   static const recipeDetail = "/recipe/:id";
@@ -33,8 +35,16 @@ abstract class AkeliRoutes {
   static const fanMode = "/fan-mode";
   static const subscription = "/subscription";
   static const aiChat = "/ai-chat";
+  static const dietPlan = "/diet-plan";
+  static const notifications = "/notifications";
+  static const mealDetail = "/meal/:id";
+  static const groupChat = "/group/:id";
+  static const groupDetail = "/group/:id/detail";
 
   static String recipeDetailPath(String id) => "/recipe/$id";
+  static String mealDetailPath(String id) => "/meal/$id";
+  static String groupChatPath(String id) => "/group/$id";
+  static String groupDetailPath(String id) => "/group/$id/detail";
 }
 
 // RouterNotifier — triggers GoRouter refresh on auth state changes
@@ -100,30 +110,63 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AkeliRoutes.aiChat,
         builder: (context, state) => const AiChatPage(),
       ),
+      GoRoute(
+        path: AkeliRoutes.profile,
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.dietPlan,
+        builder: (context, state) => const DietPlanPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.notifications,
+        builder: (context, state) => const NotificationsPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.mealDetail,
+        builder: (context, state) {
+          final id = state.pathParameters["id"]!;
+          return MealDetailPage(mealId: id);
+        },
+      ),
+      GoRoute(
+        path: AkeliRoutes.groupChat,
+        builder: (context, state) {
+          final id = state.pathParameters["id"]!;
+          return GroupChatPage(groupId: id);
+        },
+      ),
+      GoRoute(
+        path: AkeliRoutes.groupDetail,
+        builder: (context, state) {
+          final id = state.pathParameters["id"]!;
+          return GroupDetailPage(groupId: id);
+        },
+      ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
           GoRoute(
             path: AkeliRoutes.home,
-            builder: (context, state) => const FeedPage(),
+            builder: (context, state) => const HomePage(),
           ),
           GoRoute(
             path: AkeliRoutes.mealPlanner,
             builder: (context, state) => const MealPlannerPage(),
           ),
           GoRoute(
-            path: AkeliRoutes.community,
-            builder: (context, state) => const CommunityPage(),
+            path: AkeliRoutes.recipes,
+            builder: (context, state) => const FeedPage(),
           ),
           GoRoute(
-            path: AkeliRoutes.profile,
-            builder: (context, state) => const ProfilePage(),
+            path: AkeliRoutes.community,
+            builder: (context, state) => const CommunityPage(),
           ),
         ],
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
-      body: Center(child: Text("Page introuvable: ${state.error}")),
+      body: Center(child: Text("Page introuvable: \${state.error}")),
     ),
   );
 });

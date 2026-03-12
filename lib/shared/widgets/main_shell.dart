@@ -12,26 +12,26 @@ class MainShell extends StatelessWidget {
     _TabItem(
       route: AkeliRoutes.home,
       icon: Icons.home_outlined,
-      activeIcon: Icons.home_rounded,
-      label: 'Accueil',
+      activeIcon: Icons.home,
+      label: 'Home',
     ),
     _TabItem(
       route: AkeliRoutes.mealPlanner,
-      icon: Icons.calendar_today_outlined,
-      activeIcon: Icons.calendar_today_rounded,
-      label: 'Repas',
+      icon: Icons.restaurant_menu_outlined,
+      activeIcon: Icons.restaurant_menu,
+      label: 'Meals',
+    ),
+    _TabItem(
+      route: AkeliRoutes.recipes,
+      icon: Icons.menu_book_outlined,
+      activeIcon: Icons.menu_book,
+      label: 'Recipes',
     ),
     _TabItem(
       route: AkeliRoutes.community,
-      icon: Icons.people_outline_rounded,
-      activeIcon: Icons.people_rounded,
-      label: 'Communauté',
-    ),
-    _TabItem(
-      route: AkeliRoutes.profile,
-      icon: Icons.person_outline_rounded,
-      activeIcon: Icons.person_rounded,
-      label: 'Profil',
+      icon: Icons.people_outlined,
+      activeIcon: Icons.people,
+      label: 'Community',
     ),
   ];
 
@@ -48,6 +48,16 @@ class MainShell extends StatelessWidget {
     final activeIndex = _activeIndex(context);
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outlined),
+            onPressed: () => context.go(AkeliRoutes.profile),
+            tooltip: 'Profile',
+          ),
+        ],
+      ),
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: activeIndex,
