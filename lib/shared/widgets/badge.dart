@@ -69,7 +69,7 @@ class AkeliMacroBadge extends StatelessWidget {
       case MacroType.carbs:
         return AkeliColors.secondary.withValues(alpha: 0.8);
       case MacroType.fat:
-        return const Color(0xFFE74C3C);
+        return AkeliColors.error;
     }
   }
 

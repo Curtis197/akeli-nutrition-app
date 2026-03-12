@@ -45,7 +45,7 @@ class AkeliMealCard extends StatelessWidget {
               child: Container(
                 height: 80,
                 width: double.infinity,
-                color: const Color(0xFFF0F0F0),
+                color: AkeliColors.background,
                 child: Center(
                   child: Text(
                     emoji ?? '',

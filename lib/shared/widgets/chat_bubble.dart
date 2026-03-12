@@ -43,7 +43,7 @@ class AkeliChatBubble extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               decoration: BoxDecoration(
-                color: isSent ? const Color(0xFFE3F0FF) : AkeliColors.surface,
+                color: isSent ? AkeliColors.info.withValues(alpha: 0.15) : AkeliColors.surface,
                 boxShadow: isSent ? null : const [AkeliShadows.sm],
                 borderRadius: isSent
                     ? const BorderRadius.only(
@@ -78,7 +78,7 @@ class AkeliChatBubble extends StatelessWidget {
                 ),
                 if (isSent && isRead) ...[
                   const SizedBox(width: 4),
-                  const Icon(Icons.done_all, size: 12, color: AkeliColors.primary),
+                  const Icon(Icons.done_all, size: 12, color: AkeliColors.success),
                 ],
               ],
             ),
