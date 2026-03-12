@@ -52,7 +52,7 @@ class MainShell extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outlined),
+            icon: const Icon(Icons.person_outline),
             onPressed: () => context.go(AkeliRoutes.profile),
             tooltip: 'Profile',
           ),

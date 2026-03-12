@@ -135,13 +135,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters["id"]!;
           return GroupChatPage(groupId: id);
         },
-      ),
-      GoRoute(
-        path: AkeliRoutes.groupDetail,
-        builder: (context, state) {
-          final id = state.pathParameters["id"]!;
-          return GroupDetailPage(groupId: id);
-        },
+        routes: [
+          GoRoute(
+            path: 'detail',
+            builder: (context, state) {
+              final id = state.pathParameters["id"]!;
+              return GroupDetailPage(groupId: id);
+            },
+          ),
+        ],
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
