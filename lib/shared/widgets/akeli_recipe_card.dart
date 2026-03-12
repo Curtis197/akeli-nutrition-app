@@ -74,7 +74,7 @@ class _ImageVariant extends StatelessWidget {
               Container(
                 height: 120,
                 width: double.infinity,
-                color: const Color(0xFFE8F5F0),
+                color: AkeliColors.primary.withValues(alpha: 0.08),
                 child: Center(
                   child: Text(
                     card.emoji ?? '',
@@ -199,7 +199,7 @@ class _StatsRow extends StatelessWidget {
           card.rating.toStringAsFixed(1),
           style: Theme.of(context).textTheme.labelSmall,
         ),
-        const Spacer(),
+        const SizedBox(width: 8),
         const Icon(Icons.favorite_border, size: 14, color: AkeliColors.primary),
         const SizedBox(width: 2),
         Text(
