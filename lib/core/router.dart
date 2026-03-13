@@ -17,6 +17,7 @@ import '../features/subscription/subscription_page.dart';
 import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/placeholders.dart';
+import '../features/home/home_page.dart';
 import '../shared/widgets/main_shell.dart';
 
 // Routes
