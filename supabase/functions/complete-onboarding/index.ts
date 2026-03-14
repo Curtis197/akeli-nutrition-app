@@ -15,6 +15,8 @@ serve(async (req) => {
 
     const body = await req.json();
     const {
+      first_name,
+      last_name,
       sex,
       birth_date,
       height_cm,
@@ -76,11 +78,12 @@ serve(async (req) => {
       );
     }
 
-    // 5. Mettre à jour le profil utilisateur (display_name + onboarding terminé)
+    // 5. Mettre à jour le profil utilisateur (first_name, last_name + onboarding terminé)
     await admin
       .from("user_profile")
       .update({
-        display_name: body.display_name ?? null,
+        first_name,
+        last_name,
         onboarding_done: true,
       })
       .eq("id", user.id);

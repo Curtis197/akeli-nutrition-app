@@ -326,9 +326,9 @@ class _CreatorCard extends StatelessWidget {
                 children: [
                   Text(creator.displayName,
                       style: Theme.of(context).textTheme.titleSmall),
-                  if (creator.specialty != null)
+                  if (creator.specialties.isNotEmpty)
                     Text(
-                      creator.specialty!,
+                      creator.specialties.join(' • '),
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall

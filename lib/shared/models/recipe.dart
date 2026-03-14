@@ -64,8 +64,10 @@ class Recipe {
         title: json['title'] as String,
         description: json['description'] as String?,
         thumbnailUrl: json['cover_image_url'] as String?,
-        imageUrls:
-            (json['image_urls'] as List<dynamic>?)?.cast<String>() ?? [],
+        imageUrls: (json['recipe_image'] as List<dynamic>?)
+                ?.map((e) => e['url'] as String)
+                .toList() ??
+            [],
         prepTimeMin: (json['prep_time_min'] as int?) ?? 0,
         cookTimeMin: (json['cook_time_min'] as int?) ?? 0,
         servings: (json['servings'] as int?) ?? 1,

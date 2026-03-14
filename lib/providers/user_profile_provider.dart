@@ -58,7 +58,9 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
   }
 
   Future<void> updateProfile({
-    String? displayName,
+    String? username,
+    String? firstName,
+    String? lastName,
     String? bio,
     String? avatarUrl,
   }) async {
@@ -67,7 +69,9 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
 
     final updates = <String, dynamic>{
       'updated_at': DateTime.now().toIso8601String(),
-      if (displayName != null) 'display_name': displayName,
+      if (username != null) 'username': username,
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
       if (bio != null) 'bio': bio,
       if (avatarUrl != null) 'avatar_url': avatarUrl,
     };

@@ -46,8 +46,8 @@ class ProfilePage extends ConsumerWidget {
                               : null,
                           child: profile?.avatarUrl == null
                               ? Text(
-                                  (profile?.displayName?.isNotEmpty == true
-                                          ? profile!.displayName![0]
+                                  (profile != null && profile.displayName.isNotEmpty
+                                          ? profile.displayName[0]
                                           : 'A')
                                       .toUpperCase(),
                                   style: const TextStyle(
@@ -337,7 +337,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
     super.initState();
     final profile = ref.read(userProfileProvider).valueOrNull;
     if (profile != null) {
-      _nameCtrl.text = profile.displayName ?? '';
+      _nameCtrl.text = profile.username ?? '';
       _bioCtrl.text = profile.bio ?? '';
     }
   }
@@ -412,7 +412,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
     setState(() => _saving = true);
     try {
       await ref.read(userProfileNotifierProvider.notifier).updateProfile(
-            displayName: _nameCtrl.text.trim(),
+            username: _nameCtrl.text.trim(),
             bio: _bioCtrl.text.trim(),
           );
       if (mounted) Navigator.pop(context);

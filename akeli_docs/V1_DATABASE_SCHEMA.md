@@ -57,6 +57,7 @@ CREATE TABLE user_profile (
   locale          text DEFAULT 'fr',        -- fr | en | es | pt | wo | bm | ln
   is_creator      boolean DEFAULT false,
   onboarding_done boolean DEFAULT false,
+  role            text DEFAULT 'user',      -- user | admin
   created_at      timestamptz DEFAULT now(),
   updated_at      timestamptz DEFAULT now()
 );
