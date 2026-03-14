@@ -16,7 +16,11 @@ import '../features/fan_mode/fan_mode_page.dart';
 import '../features/subscription/subscription_page.dart';
 import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
-import '../features/placeholders.dart';
+import '../features/meal_planner/meal_detail_page.dart';
+import '../features/diet_plan/diet_plan_page.dart';
+import '../features/notifications/notifications_page.dart';
+import '../features/community/group_chat_page.dart';
+import '../features/community/group_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../shared/widgets/main_shell.dart';
 

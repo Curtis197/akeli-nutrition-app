@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akeli — Détail de la Recette</title>
+<link rel="stylesheet" href="shared-design-system.css">
+<style>
+  .recipe-title {
+    font-size: 22px; font-weight: 900;
+    color: var(--green); padding: 0 20px 14px;
+    line-height: 1.25;
+  }
+
+  .img-slider {
+    position: relative; overflow: hidden;
+    margin: 0 20px; border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .img-slider .food-emoji {
+    width: 100%; height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    background: linear-gradient(135deg, #e8dcc8, #d4c5a9);
+    border-radius: var(--radius-md);
+  }
+  .slider-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--dark); cursor: pointer;
+  }
+  .slider-arrow.left  { left: 8px; }
+  .slider-arrow.right { right: 8px; }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px; margin-bottom: 10px; }
+
+  .tag-row-light { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px; margin-bottom: 14px; }
+  .tag-light {
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--grey-light);
+    font-size: 12px; font-weight: 700; color: var(--grey);
+  }
+
+  .meta-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 12px; padding: 0 20px;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--grey); }
+  .meta-item svg { width: 16px; height: 16px; }
+
+  .meal-type-tag {
+    display: flex; flex-direction: column;
+    align-items: center; margin-bottom: 16px;
+  }
+  .meal-type-icon { font-size: 22px; margin-bottom: 2px; }
+  .meal-type-label { font-size: 13px; font-weight: 700; color: var(--purple); }
+
+  .consumed-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px 14px;
+  }
+  .consumed-label { font-size: 14px; font-weight: 800; color: var(--black); }
+
+  .section-block { padding: 0 20px; margin-bottom: 16px; }
+
+  .sub-section-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--purple); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .comment-row { margin-bottom: 14px; }
+  .comment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .comment-user { font-size: 13px; font-weight: 800; color: var(--black); }
+  .comment-time { font-size: 11px; font-weight: 600; color: var(--grey); }
+  .comment-text { font-size: 13px; font-weight: 600; color: var(--dark); padding-left: 2px; margin-bottom: 4px; }
+
+  .creator-card {
+    border: 1.5px solid var(--purple-light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 20px 20px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .creator-name { font-size: 14px; font-weight: 800; color: var(--purple); }
+  .creator-label { font-size: 11px; font-weight: 600; color: var(--grey); }
+
+  .similar-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  .similar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .similar-card { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--white); text-decoration: none; }
+  .similar-card .s-img { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 36px; background: linear-gradient(135deg, #e8dcc8, #d4c5a9); }
+  .similar-card .s-name { padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--black); }
+
+  /* Helper for semantic lists */
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .list-container.mb-14 { margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<!-- ========== SCREEN 1: Recipe header + macros ========== -->
+<div class="phone-shell">
+  <div class="notch"></div>
+  <div class="status-bar white">
+    <span class="status-time">10:59</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- Back button + green header bar -->
+  <div class="header-green">
+    <a href="javascript:history.back()" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+  </div>
+
+  <div class="scroll-content padded" style="padding: 16px 0 20px;">
+
+    <!-- Recipe title -->
+    <div class="recipe-title">SAUCE ARACHIDE –<br>RIZ BLANC</div>
+
+    <!-- Image slider -->
+    <div class="img-slider">
+      <div class="food-emoji">🍛</div>
+      <div class="slider-arrow left">‹</div>
+      <div class="slider-arrow right">›</div>
+    </div>
+
+    <!-- Macro badges -->
+    <div class="badge-row">
+      <span class="badge badge-orange">3450 kcal</span>
+      <span class="badge badge-purple">190 g protéine</span>
+      <span class="badge badge-purple">250 g de glucide</span>
+      <span class="badge badge-purple">200 g de lipide</span>
+    </div>
+
+    <!-- Meta row -->
+    <div class="meta-row">
+      <div class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        0 h 30 min
+      </div>
+      <div class="meta-item">Difficulté &nbsp;<strong style="color: var(--dark);">Modéré</strong></div>
+    </div>
+
+    <!-- Meal type -->
+    <div class="meal-type-tag">
+      <div class="meal-type-icon">🍔</div>
+      <div class="meal-type-label">Déjeuner</div>
+    </div>
+
+    <!-- Tags light -->
+    <div class="tag-row-light">
+      <span class="tag-light">Riche en fibres</span>
+      <span class="tag-light">Repas familiaux</span>
+      <span class="tag-light">Prise de muscle</span>
+      <span class="tag-light">Prise de poids</span>
+    </div>
+
+    <!-- CTA -->
+    <div style="padding: 0 20px 16px;">
+      <button class="btn btn-green btn-full">Ajouter au calendrier</button>
+    </div>
+
+    <!-- Stars + rating -->
+    <div style="text-align: center; margin-bottom: 16px;">
+      <div class="stars" style="justify-content: center; font-size: 22px; margin-bottom: 4px;">
+        <span class="star filled">★</span><span class="star filled">★</span>
+        <span class="star filled">★</span><span class="star filled">★</span>
+        <span class="star empty">★</span>
+      </div>
+      <div style="font-size: 12px; color: var(--grey); font-weight: 600;">1 avis donnés</div>
+      <a href="#" style="font-size: 12px; color: var(--grey); font-weight: 600; text-decoration: underline; cursor: pointer;">Voir tous les avis</a>
+    </div>
+
+    <!-- Description -->
+    <div class="section-block">
+      <div class="section-title green">Description</div>
+      <p style="font-size: 13px; color: var(--grey); font-weight: 600; line-height: 1.6;">recette hyper rassasiante</p>
+    </div>
+
+    <!-- Ingredients -->
+    <div class="section-block">
+      <div class="section-title orange">Ingredients</div>
+      <div class="sub-section-title">POUR LA SAUCE</div>
+      <ul class="list-container">
+        <li class="ingredient-row"><span class="ingredient-qty">500 g</span><span class="ingredient-name">Poulet</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">1</span><span class="ingredient-name">Poisson fumé</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">3</span><span class="ingredient-name">Tomates fraîches</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">3</span><span class="ingredient-name">Oignons</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">2</span><span class="ingredient-name">Piment frais</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty" style="font-size:12px;">10 g</span><span class="ingredient-name">Tomate concentré</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty" style="font-size:12px;">5 ml</span><span class="ingredient-name">Huile</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">2</span><span class="ingredient-name">Cube d'assaisonnement</span></li>
+      </ul>
+    </div>
+
+    <!-- Etapes -->
+    <div class="section-block">
+      <div class="section-title purple">Etapes</div>
+      <div class="sub-section-title">Pour la sauce</div>
+      <ul class="list-container mb-14">
+        <li class="step-row"><span class="step-num">1</span><span class="step-text">Retirer les légumes et les mixer (ne pas mixer le piment), ajouter la mixture dans la sauce, laisser cuire environ 15 MIN</span></li>
+        <li class="step-row"><span class="step-num">2</span><span class="step-text">Mettre le poisson fumé, la poudre de poisson, poudre crevette. Ajouter un peu d'eau si nécessaire</span></li>
+        <li class="step-row"><span class="step-num">3</span><span class="step-text">Ajouter 100ml d'eau si nécessaire, mettre le cube d'assaisonnement restant et du sel</span></li>
+        <li class="step-row"><span class="step-num">4</span><span class="step-text">Retirer du feu une fois le poulet cuit</span></li>
+      </ul>
+      <div class="sub-section-title">POUR LE RIZ</div>
+      <ul class="list-container">
+        <li class="step-row"><span class="step-num">1</span><span class="step-text">Dans l'auto cuiseur ou une cocotte, le riz, l'eau et une pincée de sel. Laisser cuire environ 20 min, retirer du feu une fois le riz est cuit</span></li>
+      </ul>
+    </div>
+
+    <!-- Comments -->
+    <div class="section-block">
+      <div class="section-title" style="font-size: 16px; font-weight: 900; color: var(--black);">Commentaire de la recette</div>
+      <a href="#" style="font-size: 11px; color: var(--grey); font-weight: 600; text-align: center; text-decoration: underline; margin-bottom: 14px; cursor: pointer; display: block;">Voir tous les commentaires</a>
+      <div class="comment-row">
+        <div class="comment-header">
+          <div class="avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div>
+            <div class="comment-user">Curtis</div>
+            <div class="comment-time">il y a environ 5 mois</div>
+          </div>
+        </div>
+        <div class="comment-text">j'ai beaucoup aimé</div>
+        <div class="stars" style="font-size: 14px;">
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star empty">★</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; color: var(--orange); font-weight: 700;">
+          <span>🧡</span> 1 J'aime
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div style="display: flex; flex-direction: column; gap: 10px; padding: 0 20px 16px; align-items: center;">
+      <button class="btn btn-green" style="width: 180px;">Commenter</button>
+      <button class="btn btn-green" style="width: 220px;">Ajouter au calendrier</button>
+    </div>
+
+    <!-- Similar recipes -->
+    <div class="section-block">
+      <div class="section-title">Recette similaire</div>
+      <div class="similar-filter">
+        <div class="tag active">Riche en fibres</div>
+        <div class="tag">Repas familiaux</div>
+        <div class="tag">Prise de muscle</div>
+        <div class="tag">Prise de poids</div>
+      </div>
+      <div class="similar-grid">
+        <a href="#" class="similar-card">
+          <div class="s-img">🍛</div>
+          <div class="s-name">SAUCE ARACHIDE – RIZ</div>
+        </a>
+        <a href="#" class="similar-card">
+          <div class="s-img">🥬</div>
+          <div class="s-name">Sauce Pklala – Riz</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Creator -->
+    <div style="text-align: center; margin-bottom: 10px; font-size: 12px; color: var(--grey); font-weight: 600;">créée par</div>
+    <a href="#" class="creator-card">
+      <div class="avatar" style="width: 46px; height: 46px; border-radius: 50%; overflow: hidden; background: #d4e8d4; flex-shrink:0;">
+        <span style="font-size: 28px;">🌳</span>
+      </div>
+      <div>
+        <div class="creator-name">Victoire</div>
+        <div class="creator-label">Créatrice de recettes</div>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>

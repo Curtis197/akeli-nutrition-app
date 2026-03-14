@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akeli — Notifications</title>
+<link rel="stylesheet" href="shared-design-system.css">
+<style>
+  .notif-card {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .notif-sender {
+    font-size: 14px; font-weight: 800;
+    color: var(--green); margin-bottom: 4px;
+  }
+  .notif-content {
+    font-size: 13px; font-weight: 600;
+    color: var(--dark); margin-bottom: 4px;
+  }
+  .notif-time {
+    font-size: 11px; font-weight: 600;
+    color: var(--grey);
+  }
+
+  /* Repas notification */
+  .notif-meal {
+    display: flex; align-items: center;
+    gap: 14px; background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .notif-meal-icon {
+    width: 48px; height: 48px; border-radius: var(--radius-sm);
+    background: var(--cream); display: flex; align-items: center;
+    justify-content: center; font-size: 28px; flex-shrink: 0;
+  }
+  .notif-meal-info { flex: 1; }
+  .notif-meal-title { font-size: 14px; font-weight: 800; color: var(--black); margin-bottom: 2px; }
+  .notif-meal-sub { font-size: 12px; font-weight: 600; color: var(--grey); }
+
+  /* Demande row */
+  .notif-request {
+    display: flex; align-items: center;
+    gap: 12px; background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 14px 16px; margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .notif-request-info { flex: 1; }
+  .notif-request-name { font-size: 14px; font-weight: 800; color: var(--black); margin-bottom: 2px; }
+  .notif-request-sub { font-size: 12px; font-weight: 600; color: var(--grey); }
+  .notif-request-actions { display: flex; gap: 8px; }
+  .btn-accept { background: var(--green); color: var(--white); border: none; border-radius: var(--radius-pill); padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .btn-decline { background: var(--cream); color: var(--grey); border: none; border-radius: var(--radius-pill); padding: 7px 14px; font-size: 12px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- ========== SCREEN 1: Chat tab (active) ========== -->
+<div class="phone-shell" style="background: var(--cream);">
+  <div class="notch"></div>
+  <div class="status-bar green-bg">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <div class="header-green">
+    <div class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="header-title">Notifications</div>
+  </div>
+
+  <!-- 3-tab bar -->
+  <div style="display: flex; background: var(--cream); border-bottom: 1px solid #ddd; flex-shrink: 0;">
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Repas</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 800; color: var(--black); border-bottom: 2px solid var(--green);">Chat 1</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Demande</div>
+  </div>
+
+  <div class="scroll-content" style="background: var(--cream); padding: 14px 16px;">
+    <div class="notif-card">
+      <div class="notif-sender">Curtis &nbsp;vous a envoyé un message</div>
+      <div class="notif-content">test 20</div>
+      <div class="notif-time">il y a environ un mois</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN 2: Repas tab ========== -->
+<div class="phone-shell" style="background: var(--cream);">
+  <div class="notch"></div>
+  <div class="status-bar green-bg">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <div class="header-green">
+    <div class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="header-title">Notifications</div>
+  </div>
+
+  <div style="display: flex; background: var(--cream); border-bottom: 1px solid #ddd; flex-shrink: 0;">
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 800; color: var(--black); border-bottom: 2px solid var(--green);">Repas</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Chat</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Demande</div>
+  </div>
+
+  <div class="scroll-content" style="background: var(--cream); padding: 14px 16px;">
+    <div class="notif-meal">
+      <div class="notif-meal-icon">🥚</div>
+      <div class="notif-meal-info">
+        <div class="notif-meal-title">Rappel petit-déjeuner</div>
+        <div class="notif-meal-sub">N'oubliez pas vos oeuf mollets · il y a 2h</div>
+      </div>
+    </div>
+    <div class="notif-meal">
+      <div class="notif-meal-icon">🍛</div>
+      <div class="notif-meal-info">
+        <div class="notif-meal-title">Rappel déjeuner</div>
+        <div class="notif-meal-sub">Sauce Arachide – Riz planifié à 13h · hier</div>
+      </div>
+    </div>
+    <div class="notif-meal">
+      <div class="notif-meal-icon">📋</div>
+      <div class="notif-meal-info">
+        <div class="notif-meal-title">Plan de repas généré</div>
+        <div class="notif-meal-sub">Votre plan pour la semaine est prêt · il y a 3 jours</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN 3: Demande tab ========== -->
+<div class="phone-shell" style="background: var(--cream);">
+  <div class="notch"></div>
+  <div class="status-bar green-bg">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <div class="header-green">
+    <div class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="header-title">Notifications</div>
+  </div>
+
+  <div style="display: flex; background: var(--cream); border-bottom: 1px solid #ddd; flex-shrink: 0;">
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Repas</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 600; color: var(--grey);">Chat</div>
+    <div style="flex: 1; text-align: center; padding: 12px 0; font-size: 14px; font-weight: 800; color: var(--black); border-bottom: 2px solid var(--green);">Demande</div>
+  </div>
+
+  <div class="scroll-content" style="background: var(--cream); padding: 14px 16px;">
+    <div class="notif-request">
+      <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div class="notif-request-info">
+        <div class="notif-request-name">Amara Diallo</div>
+        <div class="notif-request-sub">souhaite rejoindre melun sport · il y a 2 jours</div>
+      </div>
+      <div class="notif-request-actions">
+        <button class="btn-accept">✓</button>
+        <button class="btn-decline">✕</button>
+      </div>
+    </div>
+    <div class="notif-request">
+      <div class="avatar" style="width: 44px; height: 44px; flex-shrink: 0;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+      <div class="notif-request-info">
+        <div class="notif-request-name">Fatou Sow</div>
+        <div class="notif-request-sub">vous envoie une demande de conversation · il y a 1 semaine</div>
+      </div>
+      <div class="notif-request-actions">
+        <button class="btn-accept">✓</button>
+        <button class="btn-decline">✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
