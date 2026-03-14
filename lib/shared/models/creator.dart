@@ -7,7 +7,7 @@ class Creator {
   final String displayName;
   final String? avatarUrl;
   final String? bio;
-  final String? specialty;
+  final List<String> specialties;
   final int recipeCount;
   final int fanCount;
   final bool isFanEligible; // recipe_count >= 30
@@ -21,7 +21,7 @@ class Creator {
     required this.displayName,
     this.avatarUrl,
     this.bio,
-    this.specialty,
+    required this.specialties,
     required this.recipeCount,
     required this.fanCount,
     required this.isFanEligible,
@@ -36,7 +36,7 @@ class Creator {
         displayName: json['display_name'] as String,
         avatarUrl: json['avatar_url'] as String?,
         bio: json['bio'] as String?,
-        specialty: json['specialty'] as String?,
+        specialties: (json['specialties'] as List<dynamic>?)?.cast<String>() ?? [],
         recipeCount: (json['recipe_count'] as int?) ?? 0,
         fanCount: (json['fan_count'] as int?) ?? 0,
         isFanEligible: (json['is_fan_eligible'] as bool?) ?? false,

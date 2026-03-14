@@ -3,56 +3,72 @@ import 'package:flutter/foundation.dart';
 @immutable
 class UserProfile {
   final String id;
-  final String? displayName;
+  final String? username;
+  final String? firstName;
+  final String? lastName;
   final String? avatarUrl;
   final String? bio;
   final String? email;
+  final String role; // user | admin
   final bool onboardingDone;
   final bool isCreator;
-  final String? preferredLanguage;
+  final String locale; // fr | en | ...
   final DateTime createdAt;
 
   const UserProfile({
     required this.id,
-    this.displayName,
+    this.username,
+    this.firstName,
+    this.lastName,
     this.avatarUrl,
     this.bio,
     this.email,
+    this.role = 'user',
     required this.onboardingDone,
     required this.isCreator,
-    this.preferredLanguage,
+    this.locale = 'fr',
     required this.createdAt,
   });
 
+  String get displayName =>
+      username ?? (firstName != null ? '$firstName ${lastName ?? ''}' : '');
+
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
         id: json['id'] as String,
-        displayName: json['display_name'] as String?,
+        username: json['username'] as String?,
+        firstName: json['first_name'] as String?,
+        lastName: json['last_name'] as String?,
         avatarUrl: json['avatar_url'] as String?,
         bio: json['bio'] as String?,
         email: json['email'] as String?,
+        role: json['role'] as String? ?? 'user',
         onboardingDone: (json['onboarding_done'] as bool?) ?? false,
         isCreator: (json['is_creator'] as bool?) ?? false,
-        preferredLanguage: json['preferred_language'] as String?,
+        locale: json['locale'] as String? ?? 'fr',
         createdAt: DateTime.parse(json['created_at'] as String),
       );
 
   UserProfile copyWith({
-    String? displayName,
+    String? username,
+    String? firstName,
+    String? lastName,
     String? avatarUrl,
     String? bio,
     bool? onboardingDone,
     bool? isCreator,
-    String? preferredLanguage,
+    String? locale,
   }) =>
       UserProfile(
         id: id,
-        displayName: displayName ?? this.displayName,
+        username: username ?? this.username,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
         avatarUrl: avatarUrl ?? this.avatarUrl,
         bio: bio ?? this.bio,
         email: email,
         onboardingDone: onboardingDone ?? this.onboardingDone,
         isCreator: isCreator ?? this.isCreator,
-        preferredLanguage: preferredLanguage ?? this.preferredLanguage,
+        locale: locale ?? this.locale,
         createdAt: createdAt,
       );
 }
@@ -60,7 +76,8 @@ class UserProfile {
 @immutable
 class HealthProfile {
   final String userId;
-  final int? age;
+  final DateTime? birthDate;
+  final String? sex;
   final double? weightKg;
   final double? heightCm;
   final double? targetWeightKg;
@@ -71,7 +88,8 @@ class HealthProfile {
 
   const HealthProfile({
     required this.userId,
-    this.age,
+    this.birthDate,
+    this.sex,
     this.weightKg,
     this.heightCm,
     this.targetWeightKg,
@@ -83,7 +101,10 @@ class HealthProfile {
 
   factory HealthProfile.fromJson(Map<String, dynamic> json) => HealthProfile(
         userId: json['user_id'] as String,
-        age: json['age'] as int?,
+        birthDate: json['birth_date'] != null
+            ? DateTime.parse(json['birth_date'] as String)
+            : null,
+        sex: json['sex'] as String?,
         weightKg: (json['weight_kg'] as num?)?.toDouble(),
         heightCm: (json['height_cm'] as num?)?.toDouble(),
         targetWeightKg: (json['target_weight_kg'] as num?)?.toDouble(),
@@ -96,6 +117,17 @@ class HealthProfile {
             (json['cuisine_preferences'] as List<dynamic>?)?.cast<String>() ??
                 [],
       );
+
+  int? get age {
+    if (birthDate == null) return null;
+    final today = DateTime.now();
+    int age = today.year - birthDate!.year;
+    if (today.month < birthDate!.month ||
+        (today.month == birthDate!.month && today.day < birthDate!.day)) {
+      age--;
+    }
+    return age;
+  }
 
   double? get bmi {
     if (weightKg == null || heightCm == null || heightCm! <= 0) return null;
