@@ -18,7 +18,7 @@ class FeedPage extends ConsumerStatefulWidget {
 class _FeedPageState extends ConsumerState<FeedPage> {
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
-  int _offset = 0;
+  final int _offset = 0;
   static const _pageSize = 20;
 
   @override
