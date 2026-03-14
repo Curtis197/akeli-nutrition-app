@@ -23,6 +23,7 @@ import '../features/community/group_chat_page.dart';
 import '../features/community/group_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../shared/widgets/main_shell.dart';
+import '../features/recipes/domain/entities/recipe_tracking.dart';
 
 // Routes
 
@@ -91,8 +92,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.recipeDetail,
         builder: (context, state) {
-          final id = state.pathParameters["id"]!;
-          return RecipeDetailPage(recipeId: id);
+          final recipeId = state.pathParameters['id']!;
+          final source = state.extra as TrackingSource? ?? TrackingSource.feed;
+          return RecipeDetailPage(recipeId: recipeId, source: source);
         },
       ),
       GoRoute(

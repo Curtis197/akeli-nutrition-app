@@ -7,6 +7,7 @@ import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
 import '../../shared/widgets/empty_state.dart';
+import 'domain/entities/recipe_tracking.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
   const FeedPage({super.key});
@@ -171,8 +172,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     emoji: null,
                     region: recipe.regionId,
                     tags: recipe.tagIds.take(2).toList(),
-                    onTap: () => context
-                        .push(AkeliRoutes.recipeDetailPath(recipe.id)),
+                    onTap: () => context.push(
+                      AkeliRoutes.recipeDetailPath(recipe.id),
+                      extra: TrackingSource.feed,
+                    ),
                   );
                 },
               ),
