@@ -4,6 +4,7 @@ import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/meal_plan.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/shopping_row.dart';
 
 class ShoppingListPage extends ConsumerStatefulWidget {
   const ShoppingListPage({super.key});
@@ -21,8 +22,11 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
     final listAsync = ref.watch(shoppingListProvider);
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
         title: const Text('Liste de courses'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         actions: [
           listAsync.whenOrNull(
             data: (items) => items.isNotEmpty
@@ -68,7 +72,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
               // Summary header
               Container(
                 padding: const EdgeInsets.all(AkeliSpacing.md),
-                color: AkeliColors.primary.withOpacity(0.05),
+                color: AkeliColors.primary.withValues(alpha: 0.05),
                 child: Row(
                   children: [
                     const Icon(Icons.shopping_basket_outlined,
@@ -101,9 +105,14 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                             _checkedState[i.ingredientId] == true)
                         .length;
 
-                    return Card(
+                    return Container(
                       margin:
                           const EdgeInsets.only(bottom: AkeliSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: AkeliColors.surface,
+                        borderRadius: BorderRadius.circular(AkeliRadius.md),
+                        boxShadow: const [AkeliShadows.sm],
+                      ),
                       clipBehavior: Clip.antiAlias,
                       child: Column(
                         children: [
@@ -145,13 +154,22 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                           if (isExpanded) ...[
                             const Divider(height: 1),
                             ...catItems.map(
-                              (item) => _ShoppingItemTile(
-                                item: item,
-                                isChecked:
-                                    _checkedState[item.ingredientId] ?? false,
-                                onChanged: (v) => setState(() =>
-                                    _checkedState[item.ingredientId] = v),
-                              ),
+                              (item) {
+                                final isChecked = _checkedState[item.ingredientId] ?? false;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: AkeliSpacing.md),
+                                  child: AkeliShoppingRow(
+                                    quantity:
+                                        '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1)} ${item.unit}',
+                                    ingredient: item.name,
+                                    checked: isChecked,
+                                    onToggle: () => setState(() =>
+                                        _checkedState[item.ingredientId] =
+                                            !isChecked),
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ],
@@ -193,47 +211,9 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
 
   void _shareList(List<ShoppingItem> items) {
     // Share functionality placeholder
-    final text = items
-        .map((i) =>
-            '${_checkedState[i.ingredientId] == true ? '✓' : '□'} ${i.name} — ${i.quantity.toStringAsFixed(1)} ${i.unit}')
-        .join('\n');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Partage en cours de développement')),
     );
   }
 }
 
-class _ShoppingItemTile extends StatelessWidget {
-  final ShoppingItem item;
-  final bool isChecked;
-  final ValueChanged<bool> onChanged;
-
-  const _ShoppingItemTile({
-    required this.item,
-    required this.isChecked,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return CheckboxListTile(
-      value: isChecked,
-      onChanged: (v) => onChanged(v ?? false),
-      title: Text(
-        item.name,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              decoration: isChecked ? TextDecoration.lineThrough : null,
-              color: isChecked ? AkeliColors.textSecondary : null,
-            ),
-      ),
-      subtitle: Text(
-        '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1)} ${item.unit}',
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AkeliColors.textSecondary,
-            ),
-      ),
-      activeColor: AkeliColors.primary,
-      dense: true,
-    );
-  }
-}

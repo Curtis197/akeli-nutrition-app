@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
-import '../../providers/auth_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Model
@@ -151,7 +150,10 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
     final hasLoading = messages.any((m) => m.isLoading);
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         title: const Row(
           children: [
             CircleAvatar(
@@ -396,7 +398,7 @@ class _MessageBubble extends StatelessWidget {
                     : Border.all(color: const Color(0xFFE0E0E0)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),

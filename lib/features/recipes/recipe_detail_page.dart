@@ -31,6 +31,7 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
     final recipeAsync = ref.watch(recipeDetailProvider(widget.recipeId));
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       body: recipeAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => ErrorState(
