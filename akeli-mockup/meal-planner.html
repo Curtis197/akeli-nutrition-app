@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akeli — Meal Planner</title>
+<link rel="stylesheet" href="shared-design-system.css">
+<style>
+  .planner-header {
+    background: var(--white);
+    text-align: center;
+    padding: 14px 20px 16px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--grey-light);
+  }
+  .planner-title {
+    font-size: 22px; font-weight: 900;
+    color: var(--green); margin-bottom: 8px;
+  }
+  .planner-link {
+    font-size: 13px; font-weight: 600; color: var(--grey);
+    text-decoration: underline; cursor: pointer;
+    display: block; margin-bottom: 4px;
+  }
+
+  /* Add collation block */
+  .add-collation {
+    background: var(--white);
+    padding: 18px 20px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+  .add-collation-title {
+    font-size: 16px; font-weight: 800;
+    color: var(--black); text-align: center; margin-bottom: 14px;
+  }
+  .add-collation-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .add-collation-label {
+    font-size: 14px; font-weight: 600; color: var(--dark);
+  }
+
+  /* Day section */
+  .day-section { padding: 16px 0 4px; }
+
+  .day-label {
+    font-size: 16px; font-weight: 800;
+    color: var(--orange); text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .day-all-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 0 20px; margin-bottom: 10px;
+    font-size: 13px; font-weight: 600; color: var(--dark);
+  }
+
+  /* Horizontal scroll for meal cards */
+  .day-meals-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 0 20px 4px;
+  }
+  .day-meals-scroll::-webkit-scrollbar { display: none; }
+
+  /* Meal card for planner */
+  .planner-meal-card {
+    flex-shrink: 0;
+    width: 200px;
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    position: relative;
+  }
+  .planner-meal-card .p-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    background: linear-gradient(135deg, #e8dcc8, #d4c5a9);
+  }
+  .planner-meal-card .p-checkbox {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 24px; height: 24px;
+    border-radius: 5px;
+    border: 2px solid var(--green);
+    background: rgba(255,255,255,0.9);
+  }
+  .planner-meal-card .p-info {
+    padding: 10px 12px 12px;
+  }
+  .planner-meal-card .p-name {
+    font-size: 13px; font-weight: 800;
+    color: var(--orange); margin-bottom: 3px;
+    line-height: 1.3;
+  }
+  .planner-meal-card .p-kcal {
+    font-size: 12px; font-weight: 700; color: var(--orange);
+    margin-bottom: 3px;
+  }
+  .planner-meal-card .p-type {
+    font-size: 12px; font-weight: 700; color: var(--purple);
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  .day-divider {
+    height: 1px;
+    background: var(--grey-light);
+    margin: 14px 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-shell" style="background: var(--white);">
+  <div class="notch"></div>
+  <div class="status-bar white">
+    <span class="status-time">11:33</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="planner-header">
+    <div class="planner-title">Vos repas de la semaine</div>
+    <a class="planner-link">Voir mon plan diététique</a>
+    <a class="planner-link">Voir ma liste de course</a>
+  </div>
+
+  <!-- Add collation -->
+  <div class="add-collation">
+    <div class="add-collation-title">Ajouter une collation</div>
+    <div class="add-collation-row">
+      <span class="add-collation-label">Personnel</span>
+      <div class="checkbox"></div>
+    </div>
+    <div style="text-align: center;">
+      <button class="btn btn-green" style="width: 140px;">Ajouter</button>
+    </div>
+  </div>
+
+  <!-- Scrollable content -->
+  <div class="scroll-content" style="background: var(--white); padding: 0;">
+
+    <!-- Day: jeudi 12 mars -->
+    <div class="day-section">
+      <div class="day-label">jeudi 12 mars</div>
+      <div class="day-all-row">
+        <span>Vous avez mangé tous les repas du jour</span>
+        <div class="checkbox"></div>
+      </div>
+      <div class="day-meals-scroll">
+
+        <div class="planner-meal-card">
+          <div class="p-img">🥚</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">oeuf mollets</div>
+            <div class="p-kcal">400 kcal</div>
+            <div class="p-type"><span>☀️</span> Petit-Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🥜</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Sauce Pistache – Fufu</div>
+            <div class="p-kcal">600 kcal</div>
+            <div class="p-type"><span>🍔</span> Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🍲</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Thiéboudienne</div>
+            <div class="p-kcal">500 kcal</div>
+            <div class="p-type"><span>🌙</span> Dîner</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="day-divider"></div>
+
+    <!-- Day: vendredi 13 mars -->
+    <div class="day-section">
+      <div class="day-label">vendredi 13 mars</div>
+      <div class="day-all-row">
+        <span>Vous avez mangé tous les repas du jour</span>
+        <div class="checkbox"></div>
+      </div>
+      <div class="day-meals-scroll">
+
+        <div class="planner-meal-card">
+          <div class="p-img">🥩</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">SAUCE GOUAGOUASSOU –</div>
+            <div class="p-kcal">400 kcal</div>
+            <div class="p-type"><span>☀️</span> Petit-Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🍃</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Sauce Pkla – Riz</div>
+            <div class="p-kcal">600 kcal</div>
+            <div class="p-type"><span>🍔</span> Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🍛</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Riz Gras Ivoirien</div>
+            <div class="p-kcal">550 kcal</div>
+            <div class="p-type"><span>🌙</span> Dîner</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="day-divider"></div>
+
+    <!-- Day: samedi 14 mars -->
+    <div class="day-section">
+      <div class="day-label">samedi 14 mars</div>
+      <div class="day-all-row">
+        <span>Vous avez mangé tous les repas du jour</span>
+        <div class="checkbox"></div>
+      </div>
+      <div class="day-meals-scroll">
+
+        <div class="planner-meal-card">
+          <div class="p-img">🦐</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Soupe du Pêcheur – Atieké</div>
+            <div class="p-kcal">400 kcal</div>
+            <div class="p-type"><span>☀️</span> Petit-Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🍜</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Bouillon de bœuf</div>
+            <div class="p-kcal">600 kcal</div>
+            <div class="p-type"><span>🍔</span> Déjeuner</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="day-divider"></div>
+
+    <!-- Day: dimanche 15 mars -->
+    <div class="day-section" style="padding-bottom: 20px;">
+      <div class="day-label">dimanche 15 mars</div>
+      <div class="day-all-row">
+        <span>Vous avez mangé tous les repas du jour</span>
+        <div class="checkbox"></div>
+      </div>
+      <div class="day-meals-scroll">
+
+        <div class="planner-meal-card">
+          <div class="p-img">🥚</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">oeuf mollets</div>
+            <div class="p-kcal">400 kcal</div>
+            <div class="p-type"><span>☀️</span> Petit-Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🥜</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">Sauce Arachide – Riz</div>
+            <div class="p-kcal">550 kcal</div>
+            <div class="p-type"><span>🍔</span> Déjeuner</div>
+          </div>
+        </div>
+
+        <div class="planner-meal-card">
+          <div class="p-img">🍲</div>
+          <div class="p-checkbox"></div>
+          <div class="p-info">
+            <div class="p-name">FONDE – Riz blanc</div>
+            <div class="p-kcal">480 kcal</div>
+            <div class="p-type"><span>🌙</span> Dîner</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB -->
+  <div class="fab">✦</div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav cream">
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon active" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div class="nav-dot"></div>
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    </div>
+    <div class="nav-item">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

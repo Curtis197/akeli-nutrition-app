@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akeli — Détail du Repas</title>
+<link rel="stylesheet" href="shared-design-system.css">
+<style>
+  .recipe-title {
+    font-size: 22px; font-weight: 900;
+    color: var(--green); padding: 0 20px 14px;
+    line-height: 1.25;
+  }
+
+  .img-slider {
+    position: relative; overflow: hidden;
+    margin: 0 20px; border-radius: var(--radius-md);
+    margin-bottom: 16px;
+  }
+  .img-slider .food-emoji {
+    width: 100%; height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    background: linear-gradient(135deg, #e8dcc8, #d4c5a9);
+    border-radius: var(--radius-md);
+  }
+  .slider-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: var(--dark); cursor: pointer;
+  }
+  .slider-arrow.left  { left: 8px; }
+  .slider-arrow.right { right: 8px; }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px; margin-bottom: 10px; }
+
+  .tag-row-light { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 20px; margin-bottom: 14px; }
+  .tag-light {
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    border: 1.5px solid var(--grey-light);
+    font-size: 12px; font-weight: 700; color: var(--grey);
+  }
+
+  .meta-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 12px; padding: 0 20px;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--grey); }
+  .meta-item svg { width: 16px; height: 16px; }
+
+  .meal-type-tag {
+    display: flex; flex-direction: column;
+    align-items: center; margin-bottom: 16px;
+  }
+  .meal-type-icon { font-size: 22px; margin-bottom: 2px; }
+  .meal-type-label { font-size: 13px; font-weight: 700; color: var(--purple); }
+
+  .consumed-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px 14px;
+  }
+  .consumed-label { font-size: 14px; font-weight: 800; color: var(--black); }
+
+  .section-block { padding: 0 20px; margin-bottom: 16px; }
+
+  .sub-section-title {
+    font-size: 13px; font-weight: 700;
+    color: var(--purple); margin-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .comment-row { margin-bottom: 14px; }
+  .comment-header { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .comment-user { font-size: 13px; font-weight: 800; color: var(--black); }
+  .comment-time { font-size: 11px; font-weight: 600; color: var(--grey); }
+  .comment-text { font-size: 13px; font-weight: 600; color: var(--dark); padding-left: 2px; margin-bottom: 4px; }
+
+  .creator-card {
+    border: 1.5px solid var(--purple-light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 12px;
+    margin: 0 20px 20px;
+    cursor: pointer;
+  }
+  .creator-name { font-size: 14px; font-weight: 800; color: var(--purple); }
+  .creator-label { font-size: 11px; font-weight: 600; color: var(--grey); }
+
+  .similar-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+
+  .similar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .similar-card { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--white); text-decoration: none; }
+  .similar-card .s-img { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 36px; background: linear-gradient(135deg, #e8dcc8, #d4c5a9); }
+  .similar-card .s-name { padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--black); }
+
+  /* Helper for semantic lists */
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .list-container.mb-20 { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ========== SCREEN 2: Meal detail (from meal planner) ========== -->
+<div class="phone-shell">
+  <div class="notch"></div>
+  <div class="status-bar white">
+    <span class="status-time">11:33</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- Back (green arrow, no full header) -->
+  <div style="padding: 8px 20px 0; flex-shrink: 0;">
+    <a href="javascript:history.back()" style="color: var(--green); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 700; text-decoration: none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+  </div>
+
+  <div class="scroll-content" style="padding: 8px 0 20px;">
+
+    <!-- Title green centered -->
+    <div style="text-align: center; font-size: 18px; font-weight: 900; color: var(--green); margin-bottom: 14px; padding: 0 20px;">oeuf mollets</div>
+
+    <!-- Image -->
+    <div class="img-slider" style="margin: 0 20px 16px;">
+      <div class="food-emoji" style="height: 180px; border-radius: var(--radius-md);">🥚</div>
+      <div class="slider-arrow left">‹</div>
+      <div class="slider-arrow right">›</div>
+    </div>
+
+    <!-- Meal type label -->
+    <div style="text-align: center; font-size: 15px; font-weight: 800; color: var(--black); margin-bottom: 4px;">Petit-Déjeuner</div>
+    <div style="text-align: center; font-size: 12px; color: var(--grey); font-weight: 600; margin-bottom: 14px;">jeudi 12 mars</div>
+
+    <!-- Consumed checkbox -->
+    <div class="consumed-row">
+      <span class="consumed-label">Vous avez consommé ce repas</span>
+      <div class="checkbox"></div>
+    </div>
+
+    <!-- Meta -->
+    <div class="meta-row" style="margin-bottom: 12px;">
+      <div class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        0 h 25 min
+      </div>
+      <div class="meta-item">Difficulté &nbsp;<strong style="color: var(--dark);">N/C</strong></div>
+    </div>
+
+    <!-- Macro badges -->
+    <div class="badge-row">
+      <span class="badge badge-orange">400 kcal</span>
+      <span class="badge badge-purple">27 g protéine</span>
+      <span class="badge badge-purple">7 g de glucide</span>
+      <span class="badge badge-purple">30 g de lipide</span>
+    </div>
+
+    <!-- Tags light -->
+    <div class="tag-row-light" style="margin-top: 10px;">
+      <span class="tag-light">Pauvre en graisses</span>
+      <span class="tag-light">Faible calories</span>
+      <span class="tag-light">Sans gluten</span>
+    </div>
+
+    <!-- Description -->
+    <div class="section-block" style="margin-top: 10px;">
+      <div class="section-title">Description</div>
+      <p style="font-size: 13px; color: var(--grey); font-weight: 600; line-height: 1.6;">Un œuf mollet parfaitement cuit, avec un jaune encore coulant, servi sur du pain de campagne grillé.</p>
+    </div>
+
+    <!-- Ingredients -->
+    <div class="section-block">
+      <div class="section-title orange">Ingredients</div>
+      <ul class="list-container">
+        <li class="ingredient-row"><span class="ingredient-qty">4.5</span><span class="ingredient-name">citron</span></li>
+        <li class="ingredient-row"><span class="ingredient-qty">4.5</span><span class="ingredient-name">oeuf</span></li>
+      </ul>
+    </div>
+
+    <!-- Etapes -->
+    <div class="section-block">
+      <div class="section-title purple">Etapes</div>
+      <ul class="list-container mb-20">
+        <li class="step-row"><span class="step-num">2</span><span class="step-text">Laisser les œufs à température ambiante 1/2 h avant afin d'éviter la fêlure de la coquille avec l'eau chaude.</span></li>
+        <li class="step-row"><span class="step-num">3</span><span class="step-text">Déposer délicatement l'œuf dans l'eau frémissante et laisser 5 à 6 min.</span></li>
+        <li class="step-row"><span class="step-num">4</span><span class="step-text">Le retourner une ou deux fois de façon à avoir une cuisson homogène.</span></li>
+        <li class="step-row"><span class="step-num">5</span><span class="step-text">Retirer l'œuf de l'eau, le casser dans une assiette et apprécier avec une pointe de sel et quelques mouillettes.</span></li>
+      </ul>
+
+      <!-- Choose another recipe -->
+      <div style="text-align: center; margin-bottom: 14px;">
+        <div style="font-size: 15px; font-weight: 800; color: var(--black); margin-bottom: 10px;">Voulez-vous choisir une autre recette ?</div>
+        <button class="btn btn-green" style="width: 140px;">Choisir</button>
+      </div>
+      <div style="text-align: center; margin-bottom: 14px;">
+        <div style="font-size: 15px; font-weight: 800; color: var(--black); margin-bottom: 10px;">Voulez choisir un repas personnalisé ?</div>
+        <button class="btn btn-orange" style="width: 160px;">Personnaliser</button>
+      </div>
+    </div>
+
+    <!-- Similar -->
+    <div class="section-block">
+      <div class="section-title">Recette similaire</div>
+      <div class="similar-filter">
+        <div class="tag active">Pauvre en graisses</div>
+        <div class="tag">Faible calories</div>
+        <div class="tag">Sans gluten</div>
+      </div>
+      <div class="similar-grid">
+        <a href="#" class="similar-card">
+          <div class="s-img">🥚</div>
+          <div class="s-name">oeuf mollets</div>
+        </a>
+        <a href="#" class="similar-card">
+          <div class="s-img">🍛</div>
+          <div class="s-name">BAWOIN – RIZ BLANC</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
