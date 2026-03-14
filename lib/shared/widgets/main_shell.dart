@@ -65,7 +65,7 @@ class MainShell extends StatelessWidget {
           context.go(_tabs[index].route);
         },
         backgroundColor: AkeliColors.surface,
-        indicatorColor: AkeliColors.primary.withOpacity(0.12),
+        indicatorColor: AkeliColors.primary.withValues(alpha: 0.12),
         destinations: _tabs
             .map(
               (tab) => NavigationDestination(
