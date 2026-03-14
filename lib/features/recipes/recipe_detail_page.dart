@@ -6,11 +6,18 @@ import '../../providers/recipe_provider.dart';
 import '../../shared/models/recipe.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
+import 'domain/entities/recipe_tracking.dart';
+import 'presentation/providers/recipe_tracking_provider.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final String recipeId;
+  final TrackingSource source;
 
-  const RecipeDetailPage({super.key, required this.recipeId});
+  const RecipeDetailPage({
+    super.key,
+    required this.recipeId,
+    this.source = TrackingSource.feed,
+  });
 
   @override
   ConsumerState<RecipeDetailPage> createState() => _RecipeDetailPageState();
@@ -20,10 +27,40 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   int _currentImageIndex = 0;
   final _pageController = PageController();
 
+  // Tracking state
+  RecipeOpen? _currentOpen;
+
+  @override
+  void initState() {
+    super.initState();
+    _trackOpen();
+  }
+
+  Future<void> _trackOpen() async {
+    _currentOpen = await ref
+        .read(recipeTrackingRepositoryProvider)
+        .trackOpen(
+          recipeId: widget.recipeId,
+          source: widget.source,
+        );
+  }
+
   @override
   void dispose() {
+    _trackClose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _trackClose() {
+    final open = _currentOpen;
+    if (open == null) return;
+
+    // Fire-and-forget depuis dispose (pas d'async/await dans dispose)
+    ref.read(recipeTrackingRepositoryProvider).trackClose(
+          openId: open.id,
+          openedAt: open.openedAt,
+        );
   }
 
   @override
