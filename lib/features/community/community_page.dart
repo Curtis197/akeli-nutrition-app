@@ -5,6 +5,7 @@ import '../../core/router.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../shared/widgets/avatar.dart';
 
 // ---------------------------------------------------------------------------
 // Providers
@@ -34,7 +35,13 @@ class CommunityPage extends ConsumerWidget {
     final groupsAsync = ref.watch(communityGroupsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Communauté')),
+      backgroundColor: AkeliColors.background,
+      appBar: AppBar(
+        title: const Text('Communauté'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: groupsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Erreur: $err')),
@@ -45,53 +52,66 @@ class CommunityPage extends ConsumerWidget {
             );
           }
 
-          return ListView.separated(
+          return ListView.builder(
             padding: const EdgeInsets.all(AkeliSpacing.md),
             itemCount: groups.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: AkeliSpacing.sm),
             itemBuilder: (context, i) {
               final group = groups[i];
               final memberCount = (group['member_count'] as int?) ?? 0;
+              final name = group['name'] as String;
 
-              return Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: AkeliColors.primary.withValues(alpha: 0.15),
-                    backgroundImage: group['cover_url'] != null
-                        ? NetworkImage(group['cover_url'] as String)
-                        : null,
-                    child: group['cover_url'] == null
-                        ? const Icon(Icons.people_rounded,
-                            color: AkeliColors.primary)
-                        : null,
+              return InkWell(
+                onTap: () => context
+                    .go(AkeliRoutes.groupChatPath(group['id'] as String)),
+                borderRadius: BorderRadius.circular(AkeliRadius.md),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: AkeliSpacing.sm),
+                  padding: const EdgeInsets.all(AkeliSpacing.md),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surface,
+                    borderRadius: BorderRadius.circular(AkeliRadius.md),
+                    boxShadow: const [AkeliShadows.sm],
                   ),
-                  title: Text(group['name'] as String,
-                      style: Theme.of(context).textTheme.titleSmall),
-                  subtitle: group['description'] != null
-                      ? Text(
-                          group['description'] as String,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        )
-                      : null,
-                  trailing: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: Row(
                     children: [
-                      const Icon(Icons.people_outline_rounded,
-                          size: 14, color: AkeliColors.textSecondary),
-                      Text(
-                        '$memberCount',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: AkeliColors.textSecondary),
+                      AkeliAvatar(
+                        imageUrl: group['cover_url'] as String?,
+                        initials: name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase(),
+                        size: AvatarSize.md,
+                      ),
+                      const SizedBox(width: AkeliSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name,
+                                style: Theme.of(context).textTheme.titleSmall),
+                            if (group['description'] != null)
+                              Text(
+                                group['description'] as String,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.people_outline_rounded,
+                              size: 14, color: AkeliColors.textSecondary),
+                          Text(
+                            '$memberCount',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: AkeliColors.textSecondary),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  onTap: () => context
-                      .go(AkeliRoutes.groupChatPath(group['id'] as String)),
                 ),
               );
             },
@@ -105,6 +125,7 @@ class CommunityPage extends ConsumerWidget {
                 content: Text('Création de groupe — bientôt disponible')),
           );
         },
+        backgroundColor: AkeliColors.primary,
         child: const Icon(Icons.add),
       ),
     );

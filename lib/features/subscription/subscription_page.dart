@@ -13,7 +13,12 @@ class SubscriptionPage extends ConsumerWidget {
     final subAsync = ref.watch(subscriptionProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mon abonnement')),
+      backgroundColor: AkeliColors.background,
+      appBar: AppBar(
+        title: const Text('Mon abonnement'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(AkeliSpacing.lg),
         child: Column(
