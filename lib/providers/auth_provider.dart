@@ -36,10 +36,17 @@ class AuthNotifier extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await Supabase.instance.client.auth.signUp(
+      print('Auth Log: Attempting sign up for email: $email');
+      final response = await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
       );
+      print('Auth Log: Sign up response received. User ID: ${response.user?.id}');
+      
+      if (response.user != null && response.user!.emailConfirmedAt == null) {
+        print('Auth Log: Sign up successful, but email needs confirmation.');
+        throw Exception('signup_email_confirmation_required');
+      }
     });
   }
 
@@ -49,17 +56,31 @@ class AuthNotifier extends AsyncNotifier<void> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await Supabase.instance.client.auth.signInWithPassword(
+      print('Auth Log: Attempting sign in for email: $email');
+      final response = await Supabase.instance.client.auth.signInWithPassword(
         email: email,
         password: password,
       );
+      
+      final user = response.user;
+      print('Auth Log: Sign in response received for user: ${user?.id}');
+      
+      if (user != null && user.emailConfirmedAt == null) {
+        print('Auth Log: Email not confirmed for user: ${user.id}. Signing out.');
+        await Supabase.instance.client.auth.signOut();
+        throw Exception('email_not_confirmed');
+      }
+      
+      print('Auth Log: Sign in strictly successful, email is confirmed.');
     });
   }
 
   Future<void> signOut() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
+      print('Auth Log: Attempting sign out');
       await Supabase.instance.client.auth.signOut();
+      print('Auth Log: Sign out successful');
     });
   }
 

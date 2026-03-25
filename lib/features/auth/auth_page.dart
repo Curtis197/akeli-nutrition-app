@@ -93,6 +93,12 @@ class _AuthPageState extends ConsumerState<AuthPage>
     if (raw.contains('Password should be')) {
       return 'Le mot de passe doit contenir au moins 6 caractères.';
     }
+    if (raw.contains('email_not_confirmed') || raw.toLowerCase().contains('email not confirmed')) {
+      return 'Veuillez confirmer votre adresse email avant de vous connecter.';
+    }
+    if (raw.contains('signup_email_confirmation_required')) {
+      return 'Inscription réussie. Veuillez vérifier votre boîte mail pour confirmer votre compte.';
+    }
     return 'Une erreur est survenue. Réessayez.';
   }
 
