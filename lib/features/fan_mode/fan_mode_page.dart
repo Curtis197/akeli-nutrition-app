@@ -17,7 +17,12 @@ class FanModePage extends ConsumerWidget {
     final isPremium = ref.watch(isPremiumProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mode Fan')),
+      backgroundColor: AkeliColors.background,
+      appBar: AppBar(
+        title: const Text('Mode Fan'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
+      ),
       body: !isPremium
           ? _PremiumRequired()
           : CustomScrollView(
@@ -199,8 +204,8 @@ class _FanModeExplanation extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AkeliColors.primary.withOpacity(0.1),
-            AkeliColors.secondary.withOpacity(0.1),
+            AkeliColors.primary.withValues(alpha: 0.1),
+            AkeliColors.secondary.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -244,10 +249,10 @@ class _ActiveFanBanner extends StatelessWidget {
       margin: const EdgeInsets.all(AkeliSpacing.lg),
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       decoration: BoxDecoration(
-        color: AkeliColors.success.withOpacity(0.1),
+        color: AkeliColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AkeliRadius.lg),
         border:
-            Border.all(color: AkeliColors.success.withOpacity(0.3)),
+            Border.all(color: AkeliColors.success.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -305,7 +310,7 @@ class _CreatorCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 28,
-              backgroundColor: AkeliColors.primary.withOpacity(0.1),
+              backgroundColor: AkeliColors.primary.withValues(alpha: 0.1),
               backgroundImage: creator.avatarUrl != null
                   ? CachedNetworkImageProvider(creator.avatarUrl!)
                   : null,

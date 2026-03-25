@@ -1,14 +1,21 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/theme.dart';
 import '../../shared/models/recipe.dart';
+import '../../features/recipes/domain/entities/recipe_tracking.dart';
+import '../../features/recipes/presentation/providers/recipe_tracking_provider.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeCard extends ConsumerStatefulWidget {
   final Recipe recipe;
   final VoidCallback? onTap;
   final VoidCallback? onLike;
   final bool compact;
+  final TrackingSource source;
 
   const RecipeCard({
     super.key,
@@ -16,115 +23,151 @@ class RecipeCard extends StatelessWidget {
     this.onTap,
     this.onLike,
     this.compact = false,
+    this.source = TrackingSource.feed,
   });
+
+  @override
+  ConsumerState<RecipeCard> createState() => _RecipeCardState();
+}
+
+class _RecipeCardState extends ConsumerState<RecipeCard> {
+  bool _impressionLogged = false;
+  Timer? _visibilityTimer;
+
+  @override
+  void dispose() {
+    _visibilityTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onVisibilityChanged(VisibilityInfo info) {
+    if (info.visibleFraction >= 0.5 && !_impressionLogged) {
+      _visibilityTimer ??= Timer(const Duration(seconds: 1), () {
+        if (!_impressionLogged && mounted) {
+          _impressionLogged = true;
+          ref.read(recipeTrackingRepositoryProvider).trackImpression(
+                recipeId: widget.recipe.id,
+                source: widget.source,
+              );
+        }
+      });
+    } else if (info.visibleFraction < 0.5) {
+      _visibilityTimer?.cancel();
+      _visibilityTimer = null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            AspectRatio(
-              aspectRatio: compact ? 16 / 9 : 4 / 3,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (recipe.thumbnailUrl != null)
-                    CachedNetworkImage(
-                      imageUrl: recipe.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (_, __) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(color: Colors.white),
+    return VisibilityDetector(
+      key: Key('recipe-card-${widget.recipe.id}'),
+      onVisibilityChanged: _onVisibilityChanged,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image
+              AspectRatio(
+                aspectRatio: widget.compact ? 16 / 9 : 4 / 3,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (widget.recipe.thumbnailUrl != null)
+                      CachedNetworkImage(
+                        imageUrl: widget.recipe.thumbnailUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white),
+                        ),
+                        errorWidget: (_, __, ___) => _PlaceholderImage(),
+                      )
+                    else
+                      _PlaceholderImage(),
+                    // Like button
+                    Positioned(
+                      top: AkeliSpacing.sm,
+                      right: AkeliSpacing.sm,
+                      child: _LikeButton(
+                        isLiked: widget.recipe.isLiked,
+                        onTap: widget.onLike,
                       ),
-                      errorWidget: (_, __, ___) => _PlaceholderImage(),
-                    )
-                  else
-                    _PlaceholderImage(),
-                  // Like button
-                  Positioned(
-                    top: AkeliSpacing.sm,
-                    right: AkeliSpacing.sm,
-                    child: _LikeButton(
-                      isLiked: recipe.isLiked,
-                      onTap: onLike,
                     ),
-                  ),
-                  // Duration badge
-                  Positioned(
-                    bottom: AkeliSpacing.sm,
-                    left: AkeliSpacing.sm,
-                    child: _DurationBadge(minutes: recipe.totalTimeMin),
-                  ),
-                ],
+                    // Duration badge
+                    Positioned(
+                      bottom: AkeliSpacing.sm,
+                      left: AkeliSpacing.sm,
+                      child: _DurationBadge(minutes: widget.recipe.totalTimeMin),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // Content
-            Padding(
-              padding: const EdgeInsets.all(AkeliSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    recipe.title,
-                    style: textTheme.titleMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (!compact) ...[
+              // Content
+              Padding(
+                padding: const EdgeInsets.all(AkeliSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.recipe.title,
+                      style: textTheme.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (!widget.compact) ...[
+                      const SizedBox(height: AkeliSpacing.xs),
+                      Row(
+                        children: [
+                          if (widget.recipe.calories != null) ...[
+                            _MacroBadge(
+                              label: '${widget.recipe.calories!.toInt()} kcal',
+                              color: AkeliColors.secondary,
+                            ),
+                            const SizedBox(width: AkeliSpacing.xs),
+                          ],
+                          if (widget.recipe.proteinG != null)
+                            _MacroBadge(
+                              label: '${widget.recipe.proteinG!.toInt()}g prot.',
+                              color: AkeliColors.primary,
+                            ),
+                          const Spacer(),
+                          _DifficultyChip(difficulty: widget.recipe.difficulty),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: AkeliSpacing.xs),
                     Row(
                       children: [
-                        if (recipe.calories != null) ...[
-                          _MacroBadge(
-                            label: '${recipe.calories!.toInt()} kcal',
-                            color: AkeliColors.secondary,
+                        const Icon(
+                          Icons.star_rounded,
+                          size: 14,
+                          color: AkeliColors.secondary,
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          widget.recipe.averageRating.toStringAsFixed(1),
+                          style: textTheme.labelSmall,
+                        ),
+                        const SizedBox(width: AkeliSpacing.xs),
+                        Text(
+                          '(${widget.recipe.ratingCount})',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: AkeliColors.textSecondary,
                           ),
-                          const SizedBox(width: AkeliSpacing.xs),
-                        ],
-                        if (recipe.proteinG != null)
-                          _MacroBadge(
-                            label: '${recipe.proteinG!.toInt()}g prot.',
-                            color: AkeliColors.primary,
-                          ),
-                        const Spacer(),
-                        _DifficultyChip(difficulty: recipe.difficulty),
+                        ),
                       ],
                     ),
                   ],
-                  const SizedBox(height: AkeliSpacing.xs),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 14,
-                        color: AkeliColors.secondary,
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        recipe.averageRating.toStringAsFixed(1),
-                        style: textTheme.labelSmall,
-                      ),
-                      const SizedBox(width: AkeliSpacing.xs),
-                      Text(
-                        '(${recipe.ratingCount})',
-                        style: textTheme.labelSmall?.copyWith(
-                          color: AkeliColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -155,7 +198,7 @@ class _LikeButton extends StatelessWidget {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -181,7 +224,7 @@ class _DurationBadge extends StatelessWidget {
         vertical: 2,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.6),
+        color: Colors.black.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(AkeliRadius.full),
       ),
       child: Row(
@@ -216,7 +259,7 @@ class _MacroBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AkeliRadius.full),
       ),
       child: Text(
@@ -267,7 +310,7 @@ class _DifficultyChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: _color.withOpacity(0.12),
+        color: _color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AkeliRadius.full),
       ),
       child: Text(

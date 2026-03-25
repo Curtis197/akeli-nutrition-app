@@ -108,6 +108,7 @@ class _AuthPageState extends ConsumerState<AuthPage>
     final isLoading = authState.isLoading;
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -149,11 +150,11 @@ class _AuthPageState extends ConsumerState<AuthPage>
                           padding: const EdgeInsets.all(AkeliSpacing.sm),
                           margin: const EdgeInsets.only(bottom: AkeliSpacing.md),
                           decoration: BoxDecoration(
-                            color: AkeliColors.error.withOpacity(0.1),
+                            color: AkeliColors.error.withValues(alpha: 0.1),
                             borderRadius:
                                 BorderRadius.circular(AkeliRadius.sm),
                             border: Border.all(
-                                color: AkeliColors.error.withOpacity(0.3)),
+                                color: AkeliColors.error.withValues(alpha: 0.3)),
                           ),
                           child: Row(
                             children: [

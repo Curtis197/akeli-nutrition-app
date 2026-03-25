@@ -32,8 +32,11 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
         title: const Text('Nutrition'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -306,11 +309,6 @@ class _WaterTrackerState extends State<_WaterTracker> {
       ],
     );
   }
-}
-
-class _WeekSection extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
 }
 
 class _WeightSection extends ConsumerWidget {

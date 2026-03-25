@@ -15,8 +15,11 @@ class MealPlannerPage extends ConsumerWidget {
     final planAsync = ref.watch(activeMealPlanProvider);
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
         title: const Text('Mes repas'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
@@ -271,7 +274,7 @@ class _EmptySlot extends StatelessWidget {
       padding: const EdgeInsets.all(AkeliSpacing.md),
       decoration: BoxDecoration(
         border: Border.all(
-            color: AkeliColors.primary.withOpacity(0.3), width: 1.5,
+            color: AkeliColors.primary.withValues(alpha: 0.3), width: 1.5,
             style: BorderStyle.solid),
         borderRadius: BorderRadius.circular(AkeliRadius.md),
       ),
@@ -315,17 +318,17 @@ class _FilledSlot extends StatelessWidget {
         padding: const EdgeInsets.all(AkeliSpacing.md),
         decoration: BoxDecoration(
           color: entry.isConsumed
-              ? AkeliColors.success.withOpacity(0.08)
+              ? AkeliColors.success.withValues(alpha: 0.08)
               : AkeliColors.surface,
           borderRadius: BorderRadius.circular(AkeliRadius.md),
           border: Border.all(
             color: entry.isConsumed
-                ? AkeliColors.success.withOpacity(0.4)
+                ? AkeliColors.success.withValues(alpha: 0.4)
                 : const Color(0xFFE0E0E0),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),

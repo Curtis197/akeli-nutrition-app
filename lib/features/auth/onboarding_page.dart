@@ -100,7 +100,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
           TextButton(
@@ -132,7 +135,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   count: 4,
                   effect: ExpandingDotsEffect(
                     activeDotColor: AkeliColors.primary,
-                    dotColor: AkeliColors.primary.withOpacity(0.3),
+                    dotColor: AkeliColors.primary.withValues(alpha: 0.3),
                     dotHeight: 8,
                     dotWidth: 8,
                   ),
@@ -438,7 +441,7 @@ class _SelectionTile extends StatelessWidget {
         padding: const EdgeInsets.all(AkeliSpacing.md),
         decoration: BoxDecoration(
           color: selected
-              ? AkeliColors.primary.withOpacity(0.1)
+              ? AkeliColors.primary.withValues(alpha: 0.1)
               : AkeliColors.surface,
           borderRadius: BorderRadius.circular(AkeliRadius.md),
           border: Border.all(

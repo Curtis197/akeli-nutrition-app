@@ -22,7 +22,7 @@ dependencies:
   # Navigation — GoRouter avec auth guards
   go_router: ^14.2.7
 
-  # Fonts — Outfit (display) + Poppins (body)
+  # Fonts — Nunito
   google_fonts: ^6.2.1
 
   # Images
@@ -40,6 +40,9 @@ dependencies:
   # Internationalisation
   intl: ^0.20.0
 
+
+  # Tracking — visibility detection for recipe impression events
+  visibility_detector: ^0.4.0
 
   # Utils
   timeago: ^3.6.1
