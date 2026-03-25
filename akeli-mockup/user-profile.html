@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akeli — Profil Utilisateur</title>
+<link rel="stylesheet" href="shared-design-system.css">
+<style>
+  /* Cream top section */
+  .profile-top {
+    background: var(--cream);
+    padding: 16px 20px 0;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .back-btn-green-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; margin-bottom: 12px;
+  }
+  .profile-avatar-wrap {
+    display: flex; justify-content: center; margin-bottom: 12px;
+  }
+  .profile-avatar {
+    width: 110px; height: 110px; border-radius: 50%;
+    border: 3px solid var(--orange);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .profile-name {
+    font-size: 20px; font-weight: 900;
+    color: var(--black); text-align: center;
+    margin-bottom: 16px;
+  }
+
+  /* White card slides up from bottom */
+  .profile-card {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    flex: 1; display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  }
+  .profile-bio {
+    font-size: 13px; font-weight: 600; color: var(--grey);
+    padding: 18px 20px 0;
+  }
+
+  /* 3-tab profile */
+  .profile-tabs {
+    display: flex; border-bottom: 1px solid var(--grey-light);
+    margin: 12px 0 0; flex-shrink: 0;
+  }
+  .profile-tab {
+    flex: 1; text-align: center; padding: 12px 0;
+    font-size: 14px; font-weight: 600; color: var(--grey);
+    cursor: pointer;
+  }
+  .profile-tab.active {
+    font-weight: 800; color: var(--black);
+    border-bottom: 2px solid var(--black);
+  }
+
+  /* Favoris list row */
+  .fav-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--grey-light);
+  }
+  .fav-info { flex: 1; }
+  .fav-name { font-size: 16px; font-weight: 800; color: var(--black); margin-bottom: 2px; }
+  .fav-sub  { font-size: 13px; font-weight: 600; color: var(--grey); }
+  .fav-img  {
+    width: 70px; height: 70px; border-radius: var(--radius-sm);
+    object-fit: cover; background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; flex-shrink: 0;
+  }
+
+  /* Groupe list row */
+  .groupe-row {
+    display: flex; align-items: center;
+    gap: 14px; padding: 16px 20px;
+    border-bottom: 1px solid var(--grey-light);
+    cursor: pointer;
+  }
+  .groupe-info { flex: 1; }
+  .groupe-name { font-size: 14px; font-weight: 800; color: var(--black); margin-bottom: 2px; }
+  .groupe-sub  { font-size: 12px; font-weight: 600; color: var(--grey); }
+  .groupe-members { font-size: 11px; font-weight: 700; color: var(--green); }
+
+  /* Commentaire row */
+  .comment-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--grey-light);
+  }
+  .comment-item-recipe { font-size: 13px; font-weight: 800; color: var(--green); margin-bottom: 4px; }
+  .comment-item-text   { font-size: 13px; font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .comment-item-meta   { font-size: 11px; font-weight: 600; color: var(--grey); }
+</style>
+</head>
+<body>
+
+<!-- ========== SCREEN 1: Favoris tab ========== -->
+<div class="phone-shell" style="background: var(--cream); display: flex; flex-direction: column;">
+  <div class="notch"></div>
+  <div class="status-bar white" style="background: var(--cream);">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <!-- Profile top (cream bg) -->
+  <div class="profile-top">
+    <div class="back-btn-green-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">
+        <svg viewBox="0 0 24 24" fill="var(--dark)" width="56" height="56"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+    </div>
+    <div class="profile-name">Victoire</div>
+  </div>
+
+  <!-- White card -->
+  <div class="profile-card">
+    <div class="profile-bio">Fondatrice Soya Afro Health Devoue</div>
+
+    <div class="profile-tabs">
+      <div class="profile-tab active">Favoris</div>
+      <div class="profile-tab">Groupe</div>
+      <div class="profile-tab">Commentaire</div>
+    </div>
+
+    <div style="overflow-y: auto; flex: 1;">
+      <div class="fav-row">
+        <div class="fav-info">
+          <div class="fav-name">oeuf mollets</div>
+          <div class="fav-sub">test</div>
+        </div>
+        <div class="fav-img">🥚</div>
+      </div>
+      <div class="fav-row">
+        <div class="fav-info">
+          <div class="fav-name">test</div>
+          <div class="fav-sub">test 2</div>
+        </div>
+        <div class="fav-img">🍛</div>
+      </div>
+      <div class="fav-row">
+        <div class="fav-info">
+          <div class="fav-name">Sauce Arachide – Riz</div>
+          <div class="fav-sub">Afrique de l'ouest</div>
+        </div>
+        <div class="fav-img">🥜</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN 2: Groupe tab ========== -->
+<div class="phone-shell" style="background: var(--cream); display: flex; flex-direction: column;">
+  <div class="notch"></div>
+  <div class="status-bar white" style="background: var(--cream);">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <div class="profile-top">
+    <div class="back-btn-green-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">
+        <svg viewBox="0 0 24 24" fill="var(--dark)" width="56" height="56"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+    </div>
+    <div class="profile-name">Victoire</div>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-bio">Fondatrice Soya Afro Health Devoue</div>
+    <div class="profile-tabs">
+      <div class="profile-tab">Favoris</div>
+      <div class="profile-tab active">Groupe</div>
+      <div class="profile-tab">Commentaire</div>
+    </div>
+    <div style="overflow-y: auto; flex: 1;">
+      <div class="groupe-row">
+        <div class="avatar" style="width: 46px; height: 46px; flex-shrink: 0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="groupe-info">
+          <div class="groupe-name">melun sport</div>
+          <div class="groupe-sub">Groupe de discussion situé a Melun</div>
+          <div class="groupe-members">3 membres</div>
+        </div>
+        <div style="font-size: 18px; color: var(--dark);">›</div>
+      </div>
+      <div class="groupe-row">
+        <div class="avatar" style="width: 46px; height: 46px; flex-shrink: 0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="groupe-info">
+          <div class="groupe-name">melun lebon</div>
+          <div class="groupe-sub">c'est la vie</div>
+          <div class="groupe-members">2 membres</div>
+        </div>
+        <div style="font-size: 18px; color: var(--dark);">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== SCREEN 3: Commentaire tab ========== -->
+<div class="phone-shell" style="background: var(--cream); display: flex; flex-direction: column;">
+  <div class="notch"></div>
+  <div class="status-bar white" style="background: var(--cream);">
+    <span class="status-time">10:58</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="1" y="16" width="3" height="7" rx="1"/><rect x="6" y="11" width="3" height="12" rx="1"/><rect x="11" y="6" width="3" height="17" rx="1"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="18" height="10" rx="2"/><rect x="3" y="8" width="13" height="8" rx="1" fill="currentColor" stroke="none"/></svg>
+    </div>
+  </div>
+
+  <div class="profile-top">
+    <div class="back-btn-green-circle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+    </div>
+    <div class="profile-avatar-wrap">
+      <div class="profile-avatar">
+        <svg viewBox="0 0 24 24" fill="var(--dark)" width="56" height="56"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+      </div>
+    </div>
+    <div class="profile-name">Victoire</div>
+  </div>
+
+  <div class="profile-card">
+    <div class="profile-bio">Fondatrice Soya Afro Health Devoue</div>
+    <div class="profile-tabs">
+      <div class="profile-tab">Favoris</div>
+      <div class="profile-tab">Groupe</div>
+      <div class="profile-tab active">Commentaire</div>
+    </div>
+    <div style="overflow-y: auto; flex: 1;">
+      <div class="comment-item">
+        <div class="comment-item-recipe">SAUCE ARACHIDE – RIZ BLANC</div>
+        <div class="comment-item-text">j'ai beaucoup aimé</div>
+        <div class="stars" style="font-size: 14px; margin-bottom: 4px;">
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star empty">★</span>
+        </div>
+        <div class="comment-item-meta">il y a environ 5 mois</div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-item-recipe">oeuf mollets</div>
+        <div class="comment-item-text">Très bonne recette, simple et rapide</div>
+        <div class="stars" style="font-size: 14px; margin-bottom: 4px;">
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star filled">★</span><span class="star filled">★</span>
+          <span class="star filled">★</span>
+        </div>
+        <div class="comment-item-meta">il y a environ 3 mois</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

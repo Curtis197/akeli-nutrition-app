@@ -27,9 +27,9 @@ class MacroCard extends StatelessWidget {
         vertical: AkeliSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.1),
+        color: cardColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AkeliRadius.md),
-        border: Border.all(color: cardColor.withOpacity(0.3)),
+        border: Border.all(color: cardColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -5,6 +5,8 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../shared/widgets/avatar.dart';
+import '../../shared/widgets/section_header.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -15,8 +17,11 @@ class ProfilePage extends ConsumerWidget {
     final isPremium = ref.watch(isPremiumProvider);
 
     return Scaffold(
+      backgroundColor: AkeliColors.background,
       appBar: AppBar(
         title: const Text('Mon profil'),
+        backgroundColor: AkeliColors.background,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -38,25 +43,13 @@ class ProfilePage extends ConsumerWidget {
                   children: [
                     Stack(
                       children: [
-                        CircleAvatar(
-                          radius: 48,
-                          backgroundColor: AkeliColors.primary.withOpacity(0.1),
-                          backgroundImage: profile?.avatarUrl != null
-                              ? NetworkImage(profile!.avatarUrl!)
-                              : null,
-                          child: profile?.avatarUrl == null
-                              ? Text(
-                                  (profile != null && profile.displayName.isNotEmpty
-                                          ? profile.displayName[0]
-                                          : 'A')
-                                      .toUpperCase(),
-                                  style: const TextStyle(
-                                    color: AkeliColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 36,
-                                  ),
-                                )
-                              : null,
+                        AkeliAvatar(
+                          imageUrl: profile?.avatarUrl,
+                          initials: (profile?.displayName?.isNotEmpty == true
+                                  ? profile!.displayName![0]
+                                  : 'A')
+                              .toUpperCase(),
+                          size: AvatarSize.lg,
                         ),
                         Positioned(
                           bottom: 0,
@@ -88,7 +81,7 @@ class ProfilePage extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: AkeliSpacing.sm, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AkeliColors.secondary.withOpacity(0.15),
+                          color: AkeliColors.secondary.withValues(alpha: 0.15),
                           borderRadius:
                               BorderRadius.circular(AkeliRadius.full),
                         ),
@@ -279,11 +272,10 @@ class _Section extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(
               AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.xs),
-          child: Text(title,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(color: AkeliColors.textSecondary)),
+          child: AkeliSectionHeader(
+            title: title,
+            color: AkeliColors.textSecondary,
+          ),
         ),
         ...items,
       ],

@@ -30,7 +30,7 @@ final myFanSubscriptionProvider =
 
 final fanEligibleCreatorsProvider =
     FutureProvider.autoDispose<List<Creator>>((ref) async {
-  final user = ref.watch(currentUserProvider);
+  ref.watch(currentUserProvider);
 
   final result = await supabase.rpc('search_creators', params: {
     'p_query': '',

@@ -1,0 +1,678 @@
+/* ============================================
+   AKELI DESIGN SYSTEM — shared-design-system.css
+   ============================================ */
+
+/* --- Google Font --- */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* --- CSS Variables --- */
+:root {
+  /* Brand */
+  --green:        #3BB78F;
+  --green-light:  #E8F6F1;
+  --green-mid:    #C2EDD9;
+
+  /* Functional colors */
+  --orange:       #F5A623;
+  --orange-light: #FEF3E0;
+  --purple:       #8B7FD4;
+  --purple-light: #EEEAFC;
+  --red:          #E05C5C;
+  --coral:        #F06B6B;
+
+  /* Neutrals */
+  --black:        #1A1A1A;
+  --dark:         #2C2C2C;
+  --grey:         #8A8A8A;
+  --grey-mid:     #C8C8C8;
+  --grey-light:   #F0F0F0;
+  --cream:        #F5F0E8;
+  --cream-dark:   #EDE8DF;
+  --white:        #FFFFFF;
+
+  /* Typography */
+  --font: 'Nunito', sans-serif;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 6px rgba(0,0,0,0.06);
+  --shadow-md:  0 2px 12px rgba(0,0,0,0.09);
+  --shadow-lg:  0 4px 24px rgba(0,0,0,0.12);
+  --shadow-green: 0 4px 16px rgba(59,183,143,0.35);
+
+  /* Radii */
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-pill: 999px;
+}
+
+/* --- Reset --- */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* --- Body / Phone frame wrapper --- */
+body {
+  background: #D8D4CE;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-family: var(--font);
+  padding: 40px 20px 60px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   PHONE SHELL
+   ============================================ */
+.phone-shell {
+  width: 390px;
+  height: 844px;
+  background: var(--white);
+  border-radius: 54px;
+  box-shadow:
+    0 0 0 10px #1a1a1a,
+    0 0 0 12px #3a3a3a,
+    0 30px 80px rgba(0,0,0,0.35);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.phone-shell.cream-bg { background: var(--cream); }
+
+/* Notch */
+.notch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 126px; height: 34px;
+  background: #1a1a1a;
+  border-radius: 0 0 20px 20px;
+  z-index: 100;
+}
+
+/* ============================================
+   STATUS BAR
+   ============================================ */
+.status-bar {
+  height: 50px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 6px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.status-bar.white .status-time,
+.status-bar.white .status-icons { color: var(--black); fill: var(--black); }
+
+.status-bar.green-bg {
+  background: var(--green);
+}
+.status-bar.green-bg .status-time { color: var(--white); }
+.status-bar.green-bg .status-icons { color: var(--white); fill: var(--white); }
+
+.status-time { font-size: 12px; font-weight: 700; }
+
+.status-icons { display: flex; gap: 5px; align-items: center; }
+.status-icons svg { width: 14px; height: 14px; }
+
+/* ============================================
+   HEADERS
+   ============================================ */
+
+/* Green full header (secondary pages) */
+.header-green {
+  background: var(--green);
+  padding: 10px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.header-green .back-btn {
+  position: absolute;
+  left: 20px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white);
+  cursor: pointer;
+}
+
+.header-green h1 {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--white);
+  text-align: center;
+}
+
+/* White app header (home) */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px 12px;
+  flex-shrink: 0;
+  background: var(--white);
+}
+
+.header-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--radius-pill);
+  background: var(--grey-light);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--grey);
+  cursor: pointer;
+  position: relative;
+}
+
+.header-icon svg { width: 20px; height: 20px; }
+
+.notif-dot {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--orange);
+  border-radius: 50%;
+  border: 1.5px solid var(--white);
+}
+
+/* Green back button (rounded, on cream bg) */
+.back-btn-green {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white);
+  cursor: pointer;
+  margin: 12px 16px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   SCROLLABLE CONTENT
+   ============================================ */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+.scroll-content.padded { padding: 0 20px 20px; }
+.scroll-content.cream-bg { background: var(--cream); }
+
+/* ============================================
+   TABS
+   ============================================ */
+.tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--grey-light);
+  background: var(--white);
+  flex-shrink: 0;
+}
+
+.tab {
+  flex: 1;
+  padding: 14px 0 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--grey);
+  position: relative;
+  cursor: pointer;
+}
+
+.tab.active { color: var(--black); }
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px; left: 20%; right: 20%;
+  height: 2.5px;
+  background: var(--green);
+  border-radius: 2px;
+}
+
+/* ============================================
+   BOTTOM NAV
+   ============================================ */
+.bottom-nav {
+  height: 72px;
+  background: var(--white);
+  border-top: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 10px 10px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.bottom-nav.cream { background: var(--cream); border-top: 1px solid var(--cream-dark); }
+
+.nav-item {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 3px;
+  cursor: pointer; padding: 6px 12px;
+}
+
+.nav-icon { width: 24px; height: 24px; color: #C0C0C0; }
+.nav-icon.active { color: var(--green); }
+.nav-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+/* ============================================
+   FAB
+   ============================================ */
+.fab {
+  position: absolute;
+  right: 20px; bottom: 80px;
+  width: 52px; height: 52px;
+  border-radius: var(--radius-pill);
+  background: var(--green);
+  box-shadow: var(--shadow-green);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 20; cursor: pointer;
+}
+.fab svg { width: 26px; height: 26px; fill: var(--white); }
+
+/* ============================================
+   CARDS
+   ============================================ */
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.card-cream {
+  background: var(--cream);
+  border-radius: var(--radius-md);
+}
+
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+.section-title {
+  font-size: 15px; font-weight: 800;
+  color: var(--black); text-align: center;
+  margin-bottom: 12px;
+}
+
+.section-title.green  { color: var(--green); }
+.section-title.orange { color: var(--orange); }
+.section-title.purple { color: var(--purple); }
+.section-title.left   { text-align: left; }
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.btn {
+  border: none; cursor: pointer;
+  font-family: var(--font);
+  font-weight: 700; font-size: 14px;
+  border-radius: var(--radius-pill);
+  padding: 12px 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: opacity .15s;
+}
+.btn:active { opacity: .8; }
+
+.btn-green   { background: var(--green);  color: var(--white); }
+.btn-orange  { background: var(--orange); color: var(--white); }
+.btn-outline { background: transparent; border: 1.5px solid var(--black); color: var(--black); }
+.btn-full    { width: 100%; }
+
+/* ============================================
+   BADGES / PILLS
+   ============================================ */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 700;
+}
+.badge-orange { background: var(--orange);       color: var(--white); }
+.badge-purple { background: var(--purple);       color: var(--white); }
+.badge-green  { background: var(--green);        color: var(--white); }
+.badge-grey   { background: var(--grey-light);   color: var(--dark); }
+
+/* ============================================
+   TAG FILTERS (pill chips)
+   ============================================ */
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 12px; font-weight: 700;
+  background: var(--grey-light);
+  color: var(--dark);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tag.active { background: var(--green); color: var(--white); }
+
+/* ============================================
+   PROGRESS CIRCLE
+   ============================================ */
+.circle-wrap {
+  position: relative; width: 72px; height: 72px;
+}
+.circle-wrap svg { width: 72px; height: 72px; transform: rotate(-90deg); }
+.circle-bg       { fill: none; stroke: var(--grey-light); stroke-width: 5; }
+.circle-progress { fill: none; stroke: var(--green); stroke-width: 5; stroke-linecap: round; }
+.circle-label {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: 13px; font-weight: 800;
+  color: var(--green); text-align: center; line-height: 1;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+.progress-bar {
+  width: 100%; height: 8px;
+  background: var(--grey-light);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; border-radius: var(--radius-pill);
+  background: var(--orange);
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--cream);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  flex: 1;
+}
+.search-bar input {
+  border: none; background: transparent;
+  font-family: var(--font); font-size: 13px;
+  color: var(--dark); flex: 1; outline: none;
+}
+.search-bar svg { width: 18px; height: 18px; color: var(--grey); flex-shrink: 0; }
+
+.radio-group { display: flex; align-items: center; gap: 20px; }
+.radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.radio-circle {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--grey-mid);
+  display: flex; align-items: center; justify-content: center;
+}
+.radio-circle.active { border-color: var(--green); }
+.radio-circle.active::after {
+  content: ''; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--green);
+}
+.radio-label { font-size: 13px; font-weight: 700; color: var(--dark); }
+
+.checkbox {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  border: 2px solid var(--green);
+  flex-shrink: 0;
+}
+
+/* ============================================
+   STARS
+   ============================================ */
+.stars { display: flex; gap: 3px; }
+.star { font-size: 16px; }
+.star.filled { color: var(--orange); }
+.star.empty  { color: var(--grey-light); }
+
+/* ============================================
+   INGREDIENT ROW
+   ============================================ */
+.ingredient-row {
+  display: flex; align-items: center;
+  padding: 14px 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  gap: 10px;
+}
+.ingredient-qty { font-size: 14px; font-weight: 800; color: var(--orange); min-width: 40px; }
+.ingredient-name { font-size: 14px; font-weight: 600; color: var(--dark); flex: 1; }
+
+/* ============================================
+   STEP ROW
+   ============================================ */
+.step-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.step-num { font-size: 15px; font-weight: 800; color: var(--purple); min-width: 18px; }
+.step-text { font-size: 13px; font-weight: 600; color: var(--dark); line-height: 1.5; }
+
+/* ============================================
+   CHAT BUBBLES
+   ============================================ */
+.bubble-wrap { display: flex; flex-direction: column; margin-bottom: 16px; }
+.bubble-wrap.mine { align-items: flex-end; }
+.bubble-wrap.other { align-items: flex-start; }
+
+.bubble {
+  max-width: 75%; padding: 10px 14px;
+  border-radius: 16px; font-size: 13px;
+  font-weight: 600; line-height: 1.5;
+}
+.bubble.mine  { background: #DCE8F0; color: var(--dark); border-bottom-right-radius: 4px; }
+.bubble.other { background: var(--white); color: var(--dark); border-bottom-left-radius: 4px; }
+
+.bubble-sender { font-size: 12px; font-weight: 800; color: var(--dark); margin-bottom: 3px; }
+.bubble-time   { font-size: 10px; color: var(--grey); margin-top: 4px; text-align: right; }
+.bubble-check  { color: var(--green); font-size: 10px; }
+
+/* ============================================
+   NOTIFICATION CARD
+   ============================================ */
+.notif-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.notif-sender { font-size: 13px; font-weight: 800; color: var(--green); }
+.notif-msg    { font-size: 13px; font-weight: 600; color: var(--dark); margin-top: 3px; }
+.notif-time   { font-size: 11px; color: var(--grey); margin-top: 4px; }
+
+/* ============================================
+   RECIPE CARD (list)
+   ============================================ */
+.recipe-list-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.recipe-list-card .recipe-tags-overlay {
+  position: absolute; top: 10px; left: 10px;
+  display: flex; gap: 6px;
+}
+.recipe-list-card .tag-overlay {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px; font-weight: 700;
+  color: var(--dark);
+}
+
+.recipe-list-card .recipe-img-wrap { position: relative; }
+.recipe-list-card img { width: 100%; height: 160px; object-fit: cover; display: block; }
+
+.recipe-list-card .recipe-info { padding: 12px 14px; }
+.recipe-list-card .recipe-name { font-size: 15px; font-weight: 900; color: var(--black); text-align: center; margin-bottom: 4px; }
+.recipe-list-card .recipe-meta { font-size: 12px; color: var(--grey); text-align: center; margin-bottom: 6px; }
+.recipe-list-card .recipe-stats {
+  display: flex; align-items: center; gap: 12px;
+  margin-top: 8px;
+}
+.recipe-list-card .stat { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--dark); }
+.recipe-list-card .stat svg { width: 16px; height: 16px; }
+.recipe-list-card .recipe-region { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--green); }
+
+/* Recipe card no-image (text only) */
+.recipe-list-card.no-img .recipe-info { padding: 16px 14px; }
+
+/* ============================================
+   BOTTOM SHEET
+   ============================================ */
+.bottom-sheet-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 30;
+  display: flex; align-items: flex-end;
+}
+.bottom-sheet {
+  background: var(--white);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px 32px;
+  width: 100%;
+}
+.sheet-pill {
+  width: 40px; height: 4px;
+  background: var(--grey-mid);
+  border-radius: var(--radius-pill);
+  margin: 0 auto 18px;
+}
+.sheet-title { font-size: 17px; font-weight: 800; color: var(--black); text-align: center; margin-bottom: 20px; }
+
+/* ============================================
+   DROPDOWN POPUP
+   ============================================ */
+.dropdown-popup {
+  position: absolute;
+  top: 54px; right: 16px;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  padding: 10px 0;
+  box-shadow: var(--shadow-lg);
+  z-index: 40; min-width: 180px;
+}
+.dropdown-item {
+  padding: 12px 20px;
+  font-size: 14px; font-weight: 700;
+  color: var(--green); cursor: pointer;
+}
+.dropdown-close {
+  position: absolute; top: 10px; right: 14px;
+  font-size: 16px; color: var(--grey); cursor: pointer;
+}
+
+/* ============================================
+   METRIC CARD (home / dashboard)
+   ============================================ */
+.metric-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px 12px;
+  box-shadow: var(--shadow-md);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+}
+.metric-title { font-size: 12px; font-weight: 700; color: var(--black); text-align: center; }
+.metric-sub   { font-size: 10px; color: var(--grey); font-weight: 600; text-align: center; }
+
+/* ============================================
+   WEIGHT CONTROL
+   ============================================ */
+.weight-control {
+  display: flex; align-items: center;
+  justify-content: center; gap: 24px;
+}
+.weight-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%; border: none;
+  background: var(--grey-light);
+  font-size: 22px; font-weight: 700;
+  color: var(--black); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.weight-value {
+  font-size: 48px; font-weight: 900;
+  color: var(--green); min-width: 80px; text-align: center;
+}
+
+/* ============================================
+   AVATAR
+   ============================================ */
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--grey-light);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar svg { width: 22px; height: 22px; color: var(--grey); }
+.avatar.lg { width: 80px; height: 80px; }
+.avatar.lg svg { width: 42px; height: 42px; }
+.avatar.border-orange { border: 2.5px solid var(--orange); }
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+.divider { height: 1px; background: var(--grey-light); margin: 8px 0; }
+.gap-8  { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.flex   { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+.fw-900 { font-weight: 900; }
+.fw-800 { font-weight: 800; }
+.fw-700 { font-weight: 700; }
+.fs-12  { font-size: 12px; }
+.fs-13  { font-size: 13px; }
+.fs-14  { font-size: 14px; }
+.fs-16  { font-size: 16px; }
+.fs-18  { font-size: 18px; }
+.fs-22  { font-size: 22px; }
+.color-green  { color: var(--green); }
+.color-orange { color: var(--orange); }
+.color-purple { color: var(--purple); }
+.color-grey   { color: var(--grey); }
+.color-black  { color: var(--black); }
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.p-16  { padding: 16px; }
+.p-20  { padding: 20px; }
+
+/* ============================================
+   SVG ICON HELPERS
+   ============================================ */
+.icon { display: inline-flex; align-items: center; justify-content: center; }
+.icon svg { pointer-events: none; }

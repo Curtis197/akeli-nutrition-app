@@ -8,23 +8,24 @@ import 'package:google_fonts/google_fonts.dart';
 
 abstract class AkeliColors {
   // Brand
-  static const primary = Color(0xFF3BB78F);      // Teal — actions principales
-  static const secondary = Color(0xFFFF9F1C);    // Orange — highlights
-  static const tertiary = Color(0xFF9C88FF);     // Violet — accents
+  static const primary = Color(0xFF3BB78F);      // Teal
+  static const secondary = Color(0xFFF5A623);    // Orange
+  static const tertiary = Color(0xFF8B7FD4);     // Violet
 
   // Backgrounds
-  static const background = Color(0xFFF9F9E8);   // Crème — fond pages
-  static const surface = Color(0xFFFFFFFF);      // Blanc — cards
+  static const background = Color(0xFFF5F0E8);
+  static const surface = Color(0xFFFFFFFF);
 
   // Textes
-  static const textPrimary = Color(0xFF2F2F2F);
-  static const textSecondary = Color(0xFF5A5A5A);
+  static const textPrimary = Color(0xFF1A1A1A);
+  static const textSecondary = Color(0xFF8A8A8A);
+  static const textMuted = Color(0xFFC8C8C8);
 
-  // Sémantiques
+  // Semantiques
   static const success = Color(0xFF249689);
   static const warning = Color(0xFFF9CF58);
   static const error = Color(0xFFFF5963);
-  static const info = Color(0xFF4D96FF);         // Fix: était #FFFFFF en MVP
+  static const info = Color(0xFF4D96FF);
 
   // Dark mode
   static const backgroundDark = Color(0xFF1A1A2E);
@@ -34,7 +35,7 @@ abstract class AkeliColors {
 }
 
 // ---------------------------------------------------------------------------
-// SPACING — Grille 8px
+// SPACING
 // ---------------------------------------------------------------------------
 
 abstract class AkeliSpacing {
@@ -52,9 +53,26 @@ abstract class AkeliSpacing {
 
 abstract class AkeliRadius {
   static const double sm = 8.0;
-  static const double md = 12.0;
+  static const double md = 14.0;
   static const double lg = 20.0;
-  static const double full = 100.0;
+  static const double xl = 28.0;
+  static const double pill = 999.0;
+  static const double full = 100.0;  // kept for backward compat
+}
+
+// ---------------------------------------------------------------------------
+// SHADOWS
+// ---------------------------------------------------------------------------
+
+abstract class AkeliShadows {
+  static const BoxShadow sm = BoxShadow(
+      color: Color(0x0F000000), blurRadius: 6, offset: Offset(0, 1));
+  static const BoxShadow md = BoxShadow(
+      color: Color(0x17000000), blurRadius: 12, offset: Offset(0, 2));
+  static const BoxShadow lg = BoxShadow(
+      color: Color(0x1F000000), blurRadius: 24, offset: Offset(0, 4));
+  static const BoxShadow green = BoxShadow(
+      color: Color(0x593BB78F), blurRadius: 16, offset: Offset(0, 4));
 }
 
 // ---------------------------------------------------------------------------
@@ -78,18 +96,16 @@ ThemeData buildLightTheme() {
     primary: AkeliColors.primary,
     secondary: AkeliColors.secondary,
     tertiary: AkeliColors.tertiary,
-    background: AkeliColors.background,
     surface: AkeliColors.surface,
     error: AkeliColors.error,
     onPrimary: Colors.white,
     onSecondary: Colors.white,
-    onBackground: AkeliColors.textPrimary,
     onSurface: AkeliColors.textPrimary,
     brightness: Brightness.light,
   );
 
   return ThemeData(
-    useMaterial3: true,             // Material 3 activé (fix MVP)
+    useMaterial3: true,
     colorScheme: colorScheme,
     scaffoldBackgroundColor: AkeliColors.background,
     textTheme: _buildTextTheme(AkeliColors.textPrimary),
@@ -99,7 +115,7 @@ ThemeData buildLightTheme() {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.outfit(
+      titleTextStyle: GoogleFonts.nunito(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: AkeliColors.textPrimary,
@@ -121,7 +137,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AkeliRadius.full),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.nunito(
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
@@ -135,7 +151,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AkeliRadius.full),
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.nunito(
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -164,8 +180,8 @@ ThemeData buildLightTheme() {
         borderRadius: BorderRadius.circular(AkeliRadius.md),
         borderSide: const BorderSide(color: AkeliColors.error),
       ),
-      labelStyle: GoogleFonts.poppins(color: AkeliColors.textSecondary),
-      hintStyle: GoogleFonts.poppins(color: AkeliColors.textSecondary),
+      labelStyle: GoogleFonts.nunito(color: AkeliColors.textSecondary),
+      hintStyle: GoogleFonts.nunito(color: AkeliColors.textSecondary),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AkeliColors.surface,
@@ -176,8 +192,8 @@ ThemeData buildLightTheme() {
     ),
     chipTheme: ChipThemeData(
       backgroundColor: AkeliColors.background,
-      selectedColor: AkeliColors.primary.withOpacity(0.15),
-      labelStyle: GoogleFonts.poppins(fontSize: 12),
+      selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
+      labelStyle: GoogleFonts.nunito(fontSize: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.full),
         side: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -199,11 +215,9 @@ ThemeData buildDarkTheme() {
     seedColor: AkeliColors.primary,
     primary: AkeliColors.primary,
     secondary: AkeliColors.secondary,
-    background: AkeliColors.backgroundDark,
     surface: AkeliColors.surfaceDark,
     error: AkeliColors.error,
     onPrimary: Colors.white,
-    onBackground: AkeliColors.textPrimaryDark,
     onSurface: AkeliColors.textPrimaryDark,
     brightness: Brightness.dark,
   );
@@ -218,7 +232,7 @@ ThemeData buildDarkTheme() {
       foregroundColor: AkeliColors.textPrimaryDark,
       elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: GoogleFonts.outfit(
+      titleTextStyle: GoogleFonts.nunito(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: AkeliColors.textPrimaryDark,
@@ -236,28 +250,39 @@ ThemeData buildDarkTheme() {
 }
 
 TextTheme _buildTextTheme(Color baseColor) => TextTheme(
-      // Display — Outfit
-      displayLarge: GoogleFonts.outfit(fontSize: 64, color: baseColor),
-      displayMedium: GoogleFonts.outfit(fontSize: 44, color: baseColor),
-      displaySmall: GoogleFonts.outfit(fontSize: 36, color: baseColor),
-      // Headlines — Outfit
-      headlineLarge: GoogleFonts.outfit(fontSize: 32, color: baseColor),
-      headlineMedium: GoogleFonts.outfit(fontSize: 24, color: baseColor),
-      headlineSmall: GoogleFonts.outfit(fontSize: 20, color: baseColor),
+      // Display — Nunito
+      displayLarge: GoogleFonts.nunito(
+          fontSize: 28, fontWeight: FontWeight.w800, color: baseColor),
+      displayMedium: GoogleFonts.nunito(
+          fontSize: 22, fontWeight: FontWeight.w700, color: baseColor),
+      displaySmall: GoogleFonts.nunito(
+          fontSize: 18, fontWeight: FontWeight.w700, color: baseColor),
+      // Headlines — Nunito
+      headlineLarge: GoogleFonts.nunito(
+          fontSize: 32, fontWeight: FontWeight.w700, color: baseColor),
+      headlineMedium: GoogleFonts.nunito(
+          fontSize: 18, fontWeight: FontWeight.w700, color: baseColor),
+      headlineSmall: GoogleFonts.nunito(
+          fontSize: 16, fontWeight: FontWeight.w600, color: baseColor),
       // Titles
-      titleLarge: GoogleFonts.outfit(fontSize: 22, color: baseColor),
-      titleMedium: GoogleFonts.poppins(
+      titleLarge: GoogleFonts.nunito(
+          fontSize: 22, fontWeight: FontWeight.w700, color: baseColor),
+      titleMedium: GoogleFonts.nunito(
           fontSize: 16, fontWeight: FontWeight.w500, color: baseColor),
-      titleSmall: GoogleFonts.poppins(
+      titleSmall: GoogleFonts.nunito(
           fontSize: 14, fontWeight: FontWeight.w500, color: baseColor),
-      // Body — Poppins
-      bodyLarge: GoogleFonts.poppins(fontSize: 16, color: baseColor),
-      bodyMedium: GoogleFonts.poppins(fontSize: 14, color: baseColor),
-      bodySmall: GoogleFonts.poppins(fontSize: 12, color: baseColor),
+      // Body — Nunito
+      bodyLarge: GoogleFonts.nunito(
+          fontSize: 16, fontWeight: FontWeight.w400, color: baseColor),
+      bodyMedium: GoogleFonts.nunito(
+          fontSize: 14, fontWeight: FontWeight.w400, color: baseColor),
+      bodySmall: GoogleFonts.nunito(
+          fontSize: 13, fontWeight: FontWeight.w400, color: baseColor),
       // Labels
-      labelLarge: GoogleFonts.poppins(
-          fontSize: 14, fontWeight: FontWeight.w500, color: baseColor),
-      labelMedium: GoogleFonts.poppins(fontSize: 12, color: baseColor),
-      labelSmall: GoogleFonts.poppins(
-          fontSize: 11, fontWeight: FontWeight.w500, color: baseColor),
+      labelLarge: GoogleFonts.nunito(
+          fontSize: 14, fontWeight: FontWeight.w600, color: baseColor),
+      labelMedium: GoogleFonts.nunito(
+          fontSize: 12, fontWeight: FontWeight.w600, color: baseColor),
+      labelSmall: GoogleFonts.nunito(
+          fontSize: 11, fontWeight: FontWeight.w600, color: baseColor),
     );

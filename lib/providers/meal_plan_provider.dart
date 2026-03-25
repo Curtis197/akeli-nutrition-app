@@ -62,7 +62,7 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final res = await supabase.functions.invoke(
+      await supabase.functions.invoke(
         'generate-meal-plan',
         body: {
           'days': days,
@@ -70,7 +70,6 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
         },
       );
 
-      final raw = res.data as Map<String, dynamic>;
       ref.invalidate(activeMealPlanProvider);
 
       // Re-fetch the newly created plan

@@ -5,8 +5,9 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../shared/widgets/akeli_recipe_card.dart';
 import '../../shared/widgets/empty_state.dart';
-import '../../shared/widgets/recipe_card.dart';
+import 'domain/entities/recipe_tracking.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
   const FeedPage({super.key});
@@ -18,7 +19,7 @@ class FeedPage extends ConsumerStatefulWidget {
 class _FeedPageState extends ConsumerState<FeedPage> {
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
-  int _offset = 0;
+  final int _offset = 0;
   static const _pageSize = 20;
 
   @override
@@ -44,6 +45,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         SliverAppBar(
           floating: true,
           snap: true,
+          backgroundColor: AkeliColors.background,
           title: Row(
             children: [
               profileAsync.when(
@@ -122,16 +124,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
         // Content
         feedAsync.when(
-          loading: () => SliverPadding(
-            padding: const EdgeInsets.all(AkeliSpacing.md),
-            sliver: SliverGrid.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: AkeliSpacing.md,
-              mainAxisSpacing: AkeliSpacing.md,
-              childAspectRatio: 0.75,
-              children: List.generate(
-                  6, (_) => const RecipeCardSkeleton()),
-            ),
+          loading: () => const SliverFillRemaining(
+            child: Center(child: CircularProgressIndicator()),
           ),
           error: (err, _) => SliverFillRemaining(
             child: ErrorState(
@@ -167,13 +161,21 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 itemCount: recipes.length,
                 itemBuilder: (context, index) {
                   final recipe = recipes[index];
-                  return RecipeCard(
-                    recipe: recipe,
-                    onTap: () => context
-                        .push(AkeliRoutes.recipeDetailPath(recipe.id)),
-                    onLike: () => ref
-                        .read(recipeLikeProvider.notifier)
-                        .toggle(recipe.id, recipe.isLiked),
+                  return AkeliRecipeCard(
+                    hasImage: true,
+                    title: recipe.title,
+                    calories: recipe.calories?.toInt() ?? 0,
+                    rating: recipe.averageRating,
+                    likes: recipe.likeCount,
+                    comments: 0,
+                    saves: 0,
+                    emoji: null,
+                    region: recipe.regionId,
+                    tags: recipe.tagIds.take(2).toList(),
+                    onTap: () => context.push(
+                      AkeliRoutes.recipeDetailPath(recipe.id),
+                      extra: TrackingSource.feed,
+                    ),
                   );
                 },
               ),

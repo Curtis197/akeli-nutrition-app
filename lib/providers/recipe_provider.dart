@@ -136,13 +136,10 @@ final searchRecipesProvider =
 // ---------------------------------------------------------------------------
 
 class RecipeLikeNotifier extends AutoDisposeAsyncNotifier<bool> {
-  late String _recipeId;
-
   @override
   Future<bool> build() async => false;
 
   Future<bool> toggle(String recipeId, bool currentlyLiked) async {
-    _recipeId = recipeId;
     state = const AsyncLoading();
     final result = await AsyncValue.guard(() async {
       final res = await supabase.functions.invoke(
