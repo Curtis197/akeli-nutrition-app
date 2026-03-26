@@ -45,8 +45,8 @@ class ProfilePage extends ConsumerWidget {
                       children: [
                         AkeliAvatar(
                           imageUrl: profile?.avatarUrl,
-                          initials: (profile?.displayName?.isNotEmpty == true
-                                  ? profile!.displayName![0]
+                          initials: (profile?.displayName.isNotEmpty == true
+                                  ? profile!.displayName[0]
                                   : 'A')
                               .toUpperCase(),
                           size: AvatarSize.lg,

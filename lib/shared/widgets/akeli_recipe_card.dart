@@ -16,6 +16,7 @@ class AkeliRecipeCard extends StatelessWidget {
   final String? emoji;
   final String? region;
   final List<String> tags;
+  final String? imageUrl;
   final bool hasImage;
   final VoidCallback? onTap;
 
@@ -29,6 +30,7 @@ class AkeliRecipeCard extends StatelessWidget {
     required this.saves,
     this.emoji,
     this.region,
+    this.imageUrl,
     this.tags = const [],
     this.hasImage = true,
     this.onTap,
@@ -40,9 +42,16 @@ class AkeliRecipeCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AkeliColors.surface,
-          borderRadius: BorderRadius.circular(AkeliRadius.lg),
-          boxShadow: const [AkeliShadows.sm],
+          color: AkeliColors.surfaceContainerLowest, // Pure white
+          borderRadius: BorderRadius.circular(24),   // organic radius
+          border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: hasImage ? _ImageVariant(card: this) : _TextVariant(card: this),
       ),
@@ -67,20 +76,22 @@ class _ImageVariant extends StatelessWidget {
         // Image area with tags overlay
         ClipRRect(
           borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AkeliRadius.lg),
+            top: Radius.circular(24),
           ),
           child: Stack(
             children: [
               Container(
                 height: 120,
                 width: double.infinity,
-                color: AkeliColors.primary.withValues(alpha: 0.08),
-                child: Center(
-                  child: Text(
-                    card.emoji ?? '',
-                    style: const TextStyle(fontSize: 40),
-                  ),
-                ),
+                color: AkeliColors.surfaceContainerHigh,
+                child: card.imageUrl != null
+                    ? Image.network(card.imageUrl!, fit: BoxFit.cover)
+                    : Center(
+                        child: Text(
+                          card.emoji ?? '🥘',
+                          style: const TextStyle(fontSize: 40),
+                        ),
+                      ),
               ),
               if (card.tags.isNotEmpty)
                 Positioned(
@@ -102,31 +113,30 @@ class _ImageVariant extends StatelessWidget {
         ),
         // Body
         Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 card.title,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AkeliColors.onSurface,
+                ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
               if (card.region != null) ...[
-                const SizedBox(height: 2),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    card.region!,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AkeliColors.primary,
-                        ),
+                const SizedBox(height: 4),
+                Text(
+                  card.region!,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AkeliColors.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
-              const SizedBox(height: AkeliSpacing.xs),
+              const SizedBox(height: 8),
               _StatsRow(card: card),
             ],
           ),
@@ -135,6 +145,7 @@ class _ImageVariant extends StatelessWidget {
     );
   }
 }
+
 
 // ---------------------------------------------------------------------------
 // Text-only variant

@@ -57,8 +57,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   backgroundColor: AkeliColors.primary,
                   child: profile?.avatarUrl == null
                       ? Text(
-                          (profile?.displayName?.isNotEmpty == true
-                                  ? profile!.displayName![0]
+                          (profile?.displayName.isNotEmpty == true
+                                  ? profile!.displayName[0]
                                   : 'A')
                               .toUpperCase(),
                           style: const TextStyle(

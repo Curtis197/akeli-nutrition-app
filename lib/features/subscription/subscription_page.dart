@@ -97,12 +97,12 @@ class SubscriptionPage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: AkeliSpacing.xl),
-              Card(
+              const Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(AkeliSpacing.lg),
+                  padding: EdgeInsets.all(AkeliSpacing.lg),
                   child: Column(
                     children: [
-                      const Text(
+                      Text(
                         '3,99€',
                         style: TextStyle(
                           color: AkeliColors.primary,
@@ -110,11 +110,11 @@ class SubscriptionPage extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const Text(' / mois',
+                      Text(' / mois',
                           style: TextStyle(
                               color: AkeliColors.textSecondary, fontSize: 18)),
-                      const SizedBox(height: AkeliSpacing.xs),
-                      const Text(
+                      SizedBox(height: AkeliSpacing.xs),
+                      Text(
                         'Annulable à tout moment via le Store',
                         style: TextStyle(
                             color: AkeliColors.textSecondary, fontSize: 12),

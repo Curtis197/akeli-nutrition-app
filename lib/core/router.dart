@@ -174,7 +174,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    errorBuilder: (context, state) => Scaffold(
+    errorBuilder: (context, state) => const Scaffold(
       body: Center(child: Text("Page introuvable: \${state.error}")),
     ),
   );

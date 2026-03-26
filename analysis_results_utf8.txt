@@ -1,0 +1,110 @@
+﻿Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (98.0.0 available)
+  analyzer 7.6.0 (12.0.0 available)
+  analyzer_plugin 0.13.4 (0.14.7 available)
+  app_links 6.4.1 (7.0.0 available)
+  build 2.5.4 (4.0.5 available)
+  build_config 1.1.2 (1.3.0 available)
+  build_resolvers 2.5.4 (3.0.4 available)
+  build_runner 2.5.4 (2.13.1 available)
+  build_runner_core 9.1.2 (9.3.2 available)
+  built_value 8.12.4 (8.12.5 available)
+  cupertino_icons 1.0.8 (1.0.9 available)
+  custom_lint 0.7.6 (0.8.1 available)
+  custom_lint_builder 0.7.6 (0.8.1 available)
+  custom_lint_core 0.7.5 (0.8.2 available)
+  custom_lint_visitor 1.0.0+7.7.0 (1.0.0+9.0.0 available)
+  dart_jsonwebtoken 3.3.2 (3.4.0 available)
+  dart_style 3.1.1 (3.1.8 available)
+  fl_chart 0.68.0 (1.2.0 available)
+  flutter_lints 4.0.0 (6.0.0 available)
+  flutter_plugin_android_lifecycle 2.0.33 (2.0.34 available)
+  flutter_riverpod 2.6.1 (3.3.1 available)
+  go_router 14.8.1 (17.1.0 available)
+  google_fonts 6.3.3 (8.0.2 available)
+  gotrue 2.18.0 (2.19.0 available)
+  image_picker_android 0.8.13+14 (0.8.13+15 available)
+  lints 4.0.0 (6.1.0 available)
+  logger 2.6.2 (2.7.0 available)
+  meta 1.17.0 (1.18.2 available)
+  native_toolchain_c 0.17.5 (0.17.6 available)
+  path_provider_android 2.2.22 (2.2.23 available)
+  realtime_client 2.7.0 (2.7.1 available)
+  riverpod 2.6.1 (3.2.1 available)
+  riverpod_annotation 2.6.1 (4.0.2 available)
+  riverpod_generator 2.6.5 (4.0.3 available)
+  riverpod_lint 2.6.5 (3.1.3 available)
+  shared_preferences 2.5.4 (2.5.5 available)
+  shared_preferences_android 2.4.21 (2.4.23 available)
+  shared_preferences_platform_interface 2.4.1 (2.4.2 available)
+  smooth_page_indicator 1.2.1 (2.0.1 available)
+  source_gen 2.0.0 (4.2.2 available)
+  storage_client 2.4.1 (2.5.1 available)
+  supabase 2.10.2 (2.10.4 available)
+  supabase_flutter 2.12.0 (2.12.2 available)
+  test_api 0.7.10 (0.7.11 available)
+  url_launcher_android 6.3.28 (6.3.29 available)
+  vector_math 2.2.0 (2.3.0 available)
+Got dependencies!
+46 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing akeli-nutrition-app...                                
+
+   info - Use 'const' with the constructor to improve performance - lib\core\router.dart:177:39 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\core\router.dart:178:13 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\core\router.dart:178:27 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\features\diet_plan\diet_plan_page.dart:40:18 - prefer_const_literals_to_create_immutables
+warning - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used - lib\features\home\home_page.dart:125:46 - invalid_null_aware_operator
+   info - Use 'const' with the constructor to improve performance - lib\features\home\home_page.dart:235:13 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\home\home_page.dart:237:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\home\home_page.dart:355:13 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\home\home_page.dart:357:22 - prefer_const_constructors
+   info - Unnecessary braces in a string interpolation - lib\features\meal_planner\shopping_list_page.dart:68:16 - unnecessary_brace_in_string_interps
+   info - Use 'const' with the constructor to improve performance - lib\features\nutrition\nutrition_page.dart:215:11 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\features\nutrition\nutrition_page.dart:218:23 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - lib\features\nutrition\nutrition_page.dart:219:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\nutrition\nutrition_page.dart:221:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\nutrition\nutrition_page.dart:223:15 - prefer_const_constructors
+warning - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used - lib\features\profile\profile_page.dart:48:58 - invalid_null_aware_operator
+warning - The '!' will have no effect because the receiver can't be null - lib\features\profile\profile_page.dart:49:57 - unnecessary_non_null_assertion
+warning - The receiver can't be 'null' because of short-circuiting, so the null-aware operator '?.' can't be used - lib\features\recipes\feed_page.dart:60:48 - invalid_null_aware_operator
+warning - The '!' will have no effect because the receiver can't be null - lib\features\recipes\feed_page.dart:61:57 - unnecessary_non_null_assertion
+   info - Use 'const' with the constructor to improve performance - lib\features\subscription\subscription_page.dart:100:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\subscription\subscription_page.dart:101:24 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\subscription\subscription_page.dart:103:26 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - lib\features\subscription\subscription_page.dart:104:31 - prefer_const_literals_to_create_immutables
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:39:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:44:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:47:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:59:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:66:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:69:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:74:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:81:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\providers\auth_provider.dart:83:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:8:3 - avoid_print
+   info - Use 'const' for final variables initialized to a constant value - test\verify_auth.dart:10:3 - prefer_const_declarations
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:13:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:16:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:23:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:25:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:28:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:35:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:37:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:40:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:42:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:45:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:46:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_auth.dart:48:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:8:3 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:11:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:17:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:24:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:26:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:27:7 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:29:9 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:33:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:34:5 - avoid_print
+   info - Don't invoke 'print' in production code - test\verify_supabase.dart:38:5 - avoid_print
+

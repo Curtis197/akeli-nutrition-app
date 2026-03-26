@@ -212,14 +212,14 @@ class _MacroDonutChart extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AkeliSpacing.lg),
-          Column(
+          const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _Legend(color: AkeliColors.primary, label: 'Protéines'),
-              const SizedBox(height: AkeliSpacing.sm),
+              SizedBox(height: AkeliSpacing.sm),
               _Legend(color: AkeliColors.tertiary, label: 'Glucides'),
-              const SizedBox(height: AkeliSpacing.sm),
+              SizedBox(height: AkeliSpacing.sm),
               _Legend(color: AkeliColors.warning, label: 'Lipides'),
             ],
           ),

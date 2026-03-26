@@ -7,7 +7,7 @@ const _supabaseAnonKey =
 void main() async {
   print('--- Supabase Auth Connection Test ---');
   final testEmail = 'verify_connection_${DateTime.now().millisecondsSinceEpoch}@example.com';
-  final testPassword = 'TestPassword123!';
+  const testPassword = 'TestPassword123!';
 
   try {
     print('1. Initializing Supabase Client...');
