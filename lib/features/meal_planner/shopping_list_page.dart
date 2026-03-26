@@ -65,7 +65,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
           final checkedCount =
               _checkedState.values.where((v) => v).length;
           final totalCalc =
-              '${checkedCount}/${items.length} items cochés';
+              '$checkedCount/${items.length} items cochés';
 
           return Column(
             children: [
