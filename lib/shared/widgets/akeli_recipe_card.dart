@@ -18,6 +18,7 @@ class AkeliRecipeCard extends StatelessWidget {
   final List<String> tags;
   final String? imageUrl;
   final bool hasImage;
+  final bool isMinimalist;
   final VoidCallback? onTap;
 
   const AkeliRecipeCard({
@@ -33,6 +34,7 @@ class AkeliRecipeCard extends StatelessWidget {
     this.imageUrl,
     this.tags = const [],
     this.hasImage = true,
+    this.isMinimalist = false,
     this.onTap,
   });
 
@@ -42,8 +44,8 @@ class AkeliRecipeCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: AkeliColors.surfaceContainerLowest, // Pure white
-          borderRadius: BorderRadius.circular(24),   // organic radius
+          color: AkeliColors.surface, // Pure white
+          borderRadius: BorderRadius.circular(AkeliRadius.xl), // organic radius (24px)
           border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
@@ -76,12 +78,12 @@ class _ImageVariant extends StatelessWidget {
         // Image area with tags overlay
         ClipRRect(
           borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(24),
+            top: Radius.circular(AkeliRadius.xl),
           ),
           child: Stack(
             children: [
               Container(
-                height: 120,
+                height: card.isMinimalist ? 140 : 120,
                 width: double.infinity,
                 color: AkeliColors.surfaceContainerHigh,
                 child: card.imageUrl != null
@@ -93,7 +95,22 @@ class _ImageVariant extends StatelessWidget {
                         ),
                       ),
               ),
-              if (card.tags.isNotEmpty)
+              // Floating Sparkle Button (Premium only)
+              if (card.isMinimalist)
+                Positioned(
+                  top: AkeliSpacing.md,
+                  right: AkeliSpacing.md,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: AkeliColors.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
+                  ),
+                ),
+              if (!card.isMinimalist && card.tags.isNotEmpty)
                 Positioned(
                   top: AkeliSpacing.sm,
                   left: AkeliSpacing.sm,
@@ -113,7 +130,7 @@ class _ImageVariant extends StatelessWidget {
         ),
         // Body
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AkeliSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -122,11 +139,22 @@ class _ImageVariant extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AkeliColors.onSurface,
+                  fontSize: card.isMinimalist ? 15 : 14,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (card.region != null) ...[
+              if (card.isMinimalist) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${card.calories} kcal',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+              if (!card.isMinimalist && card.region != null) ...[
                 const SizedBox(height: 4),
                 Text(
                   card.region!,
@@ -136,8 +164,10 @@ class _ImageVariant extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 8),
-              _StatsRow(card: card),
+              if (!card.isMinimalist) ...[
+                const SizedBox(height: 8),
+                _StatsRow(card: card),
+              ],
             ],
           ),
         ),

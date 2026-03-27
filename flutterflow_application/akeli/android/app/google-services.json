@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1080340252277",
+    "project_id": "afro-health-oyks8y",
+    "storage_bucket": "afro-health-oyks8y.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1080340252277:android:d4effd1a502828c1ea5a3c",
+        "android_client_info": {
+          "package_name": "com.akeli.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0TkT_y-4K1YtQvzoGheABZL__0HcEoNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

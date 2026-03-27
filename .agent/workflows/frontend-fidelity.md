@@ -14,27 +14,30 @@ This workflow defines the process for escalating the visual and technical qualit
   - **Typography**: Inter font weights, tracking, and leading.
   - **Layout Geometry**: 24px corner radii, specific padding (16px vs 24px), and shadow depth.
 
-## 🏗️ Phase 2: Component Scaffolding
-**Primary Skill: `frontend-mobile-development-component-scaffold`**
+## 🏗️ Phase 2: Component Scaffolding & Visuals
+**Primary Skills: `frontend-mobile-development-component-scaffold`, `data-scientist`**
 - Create "Premium" versions of core widgets:
   - `AkeliPremiumCard`: High-fidelity shadows and border treatments.
-  - `AkeliModernMetric`: Custom-painted circular progress with conic gradients.
+  - `AkeliModernMetric`: Custom-painted metrics with conic gradients (Data Viz specialization).
   - `AkeliEditorialHeader`: Centered typography with premium iconography.
 - Ensure components are decoupled and use the centralized theme.
 
-## ⚡ Phase 3: High-Performance Implementation
-**Primary Skill: `flutter-expert`**
-- Implement **Custom Painters** for advanced graphics (avoiding heavy images/packages where possible).
+## ⚡ Phase 3: Performance & Data Layer
+**Primary Skills: `flutter-expert`, `api-design-principles`**
+- Implement **Custom Painters** for advanced graphics (avoiding heavy images).
 - Optimize for the **Impeller** engine.
+- Refine data flow (caching, optimistic UI) to match the "instant" feel of modern web apps.
 - Add micro-animations (hero transitions, haptic feedback) to increase "felt" quality.
 
-## 📱 Phase 4: Platform Polish
-**Primary Skill: `mobile-developer`**
+## 📱 Phase 4: Platform Polish & Quality
+**Primary Skills: `mobile-developer`, `debugging-strategies`**
 - Ensure iOS/Android specific behaviors (safe areas, haptic feedback profiles).
 - Optimize list scroll performance (virtualization and image caching).
+- Systematic verification of layout shifts and platform-specific rendering issues.
 - Handle edge cases like varying screen aspect ratios.
 
 ## 🧪 Phase 5: Refinement & Refactoring
 **Primary Skill: `code-refactoring-refactor-clean`**
 - Clean up ad-hoc styling in favor of the theme-driven approach.
 - Modularize UI code for easier maintenance and future design updates.
+
