@@ -1,0 +1,9 @@
+{
+  "apiUrl1": "https://jfbfymiyqlyciapfloug.supabase.co/functions/v1/ai_assistant_conversation",
+"apiUrl2": "https://jfbfymiyqlyciapfloug.supabase.co/functions/v1/receipe_research",
+"ApiKey1": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmYmZ5bWl5cWx5Y2lhcGZsb3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MzcwMDIsImV4cCI6MjA2MDExMzAwMn0.zm4ioJc07IAec0e5-0PsWyAXDAp1U42NA1kReoRdhbU",
+"ApiKey2": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmYmZ5bWl5cWx5Y2lhcGZsb3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MzcwMDIsImV4cCI6MjA2MDExMzAwMn0.zm4ioJc07IAec0e5-0PsWyAXDAp1U42NA1kReoRdhbU",
+"ApiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmYmZ5bWl5cWx5Y2lhcGZsb3VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1MzcwMDIsImV4cCI6MjA2MDExMzAwMn0.zm4ioJc07IAec0e5-0PsWyAXDAp1U42NA1kReoRdhbU",
+"apiUrl": "https://jfbfymiyqlyciapfloug.supabase.co",
+"GeminiApiKey": "AIzaSyCaTAgS7qLROv-65NS0UY7lGCVGDn2j27A"
+}

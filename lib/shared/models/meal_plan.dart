@@ -130,6 +130,8 @@ class ShoppingItem {
     required this.isChecked,
   });
 
+  String get quantityDisplay => '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : 1)} $unit';
+
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
         ingredientId: json['ingredient_id'] as String,
         name: json['ingredient_name'] as String,

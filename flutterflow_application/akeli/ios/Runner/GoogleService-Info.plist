@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyBQ-rMwlwCZusyW1Ql8Em7Es0bLK1IEMUY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1080340252277</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.akeli.app</string>
+	<key>PROJECT_ID</key>
+	<string>afro-health-oyks8y</string>
+	<key>STORAGE_BUCKET</key>
+	<string>afro-health-oyks8y.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1080340252277:ios:d78e32e626e6cfc2ea5a3c</string>
+</dict>
+</plist>

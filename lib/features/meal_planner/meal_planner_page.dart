@@ -1,415 +1,315 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:percent_indicator/percent_indicator.dart' as import_percent;
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
-import '../../shared/models/meal_plan.dart';
+import '../../shared/mocks/mock_meal_plan.dart';
 import '../../shared/widgets/empty_state.dart';
+import 'widgets/meal_planner_day_row.dart';
 
 class MealPlannerPage extends ConsumerWidget {
   const MealPlannerPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final planAsync = ref.watch(activeMealPlanProvider);
+    // For the current UI refactor, we use MockMealPlan
+    // In production, we would use: final planAsync = ref.watch(activeMealPlanProvider);
+    final mockPlan = MockMealPlan.sevenDayPlan();
+    final entriesByDay = mockPlan.entriesByDay;
+    final dayKeys = entriesByDay.keys.toList();
 
     return Scaffold(
-      backgroundColor: AkeliColors.background,
-      appBar: AppBar(
-        title: const Text('Mes repas'),
-        backgroundColor: AkeliColors.background,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () => context.push(AkeliRoutes.shoppingList),
-            tooltip: 'Liste de courses',
-          ),
-        ],
-      ),
-      body: planAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => ErrorState(
-          message: err.toString(),
-          onRetry: () => ref.invalidate(activeMealPlanProvider),
-        ),
-        data: (plan) {
-          if (plan == null) {
-            return EmptyState(
-              icon: Icons.calendar_today_rounded,
-              title: 'Aucun plan actif',
-              subtitle:
-                  'Générez votre plan alimentaire personnalisé pour la semaine.',
-              actionLabel: 'Générer mon plan',
-              onAction: () => _generatePlan(context, ref),
-            );
-          }
-          return _MealPlanContent(plan: plan);
-        },
-      ),
-      floatingActionButton: planAsync.when(
-        data: (plan) => plan != null
-            ? FloatingActionButton.extended(
-                onPressed: () => _generatePlan(context, ref),
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Nouveau plan'),
-                backgroundColor: AkeliColors.primary,
-              )
-            : null,
-        loading: () => null,
-        error: (_, __) => null,
-      ),
-    );
-  }
-
-  Future<void> _generatePlan(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    await ref.read(mealPlanGeneratorProvider.notifier).generate();
-    final state = ref.read(mealPlanGeneratorProvider);
-    if (state.hasError) {
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Impossible de générer le plan.')),
-      );
-    } else {
-      scaffoldMessenger.showSnackBar(
-        const SnackBar(
-            content: Text('Plan généré avec succès !'),
-            backgroundColor: AkeliColors.success),
-      );
-    }
-  }
-}
-
-class _MealPlanContent extends StatelessWidget {
-  final MealPlan plan;
-
-  const _MealPlanContent({required this.plan});
-
-  @override
-  Widget build(BuildContext context) {
-    final days = _buildDays();
-
-    return RefreshIndicator(
-      onRefresh: () async {},
-      child: ListView.builder(
-        padding: const EdgeInsets.all(AkeliSpacing.md),
-        itemCount: days.length,
-        itemBuilder: (context, i) {
-          final (date, entries) = days[i];
-          return _DaySection(date: date, entries: entries);
-        },
-      ),
-    );
-  }
-
-  List<(DateTime, List<MealPlanEntry>)> _buildDays() {
-    final result = <(DateTime, List<MealPlanEntry>)>[];
-    var current = plan.startDate;
-    final end = plan.endDate;
-
-    while (!current.isAfter(end)) {
-      final entries = plan.entriesForDate(current);
-      result.add((current, entries));
-      current = current.add(const Duration(days: 1));
-    }
-
-    return result;
-  }
-}
-
-class _DaySection extends StatelessWidget {
-  final DateTime date;
-  final List<MealPlanEntry> entries;
-
-  const _DaySection({required this.date, required this.entries});
-
-  static const _dayNames = [
-    'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'
-  ];
-
-  static const _mealOrder = [
-    'breakfast', 'lunch', 'dinner', 'snack'
-  ];
-
-  String get _dayLabel {
-    final now = DateTime.now();
-    if (date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day) {
-      return "Aujourd'hui";
-    }
-    return _dayNames[date.weekday - 1];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isToday = () {
-      final now = DateTime.now();
-      return date.year == now.year &&
-          date.month == now.month &&
-          date.day == now.day;
-    }();
-
-    // Group entries by meal type
-    final byType = <String, MealPlanEntry>{};
-    for (final e in entries) {
-      byType[e.mealType] = e;
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: AkeliSpacing.sm),
-          child: Row(
-            children: [
-              Text(
-                _dayLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: isToday ? AkeliColors.primary : null,
-                      fontWeight: isToday ? FontWeight.w700 : FontWeight.w600,
+      backgroundColor: const Color(0xFFFCFAEF),
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // ── TOP NAVIGATION BAR ───────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Container(
+                height: 64,
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                color: const Color(0xFFFCFAEF),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.menu, color: Color(0xFF4DB6AC)),
+                        const SizedBox(width: 16),
+                        Text(
+                          'Akeli Victoire',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                      ],
                     ),
-              ),
-              if (isToday) ...[
-                const SizedBox(width: AkeliSpacing.sm),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AkeliSpacing.sm, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.primary,
-                    borderRadius: BorderRadius.circular(AkeliRadius.full),
-                  ),
-                  child: const Text(
-                    'Aujourd\'hui',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600),
-                  ),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                    ),
+                  ],
                 ),
-              ],
-            ],
-          ),
-        ),
-        ..._mealOrder.map((type) {
-          final entry = byType[type];
-          return _MealSlot(type: type, entry: entry);
-        }),
-        const SizedBox(height: AkeliSpacing.sm),
-        const Divider(),
-        const SizedBox(height: AkeliSpacing.sm),
-      ],
-    );
-  }
-}
-
-class _MealSlot extends ConsumerWidget {
-  final String type;
-  final MealPlanEntry? entry;
-
-  const _MealSlot({required this.type, this.entry});
-
-  String get _typeLabel {
-    switch (type) {
-      case 'breakfast':
-        return 'Petit-déjeuner';
-      case 'lunch':
-        return 'Déjeuner';
-      case 'dinner':
-        return 'Dîner';
-      case 'snack':
-        return 'Collation';
-      default:
-        return type;
-    }
-  }
-
-  IconData get _typeIcon {
-    switch (type) {
-      case 'breakfast':
-        return Icons.coffee_rounded;
-      case 'lunch':
-        return Icons.lunch_dining_rounded;
-      case 'dinner':
-        return Icons.dinner_dining_rounded;
-      case 'snack':
-        return Icons.apple_rounded;
-      default:
-        return Icons.restaurant_rounded;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AkeliSpacing.sm),
-      child: entry == null
-          ? _EmptySlot(typeLabel: _typeLabel, icon: _typeIcon)
-          : _FilledSlot(
-              entry: entry!,
-              typeLabel: _typeLabel,
-              icon: _typeIcon,
-              onTap: () => context
-                  .push(AkeliRoutes.recipeDetailPath(entry!.recipeId)),
-              onConsume: () async {
-                await ref
-                    .read(mealConsumptionProvider.notifier)
-                    .logConsumption(entry!.id, entry!.recipeId);
-              },
+              ),
             ),
+            
+            // ── HEADER & PROGRESS ────────────────────────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Vos repas de la semaine',
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              height: 1.1,
+                              letterSpacing: -1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Découvrez votre programme nutritionnel personnalisé pour les 7 prochains jours.',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AkeliColors.outline,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Progress Indicator from FF
+                    import_percent.CircularPercentIndicator(
+                      radius: 38.0,
+                      lineWidth: 8.0,
+                      percent: 0.72,
+                      animation: true,
+                      progressColor: AkeliColors.primary,
+                      backgroundColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.3),
+                      center: Text(
+                        "72%",
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: AkeliColors.primary,
+                        ),
+                      ),
+                      circularStrokeCap: import_percent.CircularStrokeCap.round,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── QUICK ACTIONS ───────────────────────────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    _buildNavigationCard(
+                      context,
+                      icon: Icons.restaurant_menu,
+                      title: 'Voir mon plan diététique',
+                      onTap: () => context.push(AkeliRoutes.dietPlan),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildNavigationCard(
+                      context,
+                      icon: Icons.shopping_basket,
+                      title: 'Voir ma liste de course',
+                      onTap: () => context.push(AkeliRoutes.shoppingList),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+
+            // ── SNACK SECTION ───────────────────────────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverToBoxAdapter(
+                child: _buildSnackSection(context),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 48)),
+
+            // ── DAILY MEAL LIST ─────────────────────────────────────────
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final date = dayKeys[index];
+                    final entries = entriesByDay[date]!;
+                    return MealPlannerDayRow(
+                      date: date,
+                      entries: entries,
+                      onRecipeTap: (recipeId) => context.push(AkeliRoutes.recipeDetailPath(recipeId)),
+                      onConsumedToggle: (entryId, isConsumed) {
+                        // For mockup, we just log to console or trigger haptic
+                        HapticFeedback.mediumImpact();
+                      },
+                    );
+                  },
+                  childCount: dayKeys.length,
+                ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _generatePlan(context, ref),
+        backgroundColor: AkeliColors.primary,
+        elevation: 4,
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
+      ),
     );
   }
-}
 
-class _EmptySlot extends StatelessWidget {
-  final String typeLabel;
-  final IconData icon;
-
-  const _EmptySlot({required this.typeLabel, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(AkeliSpacing.md),
-      decoration: BoxDecoration(
-        border: Border.all(
-            color: AkeliColors.primary.withValues(alpha: 0.3), width: 1.5,
-            style: BorderStyle.solid),
-        borderRadius: BorderRadius.circular(AkeliRadius.md),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: AkeliColors.textSecondary),
-          const SizedBox(width: AkeliSpacing.md),
-          Text(typeLabel,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: AkeliColors.textSecondary)),
-          const Spacer(),
-          const Icon(Icons.add_rounded, color: AkeliColors.primary, size: 20),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilledSlot extends StatelessWidget {
-  final MealPlanEntry entry;
-  final String typeLabel;
-  final IconData icon;
-  final VoidCallback onTap;
-  final VoidCallback onConsume;
-
-  const _FilledSlot({
-    required this.entry,
-    required this.typeLabel,
-    required this.icon,
-    required this.onTap,
-    required this.onConsume,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildNavigationCard(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AkeliSpacing.md),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: entry.isConsumed
-              ? AkeliColors.success.withValues(alpha: 0.08)
-              : AkeliColors.surface,
-          borderRadius: BorderRadius.circular(AkeliRadius.md),
-          border: Border.all(
-            color: entry.isConsumed
-                ? AkeliColors.success.withValues(alpha: 0.4)
-                : const Color(0xFFE0E0E0),
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AkeliRadius.card),
+          border: Border.all(color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.2)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
           children: [
-            if (entry.recipeThumbnail != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                child: Image.network(
-                  entry.recipeThumbnail!,
-                  width: 48,
-                  height: 48,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AkeliColors.background,
-                      borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                    ),
-                    child: Icon(icon, size: 24, color: AkeliColors.primary),
-                  ),
-                ),
-              )
-            else
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AkeliColors.background,
-                  borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                ),
-                child: Icon(icon, size: 24, color: AkeliColors.primary),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AkeliColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(AkeliRadius.m),
               ),
-            const SizedBox(width: AkeliSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(typeLabel,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: AkeliColors.textSecondary,
-                          )),
-                  const SizedBox(height: 2),
-                  Text(
-                    entry.recipeTitle ?? 'Recette',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          decoration: entry.isConsumed
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (entry.calories != null)
-                    Text(
-                      '${entry.calories!.toInt()} kcal',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelSmall
-                          ?.copyWith(color: AkeliColors.secondary),
-                    ),
-                ],
+              child: Icon(icon, color: AkeliColors.primary, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF3D4947),
               ),
             ),
-            if (!entry.isConsumed)
-              IconButton(
-                icon: const Icon(Icons.check_circle_outline_rounded,
-                    color: AkeliColors.success),
-                onPressed: onConsume,
-                tooltip: 'Marquer comme consommé',
-              )
-            else
-              const Icon(Icons.check_circle_rounded,
-                  color: AkeliColors.success, size: 24),
+            const Spacer(),
+            const Icon(Icons.chevron_right, color: AkeliColors.outline),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildSnackSection(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE4F5F2), // Light teal background
+        borderRadius: BorderRadius.circular(AkeliRadius.card),
+        border: Border.all(color: const Color(0xFFB2DFDB).withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: const BoxDecoration(
+              color: AkeliColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.cookie, color: Colors.white, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Ajouter une collation',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  'Personnalisez votre plan',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AkeliColors.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AkeliColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              minimumSize: Size.zero,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
+            ),
+            child: const Text(
+              'Ajouter', 
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _generatePlan(BuildContext context, WidgetRef ref) async {
+    // Show a loading indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Génération de votre nouveau plan...'),
+        backgroundColor: AkeliColors.primary,
+      ),
+    );
+    
+    // In production, this would trigger a backend call
+    await Future.delayed(const Duration(seconds: 2));
+    
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Plan généré avec succès !'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 }
