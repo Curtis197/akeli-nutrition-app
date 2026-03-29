@@ -13,6 +13,12 @@
         "firebase-tools@latest",
         "experimental:mcp"
       ]
+    },
+    "figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "figd_K6h4haeNqHoMr8Seukc8gEENN7u8H8HjSfyPeynK"
+      }
     }
   }
 }

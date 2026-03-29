@@ -12,11 +12,26 @@ class MockMealPlan {
       startDate: startDate,
       endDate: endDate,
       isActive: true,
-      entries: _generateMockEntries(startDate),
+      entries: _generateMockEntries(startDate, 7),
     );
   }
 
-  static List<MealPlanEntry> _generateMockEntries(DateTime startDate) {
+  static MealPlan threeDayPlan() {
+    final now = DateTime.now();
+    final startDate = DateTime(now.year, now.month, now.day);
+    final endDate = startDate.add(const Duration(days: 2));
+
+    return MealPlan(
+      id: 'mock-plan-3day-id',
+      userId: 'mock-user-id',
+      startDate: startDate,
+      endDate: endDate,
+      isActive: true,
+      entries: _generateMockEntries(startDate, 3),
+    );
+  }
+
+  static List<MealPlanEntry> _generateMockEntries(DateTime startDate, int days) {
     final entries = <MealPlanEntry>[];
     
     // Sample Recipes for variety
@@ -48,7 +63,7 @@ class MockMealPlan {
       },
     ];
 
-    for (int day = 0; day < 7; day++) {
+    for (int day = 0; day < days; day++) {
       final scheduledDate = startDate.add(Duration(days: day));
       
       // Breakfast

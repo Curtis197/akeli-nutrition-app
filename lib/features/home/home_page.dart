@@ -536,8 +536,9 @@ class _HomePageState extends ConsumerState<HomePage> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ── HELPER METHODS ──────────────────────────────────────────────────────────
   final Set<String> _checkedShoppingIds = {};

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-container": "#c3eae5",
+              "on-primary-fixed": "#00201d",
+              "tertiary-fixed-dim": "#ffb59b",
+              "on-primary": "#ffffff",
+              "on-secondary-fixed": "#00201d",
+              "on-tertiary-fixed": "#380d00",
+              "on-surface-variant": "#3d4947",
+              "on-secondary-fixed-variant": "#294d49",
+              "error": "#ba1a1a",
+              "outline-variant": "#bdc9c6",
+              "on-tertiary": "#ffffff",
+              "primary-container": "#4db6ac",
+              "on-tertiary-container": "#67280e",
+              "on-secondary": "#ffffff",
+              "tertiary-fixed": "#ffdbcf",
+              "secondary-fixed-dim": "#a8cec9",
+              "on-primary-fixed-variant": "#00504a",
+              "on-secondary-container": "#476b67",
+              "surface-bright": "#fcfaef",
+              "surface-tint": "#006a63",
+              "background": "#fcfaef",
+              "surface-container-low": "#f6f4e9",
+              "on-primary-container": "#00433f",
+              "error-container": "#ffdad6",
+              "primary-fixed": "#8ef4e9",
+              "on-tertiary-fixed-variant": "#763219",
+              "on-error-container": "#93000a",
+              "on-background": "#1b1c16",
+              "tertiary": "#94492d",
+              "on-surface": "#1b1c16",
+              "primary-fixed-dim": "#71d7cd",
+              "inverse-on-surface": "#f3f1e6",
+              "surface-dim": "#dcdad0",
+              "secondary-fixed": "#c3eae5",
+              "surface-container-highest": "#e4e3d8",
+              "surface-container": "#f0eee3",
+              "secondary": "#416561",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#6d7a77",
+              "inverse-primary": "#71d7cd",
+              "on-error": "#ffffff",
+              "surface-variant": "#e4e3d8",
+              "primary": "#006a63",
+              "inverse-surface": "#30312a",
+              "surface-container-high": "#eae8de",
+              "tertiary-container": "#ea8e6d",
+              "surface": "#fcfaef"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#FCFAEF]/70 dark:bg-[#1B1C16]/70 backdrop-blur-xl border-b border-[#BDC9C6]/10 flex justify-between items-center px-4 h-16 w-full">
+<button class="p-2 hover:bg-[#F6F4E9] transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#006A63] font-bold">arrow_back</span>
+</button>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-on-surface text-lg">Recipe Detail</h1>
+<button class="p-2 hover:bg-[#F6F4E9] transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined text-[#006A63]">favorite</span>
+</button>
+</header>
+<main class="pb-32">
+<!-- Hero Section -->
+<section class="relative h-[220px] w-full overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up of soft-boiled eggs with runny yolks on a rustic ceramic plate, garnished with fresh herbs in a warm sunlit kitchen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeyH7mSTvLoMQOEqxpTBqfJrB57_CxsOt0Ci-LbzjNrR2Pvcg7I7YmqkPbzBOSKHTbGunx6tKCW2AVkv29AXO9BB4gfjTcSAdzCZHSivFSqJgLEwEtc6382Of4MdUTAmWeKY7tk1n5neXRNdNhGZbPMI9bHmtMvbZhHF5UnZ6cy0141wcdfgCN1zKmiNs6WjMAAoHyKkMqZIEZAVeGVtwsVFJodp_hNv3oDgMcJYzKZShFYvwFsyzIYws6jsSu6pSM0HRPbUESBkI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
+</section>
+<!-- Meal Header Card Overlap -->
+<section class="px-4 -mt-8 relative z-10">
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm">
+<div class="flex flex-wrap gap-2 mb-3">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-xs font-semibold rounded-full">Déjeuner</span>
+<span class="px-3 py-1 bg-tertiary-container/20 text-tertiary text-xs font-semibold rounded-full">450 kcal</span>
+<span class="px-3 py-1 bg-surface-container-low text-on-surface-variant text-xs font-semibold rounded-full">25 min</span>
+</div>
+<h2 class="text-2xl font-headline font-extrabold text-on-surface mb-1">oeuf mollets</h2>
+<p class="text-sm font-label text-outline uppercase tracking-wider">jeudi 12 mars</p>
+</div>
+</section>
+<!-- Consumed Toggle -->
+<section class="px-4 mt-4">
+<div class="bg-secondary-container rounded-xl p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="font-medium text-on-secondary-container">Vous avez consommé ce repas</span>
+</div>
+</div>
+</section>
+<!-- Metadata Chips -->
+<section class="px-4 mt-6 flex gap-3">
+<div class="flex-1 bg-surface-container-low rounded-xl p-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">schedule</span>
+<div>
+<p class="text-[10px] text-outline uppercase font-bold">Temps</p>
+<p class="text-sm font-semibold">25 min</p>
+</div>
+</div>
+<div class="flex-1 bg-surface-container-low rounded-xl p-3 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">restaurant</span>
+<div>
+<p class="text-[10px] text-outline uppercase font-bold">Difficulté</p>
+<p class="text-sm font-semibold">Facile</p>
+</div>
+</div>
+</section>
+<!-- Macronutrients -->
+<section class="px-4 mt-8">
+<h3 class="font-headline font-bold text-lg mb-4">Macronutriments</h3>
+<div class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-low rounded-2xl p-4 text-center">
+<p class="text-[10px] text-outline font-bold mb-1">PROTÉINES</p>
+<p class="text-xl font-headline font-black text-primary">18g</p>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 text-center">
+<p class="text-[10px] text-outline font-bold mb-1">GLUCIDES</p>
+<p class="text-xl font-headline font-black text-primary">52g</p>
+</div>
+<div class="bg-surface-container-low rounded-2xl p-4 text-center">
+<p class="text-[10px] text-outline font-bold mb-1">LIPIDES</p>
+<p class="text-xl font-headline font-black text-primary">14g</p>
+</div>
+</div>
+</section>
+<!-- Dietary Tags -->
+<section class="px-4 mt-6 flex flex-wrap gap-2">
+<span class="px-4 py-2 bg-secondary-container text-on-secondary-container text-sm font-medium rounded-full">Sans gluten</span>
+<span class="px-4 py-2 bg-secondary-container text-on-secondary-container text-sm font-medium rounded-full">Pauvre en graisses</span>
+<span class="px-4 py-2 bg-secondary-container text-on-secondary-container text-sm font-medium rounded-full">Faible calories</span>
+</section>
+<!-- Description -->
+<section class="px-4 mt-8">
+<h3 class="font-headline font-bold text-lg mb-2 text-on-surface">Description</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed">
+                Une recette classique et savoureuse, parfaite pour un brunch ou un déjeuner léger. Ces œufs mollets sont servis sur un lit de légumes croquants, apportant un équilibre parfait entre douceur et texture.
+            </p>
+</section>
+<!-- Ingredients -->
+<section class="px-4 mt-8">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-bold text-lg">Ingrédients</h3>
+<button class="text-primary text-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add_shopping_cart</span>
+                    Ajouter à la liste
+                </button>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Ingredient 1 -->
+<div class="bg-surface-container-low rounded-2xl p-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-12 h-12 rounded-2xl object-cover" data-alt="Two fresh organic brown eggs on a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVM6kkSZEz6pFPVeZ1Iktg-FYvbDw-mlkthzf52Wt5FKvILDTUWbiJJJofk3r3aX0KCjwwFAjqXt-MjKu05qZkwI83f7fLeGFJw6Z7tingBs3drYCrogcJLPSvk5z8-rOCOYzGsMqp1Ts3VngEeoyUD1bAptSP0rR-wdEPRGbzU1bXyCfWrrtACrqCqDk4ejulOIy4emwmPbVU3_V_f2Czr_1Dz7odbLwSEDamvs_Ui-i_FU3ScDCI_Ehd25bcTPFR6mx2dVhIbR4"/>
+<span class="font-medium">Œufs frais</span>
+</div>
+<span class="text-primary font-bold">2 unités</span>
+</div>
+<!-- Ingredient 2 -->
+<div class="bg-surface-container-low rounded-2xl p-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-12 h-12 rounded-2xl object-cover" data-alt="Fresh crisp green spinach leaves in a bright setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_GPOJpmyIstlWnILU2l9X_37Ol_rAkstTgiPV9NQ6fHL78WIHXigsUs1pUdU1aGDUre7vBvxbMUd0uGyGqwl9BYvxH0hSpAGK2fXMpXYciMrzMes5eaMiUEW98feQkCEuAJa7G7enGFTC2Oxg3G0BHn6WXQcr-eygXxOMdKdjNLryOIHYe8KB7KgmY_MVsqIN4x4UFV6CZua7PksZE-D1lUacF6anTikhvPncCXodOoORgqRuRjsH4xxqMBBTFCPrL1NcU8P6t2Y"/>
+<span class="font-medium">Épinards frais</span>
+</div>
+<span class="text-primary font-bold">100g</span>
+</div>
+</div>
+</section>
+<!-- Steps -->
+<section class="px-4 mt-8">
+<h3 class="font-headline font-bold text-lg mb-4">Étapes</h3>
+<div class="flex flex-col gap-6">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">1</div>
+<p class="text-sm text-on-surface-variant leading-snug pt-1">Porter une casserole d'eau à ébullition. Plonger délicatement les œufs et cuire pendant exactement 6 minutes.</p>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold text-primary">2</div>
+<p class="text-sm text-on-surface-variant leading-snug pt-1">Pendant ce temps, faire sauter les épinards dans une poêle avec une noisette de beurre ou un filet d'huile d'olive.</p>
+</div>
+</div>
+</section>
+<!-- Bottom CTAs -->
+<section class="px-4 mt-12 flex flex-col gap-3">
+<button class="w-full py-4 border-2 border-primary text-primary font-bold rounded-full hover:bg-primary/5 active:scale-95 transition-all">
+                Choisir une autre recette
+            </button>
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-full shadow-[0px_8px_24px_rgba(0,106,99,0.15)] active:scale-95 transition-all">
+                Personnaliser ce repas
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-[#F6F4E9]/70 dark:bg-[#1B1C16]/70 backdrop-blur-xl border-t border-[#BDC9C6]/10 shadow-[0px_-8px_24px_rgba(0,106,99,0.05)] z-50">
+<div class="flex flex-col items-center justify-center text-[#3D4947] p-2 hover:text-[#006A63] active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947] p-2 hover:text-[#006A63] active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#4DB6AC] text-white rounded-2xl p-2 scale-110 transition-all active:scale-90">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947] p-2 hover:text-[#006A63] active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947] p-2 hover:text-[#006A63] active:scale-90 transition-all duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Meal Details - Akeli</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#1b1c16",
+                        "surface-container-low": "#f6f4e9",
+                        "outline": "#6d7a77",
+                        "surface-tint": "#006a63",
+                        "secondary-fixed": "#c3eae5",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-background": "#1b1c16",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#30312a",
+                        "on-tertiary-container": "#67280e",
+                        "tertiary-fixed": "#ffdbcf",
+                        "surface": "#fcfaef",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "secondary-container": "#c3eae5",
+                        "surface-bright": "#fcfaef",
+                        "secondary": "#416561",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#dcdad0",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#71d7cd",
+                        "surface-container-highest": "#e4e3d8",
+                        "surface-container-high": "#eae8de",
+                        "on-secondary-fixed": "#00201d",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-secondary-container": "#476b67",
+                        "tertiary": "#94492d",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#3d4947",
+                        "primary-container": "#4db6ac",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f3f1e6",
+                        "on-tertiary-fixed-variant": "#763219",
+                        "background": "#fcfaef",
+                        "surface-container": "#f0eee3",
+                        "primary": "#006a63",
+                        "primary-fixed-dim": "#71d7cd",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "on-primary-container": "#00433f",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#8ef4e9",
+                        "tertiary-container": "#ea8e6d",
+                        "outline-variant": "#bdc9c6",
+                        "surface-variant": "#e4e3d8",
+                        "on-primary-fixed": "#00201d"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
+        }
+        h1, h2, h3, .font-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high/50 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<h1 class="font-plus-jakarta text-on-surface font-bold tracking-tight text-lg">Meal Details</h1>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high/50 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary" data-icon="favorite">favorite</span>
+</button>
+</header>
+<!-- Hero Section -->
+<section class="relative h-[220px] w-full flex items-center justify-center overflow-hidden pt-16">
+<div class="absolute inset-0 bg-[#4DB6AC]/[0.08]"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/20"></div>
+<div class="relative z-10 text-6xl drop-shadow-sm">🍽️</div>
+</section>
+<!-- Content Container -->
+<main class="relative -mt-8 px-4 z-20">
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-on-surface/[0.03]">
+<!-- Meal Title & Badges -->
+<div class="space-y-4">
+<h2 class="text-xl font-bold font-headline text-on-surface leading-tight">Bowl de Quinoa aux Légumes Rôtis et Pois Chiches</h2>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-secondary-container text-primary text-xs font-semibold">
+                        Déjeuner
+                    </span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-[#FF9F43]/10 text-[#FF9F43] text-xs font-semibold">
+                        450 kcal
+                    </span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-medium">
+                        25 min
+                    </span>
+</div>
+</div>
+<!-- Macronutrients -->
+<section class="mt-8">
+<h3 class="text-base font-bold font-headline text-on-surface mb-4">Macronutriments</h3>
+<div class="flex flex-wrap gap-3">
+<div class="flex-1 min-w-[80px] bg-surface-container-low rounded-2xl p-3 text-center border border-on-surface/[0.02]">
+<p class="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Protéines</p>
+<p class="text-base font-bold text-primary">18g</p>
+</div>
+<div class="flex-1 min-w-[80px] bg-surface-container-low rounded-2xl p-3 text-center border border-on-surface/[0.02]">
+<p class="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Glucides</p>
+<p class="text-base font-bold text-primary">52g</p>
+</div>
+<div class="flex-1 min-w-[80px] bg-surface-container-low rounded-2xl p-3 text-center border border-on-surface/[0.02]">
+<p class="text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Lipides</p>
+<p class="text-base font-bold text-primary">14g</p>
+</div>
+</div>
+</section>
+<!-- Ingredients -->
+<section class="mt-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-base font-bold font-headline text-on-surface">Ingrédients</h3>
+<button class="text-primary text-sm font-semibold flex items-center gap-1 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Ajouter...
+                    </button>
+</div>
+<div class="space-y-3">
+<!-- Ingredient Card -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-3xl border border-on-surface/[0.02]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Close-up of raw dry quinoa grains with organic texture and earthy tones on a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB84FANs9G7UBMRXVki_q5L6UmUst4jQX6XJT16OqDHeJnoYPpdD6H0dw2j7u4-tdrsVxn_AdbV7K9-DU8LynCVHAA8_lkdcc6c8vjs4EQ1RE-s3rZb97-gOAkLD6xhMgpOn1kUK5hnVWeV_e5mf3k8-d1xmzv3Q5b1_4l0EM2zAZDKce2NtpxZc59hPEo6rCtK2NwEfrWa6oS0evIUQC54mQyRrYD0zLPhvCcZnUsmniWLiFymP6_4PKKvx5maRyG2jtwDSq7xpyc"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Quinoa blanc</p>
+<p class="text-xs text-on-surface-variant">Bio, non-cuit</p>
+</div>
+</div>
+<p class="text-sm font-bold text-primary">60g</p>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-3xl border border-on-surface/[0.02]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Fresh vibrant sweet potatoes and sliced carrots arranged on a wooden rustic kitchen table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8p0b_gliGfCO3eexPxEaoMLcfx8mfH9mfXgs72ErFYL0xOV864KOdCvgbuBdQFFXywvZ-Q0EgPKhL3VuIurmwrOVxiZknbf7zz_5RQ31pMTi6HV17sknjsh0ehv2hl0lk7y0SCfSmPC1Q3sxT9ZiV0sSQdmbZURmP2VTDd44pnc6BBYHE5dwBbHreAg7D74r2Tm1zDShS0iYZP0fo0wDEzugwo0f6Pdu_idnmdfvDSPeik_vvSobyI2EdHM0TC4I8TUqz1a6nn1w"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Légumes de saison</p>
+<p class="text-xs text-on-surface-variant">Carottes, Patates douces</p>
+</div>
+</div>
+<p class="text-sm font-bold text-primary">200g</p>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-3xl border border-on-surface/[0.02]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl overflow-hidden bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Canned or soaked chickpeas in a small ceramic bowl with a touch of olive oil and herbs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIDiC53cNP2FGPIs-nlhs4FpGdqG-v2CV8H9iW8qDIa54tdmN3dtM9nQ6XbTKZmnPe6WV79jGq6kYev-TsxDg37I1PRsnPH6jjf_NdCO6PZObti5_skp9zx7m-hyniePcg_8FDuitC6NMg9VMv-6xDQC72ozJLISnkfMN84iyyKZkl8k79kNPbcaWYmq7Z98FgKd4n_fu7_NJyd2dQayA3SasAY9_Ad3tTjcqNlKwhIqXGtmf-RLc91GJG_x8VmTKXjl9pJ4iEw30"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Pois chiches</p>
+<p class="text-xs text-on-surface-variant">Égouttés et rincés</p>
+</div>
+</div>
+<p class="text-sm font-bold text-primary">100g</p>
+</div>
+</div>
+</section>
+<!-- Instructions -->
+<section class="mt-8 mb-4">
+<h3 class="text-base font-bold font-headline text-on-surface mb-4">Instructions</h3>
+<div class="space-y-4 text-on-surface-variant text-sm leading-[1.6]">
+<div class="flex gap-4">
+<span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-xs">1</span>
+<p>Préchauffez votre four à 200°C. Coupez les légumes en dés, disposez-les sur une plaque avec un filet d'huile d'olive et du sel. Enfournez pour 20 minutes.</p>
+</div>
+<div class="flex gap-4">
+<span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-xs">2</span>
+<p>Rincez le quinoa à l'eau froide. Faites-le cuire dans deux fois son volume d'eau bouillante salée pendant environ 12 minutes.</p>
+</div>
+<div class="flex gap-4">
+<span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-xs">3</span>
+<p>Dans un grand bol, assemblez le quinoa, les légumes rôtis et les pois chiches. Ajoutez une sauce au tahini ou un filet de citron pour finir.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-2 bg-surface-container-low/80 backdrop-blur-xl z-50 rounded-t-3xl border-t border-on-surface/10 shadow-lg">
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-2xl p-3">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+</nav>
+</body></html>

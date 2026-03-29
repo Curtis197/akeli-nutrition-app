@@ -58,6 +58,7 @@ class _MealDetailWidgetState extends State<MealDetailWidget> {
   }
 
   @override
+
   Widget build(BuildContext context) {
     return FutureBuilder<List<MealRow>>(
       future: MealTable().querySingleRow(

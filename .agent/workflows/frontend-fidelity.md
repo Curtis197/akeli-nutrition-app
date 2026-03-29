@@ -30,14 +30,4 @@ This workflow defines the process for escalating the visual and technical qualit
 - Add micro-animations (hero transitions, haptic feedback) to increase "felt" quality.
 
 ## 📱 Phase 4: Platform Polish & Quality
-**Primary Skills: `mobile-developer`, `debugging-strategies`**
-- Ensure iOS/Android specific behaviors (safe areas, haptic feedback profiles).
-- Optimize list scroll performance (virtualization and image caching).
-- Systematic verification of layout shifts and platform-specific rendering issues.
-- Handle edge cases like varying screen aspect ratios.
-
-## 🧪 Phase 5: Refinement & Refactoring
-**Primary Skill: `code-refactoring-refactor-clean`**
-- Clean up ad-hoc styling in favor of the theme-driven approach.
 - Modularize UI code for easier maintenance and future design updates.
-

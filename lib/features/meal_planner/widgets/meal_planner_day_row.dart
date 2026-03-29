@@ -42,13 +42,13 @@ class MealPlannerDayRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 32.0),
+      padding: const EdgeInsets.only(bottom: 24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Day Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -80,11 +80,13 @@ class MealPlannerDayRow extends StatelessWidget {
           const SizedBox(height: 16),
           // Horizontal Meal List
           SizedBox(
-            height: 260, // Fixed height for the horizontal scroll
+            height: 310, // Increased to accommodate new card design
             child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               itemCount: entries.length,
+              clipBehavior: Clip.none,
               itemBuilder: (context, index) {
                 final entry = entries[index];
                 return AkeliMealCard(
@@ -92,7 +94,7 @@ class MealPlannerDayRow extends StatelessWidget {
                   imageUrl: entry.recipeThumbnail,
                   mealType: entry.mealType,
                   calories: entry.calories ?? 0,
-                  duration: 20,
+                  duration: (entry.recipeId.length % 20) + 15, // Mock duration
                   isPlanner: true,
                   isConsumed: entry.isConsumed,
                   onTap: () => onRecipeTap?.call(entry.recipeId),

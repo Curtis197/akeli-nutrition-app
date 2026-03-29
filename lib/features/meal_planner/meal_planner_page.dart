@@ -23,160 +23,163 @@ class MealPlannerPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFFFCFAEF),
-      body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            // ── TOP NAVIGATION BAR ───────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Container(
-                height: 64,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                color: const Color(0xFFFCFAEF),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          // ── TOP NAVIGATION BAR ───────────────────────────────────────
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            expandedHeight: 0,
+            toolbarHeight: 64,
+            elevation: 0,
+            backgroundColor: const Color(0xFFFCFAEF),
+            automaticallyImplyLeading: false,
+            title: Row(
+              children: [
+                const Icon(Icons.menu, color: Color(0xFF4DB6AC)),
+                const SizedBox(width: 16),
+                Text(
+                  'Akeli Victoire',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 24),
+                child: Center(
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          // ── HEADER & PROGRESS ────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            sliver: SliverToBoxAdapter(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.menu, color: Color(0xFF4DB6AC)),
-                        const SizedBox(width: 16),
                         Text(
-                          'Akeli Victoire',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
+                          'Vos repas ${dayKeys.length > 3 ? 'de la semaine' : 'des prochains jours'}',
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            height: 1.1,
+                            letterSpacing: -1.0,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Découvrez votre programme nutritionnel personnalisé pour les ${dayKeys.length} prochains jours.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AkeliColors.outline,
+                            height: 1.5,
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.person, size: 20, color: AkeliColors.outline),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
-            // ── HEADER & PROGRESS ────────────────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-              sliver: SliverToBoxAdapter(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Vos repas de la semaine',
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              height: 1.1,
-                              letterSpacing: -1.0,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Découvrez votre programme nutritionnel personnalisé pour les 7 prochains jours.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AkeliColors.outline,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
+                  ),
+                  const SizedBox(width: 16),
+                  // Progress Indicator aligned with FF
+                  import_percent.CircularPercentIndicator(
+                    radius: 38.0,
+                    lineWidth: 8.0,
+                    percent: 0.72,
+                    animation: true,
+                    progressColor: AkeliColors.primary,
+                    backgroundColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.3),
+                    center: Text(
+                      "72%",
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: AkeliColors.primary,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    // Progress Indicator from FF
-                    import_percent.CircularPercentIndicator(
-                      radius: 38.0,
-                      lineWidth: 8.0,
-                      percent: 0.72,
-                      animation: true,
-                      progressColor: AkeliColors.primary,
-                      backgroundColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.3),
-                      center: Text(
-                        "72%",
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AkeliColors.primary,
-                        ),
-                      ),
-                      circularStrokeCap: import_percent.CircularStrokeCap.round,
-                    ),
-                  ],
-                ),
+                    circularStrokeCap: import_percent.CircularStrokeCap.round,
+                  ),
+                ],
               ),
             ),
+          ),
 
-            // ── QUICK ACTIONS ───────────────────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    _buildNavigationCard(
-                      context,
-                      icon: Icons.restaurant_menu,
-                      title: 'Voir mon plan diététique',
-                      onTap: () => context.push(AkeliRoutes.dietPlan),
-                    ),
-                    const SizedBox(height: 12),
-                    _buildNavigationCard(
-                      context,
-                      icon: Icons.shopping_basket,
-                      title: 'Voir ma liste de course',
-                      onTap: () => context.push(AkeliRoutes.shoppingList),
-                    ),
-                  ],
-                ),
+          // ── QUICK ACTIONS ───────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _buildNavigationCard(
+                    context,
+                    icon: Icons.restaurant_menu,
+                    title: 'Voir mon plan diététique',
+                    onTap: () => context.push(AkeliRoutes.dietPlan),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildNavigationCard(
+                    context,
+                    icon: Icons.shopping_basket,
+                    title: 'Voir ma liste de course',
+                    onTap: () => context.push(AkeliRoutes.shoppingList),
+                  ),
+                ],
               ),
             ),
+          ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-
-            // ── SNACK SECTION ───────────────────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverToBoxAdapter(
-                child: _buildSnackSection(context),
-              ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 48)),
-
-            // ── DAILY MEAL LIST ─────────────────────────────────────────
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              sliver: SliverList(
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
+        body: SafeArea(
+          top: false,
+          child: CustomScrollView(
+            slivers: [
+              // ── DAILY MEAL LIST ─────────────────────────────────────────
+              SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final date = dayKeys[index];
                     final entries = entriesByDay[date]!;
-                    return MealPlannerDayRow(
-                      date: date,
-                      entries: entries,
-                      onRecipeTap: (recipeId) => context.push(AkeliRoutes.recipeDetailPath(recipeId)),
-                      onConsumedToggle: (entryId, isConsumed) {
-                        // For mockup, we just log to console or trigger haptic
-                        HapticFeedback.mediumImpact();
-                      },
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MealPlannerDayRow(
+                          date: date,
+                          entries: entries,
+                          onRecipeTap: (recipeId) => context.push(AkeliRoutes.recipeDetailPath(recipeId)),
+                          onConsumedToggle: (entryId, isConsumed) {
+                            HapticFeedback.mediumImpact();
+                          },
+                        ),
+                        // Snack button per day
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
+                          child: _buildSnackSection(context),
+                        ),
+                      ],
                     );
                   },
                   childCount: dayKeys.length,
                 ),
               ),
-            ),
-
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -232,67 +235,40 @@ class MealPlannerPage extends ConsumerWidget {
   }
 
   Widget _buildSnackSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE4F5F2), // Light teal background
-        borderRadius: BorderRadius.circular(AkeliRadius.card),
-        border: Border.all(color: const Color(0xFFB2DFDB).withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: AkeliColors.primary,
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        // Implement add snack action
+      },
+      borderRadius: BorderRadius.circular(AkeliRadius.card),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE4F5F2), // Light teal background matching FF
+          borderRadius: BorderRadius.circular(AkeliRadius.card),
+          border: Border.all(color: const Color(0xFFB2DFDB).withValues(alpha: 0.5)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add_circle_outline, color: Color(0xFF00796B), size: 20),
+            const SizedBox(width: 12),
+            Text(
+              'Ajouter une collation',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: const Color(0xFF00796B),
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
             ),
-            child: const Icon(Icons.cookie, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ajouter une collation',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  'Personnalisez votre plan',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AkeliColors.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AkeliColors.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              minimumSize: Size.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
-            ),
-            child: const Text(
-              'Ajouter', 
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Future<void> _generatePlan(BuildContext context, WidgetRef ref) async {
-    // Show a loading indicator
+    HapticFeedback.heavyImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Génération de votre nouveau plan...'),
@@ -300,14 +276,14 @@ class MealPlannerPage extends ConsumerWidget {
       ),
     );
     
-    // In production, this would trigger a backend call
+    // Simulating generation logic
     await Future.delayed(const Duration(seconds: 2));
     
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Plan généré avec succès !'),
-          backgroundColor: Colors.green,
+          backgroundColor: AkeliColors.primary,
         ),
       );
     }

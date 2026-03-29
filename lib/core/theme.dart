@@ -69,6 +69,8 @@ abstract class AkeliRadius {
   static const double md = 12.0;
   static const double lg = 18.0;
   static const double xl = 24.0;
+  static const double card = 24.0; // Alias for xl/card radius
+  static const double m = 12.0;    // Alias for md/medium radius
   static const double pill = 999.0;
   static const double full = 100.0;  // kept for backward compat
 }
