@@ -1,0 +1,40 @@
+Home Dashboard Page Audit
+
+## Step 1: Base Widget Tree
+- Scaffold
+  - NestedScrollView
+    - headerSliverBuilder
+      - SliverAppBar (Floating, Pinned)
+        - Container (Gradient Background: primary -> secondary)
+          - Row (MainAxisAlignment.spaceBetween)
+            - IconButton (Menu, color: onPrimary)
+            - Text ("Akeli", style: headlineMedium, color: onPrimary)
+            - CircleAvatar (BackgroundImage: user.photoUrl, radius: 20)
+    - body
+      - SingleChildScrollView
+        - Column
+          - Section: Welcome Banner
+            - Container (Padding: 16, Margin: 16, Decoration: BoxShadow)
+              - Column
+                - Text ("Bonjour, {user.name}", style: titleLarge, color: primary)
+                - Text ("Prêt pour une journée énergique ?", style: bodyMedium)
+                - LinearProgressIndicator (Value: dailyGoalProgress, color: tertiary)
+          - Section: Quick Stats (Visible if weight != null)
+            - Row (MainAxisAlignment.spaceEvenly)
+              - StatCard (Icon: fitness_center, Value: "{weight} kg", Label: "Poids")
+              - StatCard (Icon: local_fire_department, Value: "{calories} kcal", Label: "Calories")
+              - StatCard (Icon: water_drop, Value: "{water} ml", Label: "Eau")
+          - Section: Meal Plan Preview
+            - Row (MainAxisAlignment.spaceBetween)
+              - Text ("Aujourd'hui", style: titleMedium)
+              - TextButton ("Voir tout", onPressed: navigateToMealPlan)
+            - ListView.builder (ScrollDirection: horizontal, itemCount: 4)
+              - MealCard (Recipe image, Title, Calories, Tags)
+          - Section: AI Assistant Shortcut (Visible if !paidPlan OR trialActive)
+            - ListTile (Leading: Icon(auto_awesome), Title: "Ask Akeli", Subtitle: "Get instant advice", onTap: navigateToAIChat)
+          - Section: Community Feed Teaser
+            - Card (Child: Column)
+              - Image.network (Community highlight)
+              - Padding (Text("Rejoignez la discussion", style: bodySmall))
+          - Section: Bottom Navigation Bar (Persistent)
+            - BottomNavigationBar (Items: Home, Recipes, Planner, Community, Profile)
