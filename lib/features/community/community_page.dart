@@ -1,26 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/router.dart';
-import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
-import '../../providers/auth_provider.dart';
+import '../../core/router.dart';
 import '../../shared/widgets/avatar.dart';
-
-// ---------------------------------------------------------------------------
-// Providers
-// ---------------------------------------------------------------------------
-
 final communityGroupsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  ref.watch(currentUserProvider);
-  final data = await supabase
-      .from('community_group')
-      .select('*, group_member(count)')
-      .eq('is_public', true)
-      .order('member_count', ascending: false)
-      .limit(20);
-  return (data as List<dynamic>).cast<Map<String, dynamic>>();
+  await Future.delayed(const Duration(milliseconds: 800));
+  return [
+    {
+      'id': 'group-1',
+      'name': 'Équilibre & Nutrition',
+      'description': 'Partagez vos astuces pour manger sainement au quotidien.',
+      'cover_url': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400',
+      'member_count': 1240,
+    },
+    {
+      'id': 'group-2',
+      'name': 'Recettes Traditionnelles',
+      'description': 'L\'art de la cuisine africaine authentique.',
+      'cover_url': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
+      'member_count': 850,
+    },
+    {
+      'id': 'group-3',
+      'name': 'Perte de Poids (Sénégal)',
+      'description': 'Objectif forme et santé ensemble !',
+      'cover_url': 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400',
+      'member_count': 2100,
+    },
+  ];
 });
 
 // ---------------------------------------------------------------------------

@@ -1,21 +1,37 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+
+// ---------------------------------------------------------------------------
+// Mock User Entity (Replaces Supabase User)
+// ---------------------------------------------------------------------------
+
+class MockUser {
+  final String id;
+  final String email;
+  final String? name;
+
+  MockUser({
+    required this.id,
+    required this.email,
+    this.name,
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Auth state
 // ---------------------------------------------------------------------------
 
-final authStateProvider = StreamProvider<AuthState>((ref) {
-  return Supabase.instance.client.auth.onAuthStateChange;
+final authStateProvider = StateProvider<MockUser?>((ref) {
+  // Par défaut, l'utilisateur est connecté pour faciliter le design
+  return MockUser(
+    id: 'mock-user-123',
+    email: 'contact@akeli.app',
+    name: 'Utilisateur Akeli',
+  );
 });
 
-final currentUserProvider = Provider<User?>((ref) {
-  final authState = ref.watch(authStateProvider);
-  return authState.whenOrNull(
-        data: (state) => state.session?.user,
-      ) ??
-      Supabase.instance.client.auth.currentUser;
+final currentUserProvider = Provider<MockUser?>((ref) {
+  return ref.watch(authStateProvider);
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
@@ -23,7 +39,7 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 // ---------------------------------------------------------------------------
-// Auth notifier — sign-up, sign-in, sign-out, reset password
+// Auth notifier — Mock sign-up, sign-in, sign-out
 // ---------------------------------------------------------------------------
 
 class AuthNotifier extends AsyncNotifier<void> {
@@ -35,19 +51,13 @@ class AuthNotifier extends AsyncNotifier<void> {
     required String password,
   }) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      print('Auth Log: Attempting sign up for email: $email');
-      final response = await Supabase.instance.client.auth.signUp(
-        email: email,
-        password: password,
-      );
-      print('Auth Log: Sign up response received. User ID: ${response.user?.id}');
-      
-      if (response.user != null && response.user!.emailConfirmedAt == null) {
-        print('Auth Log: Sign up successful, but email needs confirmation.');
-        throw Exception('signup_email_confirmation_required');
-      }
-    });
+    await Future.delayed(const Duration(seconds: 1));
+    ref.read(authStateProvider.notifier).state = MockUser(
+      id: 'mock-user-123',
+      email: email,
+      name: 'Nouveau Gourmet',
+    );
+    state = const AsyncValue.data(null);
   }
 
   Future<void> signIn({
@@ -55,40 +65,26 @@ class AuthNotifier extends AsyncNotifier<void> {
     required String password,
   }) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      print('Auth Log: Attempting sign in for email: $email');
-      final response = await Supabase.instance.client.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
-      
-      final user = response.user;
-      print('Auth Log: Sign in response received for user: ${user?.id}');
-      
-      if (user != null && user.emailConfirmedAt == null) {
-        print('Auth Log: Email not confirmed for user: ${user.id}. Signing out.');
-        await Supabase.instance.client.auth.signOut();
-        throw Exception('email_not_confirmed');
-      }
-      
-      print('Auth Log: Sign in strictly successful, email is confirmed.');
-    });
+    await Future.delayed(const Duration(seconds: 1));
+    ref.read(authStateProvider.notifier).state = MockUser(
+      id: 'mock-user-123',
+      email: email,
+      name: 'Utilisateur Akeli',
+    );
+    state = const AsyncValue.data(null);
   }
 
   Future<void> signOut() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      print('Auth Log: Attempting sign out');
-      await Supabase.instance.client.auth.signOut();
-      print('Auth Log: Sign out successful');
-    });
+    await Future.delayed(const Duration(milliseconds: 500));
+    ref.read(authStateProvider.notifier).state = null;
+    state = const AsyncValue.data(null);
   }
 
   Future<void> resetPassword(String email) async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      await Supabase.instance.client.auth.resetPasswordForEmail(email);
-    });
+    await Future.delayed(const Duration(seconds: 1));
+    state = const AsyncValue.data(null);
   }
 }
 

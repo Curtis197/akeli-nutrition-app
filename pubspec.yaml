@@ -12,9 +12,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  # Backend — Supabase uniquement (pas de Firebase)
-  supabase_flutter: ^2.5.0
-
   # State management — Riverpod par domaine fonctionnel
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5

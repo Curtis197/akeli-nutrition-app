@@ -8,20 +8,20 @@ import 'package:google_fonts/google_fonts.dart';
 
 abstract class AkeliColors {
   // Brand - Digital Editorial System
-  static const primary = Color(0xFF4DB6AC);      // Teal (Main)
-  static const primaryContainer = Color(0xFF006A63); // Darker Teal
-  static const secondary = Color(0xFFFF9F43);    // Orange (Alerts/Calories)
-  static const accentPurple = Color(0xFFA18AFF);  // Title Purple
-  static const tertiary = Color(0xFF8B7FD4);     // Violet (Fallback)
+  static const primary = Color(0xFF006A63);            // Teal Dark (CTA, Active)
+  static const primaryContainer = Color(0xFF4DB6AC);   // Teal Light (Surfaces, Secondary)
+  static const secondary = Color(0xFFFF9F43);          // Orange (Alerts/Calories)
+  static const accentPurple = Color(0xFFA18AFF);       // Title Purple
+  static const tertiary = Color(0xFF8B7FD4);           // Violet (Fallback)
 
-  // Surface Philosophy
-  static const surface = Color(0xFFFFFFFF);             // Base Surface (Pure White)
-  static const surfaceContainerLow = Color(0xFFF8F9FA); // Off-white Secondary
-  static const surfaceContainerLowest = Color(0xFFFFFFFF); // Interactive Cards
-  static const surfaceContainerHigh = Color(0xFFF1F3F5); // Higher Surface
-  static const surfaceContainerHighest = Color(0xFFE9ECEF); // Highest Surface
-  static const secondaryContainer = Color(0xFFC3EAE5);    // Light Teal/Secondary
-  static const background = Color(0xFFFFFFFF);          // Same as surface
+  // Surface Philosophy — "The Organic Layer"
+  static const surface = Color(0xFFFCFAEF);             // Warm Cream (Page Background)
+  static const surfaceContainerLow = Color(0xFFF6F4E9); // Cream Dark (Sections)
+  static const surfaceContainerLowest = Color(0xFFFFFFFF); // Pure White (Interactive Cards)
+  static const surfaceContainerHigh = Color(0xFFF1F3F5); // High Contrast Surface
+  static const surfaceContainerHighest = Color(0xFFE4E3D8); // Track/Disabled Surface
+  static const secondaryContainer = Color(0xFFC3EAE5);    // Very Light Teal
+  static const background = surface;                    // Anchor to warm cream
 
   // Text Roles
   static const onSurface = Color(0xFF1B1C16);           // Main Text
@@ -66,13 +66,12 @@ abstract class AkeliSpacing {
 
 abstract class AkeliRadius {
   static const double sm = 8.0;
-  static const double md = 12.0;
-  static const double lg = 18.0;
-  static const double xl = 24.0;
-  static const double card = 24.0; // Alias for xl/card radius
-  static const double m = 12.0;    // Alias for md/medium radius
+  static const double md = 12.0;    // Standard
+  static const double lg = 16.0;    // Hero
+  static const double xl = 24.0;    // Organic Cards (1.5rem)
+  static const double card = 24.0;  // Alias for xl/card radius
   static const double pill = 999.0;
-  static const double full = 100.0;  // kept for backward compat
+  static const double full = 100.0;
 }
 
 // ---------------------------------------------------------------------------

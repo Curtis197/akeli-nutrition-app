@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/supabase_client.dart';
+// import '../../core/supabase_client.dart'; // Removed Supabase
 import '../../core/theme.dart';
 
 // ---------------------------------------------------------------------------
@@ -28,8 +28,6 @@ class ChatMessage {
 // ---------------------------------------------------------------------------
 
 class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
-  String? _conversationId;
-
   @override
   List<ChatMessage> build() => [];
 
@@ -52,28 +50,27 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
     );
 
     state = [...state, userMsg, loadingMsg];
-
+ 
     try {
-      final res = await supabase.functions.invoke(
-        'ai-assistant-chat',
-        body: {
-          'message': content.trim(),
-          if (_conversationId != null) 'conversation_id': _conversationId,
-        },
-      );
-
-      final data = res.data as Map<String, dynamic>;
-      _conversationId = data['conversation_id'] as String?;
-      final reply = data['reply'] as String? ?? 'Désolé, je n\'ai pas compris.';
-
+      // Mocking AI response instead of calling Supabase
+      await Future.delayed(const Duration(seconds: 2));
+      
+      String reply = "C'est une excellente question ! ";
+      if (content.toLowerCase().contains('protéine')) {
+        reply += "Pour un apport optimal en protéines dans la cuisine africaine, privilégiez le niébé (haricots), les arachides, ainsi que le poisson frais ou séché. Le fonio est aussi une excellente céréale complète.";
+      } else if (content.toLowerCase().contains('calorique') || content.toLowerCase().contains('poids')) {
+        reply += "Votre apport calorique idéal dépend de votre métabolisme de base. En général, on recommande une approche équilibrée riche en fibres (légumes feuilles comme le Bissap ou le Moringa) et modérée en huiles de palme ou d'arachide.";
+      } else {
+        reply += "En tant qu'assistant Akeli, je vous recommande de suivre votre plan de repas personnalisé dans l'onglet 'Planning' pour atteindre vos objectifs santé tout en savourant nos saveurs locales.";
+      }
+ 
       final assistantMsg = ChatMessage(
-        id: data['message_id'] as String? ??
-            'assistant_${DateTime.now().millisecondsSinceEpoch}',
+        id: 'assistant_${DateTime.now().millisecondsSinceEpoch}',
         role: 'assistant',
         content: reply,
         createdAt: DateTime.now(),
       );
-
+ 
       // Replace loading with actual response
       state = [
         ...state.where((m) => !m.isLoading),
@@ -94,7 +91,6 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
 
   void clear() {
     state = [];
-    _conversationId = null;
   }
 }
 

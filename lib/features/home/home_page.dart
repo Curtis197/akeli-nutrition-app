@@ -213,7 +213,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               value: weight > 0 ? weight.toStringAsFixed(1) : '--',
                               unit: 'kg',
                               progress: (target > 0) ? (target / weight).clamp(0.0, 1.0) : 0.7,
-                              gradientColors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                              gradientColors: const [AkeliColors.primary, AkeliColors.primaryContainer],
                             );
                           },
                           orElse: () => const AkeliModernMetric(
@@ -243,7 +243,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               value: '$consumed', 
                               unit: 'kcal',
                               progress: (consumed / target).clamp(0.0, 1.0), 
-                              gradientColors: [AkeliColors.secondary, AkeliColors.secondaryContainer],
+                              gradientColors: const [AkeliColors.secondary, AkeliColors.secondaryContainer],
                               onTap: () => context.go('/nutrition'),
                             );
                           },
@@ -604,29 +604,3 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PRIVATE DATA CLASS — _ShoppingPreviewItem
-//
-// A simple immutable value object used only within this file (private: underscore prefix).
-// Holds a single row in the shopping preview section.
-// Because it is immutable (const constructor), updates are done via copyWith().
-// ─────────────────────────────────────────────────────────────────────────────
-class _ShoppingPreviewItem {
-  final String quantity;    // e.g. "500 g"
-  final String ingredient;  // e.g. "Tomates"
-  final bool   checked;     // whether the checkbox is ticked
-
-  const _ShoppingPreviewItem({
-    required this.quantity,
-    required this.ingredient,
-    required this.checked,
-  });
-
-  // copyWith: returns a new instance with only the specified field changed.
-  // Common immutable pattern — avoids mutating the object directly.
-  _ShoppingPreviewItem copyWith({bool? checked}) => _ShoppingPreviewItem(
-        quantity:   quantity,
-        ingredient: ingredient,
-        checked:    checked ?? this.checked, // keep old value if not provided
-      );
-}

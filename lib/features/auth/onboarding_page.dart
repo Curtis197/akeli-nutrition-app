@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../core/router.dart';
-import '../../core/supabase_client.dart';
+// import '../../core/supabase_client.dart'; // Removed Supabase
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 
@@ -66,29 +66,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     setState(() => _isSubmitting = true);
     try {
       // Derive birth_date from age (approximated to Jan 1st of birth year)
-      final age = int.tryParse(_ageCtrl.text);
-      final birthYear = age != null ? DateTime.now().year - age : null;
-      final birthDate = birthYear != null ? '$birthYear-01-01' : null;
-
-      final fullName = _nameCtrl.text.trim();
-      final nameParts = fullName.split(' ');
-      final firstName = nameParts.first;
-      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
-
-      await supabase.functions.invoke('complete-onboarding', body: {
-        'first_name': firstName,
-        'last_name': lastName,
-        // Flat structure matching the Edge Function signature
-        'sex': _gender,
-        'birth_date': birthDate,
-        'weight_kg': double.tryParse(_weightCtrl.text),
-        'height_cm': double.tryParse(_heightCtrl.text),
-        'target_weight_kg': double.tryParse(_targetWeightCtrl.text),
-        'activity_level': _activityLevel,
-        'goals': _primaryGoal != null ? [_primaryGoal] : [],
-        'dietary_restrictions': _dietaryRestrictions.toList(),
-        'cuisine_preferences': _cuisinePreferences.toList(),
-      });
+      // (Originally extracted for Supabase, now mocked)
+      
+      // Mocking the onboarding completion
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // Navigate to home after successful "mock" submission
       if (mounted) context.go(AkeliRoutes.home);
     } catch (_) {
       if (mounted) context.go(AkeliRoutes.home);

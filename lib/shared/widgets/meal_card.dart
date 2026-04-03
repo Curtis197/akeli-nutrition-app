@@ -38,20 +38,6 @@ class AkeliMealCard extends StatelessWidget {
     this.onConsumedToggle,
   });
 
-  String get _mealTypeEmoji {
-    switch (mealType.toLowerCase()) {
-      case 'breakfast':
-        return '☀️';
-      case 'lunch':
-        return '🍔';
-      case 'dinner':
-        return '🌙';
-      case 'snack':
-        return '🍎';
-      default:
-        return '🍴';
-    }
-  }
 
   String get _mealTypeLabel {
     switch (mealType.toLowerCase()) {

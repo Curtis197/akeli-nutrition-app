@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/supabase_client.dart';
+import '../shared/mock_data.dart';
 import 'auth_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -55,19 +55,20 @@ final todayNutritionProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
+  await Future.delayed(const Duration(milliseconds: 500)); // Simuler latence
+
   final today = DateTime.now();
   final dateStr =
       '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
-  final data = await supabase
-      .from('daily_nutrition_log')
-      .select()
-      .eq('user_id', user.id)
-      .eq('log_date', dateStr)
-      .maybeSingle();
-
-  if (data == null) return null;
-  return DailyNutrition.fromJson(data);
+  try {
+    final entry = MockData.dailyNutritionLogs.firstWhere(
+      (log) => log['log_date'] == dateStr,
+    );
+    return DailyNutrition.fromJson(entry);
+  } catch (_) {
+    return null;
+  }
 });
 
 final weeklyNutritionProvider =
@@ -75,20 +76,10 @@ final weeklyNutritionProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
 
-  final now = DateTime.now();
-  final weekAgo = now.subtract(const Duration(days: 6));
-  final fromStr =
-      '${weekAgo.year}-${weekAgo.month.toString().padLeft(2, '0')}-${weekAgo.day.toString().padLeft(2, '0')}';
+  await Future.delayed(const Duration(milliseconds: 800)); // Simuler latence
 
-  final data = await supabase
-      .from('daily_nutrition_log')
-      .select()
-      .eq('user_id', user.id)
-      .gte('log_date', fromStr)
-      .order('log_date');
-
-  return (data as List<dynamic>)
-      .map((e) => DailyNutrition.fromJson(e as Map<String, dynamic>))
+  return MockData.dailyNutritionLogs
+      .map((e) => DailyNutrition.fromJson(e))
       .toList();
 });
 
@@ -120,15 +111,10 @@ final weightLogProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return [];
 
-  final data = await supabase
-      .from('weight_log')
-      .select()
-      .eq('user_id', user.id)
-      .order('logged_at', ascending: false)
-      .limit(30);
+  await Future.delayed(const Duration(milliseconds: 600)); // Simuler latence
 
-  return (data as List<dynamic>)
-      .map((e) => WeightEntry.fromJson(e as Map<String, dynamic>))
+  return MockData.weightLogs
+      .map((e) => WeightEntry.fromJson(e))
       .toList();
 });
 
@@ -142,12 +128,15 @@ class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
 
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await supabase.from('weight_log').insert({
+      await Future.delayed(const Duration(seconds: 1)); // Simuler réseau
+      
+      MockData.weightLogs.insert(0, {
         'user_id': user.id,
         'weight_kg': weightKg,
         if (note != null) 'note': note,
         'logged_at': DateTime.now().toIso8601String(),
       });
+      
       ref.invalidate(weightLogProvider);
     });
   }

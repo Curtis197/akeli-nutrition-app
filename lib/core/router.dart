@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/auth_provider.dart';
 import '../features/auth/auth_page.dart';
@@ -70,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: AkeliRoutes.home,
     refreshListenable: notifier,
     redirect: (context, state) {
-      final user = Supabase.instance.client.auth.currentUser;
+      final user = ref.read(currentUserProvider);
       final isAuth = user != null;
       final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
       final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
@@ -174,8 +173,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
     ],
-    errorBuilder: (context, state) => const Scaffold(
-      body: Center(child: Text("Page introuvable: \${state.error}")),
+    errorBuilder: (context, state) => Scaffold(
+      body: Center(child: Text("Page introuvable: ${state.error}")),
     ),
   );
 });
+

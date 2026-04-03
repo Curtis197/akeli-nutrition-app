@@ -51,7 +51,7 @@ class AkeliModernMetric extends StatelessWidget {
                       endAngle: (math.pi * 2) - (math.pi / 2),
                       colors: colors,
                       stops: const [0.0, 1.0],
-                      transform: GradientRotation(-math.pi / 2),
+                      transform: const GradientRotation(-math.pi / 2),
                     ).createShader(rect);
                   },
                   child: CustomPaint(

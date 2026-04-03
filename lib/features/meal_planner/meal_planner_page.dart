@@ -5,9 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/percent_indicator.dart' as import_percent;
 import '../../core/router.dart';
 import '../../core/theme.dart';
-import '../../providers/meal_plan_provider.dart';
 import '../../shared/mocks/mock_meal_plan.dart';
-import '../../shared/widgets/empty_state.dart';
 import 'widgets/meal_planner_day_row.dart';
 
 class MealPlannerPage extends ConsumerWidget {

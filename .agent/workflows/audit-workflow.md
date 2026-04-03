@@ -10,29 +10,26 @@ This workflow defines the mandatory sequence for transforming FlutterFlow (FF) b
 
 ## 📁 Audit File Convention
 
-Every page and shared component gets its own audit file. This file is the **single source of truth** for that page/component throughout the entire migration.
+Every page gets its own audit file. This file is the **single source of truth** for that page and its constituent components throughout the entire migration.
+
+> [!IMPORTANT]
+> **Immediate Documentation**: You MUST create the audit MD file in the `audit/` directory as the very first action of any migration task. Do not wait for a prompt or ask for permission.
 
 ### Location & Naming
 
 ```
 audit/
-├── pages/
-│   ├── meal_detail.md
-│   ├── meal_planner.md
-│   ├── home_dashboard.md
-│   ├── recipes_feed.md
-│   ├── recipe_detail.md
-│   ├── ai_assistant.md
-│   ├── community.md
-│   ├── profile.md
-│   ├── auth.md
-│   └── onboarding.md
-└── components/
-    ├── meal_card.md
-    ├── macro_badge.md
-    ├── section_header.md
-    ├── shopping_row.md
-    └── ...
+└── pages/
+    ├── meal_detail.md
+    ├── meal_planner.md
+    ├── home_dashboard.md
+    ├── recipes_feed.md
+    ├── recipe_detail.md
+    ├── ai_assistant.md
+    ├── community.md
+    ├── profile.md
+    ├── auth.md
+    └── onboarding.md
 ```
 
 ### Reference example
@@ -46,9 +43,9 @@ Each audit file tracks the page through these steps. Steps must be done in order
 
 ### Step 1 — [BASE] Widget Tree
 - Source: `flutterflow_application/akeli/lib/`
-- Extract the core structure of the FF-generated page
-- Format: hierarchical list (Scaffold → AppBar → Column → Row → Text)
-- Goal: understand the skeleton before any visual work
+- Extract the core structure of the FF-generated page, including all internal component logic (e.g., specific cards, badges, or list items)
+- Format: hierarchical list (Scaffold → AppBar → Column → [Component: MealCard] → Text)
+- Goal: understand the skeleton and business logic before any visual work
 
 ### Step 2 — [DESIGN] Baseline Attributes
 - For each widget in the tree, extract exact design attributes from the FF code
@@ -60,8 +57,11 @@ Each audit file tracks the page through these steps. Steps must be done in order
 - Include aesthetic goals (rounded corners, typography targets, visual air)
 - Goal: give Stitch the structural constraints to generate the target mockup
 
+> [!CAUTION]
+> **MANDATORY STOP**: After completing Step 3, you MUST stop and yield control. Do not proceed to Step 4 until the high-fidelity assets (`code.html` and `screen.png`) are available in the `stitch/` directory. You are waiting for external design input.
+
 ### Step 4 — [STITCH] High-Fidelity Widget Tree
-- Source: `stitch/<page_name>/code.html` (Tailwind/HTML from Stitch)
+- **Prerequisite**: `stitch/<folder>/code.html` must exist in the workspace.
 - Extract the target widget tree from the Stitch HTML
 - Format: same hierarchical structure as Step 1 but with Stitch tokens
 - Goal: define the precise structural and visual target
@@ -136,7 +136,9 @@ Each audit file must follow this structure:
 ## 🛠️ Rules
 
 - **Never start Step 8 without Step 6 approval.**
-- **One audit file per page and per shared component.**
+- **MANDATORY STOP after Step 3**: Always wait for Stitch assets before Step 4.
+- **One audit file per page.** Components are audited as part of their parent page.
+- **Create the audit file IMMEDIATELY** — Do not ask before creating it.
 - **Keep the audit file updated** — it is the living record of decisions made.
 - **`audit-exemple.md`** is the reference template. Do not modify it.
 - The `UI_AUDIT.md` ledger in the root tracks the status of all pages at a glance (links to individual audit files).
