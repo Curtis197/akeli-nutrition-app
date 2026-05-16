@@ -84,7 +84,7 @@ lib/providers/fan_mode_provider.dart
 | Provider | Query |
 |---|---|
 | `userProfileProvider` | `from('user_profile').select().eq('id', userId).single()` |
-| `healthProfileProvider` | `from('health_profile').select().eq('user_id', userId).single()` |
+| `healthProfileProvider` | `from('user_health_profile').select().eq('user_id', userId).maybeSingle()` |
 | `UserProfileNotifier.updateProfile` | `from('user_profile').update({...}).eq('id', userId)` |
 | `subscriptionProvider` | `from('subscription').select().eq('user_id', userId).maybeSingle()` |
 | `isPremiumProvider` | Derived from `subscriptionProvider` — no query |
@@ -176,12 +176,12 @@ lib/providers/fan_mode_provider.dart
 | Provider | Query |
 |---|---|
 | `myFanSubscriptionProvider` | `from('fan_subscription').select().eq('user_id', userId).maybeSingle()` |
-| `fanEligibleCreatorsProvider` | `from('creator').select().eq('is_fan_eligible', true)` |
+| `fanEligibleCreatorsProvider` | `from('creator').select()` — `is_fan_eligible` column does not exist; return all creators |
 | `creatorProfileProvider` | `from('creator').select().eq('id', creatorId).single()` |
 | `FanModeNotifier.activate` | `functions.invoke('activate-fan-mode', body: {creatorId})` then `ref.invalidate(myFanSubscriptionProvider)` |
 | `FanModeNotifier.cancel` | `functions.invoke('cancel-fan-mode', body: {})` then `ref.invalidate(myFanSubscriptionProvider)` |
 
-**Note:** `creator.is_fan_eligible` — verify this column exists before wiring; it was flagged as missing during the annotation migration fix. If absent, fall back to `from('creator').select()` with no filter.
+**Note:** `creator.is_fan_eligible` does not exist in the schema (confirmed). `fanEligibleCreatorsProvider` returns all creators. The `Creator` model's `isFanEligible` field should be removed or hardcoded to `true`.
 
 **Success criterion:** `flutter analyze` passes.
 
