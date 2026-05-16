@@ -49,3 +49,7 @@ app.*.map.json
 .env.local
 .env.*.local
 python/.env
+
+# AI tool working directories
+.kilo/
+.qwen/
