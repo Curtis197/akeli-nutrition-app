@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../shared/mock_data.dart';
+import '../core/supabase_client.dart';
 import '../shared/models/creator.dart';
 import 'auth_provider.dart';
 
@@ -13,20 +13,28 @@ final myFanSubscriptionProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  await Future.delayed(const Duration(milliseconds: 500));
-  return FanSubscription.fromJson(MockData.fanSubscription);
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('fan_subscription')
+      .select()
+      .eq('user_id', user.id)
+      .maybeSingle();
+  if (data == null) return null;
+  return FanSubscription.fromJson(data);
 });
 
 // ---------------------------------------------------------------------------
-// Fan-eligible creators list
+// Fan-eligible creators (all creators — no is_fan_eligible column in DB)
 // ---------------------------------------------------------------------------
 
 final fanEligibleCreatorsProvider =
     FutureProvider.autoDispose<List<Creator>>((ref) async {
   ref.watch(currentUserProvider);
 
-  await Future.delayed(const Duration(milliseconds: 600));
-  return MockData.creators.where((c) => c.isFanEligible).toList();
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client.from('creator').select();
+
+  return data.map(Creator.fromJson).where((c) => c.isFanEligible).toList();
 });
 
 // ---------------------------------------------------------------------------
@@ -35,17 +43,18 @@ final fanEligibleCreatorsProvider =
 
 final creatorProfileProvider =
     FutureProvider.autoDispose.family<Creator?, String>((ref, creatorId) async {
-  await Future.delayed(const Duration(milliseconds: 400));
-  
-  try {
-    return MockData.creators.firstWhere((c) => c.id == creatorId);
-  } catch (_) {
-    return null;
-  }
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('creator')
+      .select()
+      .eq('id', creatorId)
+      .maybeSingle();
+  if (data == null) return null;
+  return Creator.fromJson(data);
 });
 
 // ---------------------------------------------------------------------------
-// Fan mode notifier — activate / cancel
+// Fan mode notifier — activate / cancel via Edge Functions
 // ---------------------------------------------------------------------------
 
 class FanModeNotifier extends AutoDisposeAsyncNotifier<void> {
@@ -53,28 +62,24 @@ class FanModeNotifier extends AutoDisposeAsyncNotifier<void> {
   FutureOr<void> build() {}
 
   Future<void> activate(String creatorId) async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Update local mock
-      MockData.fanSubscription['creator_id'] = creatorId;
-      MockData.fanSubscription['status'] = 'active';
-      
-      ref.invalidate(myFanSubscriptionProvider);
+      await client.functions.invoke(
+        'activate-fan-mode',
+        body: {'creator_id': creatorId},
+      );
     });
+    if (state is AsyncData) ref.invalidate(myFanSubscriptionProvider);
   }
 
   Future<void> cancel() async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      
-      // Update local mock
-      MockData.fanSubscription['status'] = 'cancelled';
-      
-      ref.invalidate(myFanSubscriptionProvider);
+      await client.functions.invoke('cancel-fan-mode', body: {});
     });
+    if (state is AsyncData) ref.invalidate(myFanSubscriptionProvider);
   }
 }
 

@@ -39,7 +39,7 @@ class Creator {
         specialties: (json['specialties'] as List<dynamic>?)?.cast<String>() ?? [],
         recipeCount: (json['recipe_count'] as int?) ?? 0,
         fanCount: (json['fan_count'] as int?) ?? 0,
-        isFanEligible: (json['is_fan_eligible'] as bool?) ?? false,
+        isFanEligible: ((json['recipe_count'] as int?) ?? 0) >= 30,
         isMyFanCreator: (json['is_my_fan_creator'] as bool?) ?? false,
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0.0,
         regionId: json['food_region_id'] as String?,
