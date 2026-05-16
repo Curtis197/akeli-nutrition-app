@@ -1,37 +1,19 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/supabase_client.dart';
 
 // ---------------------------------------------------------------------------
-// Mock User Entity (Replaces Supabase User)
+// Auth stream — single source of truth
 // ---------------------------------------------------------------------------
 
-class MockUser {
-  final String id;
-  final String email;
-  final String? name;
-
-  MockUser({
-    required this.id,
-    required this.email,
-    this.name,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Auth state
-// ---------------------------------------------------------------------------
-
-final authStateProvider = StateProvider<MockUser?>((ref) {
-  // Par défaut, l'utilisateur est connecté pour faciliter le design
-  return MockUser(
-    id: 'mock-user-123',
-    email: 'contact@akeli.app',
-    name: 'Utilisateur Akeli',
-  );
+final authStreamProvider = StreamProvider<AuthState>((ref) {
+  final client = ref.watch(supabaseClientProvider);
+  return client.auth.onAuthStateChange;
 });
 
-final currentUserProvider = Provider<MockUser?>((ref) {
-  return ref.watch(authStateProvider);
+final currentUserProvider = Provider<User?>((ref) {
+  return ref.watch(authStreamProvider).value?.session?.user;
 });
 
 final isAuthenticatedProvider = Provider<bool>((ref) {
@@ -39,7 +21,7 @@ final isAuthenticatedProvider = Provider<bool>((ref) {
 });
 
 // ---------------------------------------------------------------------------
-// Auth notifier — Mock sign-up, sign-in, sign-out
+// Auth notifier — sign-up, sign-in, sign-out, reset password
 // ---------------------------------------------------------------------------
 
 class AuthNotifier extends AsyncNotifier<void> {
@@ -50,41 +32,45 @@ class AuthNotifier extends AsyncNotifier<void> {
     required String email,
     required String password,
   }) async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    await Future.delayed(const Duration(seconds: 1));
-    ref.read(authStateProvider.notifier).state = MockUser(
-      id: 'mock-user-123',
-      email: email,
-      name: 'Nouveau Gourmet',
-    );
-    state = const AsyncValue.data(null);
+    state = await AsyncValue.guard(() async {
+      final response = await client.auth.signUp(
+        email: email,
+        password: password,
+      );
+      if (response.user == null) throw Exception('Sign-up returned no user');
+    });
   }
 
   Future<void> signIn({
     required String email,
     required String password,
   }) async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    await Future.delayed(const Duration(seconds: 1));
-    ref.read(authStateProvider.notifier).state = MockUser(
-      id: 'mock-user-123',
-      email: email,
-      name: 'Utilisateur Akeli',
-    );
-    state = const AsyncValue.data(null);
+    state = await AsyncValue.guard(() async {
+      await client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+    });
   }
 
   Future<void> signOut() async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    await Future.delayed(const Duration(milliseconds: 500));
-    ref.read(authStateProvider.notifier).state = null;
-    state = const AsyncValue.data(null);
+    state = await AsyncValue.guard(() async {
+      await client.auth.signOut();
+    });
   }
 
   Future<void> resetPassword(String email) async {
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    await Future.delayed(const Duration(seconds: 1));
-    state = const AsyncValue.data(null);
+    state = await AsyncValue.guard(() async {
+      await client.auth.resetPasswordForEmail(email);
+    });
   }
 }
 

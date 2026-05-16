@@ -56,7 +56,7 @@ abstract class AkeliRoutes {
 
 class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
-    ref.listen(authStateProvider, (_, __) => notifyListeners());
+    ref.listen(isAuthenticatedProvider, (_, __) => notifyListeners());
   }
 }
 
