@@ -19,6 +19,9 @@ dependencies:
   # Navigation — GoRouter avec auth guards
   go_router: ^14.2.7
 
+  # Supabase — local dev instance
+  supabase_flutter: ^2.8.0
+
   # Fonts — Nunito
   google_fonts: ^6.2.1
 
