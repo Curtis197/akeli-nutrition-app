@@ -65,17 +65,17 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
+    final updates = <String, dynamic>{
+      if (username != null) 'username': username,
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
+      if (avatarUrl != null) 'avatar_url': avatarUrl,
+    };
+    if (updates.isEmpty) return;
+
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final updates = <String, dynamic>{
-        if (username != null) 'username': username,
-        if (firstName != null) 'first_name': firstName,
-        if (lastName != null) 'last_name': lastName,
-        if (avatarUrl != null) 'avatar_url': avatarUrl,
-      };
-      if (updates.isEmpty) return state.value;
-
       final data = await client
           .from('user_profile')
           .update(updates)
