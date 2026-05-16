@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../shared/mock_data.dart';
+import '../core/supabase_client.dart';
 import '../shared/models/user_profile.dart';
 import 'auth_provider.dart';
 
 // ---------------------------------------------------------------------------
-// UserProfile fetch — auto-refreshes on auth change
+// UserProfile fetch
 // ---------------------------------------------------------------------------
 
 final userProfileProvider =
@@ -12,8 +12,13 @@ final userProfileProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  await Future.delayed(const Duration(milliseconds: 300));
-  return MockData.currentUserProfile;
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('user_profile')
+      .select()
+      .eq('id', user.id)
+      .single();
+  return UserProfile.fromJson(data);
 });
 
 final healthProfileProvider =
@@ -21,8 +26,14 @@ final healthProfileProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  await Future.delayed(const Duration(milliseconds: 400));
-  return MockData.currentHealthProfile;
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('user_health_profile')
+      .select()
+      .eq('user_id', user.id)
+      .maybeSingle();
+  if (data == null) return null;
+  return HealthProfile.fromJson(data);
 });
 
 // ---------------------------------------------------------------------------
@@ -35,8 +46,13 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     final user = ref.watch(currentUserProvider);
     if (user == null) return null;
 
-    await Future.delayed(const Duration(milliseconds: 300));
-    return MockData.currentUserProfile;
+    final client = ref.watch(supabaseClientProvider);
+    final data = await client
+        .from('user_profile')
+        .select()
+        .eq('id', user.id)
+        .single();
+    return UserProfile.fromJson(data);
   }
 
   Future<void> updateProfile({
@@ -49,28 +65,25 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
+    final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      
-      final updated = MockData.currentUserProfile.copyWith(
-        username: username ?? MockData.currentUserProfile.username,
-        firstName: firstName ?? MockData.currentUserProfile.firstName,
-        lastName: lastName ?? MockData.currentUserProfile.lastName,
-        bio: bio ?? MockData.currentUserProfile.bio,
-        avatarUrl: avatarUrl ?? MockData.currentUserProfile.avatarUrl,
-      );
-      
-      // Update global mock data
-      // (Note: in a real app this would be a deep copy if it were more complex)
-      // MockData's field is static, so we can reassign it.
-      // But MockData.currentUserProfile is final. Let's assume we can't reassign easily without changing MockData.
-      // For the sake of this mock, we just return the updated value in state.
-      
-      return updated;
+      final updates = <String, dynamic>{
+        if (username != null) 'username': username,
+        if (firstName != null) 'first_name': firstName,
+        if (lastName != null) 'last_name': lastName,
+        if (avatarUrl != null) 'avatar_url': avatarUrl,
+      };
+      if (updates.isEmpty) return state.value;
+
+      final data = await client
+          .from('user_profile')
+          .update(updates)
+          .eq('id', user.id)
+          .select()
+          .single();
+      return UserProfile.fromJson(data);
     });
-    
-    ref.invalidateSelf();
   }
 }
 
@@ -87,8 +100,13 @@ final subscriptionProvider =
   final user = ref.watch(currentUserProvider);
   if (user == null) return null;
 
-  await Future.delayed(const Duration(milliseconds: 500));
-  return MockData.subscription;
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('subscription')
+      .select()
+      .eq('user_id', user.id)
+      .maybeSingle();
+  return data;
 });
 
 final isPremiumProvider = Provider.autoDispose<bool>((ref) {
