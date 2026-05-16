@@ -21,6 +21,19 @@ class FeedParams {
     this.difficulty,
     this.maxTimeMin,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FeedParams &&
+          limit == other.limit &&
+          offset == other.offset &&
+          regionId == other.regionId &&
+          difficulty == other.difficulty &&
+          maxTimeMin == other.maxTimeMin;
+
+  @override
+  int get hashCode => Object.hash(limit, offset, regionId, difficulty, maxTimeMin);
 }
 
 final feedProvider =
@@ -80,6 +93,21 @@ class SearchParams {
     this.limit = 20,
     this.offset = 0,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchParams &&
+          query == other.query &&
+          regionId == other.regionId &&
+          difficulty == other.difficulty &&
+          maxTimeMin == other.maxTimeMin &&
+          orderBy == other.orderBy &&
+          limit == other.limit &&
+          offset == other.offset;
+
+  @override
+  int get hashCode => Object.hash(query, regionId, difficulty, maxTimeMin, orderBy, limit, offset);
 }
 
 final searchRecipesProvider =
@@ -120,7 +148,8 @@ class RecipeLikeNotifier extends AutoDisposeAsyncNotifier<bool> {
       );
       return newLiked;
     });
-    return newLiked;
+    // Return the actual state value; falls back to original if error occurred.
+    return state.valueOrNull ?? currentlyLiked;
   }
 }
 
