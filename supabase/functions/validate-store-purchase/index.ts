@@ -190,9 +190,6 @@ serve(async (req) => {
     const admin = serviceClient();
     await admin.from("subscription").upsert({
       user_id: user.id,
-      store_platform: platform,
-      store_product_id: product_id,
-      store_purchase_token: purchase_token,
       status: "active",
       current_period_start: new Date().toISOString(),
       current_period_end: expiresAt,

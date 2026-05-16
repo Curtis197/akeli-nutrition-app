@@ -12,6 +12,10 @@ serve(async (_req) => {
     const prevDate = new Date();
     prevDate.setMonth(prevDate.getMonth() - 1);
     const monthKey = prevDate.toISOString().slice(0, 7); // ex: '2026-02'
+    const monthStart = `${monthKey}-01`;
+    const monthEnd = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 1)
+      .toISOString()
+      .split("T")[0];
 
     console.log(`[compute-monthly-revenue] Computing revenue for ${monthKey}`);
 
@@ -24,62 +28,54 @@ serve(async (_req) => {
     if (creatorsError) throw creatorsError;
     if (!creators?.length) return ok({ month_key: monthKey, creators_processed: 0 });
 
+    // 2. Éviter de recalculer si déjà fait ce mois-ci
+    const { data: alreadyLogged } = await admin
+      .from("creator_revenue_log")
+      .select("creator_id")
+      .eq("revenue_type", "monthly_fan")
+      .gte("logged_at", monthStart)
+      .lt("logged_at", monthEnd);
+
+    const alreadyDone = new Set((alreadyLogged ?? []).map((r) => r.creator_id));
+
     let processedCount = 0;
 
     for (const { id: creator_id } of creators) {
+      if (alreadyDone.has(creator_id)) continue;
+
       // Fan revenue: nombre de fans actifs ce mois × 1€
       const { count: fanCount } = await admin
         .from("fan_subscription")
         .select("id", { count: "exact" })
         .eq("creator_id", creator_id)
-        .eq("status", "active")
-        .lte("effective_from", `${monthKey}-01`);
-
-      // Consumption revenue: floor(consommations du mois / 90) × 1€
-      const { count: consumptionCount } = await admin
-        .from("meal_consumption")
-        .select("id", { count: "exact" })
-        .eq("creator_id", creator_id)
-        .eq("month_key", monthKey);
+        .eq("status", "active");
 
       const fans = fanCount ?? 0;
-      const consumptions = consumptionCount ?? 0;
       const fanRevenue = fans * 1.0;
-      const consumptionRevenue = Math.floor(consumptions / 90) * 1.0;
-      const totalRevenue = fanRevenue + consumptionRevenue;
 
-      // 2. Insérer dans creator_revenue_log (ignore si déjà calculé)
-      const { error: logError } = await admin
-        .from("creator_revenue_log")
-        .upsert({
+      // Insérer dans creator_revenue_log
+      if (fanRevenue > 0) {
+        await admin.from("creator_revenue_log").insert({
           creator_id,
-          month_key: monthKey,
-          fan_revenue: fanRevenue,
-          consumption_revenue: consumptionRevenue,
-          fan_count: fans,
-          consumption_count: consumptions,
-        }, { onConflict: "creator_id,month_key", ignoreDuplicates: true });
-
-      if (logError) {
-        console.error(`[compute-monthly-revenue] Log error for ${creator_id}:`, logError);
-        continue;
+          revenue_type: "monthly_fan",
+          amount: fanRevenue,
+          logged_at: new Date().toISOString(),
+        });
       }
 
-      // 3. Mettre à jour creator_balance si revenue > 0
-      if (totalRevenue > 0) {
-        try {
-          await admin.rpc("increment_creator_balance", {
-            p_creator_id: creator_id,
-            p_amount: totalRevenue,
-          });
-        } catch {
-          // Fallback si la fonction RPC n'existe pas encore — upsert direct
-          await admin.from("creator_balance").upsert({
-            creator_id,
-            balance: totalRevenue,
-            total_earned: totalRevenue,
-          });
-        }
+      // Mettre à jour creator_balance
+      if (fanRevenue > 0) {
+        const { data: existing } = await admin
+          .from("creator_balance")
+          .select("available_balance, lifetime_earnings")
+          .eq("creator_id", creator_id)
+          .maybeSingle();
+
+        await admin.from("creator_balance").upsert({
+          creator_id,
+          available_balance: (existing?.available_balance ?? 0) + fanRevenue,
+          lifetime_earnings: (existing?.lifetime_earnings ?? 0) + fanRevenue,
+        });
       }
 
       processedCount++;

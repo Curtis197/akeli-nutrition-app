@@ -9,10 +9,6 @@ function firstOfNextMonth(): string {
   return d.toISOString().split("T")[0];
 }
 
-function currentMonthKey(): string {
-  return new Date().toISOString().slice(0, 7);
-}
-
 serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -56,7 +52,6 @@ serve(async (req) => {
       .maybeSingle();
 
     const effectiveFrom = firstOfNextMonth();
-    const monthKey = currentMonthKey();
 
     if (existingSub) {
       if (existingSub.creator_id === creator_id) {
@@ -71,11 +66,8 @@ serve(async (req) => {
 
       // Historique
       await client.from("fan_subscription_history").insert({
-        user_id: user.id,
-        creator_id: existingSub.creator_id,
-        action: "changed",
-        previous_creator_id: existingSub.creator_id,
-        month_key: monthKey,
+        subscription_id: existingSub.id,
+        status: "cancelled",
       });
     }
 
@@ -95,11 +87,8 @@ serve(async (req) => {
 
     // 5. Historique
     await client.from("fan_subscription_history").insert({
-      user_id: user.id,
-      creator_id,
-      action: "activated",
-      previous_creator_id: existingSub?.creator_id ?? null,
-      month_key: monthKey,
+      subscription_id: newSub.id,
+      status: "pending",
     });
 
     return ok({

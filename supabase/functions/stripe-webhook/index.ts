@@ -71,13 +71,12 @@ serve(async (req) => {
       case "payment_intent.succeeded": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("creator_payout").insert({
+          await admin.from("payout").insert({
             creator_id: creatorId,
-            stripe_payment_intent_id: event.data.object.id,
-            amount_cents: event.data.object.amount,
-            currency: event.data.object.currency,
-            status: "succeeded",
-            paid_at: new Date().toISOString(),
+            amount: (event.data.object.amount as number) / 100,
+            status: "completed",
+            stripe_payout_id: event.data.object.id,
+            completed_at: new Date().toISOString(),
           });
         }
         break;
@@ -87,12 +86,11 @@ serve(async (req) => {
       case "payment_intent.payment_failed": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("creator_payout").insert({
+          await admin.from("payout").insert({
             creator_id: creatorId,
-            stripe_payment_intent_id: event.data.object.id,
-            amount_cents: event.data.object.amount,
-            currency: event.data.object.currency,
+            amount: (event.data.object.amount as number) / 100,
             status: "failed",
+            stripe_payout_id: event.data.object.id,
           });
         }
         break;
@@ -108,16 +106,10 @@ serve(async (req) => {
         break;
       }
 
-      // Creator Stripe Connect account updated (e.g. KYC verified)
+      // Creator Stripe Connect account updated (e.g. KYC verified) — logged only
       case "account.updated": {
         const accountId = event.data?.object?.id;
-        const chargesEnabled = event.data?.object?.charges_enabled;
-        if (accountId) {
-          await admin
-            .from("creator")
-            .update({ stripe_charges_enabled: chargesEnabled })
-            .eq("stripe_account_id", accountId);
-        }
+        console.log(`[stripe-webhook] account.updated: ${accountId}`);
         break;
       }
 

@@ -119,9 +119,9 @@ async function fetchModules(
           if (plan) {
             const { data: entries } = await client
               .from("meal_plan_entry")
-              .select("meal_type, scheduled_date, is_consumed, recipe:recipe(title, recipe_macro(calories, protein_g, carbs_g, fat_g))")
+              .select("meal_type, date, recipe:recipe(title, recipe_macro(total_calories, total_protein_g, total_carbs_g, total_fat_g))")
               .eq("meal_plan_id", plan.id)
-              .eq("scheduled_date", today);
+              .eq("date", today);
             result["meal_plan"] = { date: today, meals: entries };
           }
           break;
@@ -129,9 +129,9 @@ async function fetchModules(
         case "nutrition_stats": {
           const { data } = await client
             .from("daily_nutrition_log")
-            .select("calories, protein_g, carbs_g, fat_g, meals_count")
+            .select("total_calories, total_protein_g, total_carbs_g, total_fat_g")
             .eq("user_id", userId)
-            .eq("log_date", today)
+            .eq("date", today)
             .single();
           result["nutrition_stats"] = data;
           break;
@@ -165,16 +165,14 @@ async function fetchModules(
         case "habits": {
           const { data } = await client
             .from("daily_nutrition_log")
-            .select("log_date, meals_count")
+            .select("date, total_calories")
             .eq("user_id", userId)
-            .order("log_date", { ascending: false })
+            .order("date", { ascending: false })
             .limit(30);
-          const tracked = data?.filter((d: { meals_count: number }) => d.meals_count > 0).length ?? 0;
+          const tracked = data?.filter((d: { total_calories: number }) => (d.total_calories ?? 0) > 0).length ?? 0;
           result["habits"] = {
             days_tracked_last_30: tracked,
-            avg_meals_per_day: tracked > 0
-              ? (data?.reduce((acc: number, d: { meals_count: number }) => acc + d.meals_count, 0) ?? 0) / tracked
-              : 0,
+            days_with_data: data?.length ?? 0,
           };
           break;
         }
@@ -197,12 +195,12 @@ function buildContext(userName: string, data: Record<string, unknown>): string {
   }
   if (data.nutrition_stats) {
     const n = data.nutrition_stats as Record<string, number>;
-    parts.push(`Nutrition aujourd'hui: ${n.calories} kcal, ${n.protein_g}g protéines, ${n.carbs_g}g glucides, ${n.fat_g}g lipides`);
+    parts.push(`Nutrition aujourd'hui: ${n.total_calories} kcal, ${n.total_protein_g}g protéines, ${n.total_carbs_g}g glucides, ${n.total_fat_g}g lipides`);
   }
   if (data.meal_plan) {
-    const mp = data.meal_plan as { meals: Array<{ meal_type: string; is_consumed: boolean; recipe: { title: string; recipe_macro: { calories: number } } }> };
+    const mp = data.meal_plan as { meals: Array<{ meal_type: string; recipe: { title: string; recipe_macro: { total_calories: number } } }> };
     const meals = mp.meals?.map((m) =>
-      `${m.meal_type}: ${m.recipe?.title} (${m.recipe?.recipe_macro?.calories} kcal)${m.is_consumed ? " ✓" : ""}`
+      `${m.meal_type}: ${m.recipe?.title} (${m.recipe?.recipe_macro?.total_calories} kcal)`
     );
     parts.push(`Plan du jour: ${meals?.join(" | ")}`);
   }

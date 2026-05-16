@@ -14,14 +14,12 @@ serve(async (_req) => {
     const now = new Date();
     const currentHour = now.getUTCHours();
     const currentMinute = now.getUTCMinutes();
-    const currentDay = now.getUTCDay() === 0 ? 7 : now.getUTCDay(); // 1=Lun ... 7=Dim
 
     // Fetch les rappels actifs dont l'heure correspond (±5 minutes)
     const { data: reminders, error } = await admin
       .from("meal_reminder")
       .select("user_id, meal_type, reminder_time")
-      .eq("is_active", true)
-      .contains("days_of_week", [currentDay]);
+      .eq("is_enabled", true);
 
     if (error) throw error;
 

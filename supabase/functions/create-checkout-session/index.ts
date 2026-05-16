@@ -37,15 +37,15 @@ serve(async (req) => {
     const { user } = await getAuthUser(req);
     if (!user) return unauthorized();
 
-    // Only Akeli admins can trigger creator payouts
+    // Only creators with is_creator flag can trigger payouts (admin proxy for local dev)
     const admin = serviceClient();
     const { data: profile } = await admin
       .from("user_profile")
-      .select("role")
+      .select("is_creator")
       .eq("id", user.id)
       .single();
 
-    if (profile?.role !== "admin") {
+    if (!profile?.is_creator) {
       return err("Only admins can initiate creator payouts", 403);
     }
 
