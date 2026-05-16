@@ -43,9 +43,11 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
         'generate-meal-plan',
         body: {'days': days, 'meals_per_day': mealsPerDay},
       );
-      ref.invalidate(activeMealPlanProvider);
-      return ref.read(activeMealPlanProvider.future);
+      return null;
     });
+    if (state is AsyncData) {
+      ref.invalidate(activeMealPlanProvider);
+    }
   }
 }
 

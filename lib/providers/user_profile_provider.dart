@@ -17,7 +17,8 @@ final userProfileProvider =
       .from('user_profile')
       .select()
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+  if (data == null) return null;
   return UserProfile.fromJson(data);
 });
 
@@ -51,7 +52,8 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         .from('user_profile')
         .select()
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+    if (data == null) return null;
     return UserProfile.fromJson(data);
   }
 

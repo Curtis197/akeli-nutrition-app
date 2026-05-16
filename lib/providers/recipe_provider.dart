@@ -116,6 +116,8 @@ final searchRecipesProvider =
   if (params.query.length < 2) return [];
 
   final client = ref.watch(supabaseClientProvider);
+  // TODO: apply regionId, difficulty, maxTimeMin, orderBy filters
+  // once the recipe table has the appropriate indexes and RPC supports them.
   var query = client
       .from('recipe')
       .select()
