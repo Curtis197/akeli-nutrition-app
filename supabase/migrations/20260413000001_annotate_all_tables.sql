@@ -31,7 +31,7 @@ COMMENT ON COLUMN user_profile.username IS 'Unique display name | Publicly visib
 COMMENT ON COLUMN user_profile.locale IS 'UI language preference (fr/en/es/pt/wo/bm/ln/ar) | Default: fr';
 COMMENT ON COLUMN user_profile.is_creator IS 'Whether user has a creator profile | Gates creator features';
 COMMENT ON COLUMN user_profile.onboarding_done IS 'Whether user completed onboarding | Gates onboarding flow';
-COMMENT ON COLUMN user_profile.role IS 'User role: user or admin | Gates admin features';
+-- user_profile.role column not in schema — omitted
 
 COMMENT ON TABLE user_health_profile IS 'ROLE: User physical health data | PURPOSE: Calculate calorie needs, personalize meal plans | USAGE: complete-onboarding EF, meal plan generation, AI assistant';
 COMMENT ON COLUMN user_health_profile.activity_level IS 'sedentary/light/moderate/active/very_active | Affects calorie calculation';
@@ -54,21 +54,21 @@ COMMENT ON COLUMN user_vector.vector IS '50-dim pgvector embedding | Computed by
 
 COMMENT ON TABLE creator IS 'ROLE: Public creator profile | PURPOSE: Display creator info, track stats, manage Fan eligibility | USAGE: Creator profile page, search, recommendations, Fan mode';
 COMMENT ON COLUMN creator.specialties IS 'Culinary region codes (FK to food_region) | Displayed on profile';
-COMMENT ON COLUMN creator.languages IS 'Spoken language codes | Displayed on profile';
+COMMENT ON COLUMN creator.language_codes IS 'Spoken language codes | Displayed on profile';
 COMMENT ON COLUMN creator.recipe_count IS 'Denormalized count of published recipes | Updated by trigger';
 COMMENT ON COLUMN creator.fan_count IS 'Denormalized count of active fans | Updated by trigger';
-COMMENT ON COLUMN creator.is_fan_eligible IS 'Generated: recipe_count >= 30 | Gates Fan mode activation';
+-- creator.is_fan_eligible is on view, not base table
 
 COMMENT ON TABLE creator_balance IS 'ROLE: Creator current earnings | PURPOSE: Track available balance, lifetime earnings, payouts | USAGE: Creator dashboard, payout processing';
-COMMENT ON COLUMN creator_balance.balance IS 'Available (unpaid) balance | Updated by compute-monthly-revenue cron';
-COMMENT ON COLUMN creator_balance.total_earned IS 'Lifetime earnings | For display only';
-COMMENT ON COLUMN creator_balance.total_paid_out IS 'Total paid out | For reconciliation';
+COMMENT ON COLUMN creator_balance.available_balance IS 'Available (unpaid) balance | Updated by compute-monthly-revenue cron';
+COMMENT ON COLUMN creator_balance.lifetime_earnings IS 'Lifetime earnings | For display only';
+-- creator_balance.total_paid_out not in schema
 
 COMMENT ON TABLE creator_revenue_log IS 'ROLE: Monthly revenue history (immutable) | PURPOSE: Record of earnings computation for auditing | USAGE: Creator dashboard, monthly statements';
-COMMENT ON COLUMN creator_revenue_log.month_key IS 'YYYY-MM format | Enables efficient monthly aggregation';
-COMMENT ON COLUMN creator_revenue_log.total_revenue IS 'Generated: fan_revenue + consumption_revenue | Read-only';
+-- creator_revenue_log.month_key not in schema
+-- creator_revenue_log.total_revenue not in schema
 
-COMMENT ON TABLE creator_payout IS 'ROLE: Stripe payout transaction history | PURPOSE: Track payouts to creators | USAGE: stripe-webhook EF, creator dashboard payout history';
+-- creator_payout table not in schema — omitted (see store_payment_arch migration)
 
 -- =============================================================================
 -- RECIPES
@@ -125,20 +125,20 @@ COMMENT ON COLUMN meal_plan.is_active IS 'Whether plan is current | Auto-deactiv
 
 COMMENT ON TABLE meal_plan_entry IS 'ROLE: Individual meal slot in a plan | PURPOSE: Map recipes to specific dates and meal types | USAGE: Daily meal view, consumption logging';
 COMMENT ON COLUMN meal_plan_entry.meal_type IS 'breakfast/lunch/dinner/snack | Determines display order';
-COMMENT ON COLUMN meal_plan_entry.is_consumed IS 'Whether meal was eaten | Gates consumption tracking';
+-- meal_plan_entry.is_consumed not in schema
 
 COMMENT ON TABLE meal_consumption IS 'ROLE: SOURCE OF TRUTH for creator revenue | PURPOSE: Track consumed meals, attribute revenue to creators | USAGE: Revenue computation, daily nutrition, Fan enforcement';
-COMMENT ON COLUMN meal_consumption.month_key IS 'Generated: YYYY-MM from consumed_at | Enables efficient monthly revenue aggregation';
+-- meal_consumption.month_key not in schema
 
 COMMENT ON TABLE shopping_list IS 'ROLE: Shopping list container | PURPOSE: Aggregate ingredients from meal plan | USAGE: Shopping list page';
 
 COMMENT ON TABLE shopping_list_item IS 'ROLE: Individual ingredient in shopping list | PURPOSE: Aggregated quantities from all recipes in plan | USAGE: Shopping list display';
 
 COMMENT ON TABLE meal_reminder IS 'ROLE: Meal reminder settings | PURPOSE: Schedule push notifications for meals | USAGE: send-meal-reminders cron function';
-COMMENT ON COLUMN meal_reminder.days_of_week IS 'int[]: 1=Mon...7=Sun | Days to send reminder';
+-- meal_reminder.days_of_week not in schema (reminder_time used instead)
 
 COMMENT ON TABLE daily_nutrition_log IS 'ROLE: Daily nutrition summary | PURPOSE: Track daily calorie/macro totals against goals | USAGE: Nutrition dashboard, daily progress';
-COMMENT ON COLUMN daily_nutrition_log.log_date IS 'Date of nutrition data | Unique per user';
+COMMENT ON COLUMN daily_nutrition_log.date IS 'Date of nutrition data | Unique per user';
 -- Auto-updated by trigger on meal_consumption insert
 
 -- =============================================================================
@@ -147,15 +147,15 @@ COMMENT ON COLUMN daily_nutrition_log.log_date IS 'Date of nutrition data | Uniq
 
 COMMENT ON TABLE fan_subscription IS 'ROLE: User Fan subscription to creator | PURPOSE: Support creators, unlock exclusive content | USAGE: Fan mode activation, recommendations (x1.5 boost), revenue computation';
 COMMENT ON COLUMN fan_subscription.status IS 'pending/active/cancelled | pending activates on 1st of next month';
-COMMENT ON COLUMN fan_subscription.effective_from IS '1st of month when Fan activates | Set by activate-fan-mode EF';
-COMMENT ON COLUMN fan_subscription.effective_until IS '1st of month when Fan cancels | Set by cancel-fan-mode EF';
+-- fan_subscription.effective_from not in schema
+-- fan_subscription.effective_until not in schema
 COMMENT ON TABLE fan_subscription IS '⚠️ CONSTRAINT: UNIQUE(user_id, status) - one Fan per user';
 
 COMMENT ON TABLE fan_subscription_history IS 'ROLE: Immutable Fan subscription history | PURPOSE: Audit trail for activation/cancellation | USAGE: Support, revenue auditing';
 COMMENT ON TABLE fan_subscription_history IS 'Insert-only, never updated';
 
 COMMENT ON TABLE fan_external_recipe_counter IS 'ROLE: External recipe consumption counter | PURPOSE: Enforce max 9 external recipes/month in Fan mode | USAGE: log-meal-consumption EF enforcement';
-COMMENT ON COLUMN fan_external_recipe_counter.external_recipe_counter IS 'CHECK <= 9 | Blocks 10th external recipe';
+COMMENT ON COLUMN fan_external_recipe_counter.consumption_count IS 'CHECK <= 9 | Blocks 10th external recipe';
 
 -- =============================================================================
 -- COMMUNITY & CHAT
@@ -200,8 +200,8 @@ COMMENT ON COLUMN push_token.platform IS 'ios/android | Determines FCM payload';
 -- =============================================================================
 
 COMMENT ON TABLE subscription IS 'ROLE: User Akeli premium subscription | PURPOSE: Gate premium features (Fan mode, AI assistant, meal plans) | USAGE: activate-fan-mode EF, validate-store-purchase EF, feature gating';
-COMMENT ON COLUMN subscription.store_platform IS 'android/ios | Store that processed payment';
-COMMENT ON COLUMN subscription.store_purchase_token IS 'Store-specific token | Used for validation';
+-- subscription.store_platform not in schema
+-- subscription.store_purchase_token not in schema
 COMMENT ON TABLE subscription IS '⚠️ NOTE: Originally had Stripe columns - DROPPED in 20260302000001. Stripe now exclusively for creator payouts.';
 
 -- =============================================================================
@@ -264,9 +264,8 @@ COMMENT ON FUNCTION update_creator_recipe_count IS 'ROLE: Denormalize recipe cou
 
 COMMENT ON FUNCTION update_creator_fan_count IS 'ROLE: Denormalize fan count | TRIGGER: trg_fan_count (AFTER INSERT/UPDATE/DELETE on fan_subscription) | PURPOSE: Keep creator.fan_count in sync with active fans';
 
-COMMENT ON FUNCTION update_group_member_count IS 'ROLE: Denormalize group member count | TRIGGER: trg_group_member_count (AFTER INSERT/DELETE on group_member) | PURPOSE: Keep community_group.member_count in sync';
-
-COMMENT ON FUNCTION update_daily_nutrition_on_consumption IS 'ROLE: Auto-update daily nutrition log | TRIGGER: trg_nutrition_on_consumption (AFTER INSERT on meal_consumption) | PURPOSE: Aggregate macros into daily_nutrition_log on each consumption';
+-- update_group_member_count trigger function not in schema — omitted
+-- update_daily_nutrition_on_consumption trigger function not in schema — omitted
 
 -- =============================================================================
 -- EXTENSION ANNOTATIONS

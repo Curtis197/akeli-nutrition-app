@@ -1,5 +1,4 @@
-# [project]
-# project_id = "akeli-v1"
+project_id = "akeli_landing_page"
 
 [functions.complete-onboarding]
 verify_jwt = true
