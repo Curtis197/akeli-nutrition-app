@@ -1,3 +1,44 @@
+-- =============================================================================
+-- AKELI - Complete Database Schema Snapshot
+-- =============================================================================
+-- 
+-- IMPORTANT: This schema is a SNAPSHOT for context only and is NOT meant to be run.
+-- Table order and constraints may not be valid for execution.
+-- 
+-- For ACTUAL schema changes, see the migration files in supabase/migrations/
+-- For RLS policies, see supabase/rls-list.md
+-- For current state, see the migration order below.
+-- 
+-- CURRENT STATE (after all migrations applied):
+-- 
+-- Migration Order:
+--   1. 20260301000001_initial_schema.sql      - Base schema (49+ tables, RLS, triggers, extensions)
+--   2. 20260301000002_rpc_functions.sql       - 9 RPC functions (recommendations, search, meal plan, etc.)
+--   3. 20260302000001_store_payment_arch.sql  - Store payments (Google Play/App Store), Stripe for payouts
+--   4. 20260302000002_fix_rls_policies.sql    - Fix missing RLS policies (5 policies added)
+--   5. 20260302000003_add_recipe_steps.sql    - recipe_step table (OBSOLETE, superseded by migration 6)
+--   6. 20260314000001_recipe_tracking_schema.sql - Recipe tracking (recipe_step v2, save, impression, open)
+-- 
+-- KEY NOTES:
+--   - recipe.instructions column DROPPED (replaced by recipe_step table)
+--   - subscription table modified: Stripe columns replaced with store columns
+--   - creator_payout table added (separate from legacy payout table)
+--   - recipe_tracking tables added: recipe_save, recipe_impression, recipe_open
+-- 
+-- KNOWN ISSUES:
+--   - recipe_step policies reference r.status but recipe has is_published boolean (potential bug)
+--   - recipe_step policies check r.creator_id = auth.uid() but creator_id is creator UUID not user UUID
+--   - See rls-list.md → "Known Issues" section for details
+-- 
+-- TOTAL TABLES: 50+
+-- TOTAL RLS POLICIES: 80+
+-- TOTAL RPC FUNCTIONS: 9
+-- TOTAL TRIGGERS: 7+
+-- 
+-- Last updated: 2026-04-13
+-- Maintainer: Akeli Dev Team
+-- =============================================================================
+
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 

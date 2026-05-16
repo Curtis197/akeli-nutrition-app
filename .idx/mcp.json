@@ -15,7 +15,22 @@
       ]
     },
     "figma": {
-      "url": "https://mcp.figma.com/mcp",
-          }
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "github": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "requestInit": {
+        "headers": {
+          "Authorization": "Bearer ${GITHUB_PAT}"
+        }
+      }
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest"
+      ]
+    }
   }
 }
