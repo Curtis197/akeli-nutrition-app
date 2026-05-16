@@ -135,6 +135,13 @@ class MealPlannerPage extends ConsumerWidget {
                     title: 'Voir ma liste de course',
                     onTap: () => context.push(AkeliRoutes.shoppingList),
                   ),
+                  const SizedBox(height: 12),
+                  _buildNavigationCard(
+                    context,
+                    icon: Icons.soup_kitchen_outlined,
+                    title: 'Batch Cooking',
+                    onTap: () => context.push(AkeliRoutes.batchCooking),
+                  ),
                 ],
               ),
             ),

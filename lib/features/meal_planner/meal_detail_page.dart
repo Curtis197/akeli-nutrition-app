@@ -175,7 +175,7 @@ class _MealDetailBody extends StatelessWidget {
                   _LinkRow(
                     icon: Icons.soup_kitchen_outlined,
                     label: 'Voir le batch cooking',
-                    onTap: () => context.push('/batch-cooking'),
+                    onTap: () => context.push(AkeliRoutes.batchCooking),
                   ),
                 ],
 

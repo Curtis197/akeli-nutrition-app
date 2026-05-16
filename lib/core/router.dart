@@ -16,6 +16,7 @@ import '../features/subscription/subscription_page.dart';
 import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
 import '../features/meal_planner/meal_detail_page.dart';
+import '../features/meal_planner/batch_cooking_page.dart';
 import '../features/diet_plan/diet_plan_page.dart';
 import '../features/notifications/notifications_page.dart';
 import '../features/community/group_chat_page.dart';
@@ -43,6 +44,7 @@ abstract class AkeliRoutes {
   static const dietPlan = "/diet-plan";
   static const notifications = "/notifications";
   static const mealDetail = "/meal/:id";
+  static const batchCooking = "/batch-cooking";
   static const groupChat = "/group/:id";
   static const groupDetail = "/group/:id/detail";
 
@@ -134,6 +136,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters["id"]!;
           return MealDetailPage(mealId: id);
         },
+      ),
+      GoRoute(
+        path: AkeliRoutes.batchCooking,
+        builder: (context, state) => const BatchCookingPage(),
       ),
       GoRoute(
         path: AkeliRoutes.groupChat,
