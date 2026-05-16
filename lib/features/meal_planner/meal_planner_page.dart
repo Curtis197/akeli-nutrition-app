@@ -212,7 +212,7 @@ class MealPlannerPage extends ConsumerWidget {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AkeliColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AkeliRadius.m),
+                borderRadius: BorderRadius.circular(AkeliRadius.md),
               ),
               child: Icon(icon, color: AkeliColors.primary, size: 20),
             ),
