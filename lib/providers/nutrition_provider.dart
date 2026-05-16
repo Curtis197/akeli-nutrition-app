@@ -81,12 +81,9 @@ final weeklyNutritionProvider =
       .select()
       .eq('user_id', user.id)
       .gte('date', weekAgoStr)
-      .order('date') as List<dynamic>;
+      .order('date');
 
-  return data
-      .cast<Map<String, dynamic>>()
-      .map(DailyNutrition.fromJson)
-      .toList();
+  return data.map(DailyNutrition.fromJson).toList();
 });
 
 // ---------------------------------------------------------------------------
@@ -107,7 +104,7 @@ class WeightEntry {
 
   factory WeightEntry.fromJson(Map<String, dynamic> json) => WeightEntry(
         date: DateTime.parse(json['logged_at'] as String),
-        weightKg: (json['weight_kg'] as num).toDouble(),
+        weightKg: (json['weight_kg'] as num?)?.toDouble() ?? 0.0,
         note: json['note'] as String?,
       );
 }
@@ -122,12 +119,9 @@ final weightLogProvider =
       .from('weight_log')
       .select()
       .eq('user_id', user.id)
-      .order('logged_at', ascending: false) as List<dynamic>;
+      .order('logged_at', ascending: false);
 
-  return data
-      .cast<Map<String, dynamic>>()
-      .map(WeightEntry.fromJson)
-      .toList();
+  return data.map(WeightEntry.fromJson).toList();
 });
 
 class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
@@ -147,8 +141,8 @@ class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
         if (note != null) 'note': note,
         'logged_at': DateTime.now().toIso8601String(),
       });
-      ref.invalidate(weightLogProvider);
     });
+    if (state is AsyncData) ref.invalidate(weightLogProvider);
   }
 }
 
