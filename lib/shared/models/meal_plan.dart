@@ -24,7 +24,7 @@ class MealPlan {
         startDate: DateTime.parse(json['start_date'] as String),
         endDate: DateTime.parse(json['end_date'] as String),
         isActive: (json['is_active'] as bool?) ?? true,
-        entries: (json['entries'] as List<dynamic>?)
+        entries: (json['meal_plan_entry'] as List<dynamic>?)
                 ?.map((e) => MealPlanEntry.fromJson(e as Map<String, dynamic>))
                 .toList() ??
             [],
@@ -88,7 +88,7 @@ class MealPlanEntry {
         recipeTitle: json['recipe_title'] as String?,
         recipeThumbnail: json['recipe_thumbnail'] as String?,
         mealType: json['meal_type'] as String,
-        scheduledDate: DateTime.parse(json['scheduled_date'] as String),
+        scheduledDate: DateTime.parse(json['date'] as String),
         isConsumed: (json['is_consumed'] as bool?) ?? false,
         calories: (json['calories'] as num?)?.toDouble(),
         proteinG: (json['protein_g'] as num?)?.toDouble(),
