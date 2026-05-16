@@ -5,7 +5,7 @@ import '../shared/models/meal_plan.dart';
 import 'auth_provider.dart';
 
 // ---------------------------------------------------------------------------
-// Active meal plan — joins meal_plan_entry
+// Active meal plan — joins entry components with recipe + macro data
 // ---------------------------------------------------------------------------
 
 final activeMealPlanProvider =
@@ -16,7 +16,9 @@ final activeMealPlanProvider =
   final client = ref.watch(supabaseClientProvider);
   final data = await client
       .from('meal_plan')
-      .select('*, meal_plan_entry(*)')
+      .select(
+        '*, meal_plan_entry(*, meal_plan_entry_component(*, recipe(id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
+      )
       .eq('user_id', user.id)
       .eq('is_active', true)
       .maybeSingle();
@@ -56,33 +58,32 @@ final mealPlanGeneratorProvider =
         MealPlanGeneratorNotifier.new);
 
 // ---------------------------------------------------------------------------
-// Shopping list — kept as mock until ingredient data is seeded
+// Shopping list — kept as stub until ingredient data is seeded
 // ---------------------------------------------------------------------------
 
 final shoppingListProvider =
     FutureProvider.autoDispose<List<ShoppingItem>>((ref) async {
   final plan = await ref.watch(activeMealPlanProvider.future);
   if (plan == null) return [];
-
-  // No ingredient data seeded yet — returns empty list.
   return [];
 });
 
 // ---------------------------------------------------------------------------
 // Log meal consumption — Edge Function
+// Logs all components of a meal entry in one call.
 // ---------------------------------------------------------------------------
 
 class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<void> {
   @override
   FutureOr<void> build() {}
 
-  Future<void> logConsumption(String entryId, String recipeId) async {
+  Future<void> logConsumption(String mealPlanEntryId) async {
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       await client.functions.invoke(
         'log-meal-consumption',
-        body: {'entry_id': entryId, 'recipe_id': recipeId},
+        body: {'meal_plan_entry_id': mealPlanEntryId},
       );
     });
     if (state is AsyncData) ref.invalidate(activeMealPlanProvider);
@@ -92,3 +93,59 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<void> {
 final mealConsumptionProvider =
     AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, void>(
         MealConsumptionNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Cooking sessions — for the active meal plan
+// ---------------------------------------------------------------------------
+
+final cookingSessionsProvider =
+    FutureProvider.autoDispose<List<CookingSession>>((ref) async {
+  final plan = await ref.watch(activeMealPlanProvider.future);
+  if (plan == null) return [];
+
+  final client = ref.watch(supabaseClientProvider);
+  final data = await client
+      .from('cooking_session')
+      .select('*, recipe(id, title, cover_image_url)')
+      .eq('meal_plan_id', plan.id)
+      .order('planned_date');
+
+  return data
+      .map((e) => CookingSession.fromJson(e))
+      .toList();
+});
+
+class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {}
+
+  Future<void> create({
+    required String mealPlanId,
+    required String recipeId,
+    required DateTime plannedDate,
+    required int totalPortions,
+    String? notes,
+  }) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      await client.from('cooking_session').insert({
+        'user_id': user.id,
+        'meal_plan_id': mealPlanId,
+        'recipe_id': recipeId,
+        'planned_date':
+            '${plannedDate.year}-${plannedDate.month.toString().padLeft(2, '0')}-${plannedDate.day.toString().padLeft(2, '0')}',
+        'total_portions': totalPortions,
+        if (notes != null) 'notes': notes,
+      });
+    });
+    if (state is AsyncData) ref.invalidate(cookingSessionsProvider);
+  }
+}
+
+final cookingSessionNotifierProvider =
+    AsyncNotifierProvider.autoDispose<CookingSessionNotifier, void>(
+        CookingSessionNotifier.new);

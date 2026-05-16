@@ -31,91 +31,95 @@ class MockMealPlan {
     );
   }
 
-  static List<MealPlanEntry> _generateMockEntries(DateTime startDate, int days) {
+  static List<MealPlanEntry> _generateMockEntries(
+      DateTime startDate, int days) {
     final entries = <MealPlanEntry>[];
-    
-    // Sample Recipes for variety
+
     final recipes = [
       {
-        'title': 'Bol d\'Avoine Protéiné',
-        'thumbnail': 'https://images.unsplash.com/photo-1517673132405-a56a62b18acc?q=80&w=500',
+        'id': 'rec-1',
+        'title': "Bol d'Avoine Protéiné",
+        'thumbnail':
+            'https://images.unsplash.com/photo-1517673132405-a56a62b18acc?q=80&w=500',
         'calories': 350.0,
       },
       {
+        'id': 'rec-2',
         'title': 'Salade de Quinoa Mediterranéenne',
-        'thumbnail': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500',
+        'thumbnail':
+            'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=500',
         'calories': 420.0,
       },
       {
+        'id': 'rec-3',
         'title': 'Poulet Grillé et Patates Douces',
-        'thumbnail': 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=500',
+        'thumbnail':
+            'https://images.unsplash.com/photo-1532550907401-a500c9a57435?q=80&w=500',
         'calories': 550.0,
       },
       {
+        'id': 'rec-4',
         'title': 'Smoothie Vert Détox',
-        'thumbnail': 'https://images.unsplash.com/photo-1544302661-ca697925f4cc?q=80&w=500',
+        'thumbnail':
+            'https://images.unsplash.com/photo-1544302661-ca697925f4cc?q=80&w=500',
         'calories': 200.0,
-      },
-      {
-        'title': 'Saumon au Four et Asperges',
-        'thumbnail': 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?q=80&w=500',
-        'calories': 480.0,
       },
     ];
 
+    MealPlanEntryComponent component(
+            String entryId, Map<String, Object> recipe) =>
+        MealPlanEntryComponent(
+          id: 'comp-$entryId',
+          mealPlanEntryId: entryId,
+          recipeId: recipe['id'] as String,
+          recipeTitle: recipe['title'] as String,
+          recipeThumbnail: recipe['thumbnail'] as String,
+          role: 'base',
+          consumptionWeight: 1.0,
+          calories: recipe['calories'] as double,
+        );
+
     for (int day = 0; day < days; day++) {
       final scheduledDate = startDate.add(Duration(days: day));
-      
-      // Breakfast
+
+      final breakfastId = 'mock-entry-$day-breakfast';
       entries.add(MealPlanEntry(
-        id: 'mock-entry-$day-breakfast',
+        id: breakfastId,
         mealPlanId: 'mock-plan-id',
-        recipeId: 'rec-1',
-        recipeTitle: recipes[0]['title'] as String,
-        recipeThumbnail: recipes[0]['thumbnail'] as String,
         mealType: 'breakfast',
         scheduledDate: scheduledDate,
-        isConsumed: day < 1, // First day consumed
-        calories: recipes[0]['calories'] as double,
+        isConsumed: day < 1,
+        components: [component(breakfastId, recipes[0])],
       ));
 
-      // Lunch
+      final lunchId = 'mock-entry-$day-lunch';
       entries.add(MealPlanEntry(
-        id: 'mock-entry-$day-lunch',
+        id: lunchId,
         mealPlanId: 'mock-plan-id',
-        recipeId: 'rec-2',
-        recipeTitle: recipes[1]['title'] as String,
-        recipeThumbnail: recipes[1]['thumbnail'] as String,
         mealType: 'lunch',
         scheduledDate: scheduledDate,
         isConsumed: day < 1,
-        calories: recipes[1]['calories'] as double,
+        components: [component(lunchId, recipes[1])],
       ));
 
-      // Snack (Collation)
+      final snackId = 'mock-entry-$day-snack';
       entries.add(MealPlanEntry(
-        id: 'mock-entry-$day-snack',
+        id: snackId,
         mealPlanId: 'mock-plan-id',
-        recipeId: 'rec-4',
-        recipeTitle: recipes[3]['title'] as String,
-        recipeThumbnail: recipes[3]['thumbnail'] as String,
         mealType: 'snack',
         scheduledDate: scheduledDate,
         isConsumed: false,
-        calories: recipes[3]['calories'] as double,
+        components: [component(snackId, recipes[3])],
       ));
 
-      // Dinner
+      final dinnerId = 'mock-entry-$day-dinner';
       entries.add(MealPlanEntry(
-        id: 'mock-entry-$day-dinner',
+        id: dinnerId,
         mealPlanId: 'mock-plan-id',
-        recipeId: 'rec-3',
-        recipeTitle: recipes[2]['title'] as String,
-        recipeThumbnail: recipes[2]['thumbnail'] as String,
         mealType: 'dinner',
         scheduledDate: scheduledDate,
         isConsumed: false,
-        calories: recipes[2]['calories'] as double,
+        components: [component(dinnerId, recipes[2])],
       ));
     }
 

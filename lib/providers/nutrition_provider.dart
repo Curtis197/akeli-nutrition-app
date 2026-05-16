@@ -28,13 +28,12 @@ class DailyNutrition {
     this.waterMl = 0.0,
   });
 
-  // Columns: date, total_calories, total_protein_g, total_carbs_g, total_fat_g
   factory DailyNutrition.fromJson(Map<String, dynamic> json) => DailyNutrition(
-        date: DateTime.parse(json['date'] as String),
-        calories: (json['total_calories'] as num?)?.toDouble() ?? 0,
-        proteinG: (json['total_protein_g'] as num?)?.toDouble() ?? 0,
-        carbsG: (json['total_carbs_g'] as num?)?.toDouble() ?? 0,
-        fatG: (json['total_fat_g'] as num?)?.toDouble() ?? 0,
+        date: DateTime.parse(json['log_date'] as String),
+        calories: (json['calories'] as num?)?.toDouble() ?? 0,
+        proteinG: (json['protein_g'] as num?)?.toDouble() ?? 0,
+        carbsG: (json['carbs_g'] as num?)?.toDouble() ?? 0,
+        fatG: (json['fat_g'] as num?)?.toDouble() ?? 0,
       );
 
   DailyNutrition operator +(DailyNutrition other) => DailyNutrition(
@@ -60,7 +59,7 @@ final todayNutritionProvider =
       .from('daily_nutrition_log')
       .select()
       .eq('user_id', user.id)
-      .eq('date', dateStr)
+      .eq('log_date', dateStr)
       .maybeSingle();
   if (data == null) return null;
   return DailyNutrition.fromJson(data);
@@ -80,8 +79,8 @@ final weeklyNutritionProvider =
       .from('daily_nutrition_log')
       .select()
       .eq('user_id', user.id)
-      .gte('date', weekAgoStr)
-      .order('date');
+      .gte('log_date', weekAgoStr)
+      .order('log_date');
 
   return data.map(DailyNutrition.fromJson).toList();
 });

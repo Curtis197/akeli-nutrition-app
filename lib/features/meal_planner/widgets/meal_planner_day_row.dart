@@ -94,10 +94,12 @@ class MealPlannerDayRow extends StatelessWidget {
                   imageUrl: entry.recipeThumbnail,
                   mealType: entry.mealType,
                   calories: entry.calories ?? 0,
-                  duration: (entry.recipeId.length % 20) + 15, // Mock duration
+                  duration: ((entry.recipeId?.length ?? 20) % 20) + 15,
                   isPlanner: true,
                   isConsumed: entry.isConsumed,
-                  onTap: () => onRecipeTap?.call(entry.recipeId),
+                  onTap: entry.recipeId != null
+                      ? () => onRecipeTap?.call(entry.recipeId!)
+                      : null,
                   onConsumedToggle: () {
                     HapticFeedback.lightImpact();
                     onConsumedToggle?.call(entry.id, !entry.isConsumed);
