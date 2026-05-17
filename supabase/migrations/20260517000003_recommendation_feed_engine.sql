@@ -158,3 +158,154 @@ CREATE POLICY "owner reads user_feed" ON user_feed
 
 CREATE POLICY "owner deletes user_feed" ON user_feed
   FOR DELETE USING (auth.uid() = user_id);
+
+-- ---------------------------------------------------------------------------
+-- 5. recommend_combinations
+-- Recommande des paires validées par similarité cosine avec le profil user.
+-- Appelée uniquement si user_profile.modular_meal_enabled = true.
+-- Priorité source encodée dans le score : user 0.90, creator 0.95, cross 1.00.
+-- (Distance plus faible = plus proche = meilleur rang)
+-- Retourne vide (sans exception) si l'utilisateur n'a pas encore de vecteur.
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION recommend_combinations(
+  p_user_id uuid,
+  p_limit   int DEFAULT 10
+)
+RETURNS TABLE (
+  combination_id   uuid,
+  base_recipe_id   uuid,
+  paired_recipe_id uuid,
+  paired_role      text,
+  source           text,
+  distance         numeric
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_user_vector vector(50);
+BEGIN
+  -- Auth guard: caller must be the user they're requesting recommendations for
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  -- Fetch user vector; return empty set if not yet computed (cold start)
+  SELECT uv.vector INTO v_user_vector
+  FROM user_vector uv WHERE uv.user_id = p_user_id;
+
+  IF v_user_vector IS NULL THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    rc.id              AS combination_id,
+    rc.base_recipe_id,
+    rc.paired_recipe_id,
+    rc.paired_role,
+    rc.source,
+    (cv.vector <=> v_user_vector)::numeric *
+      CASE rc.source
+        WHEN 'user'          THEN 0.90
+        WHEN 'creator'       THEN 0.95
+        WHEN 'cross_creator' THEN 1.00
+      END AS distance
+  FROM recipe_combination rc
+  JOIN combination_vector cv ON cv.combination_id = rc.id
+  WHERE
+    rc.is_validated = true
+    AND (
+      rc.source IN ('creator', 'cross_creator')
+      OR (rc.source = 'user' AND rc.owner_user_id = p_user_id)
+    )
+  ORDER BY distance
+  LIMIT LEAST(p_limit, 50);
+END;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 6. optimize_batch
+-- Opère sur un meal plan actif : trouve les sessions batch avec des portions
+-- disponibles et les aligne avec les slots libres (sans cooking_session).
+-- SQL pur — pas de vecteur. Appelée si batch_cooking_enabled = true.
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION optimize_batch(
+  p_user_id      uuid,
+  p_meal_plan_id uuid
+)
+RETURNS TABLE (
+  cooking_session_id  uuid,
+  recipe_id           uuid,
+  recipe_title        text,
+  available_portions  int,
+  suggested_slot_date date,
+  suggested_meal_type text
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Auth guard: caller must be the user they're optimizing for
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  -- Verify the meal plan belongs to this user
+  IF NOT EXISTS (
+    SELECT 1 FROM meal_plan mp
+    WHERE mp.id = p_meal_plan_id AND mp.user_id = p_user_id
+  ) THEN
+    RAISE EXCEPTION 'Meal plan not found or not owned by this user';
+  END IF;
+
+  RETURN QUERY
+  WITH available_sessions AS (
+    SELECT
+      cs.id                                              AS session_id,
+      cs.recipe_id,
+      r.title                                            AS recipe_title,
+      GREATEST(cs.total_portions - cs.portions_used, 0) AS available_portions,
+      cs.planned_date
+    FROM cooking_session cs
+    JOIN recipe r ON r.id = cs.recipe_id
+    WHERE cs.meal_plan_id = p_meal_plan_id
+      AND cs.user_id = p_user_id
+      AND cs.total_portions > cs.portions_used
+  ),
+  free_slots AS (
+    -- Meal plan entries without any batch-linked component
+    SELECT
+      mpe.id             AS entry_id,
+      mpe.scheduled_date,
+      mpe.meal_type
+    FROM meal_plan_entry mpe
+    JOIN meal_plan mp ON mp.id = mpe.meal_plan_id
+    WHERE mpe.meal_plan_id = p_meal_plan_id
+      AND mp.user_id = p_user_id
+      AND NOT EXISTS (
+        SELECT 1 FROM meal_plan_entry_component mpec
+        WHERE mpec.meal_plan_entry_id = mpe.id
+          AND mpec.cooking_session_id IS NOT NULL
+      )
+  )
+  SELECT
+    av.session_id,
+    av.recipe_id,
+    av.recipe_title,
+    av.available_portions,
+    fs.scheduled_date,
+    fs.meal_type
+  FROM available_sessions av
+  CROSS JOIN LATERAL (
+    SELECT * FROM free_slots
+    WHERE scheduled_date >= av.planned_date
+    LIMIT av.available_portions
+  ) fs
+  ORDER BY fs.scheduled_date, av.planned_date, av.session_id;
+END;
+$$;
