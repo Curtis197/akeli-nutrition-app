@@ -16,6 +16,20 @@
 -- =============================================================================
 
 -- ---------------------------------------------------------------------------
+-- 0. Colonnes manquantes sur recipe
+-- is_private     : recette privée (visible uniquement par son propriétaire)
+-- owner_user_id  : utilisateur propriétaire des recettes privées
+-- Ces colonnes sont référencées par les RPCs de ce fichier.
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE recipe
+  ADD COLUMN IF NOT EXISTS is_private    boolean NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS owner_user_id uuid    REFERENCES user_profile(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_recipe_private ON recipe(owner_user_id)
+  WHERE is_private = true;
+
+-- ---------------------------------------------------------------------------
 -- 1. recipe_combination
 -- Paires validées (base ↔ starch/side). Trois sources :
 --   creator       — définie par le créateur de la recette base
@@ -158,6 +172,10 @@ CREATE POLICY "owner reads user_feed" ON user_feed
 
 CREATE POLICY "owner deletes user_feed" ON user_feed
   FOR DELETE USING (auth.uid() = user_id);
+
+-- Service role (Edge Function get-feed) insère les lignes du feed
+CREATE POLICY "service inserts user_feed" ON user_feed
+  FOR INSERT WITH CHECK (auth.role() = 'service_role');
 
 -- ---------------------------------------------------------------------------
 -- 5. recommend_combinations
@@ -309,3 +327,194 @@ BEGIN
   ORDER BY fs.scheduled_date, av.planned_date, av.session_id;
 END;
 $$;
+
+-- ---------------------------------------------------------------------------
+-- 7. generate_feed_personalized — 70% du feed
+-- Top recettes par similarité cosine. Filtre qualité : drop_off_rate ≤ 0.20.
+-- Fallback popularité si pas de user_vector (cold start).
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION generate_feed_personalized(
+  p_user_id uuid,
+  p_limit   int     DEFAULT 140,
+  p_exclude uuid[]  DEFAULT '{}'
+)
+RETURNS TABLE (
+  recipe_id uuid,
+  score     numeric
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_user_vector vector(50);
+BEGIN
+  -- Auth guard
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  SELECT uv.vector INTO v_user_vector
+  FROM user_vector uv WHERE uv.user_id = p_user_id;
+
+  -- Cold start : pas encore de vecteur → tri par popularité (likes)
+  -- Même filtre qualité drop_off_rate que le chemin vectorisé.
+  IF v_user_vector IS NULL THEN
+    RETURN QUERY
+    SELECT
+      r.id                         AS recipe_id,
+      COUNT(rl.recipe_id)::numeric AS score
+    FROM recipe r
+    LEFT JOIN recipe_like rl ON rl.recipe_id = r.id
+    WHERE r.is_published = true
+      AND r.is_private = false
+      AND r.id <> ALL(p_exclude)
+      -- Filtre qualité identique au chemin vectorisé
+      AND NOT EXISTS (
+        SELECT 1 FROM recipe_performance_metrics rpm
+        WHERE rpm.recipe_id = r.id
+          AND rpm.drop_off_rate > 0.20
+      )
+    GROUP BY r.id
+    ORDER BY score DESC
+    LIMIT LEAST(p_limit, 200);
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    r.id                                         AS recipe_id,
+    (1 - (rv.vector <=> v_user_vector))::numeric AS score
+  FROM recipe r
+  JOIN recipe_vector rv ON rv.recipe_id = r.id
+  WHERE r.is_published = true
+    AND r.is_private = false
+    AND r.id <> ALL(p_exclude)
+    -- Filtre qualité : exclure les recettes avec taux d'abandon élevé
+    -- Les recettes sans métriques passent (données insuffisantes = bénéfice du doute)
+    AND NOT EXISTS (
+      SELECT 1 FROM recipe_performance_metrics rpm
+      WHERE rpm.recipe_id = r.id
+        AND rpm.drop_off_rate > 0.20
+    )
+  ORDER BY score DESC
+  LIMIT LEAST(p_limit, 200);
+END;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 8. generate_feed_exploration — 20% du feed
+-- Faible similarité (< 0.50) mais haute adhérence (> 0.70).
+-- ORDER BY random() pour la diversité de découverte.
+-- Retourne vide si pas de user_vector (dissimilarité impossible à calculer).
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION generate_feed_exploration(
+  p_user_id uuid,
+  p_limit   int    DEFAULT 40,
+  p_exclude uuid[] DEFAULT '{}'
+)
+RETURNS TABLE (
+  recipe_id uuid,
+  score     numeric
+)
+LANGUAGE plpgsql
+VOLATILE
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_user_vector vector(50);
+BEGIN
+  -- Auth guard
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  SELECT uv.vector INTO v_user_vector
+  FROM user_vector uv WHERE uv.user_id = p_user_id;
+
+  -- Sans vecteur on ne peut pas calculer la dissimilarité → retourner vide
+  IF v_user_vector IS NULL THEN
+    RETURN;
+  END IF;
+
+  -- CTE pour calculer la distance une seule fois par recette
+  RETURN QUERY
+  WITH candidates AS (
+    SELECT
+      r.id                                         AS recipe_id,
+      (1 - (rv.vector <=> v_user_vector))::numeric AS score
+    FROM recipe r
+    JOIN recipe_vector rv ON rv.recipe_id = r.id
+    WHERE r.is_published = true
+      AND r.is_private = false
+      AND r.id <> ALL(p_exclude)
+  )
+  SELECT c.recipe_id, c.score
+  FROM candidates c
+  WHERE c.score < 0.50
+    -- Haute qualité : l'utilisateur cuisine vraiment la recette
+    AND EXISTS (
+      SELECT 1 FROM recipe_performance_metrics rpm
+      WHERE rpm.recipe_id = c.recipe_id
+        AND rpm.adherence_rate > 0.70
+    )
+  ORDER BY random()
+  LIMIT LEAST(p_limit, 80);
+END;
+$$;
+
+-- ---------------------------------------------------------------------------
+-- 9. generate_feed_fresh — 10% du feed
+-- Recettes publiées dans les 7 derniers jours, de créateurs non encore suivis.
+-- SQL pur — pas de vecteur nécessaire.
+-- Score : 1.0 = vient d'être publiée, ~0.0 = publiée il y a 7 jours.
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION generate_feed_fresh(
+  p_user_id uuid,
+  p_limit   int    DEFAULT 20,
+  p_exclude uuid[] DEFAULT '{}'
+)
+RETURNS TABLE (
+  recipe_id uuid,
+  score     numeric
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Auth guard
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    r.id                                                                        AS recipe_id,
+    -- Score décroissant : 1.0 = publiée maintenant, ~0.0 = publiée il y a 7 jours
+    (1.0 - EXTRACT(EPOCH FROM (now() - r.created_at)) / 604800.0)::numeric     AS score
+  FROM recipe r
+  WHERE r.is_published = true
+    AND r.is_private = false
+    AND r.id <> ALL(p_exclude)
+    AND r.created_at >= now() - interval '7 days'
+    -- De créateurs que l'utilisateur ne suit pas encore en Mode Fan
+    -- NOT EXISTS est NULL-safe (contrairement à NOT IN)
+    AND NOT EXISTS (
+      SELECT 1 FROM fan_subscription fs
+      WHERE fs.user_id = p_user_id
+        AND fs.status = 'active'
+        AND fs.creator_id = r.creator_id
+    )
+  ORDER BY r.created_at DESC
+  LIMIT LEAST(p_limit, 40);
+END;
+$$;
+
+-- Index pour generate_feed_fresh : filtre sur created_at dans les 7 derniers jours
+CREATE INDEX IF NOT EXISTS idx_recipe_created_at_published
+  ON recipe (created_at DESC)
+  WHERE is_published = true AND is_private = false;
