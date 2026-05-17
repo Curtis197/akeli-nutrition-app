@@ -71,12 +71,13 @@ serve(async (req) => {
       case "payment_intent.succeeded": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("payout").insert({
+          await admin.from("creator_payout").insert({
             creator_id: creatorId,
-            amount: (event.data.object.amount as number) / 100,
-            status: "completed",
-            stripe_payout_id: event.data.object.id,
-            completed_at: new Date().toISOString(),
+            stripe_payment_intent_id: event.data.object.id as string,
+            amount_cents: event.data.object.amount as number,
+            currency: (event.data.object.currency as string) ?? "eur",
+            status: "succeeded",
+            paid_at: new Date().toISOString(),
           });
         }
         break;
@@ -86,11 +87,12 @@ serve(async (req) => {
       case "payment_intent.payment_failed": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("payout").insert({
+          await admin.from("creator_payout").insert({
             creator_id: creatorId,
-            amount: (event.data.object.amount as number) / 100,
+            stripe_payment_intent_id: event.data.object.id as string,
+            amount_cents: event.data.object.amount as number,
+            currency: (event.data.object.currency as string) ?? "eur",
             status: "failed",
-            stripe_payout_id: event.data.object.id,
           });
         }
         break;
