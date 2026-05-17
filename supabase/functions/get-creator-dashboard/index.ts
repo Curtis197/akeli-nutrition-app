@@ -34,7 +34,7 @@ serve(async (req) => {
 
     const isFanEligible = (creator.recipe_count ?? 0) >= 30;
 
-    // Calculer la plage de dates selon le period
+    // Calculer la plage de mois selon le period
     const now = new Date();
     let monthsBack = 3;
     if (period === "last_6_months") monthsBack = 6;
@@ -42,31 +42,32 @@ serve(async (req) => {
 
     const startDate = new Date(now);
     startDate.setMonth(startDate.getMonth() - monthsBack);
+    const startMonthKey = startDate.toISOString().slice(0, 7);
 
-    // Revenus sur la période (creator_revenue_log: {creator_id, revenue_type, amount, logged_at})
+    // Revenus sur la période (colonnes réelles: month_key, fan_revenue, total_revenue)
     const { data: revenueLogs } = await client
       .from("creator_revenue_log")
-      .select("revenue_type, amount, logged_at")
+      .select("month_key, fan_revenue, total_revenue")
       .eq("creator_id", creator.id)
-      .gte("logged_at", startDate.toISOString())
-      .order("logged_at", { ascending: false });
+      .gte("month_key", startMonthKey)
+      .order("month_key", { ascending: false });
 
     // Grouper par mois pour le graphique historique
     const byMonth: Record<string, { fan_revenue: number; total_revenue: number }> = {};
     for (const log of revenueLogs ?? []) {
-      const mk = (log.logged_at as string).slice(0, 7);
+      const mk = log.month_key as string;
       if (!byMonth[mk]) byMonth[mk] = { fan_revenue: 0, total_revenue: 0 };
-      byMonth[mk].total_revenue += log.amount as number;
-      if (log.revenue_type === "monthly_fan") byMonth[mk].fan_revenue += log.amount as number;
+      byMonth[mk].total_revenue += (log.total_revenue as number) ?? 0;
+      byMonth[mk].fan_revenue += (log.fan_revenue as number) ?? 0;
     }
     const revenueHistory = Object.entries(byMonth)
       .map(([month_key, v]) => ({ month_key, ...v }))
       .sort((a, b) => b.month_key.localeCompare(a.month_key));
 
-    // Solde créateur
+    // Solde créateur (colonnes réelles: balance, total_earned)
     const { data: balance } = await client
       .from("creator_balance")
-      .select("available_balance, lifetime_earnings")
+      .select("balance, total_earned")
       .eq("creator_id", creator.id)
       .maybeSingle();
 
@@ -78,7 +79,7 @@ serve(async (req) => {
         fan_count: creator.fan_count,
         is_fan_eligible: isFanEligible,
       },
-      balance: balance ?? { available_balance: 0, lifetime_earnings: 0 },
+      balance: balance ?? { balance: 0, total_earned: 0 },
       revenue_history: revenueHistory,
       period,
     });
