@@ -119,7 +119,7 @@ async function fetchModules(
           if (plan) {
             const { data: entries } = await client
               .from("meal_plan_entry")
-              .select("meal_type, date, recipe:recipe(title, recipe_macro(total_calories, total_protein_g, total_carbs_g, total_fat_g))")
+              .select("meal_type, date, recipe:recipe(title, recipe_macro(calories, protein_g, carbs_g, fat_g))")
               .eq("meal_plan_id", plan.id)
               .eq("date", today);
             result["meal_plan"] = { date: today, meals: entries };
@@ -129,9 +129,9 @@ async function fetchModules(
         case "nutrition_stats": {
           const { data } = await client
             .from("daily_nutrition_log")
-            .select("total_calories, total_protein_g, total_carbs_g, total_fat_g")
+            .select("calories, protein_g, carbs_g, fat_g")
             .eq("user_id", userId)
-            .eq("date", today)
+            .eq("log_date", today)
             .single();
           result["nutrition_stats"] = data;
           break;
@@ -165,11 +165,11 @@ async function fetchModules(
         case "habits": {
           const { data } = await client
             .from("daily_nutrition_log")
-            .select("date, total_calories")
+            .select("log_date, calories")
             .eq("user_id", userId)
-            .order("date", { ascending: false })
+            .order("log_date", { ascending: false })
             .limit(30);
-          const tracked = data?.filter((d: { total_calories: number }) => (d.total_calories ?? 0) > 0).length ?? 0;
+          const tracked = data?.filter((d: { calories: number }) => (d.calories ?? 0) > 0).length ?? 0;
           result["habits"] = {
             days_tracked_last_30: tracked,
             days_with_data: data?.length ?? 0,
@@ -195,12 +195,12 @@ function buildContext(userName: string, data: Record<string, unknown>): string {
   }
   if (data.nutrition_stats) {
     const n = data.nutrition_stats as Record<string, number>;
-    parts.push(`Nutrition aujourd'hui: ${n.total_calories} kcal, ${n.total_protein_g}g protéines, ${n.total_carbs_g}g glucides, ${n.total_fat_g}g lipides`);
+    parts.push(`Nutrition aujourd'hui: ${n.calories} kcal, ${n.protein_g}g protéines, ${n.carbs_g}g glucides, ${n.fat_g}g lipides`);
   }
   if (data.meal_plan) {
-    const mp = data.meal_plan as { meals: Array<{ meal_type: string; recipe: { title: string; recipe_macro: { total_calories: number } } }> };
+    const mp = data.meal_plan as { meals: Array<{ meal_type: string; recipe: { title: string; recipe_macro: { calories: number } } }> };
     const meals = mp.meals?.map((m) =>
-      `${m.meal_type}: ${m.recipe?.title} (${m.recipe?.recipe_macro?.total_calories} kcal)`
+      `${m.meal_type}: ${m.recipe?.title} (${m.recipe?.recipe_macro?.calories} kcal)`
     );
     parts.push(`Plan du jour: ${meals?.join(" | ")}`);
   }
