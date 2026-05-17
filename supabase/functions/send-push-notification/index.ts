@@ -2,13 +2,17 @@
 // Envoi de push notification FCM + insert dans notification table
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, err, serverError } from "../_shared/response.ts";
-import { serviceClient } from "../_shared/supabase.ts";
+import { serviceClient, verifyInternalSecret } from "../_shared/supabase.ts";
 
 const FCM_SERVER_KEY = Deno.env.get("FCM_SERVER_KEY")!;
 const FCM_URL = "https://fcm.googleapis.com/fcm/send";
 
 serve(async (req) => {
   try {
+    if (!verifyInternalSecret(req)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
     const body = await req.json();
     const { user_id, title, body: notifBody, data = {}, type = "system" } = body;
 
@@ -16,7 +20,6 @@ serve(async (req) => {
 
     const admin = serviceClient();
 
-    // 1. Fetch le push token de l'utilisateur
     const { data: pushToken } = await admin
       .from("push_token")
       .select("token, platform")
@@ -25,7 +28,6 @@ serve(async (req) => {
       .limit(1)
       .single();
 
-    // 2. Insert dans notification (in-app center)
     await admin.from("notification").insert({
       user_id,
       type,
@@ -34,7 +36,6 @@ serve(async (req) => {
       data,
     });
 
-    // 3. Envoyer via FCM si token disponible
     if (pushToken?.token) {
       const fcmPayload = {
         to: pushToken.token,

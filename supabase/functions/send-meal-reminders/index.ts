@@ -2,24 +2,29 @@
 // Envoie des push notifications pour les rappels repas configurés
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, serverError } from "../_shared/response.ts";
-import { serviceClient } from "../_shared/supabase.ts";
+import { serviceClient, verifyInternalSecret } from "../_shared/supabase.ts";
 
 const SELF_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET")!;
 
-serve(async (_req) => {
+serve(async (req) => {
   try {
+    if (!verifyInternalSecret(req)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
     const admin = serviceClient();
 
     const now = new Date();
     const currentHour = now.getUTCHours();
     const currentMinute = now.getUTCMinutes();
+    // 1=Lundi ... 7=Dimanche (matches days_of_week column convention)
+    const currentDayOfWeek = now.getUTCDay() === 0 ? 7 : now.getUTCDay();
 
-    // Fetch les rappels actifs dont l'heure correspond (±5 minutes)
     const { data: reminders, error } = await admin
       .from("meal_reminder")
-      .select("user_id, meal_type, reminder_time")
-      .eq("is_enabled", true);
+      .select("user_id, meal_type, reminder_time, days_of_week")
+      .eq("is_active", true);
 
     if (error) throw error;
 
@@ -31,6 +36,9 @@ serve(async (_req) => {
 
       if (diffMinutes > 5) continue;
 
+      const days: number[] = reminder.days_of_week ?? [1, 2, 3, 4, 5, 6, 7];
+      if (!days.includes(currentDayOfWeek)) continue;
+
       const mealLabels: Record<string, string> = {
         breakfast: "Petit-déjeuner",
         lunch: "Déjeuner",
@@ -38,12 +46,11 @@ serve(async (_req) => {
         snack: "Collation",
       };
 
-      // Appel interne à send-push-notification
       await fetch(`${SELF_URL}/functions/v1/send-push-notification`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${SERVICE_KEY}`,
+          "x-internal-secret": INTERNAL_SECRET,
         },
         body: JSON.stringify({
           user_id: reminder.user_id,

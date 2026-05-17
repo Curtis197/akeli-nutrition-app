@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET")!;
 
 // Client authentifié par le JWT de l'utilisateur (RLS actif)
 export function userClient(authHeader: string) {
@@ -28,4 +29,11 @@ export async function getAuthUser(req: Request) {
   if (error || !user) return { user: null, client: null };
 
   return { user, client };
+}
+
+// Vérifie le header x-internal-secret pour les fonctions internes/cron.
+// Retourne true si valide, false sinon.
+export function verifyInternalSecret(req: Request): boolean {
+  const secret = req.headers.get("x-internal-secret");
+  return !!secret && secret === INTERNAL_SECRET;
 }

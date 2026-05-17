@@ -2,6 +2,7 @@
 // Appel interne uniquement — pas exposé directement à l'app
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, err, serverError } from "../_shared/response.ts";
+import { verifyInternalSecret } from "../_shared/supabase.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const GEMINI_URL =
@@ -18,13 +19,23 @@ const LANGUAGE_NAMES: Record<string, string> = {
   pt: "Portuguese",
 };
 
+const MAX_CONTENT_LENGTH = 5000;
+
 serve(async (req) => {
   try {
+    if (!verifyInternalSecret(req)) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
     const body = await req.json();
     const { content, source_language, target_language } = body;
 
     if (!content || !source_language || !target_language) {
       return err("content, source_language, and target_language are required");
+    }
+
+    if (content.length > MAX_CONTENT_LENGTH) {
+      return err(`content must be ${MAX_CONTENT_LENGTH} characters or fewer`);
     }
 
     const sourceName = LANGUAGE_NAMES[source_language] ?? source_language;
