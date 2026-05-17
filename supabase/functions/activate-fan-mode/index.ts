@@ -52,6 +52,7 @@ serve(async (req) => {
       .maybeSingle();
 
     const effectiveFrom = firstOfNextMonth();
+    const monthKey = effectiveFrom.slice(0, 7); // ex: '2026-06'
 
     if (existingSub) {
       if (existingSub.creator_id === creator_id) {
@@ -64,10 +65,13 @@ serve(async (req) => {
         .update({ status: "cancelled", effective_until: effectiveFrom })
         .eq("id", existingSub.id);
 
-      // Historique
+      // Historique: action "changed" avec le créateur précédent
       await client.from("fan_subscription_history").insert({
-        subscription_id: existingSub.id,
-        status: "cancelled",
+        user_id: user.id,
+        creator_id: existingSub.creator_id,
+        action: "changed",
+        previous_creator_id: existingSub.creator_id,
+        month_key: monthKey,
       });
     }
 
@@ -85,10 +89,12 @@ serve(async (req) => {
 
     if (subError) throw subError;
 
-    // 5. Historique
+    // 5. Historique: action "activated"
     await client.from("fan_subscription_history").insert({
-      subscription_id: newSub.id,
-      status: "pending",
+      user_id: user.id,
+      creator_id,
+      action: "activated",
+      month_key: monthKey,
     });
 
     return ok({

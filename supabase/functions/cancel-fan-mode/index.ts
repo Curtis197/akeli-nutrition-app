@@ -28,6 +28,7 @@ serve(async (req) => {
     if (!fanSub) return err("No active fan subscription found", 404);
 
     const effectiveUntil = firstOfNextMonth();
+    const monthKey = effectiveUntil.slice(0, 7);
 
     // Annuler (effectif au 1er du mois suivant)
     await client
@@ -35,10 +36,12 @@ serve(async (req) => {
       .update({ status: "cancelled", effective_until: effectiveUntil })
       .eq("id", fanSub.id);
 
-    // Historique
+    // Historique: action "cancelled" avec les colonnes réelles du schéma
     await client.from("fan_subscription_history").insert({
-      subscription_id: fanSub.id,
-      status: "cancelled",
+      user_id: user.id,
+      creator_id: fanSub.creator_id,
+      action: "cancelled",
+      month_key: monthKey,
     });
 
     return ok({ cancelled: true, effective_until: effectiveUntil });
