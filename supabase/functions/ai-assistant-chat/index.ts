@@ -233,12 +233,11 @@ serve(async (req) => {
     if (message.length > 2000) return err("Message too long (max 2000 characters)");
     message = message.replace(/[<>]/g, "").slice(0, 2000);
 
-    // Rate limit: 30 messages / minute
+    // Rate limit: 30 messages / minute across all conversations (RLS scopes to this user)
     const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
     const { count: recentCount } = await client
       .from("ai_message")
       .select("id", { count: "exact" })
-      .eq("conversation_id", conversation_id ?? "00000000-0000-0000-0000-000000000000")
       .gte("sent_at", oneMinuteAgo);
 
     if ((recentCount ?? 0) >= RATE_LIMIT_PER_MINUTE) {
