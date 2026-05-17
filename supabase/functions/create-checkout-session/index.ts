@@ -58,6 +58,30 @@ serve(async (req) => {
       );
     }
 
+    // Verify the authenticated user owns the creator account being paid out
+    const { data: userCreator } = await admin
+      .from("creator")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (!userCreator) return err("Creator profile not found", 404);
+    if (userCreator.id !== creator_id) {
+      return err("You can only request payouts for your own account", 403);
+    }
+
+    // Verify amount is within available balance
+    const { data: balance } = await admin
+      .from("creator_balance")
+      .select("balance")
+      .eq("creator_id", creator_id)
+      .maybeSingle();
+
+    const availableCents = Math.floor((balance?.balance ?? 0) * 100);
+    if (amount_cents > availableCents) {
+      return err(`Amount exceeds available balance (max: ${availableCents} cents)`, 400);
+    }
+
     // Retrieve the creator's Stripe Connect account ID
     const { data: creator } = await admin
       .from("creator")
