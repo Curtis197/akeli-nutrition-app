@@ -19,7 +19,6 @@ export function unauthorized(): Response {
 }
 
 export function serverError(e: unknown): Response {
-  const message = e instanceof Error ? e.message : "Internal server error";
-  console.error("[ERROR]", message);
-  return err(message, 500);
+  console.error("[ERROR]", e);
+  return err("Internal server error", 500);
 }
