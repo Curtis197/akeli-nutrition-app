@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -93,7 +94,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     loading: () => 'Bienvenue sur Akeli',
                     error: (_, __) => 'Bienvenue sur Akeli',
                   ),
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AkeliColors.onSurface,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -114,27 +119,35 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(
                   AkeliSpacing.md, 0, AkeliSpacing.md, AkeliSpacing.sm),
-              child: SearchBar(
-                controller: _searchCtrl,
-                hintText: 'Rechercher une recette...',
-                leading: const Icon(Icons.search_rounded),
-                trailing: _searchQuery.isNotEmpty
-                    ? [
-                        IconButton(
-                          icon: const Icon(Icons.clear_rounded),
-                          onPressed: () {
-                            _logger.userAction('Search cleared', screen: 'FeedPage');
-                            _searchCtrl.clear();
-                            setState(() => _searchQuery = '');
-                          },
-                        )
-                      ]
-                    : null,
-                onChanged: (v) {
-                  _logger.userAction('Search query changed', screen: 'FeedPage', metadata: {'length': v.length, 'triggerSearch': v.length >= 2});
-                  setState(() => _searchQuery = v);
-                },
-                elevation: const WidgetStatePropertyAll(1),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  searchBarTheme: const SearchBarThemeData(
+                    backgroundColor:
+                        WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
+                  ),
+                ),
+                child: SearchBar(
+                  controller: _searchCtrl,
+                  hintText: 'Rechercher une recette...',
+                  leading: const Icon(Icons.search_rounded),
+                  trailing: _searchQuery.isNotEmpty
+                      ? [
+                          IconButton(
+                            icon: const Icon(Icons.clear_rounded),
+                            onPressed: () {
+                              _logger.userAction('Search cleared', screen: 'FeedPage');
+                              _searchCtrl.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        ]
+                      : null,
+                  onChanged: (v) {
+                    _logger.userAction('Search query changed', screen: 'FeedPage', metadata: {'length': v.length, 'triggerSearch': v.length >= 2});
+                    setState(() => _searchQuery = v);
+                  },
+                  elevation: const WidgetStatePropertyAll(1),
+                ),
               ),
             ),
           ),
