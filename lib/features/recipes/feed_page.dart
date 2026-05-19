@@ -25,6 +25,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   static const _pageSize = 20;
 
   @override
+  void initState() {
+    super.initState();
+    _logger.provider('FeedPage initState()');
+  }
+
+  @override
   void dispose() {
     _searchCtrl.dispose();
     _logger.provider('FeedPage disposed');

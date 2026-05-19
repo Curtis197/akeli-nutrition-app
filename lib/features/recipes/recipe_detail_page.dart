@@ -68,11 +68,15 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
 
     _logger.db('BEFORE | op: trackClose | openId: ${open.id}');
     // Fire-and-forget depuis dispose (pas d'async/await dans dispose)
-    ref.read(recipeTrackingRepositoryProvider).trackClose(
-          openId: open.id,
-          openedAt: open.openedAt,
-        );
-    _logger.db('AFTER | op: trackClose | openId: ${open.id}');
+    try {
+      ref.read(recipeTrackingRepositoryProvider).trackClose(
+            openId: open.id,
+            openedAt: open.openedAt,
+          );
+      _logger.db('AFTER | op: trackClose | openId: ${open.id}');
+    } catch (e, st) {
+      _logger.db('ERROR | op: trackClose | openId: ${open.id}', error: e, stackTrace: st);
+    }
   }
 
   @override
@@ -130,6 +134,7 @@ class _RecipeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('RecipeContent build() | recipeId: ${recipe.id}');
     final images = recipe.imageUrls.isNotEmpty
         ? recipe.imageUrls
         : [if (recipe.thumbnailUrl != null) recipe.thumbnailUrl!];

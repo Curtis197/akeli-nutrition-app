@@ -9,20 +9,33 @@ class MockRecipeTrackingRepository implements IRecipeTrackingRepository {
   @override
   Future<void> trackImpression({required String recipeId, required TrackingSource source}) async {
     _logger.db('BEFORE | op: trackImpression | recipeId: $recipeId | source: $source');
-    _logger.db('AFTER | op: trackImpression | recipeId: $recipeId (mock)');
+    try {
+      _logger.db('AFTER | op: trackImpression | recipeId: $recipeId (mock)');
+    } catch (e, st) {
+      _logger.db('ERROR | op: trackImpression | recipeId: $recipeId', error: e, stackTrace: st);
+    }
   }
 
   @override
   Future<RecipeOpen?> trackOpen({required String recipeId, required TrackingSource source}) async {
     _logger.db('BEFORE | op: trackOpen | recipeId: $recipeId | source: $source');
-    _logger.db('AFTER | op: trackOpen | recipeId: $recipeId | result: null (mock)');
-    return null;
+    try {
+      _logger.db('AFTER | op: trackOpen | recipeId: $recipeId | result: null (mock)');
+      return null;
+    } catch (e, st) {
+      _logger.db('ERROR | op: trackOpen | recipeId: $recipeId', error: e, stackTrace: st);
+      return null;
+    }
   }
 
   @override
   Future<void> trackClose({required String openId, required DateTime openedAt}) async {
     _logger.db('BEFORE | op: trackClose | openId: $openId');
-    _logger.db('AFTER | op: trackClose | openId: $openId (mock)');
+    try {
+      _logger.db('AFTER | op: trackClose | openId: $openId (mock)');
+    } catch (e, st) {
+      _logger.db('ERROR | op: trackClose | openId: $openId', error: e, stackTrace: st);
+    }
   }
 }
 
