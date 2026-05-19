@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/meal_plan.dart';
@@ -11,6 +12,8 @@ class BatchCookingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionsAsync = ref.watch(cookingSessionsProvider);
 
+    appLogger.provider('BatchCookingPage build() | sessionsAsync.isLoading: ${sessionsAsync.isLoading}');
+
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
@@ -20,7 +23,10 @@ class BatchCookingPage extends ConsumerWidget {
         title: const Text('Batch Cooking'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateSessionSheet(context),
+        onPressed: () {
+          appLogger.userAction('Create batch session FAB tapped', screen: 'BatchCookingPage');
+          _showCreateSessionSheet(context);
+        },
         backgroundColor: AkeliColors.primary,
         child: const Icon(Icons.add, color: Colors.white),
       ),
@@ -49,6 +55,7 @@ class BatchCookingPage extends ConsumerWidget {
   }
 
   void _showCreateSessionSheet(BuildContext context) {
+    appLogger.userAction('Create session sheet opened', screen: 'BatchCookingPage');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

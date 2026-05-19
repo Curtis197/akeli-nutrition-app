@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:percent_indicator/percent_indicator.dart' as import_percent;
+import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../shared/mocks/mock_meal_plan.dart';
@@ -18,6 +19,8 @@ class MealPlannerPage extends ConsumerWidget {
     final mockPlan = MockMealPlan.sevenDayPlan();
     final entriesByDay = mockPlan.entriesByDay;
     final dayKeys = entriesByDay.keys.toList();
+
+    appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length}');
 
     return Scaffold(
       backgroundColor: const Color(0xFFFCFAEF),
@@ -126,21 +129,30 @@ class MealPlannerPage extends ConsumerWidget {
                     context,
                     icon: Icons.restaurant_menu,
                     title: 'Voir mon plan diététique',
-                    onTap: () => context.push(AkeliRoutes.dietPlan),
+                    onTap: () {
+                      appLogger.userAction('Diet plan card tapped', screen: 'MealPlannerPage');
+                      context.push(AkeliRoutes.dietPlan);
+                    },
                   ),
                   const SizedBox(height: 12),
                   _buildNavigationCard(
                     context,
                     icon: Icons.shopping_basket,
                     title: 'Voir ma liste de course',
-                    onTap: () => context.push(AkeliRoutes.shoppingList),
+                    onTap: () {
+                      appLogger.userAction('Shopping list card tapped', screen: 'MealPlannerPage');
+                      context.push(AkeliRoutes.shoppingList);
+                    },
                   ),
                   const SizedBox(height: 12),
                   _buildNavigationCard(
                     context,
                     icon: Icons.soup_kitchen_outlined,
                     title: 'Batch Cooking',
-                    onTap: () => context.push(AkeliRoutes.batchCooking),
+                    onTap: () {
+                      appLogger.userAction('Batch cooking card tapped', screen: 'MealPlannerPage');
+                      context.push(AkeliRoutes.batchCooking);
+                    },
                   ),
                 ],
               ),
@@ -166,8 +178,12 @@ class MealPlannerPage extends ConsumerWidget {
                         MealPlannerDayRow(
                           date: date,
                           entries: entries,
-                          onRecipeTap: (recipeId) => context.push(AkeliRoutes.recipeDetailPath(recipeId)),
+                          onRecipeTap: (recipeId) {
+                            appLogger.userAction('Meal plan recipe tapped', screen: 'MealPlannerPage', metadata: {'recipeId': recipeId});
+                            context.push(AkeliRoutes.recipeDetailPath(recipeId));
+                          },
                           onConsumedToggle: (entryId, isConsumed) {
+                            appLogger.userAction('Meal consumed toggled', screen: 'MealPlannerPage', metadata: {'entryId': entryId, 'isConsumed': isConsumed});
                             HapticFeedback.mediumImpact();
                           },
                         ),
@@ -188,7 +204,10 @@ class MealPlannerPage extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _generatePlan(context, ref),
+        onPressed: () {
+          appLogger.userAction('Generate plan FAB tapped', screen: 'MealPlannerPage');
+          _generatePlan(context, ref);
+        },
         backgroundColor: AkeliColors.primary,
         elevation: 4,
         child: const Icon(Icons.auto_awesome, color: Colors.white),
@@ -242,6 +261,7 @@ class MealPlannerPage extends ConsumerWidget {
   Widget _buildSnackSection(BuildContext context) {
     return InkWell(
       onTap: () {
+        appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage');
         HapticFeedback.lightImpact();
         // Implement add snack action
       },
@@ -281,10 +301,12 @@ class MealPlannerPage extends ConsumerWidget {
       ),
     );
     
+    appLogger.edge('generate-meal-plan', 'BEFORE | simulated');
     // Simulating generation logic
     await Future.delayed(const Duration(seconds: 2));
-    
+
     if (context.mounted) {
+      appLogger.edge('generate-meal-plan', 'AFTER | success (simulated)');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Plan généré avec succès !'),

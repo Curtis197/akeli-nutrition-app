@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
@@ -16,6 +17,8 @@ class MealDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final planAsync = ref.watch(activeMealPlanProvider);
     final consumeState = ref.watch(mealConsumptionProvider);
+
+    appLogger.provider('MealDetailPage build() | mealId: $mealId | planAsync.isLoading: ${planAsync.isLoading}');
 
     ref.listen(mealConsumptionProvider, (_, next) {
       if (next.hasError) {
@@ -52,9 +55,10 @@ class MealDetailPage extends ConsumerWidget {
           return _MealDetailBody(
             entry: entry,
             isConsumeLoading: consumeState.isLoading,
-            onConsume: () => ref
-                .read(mealConsumptionProvider.notifier)
-                .logConsumption(entry.id),
+            onConsume: () {
+              appLogger.userAction('Mark consumed button tapped', screen: 'MealDetailPage', metadata: {'mealId': entry.id});
+              ref.read(mealConsumptionProvider.notifier).logConsumption(entry.id);
+            },
           );
         },
       ),
@@ -75,6 +79,7 @@ class _MealDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('MealDetailBody build() | mealId: ${entry.id}');
     final hasBatch = entry.components.any((c) => c.isBatch);
 
     return SingleChildScrollView(
@@ -167,15 +172,20 @@ class _MealDetailBody extends StatelessWidget {
                   _LinkRow(
                     icon: Icons.menu_book_outlined,
                     label: 'Voir la recette',
-                    onTap: () => context
-                        .push(AkeliRoutes.recipeDetailPath(entry.recipeId!)),
+                    onTap: () {
+                      appLogger.userAction('View recipe tapped', screen: 'MealDetailPage', metadata: {'recipeId': entry.recipeId});
+                      context.push(AkeliRoutes.recipeDetailPath(entry.recipeId!));
+                    },
                   ),
                 if (hasBatch) ...[
                   const SizedBox(height: AkeliSpacing.sm),
                   _LinkRow(
                     icon: Icons.soup_kitchen_outlined,
                     label: 'Voir le batch cooking',
-                    onTap: () => context.push(AkeliRoutes.batchCooking),
+                    onTap: () {
+                      appLogger.userAction('View batch cooking tapped', screen: 'MealDetailPage');
+                      context.push(AkeliRoutes.batchCooking);
+                    },
                   ),
                 ],
 

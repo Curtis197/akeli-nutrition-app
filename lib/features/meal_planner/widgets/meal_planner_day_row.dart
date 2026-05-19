@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../core/logger.dart';
 import '../../../core/theme.dart';
 import '../../../shared/models/meal_plan.dart';
 import '../../../shared/widgets/meal_card.dart';
@@ -41,6 +42,7 @@ class MealPlannerDayRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('MealPlannerDayRow build() | date: $_formattedDate | entries: ${entries.length}');
     return Padding(
       padding: const EdgeInsets.only(bottom: 24.0),
       child: Column(
@@ -98,9 +100,13 @@ class MealPlannerDayRow extends StatelessWidget {
                   isPlanner: true,
                   isConsumed: entry.isConsumed,
                   onTap: entry.recipeId != null
-                      ? () => onRecipeTap?.call(entry.recipeId!)
+                      ? () {
+                          appLogger.userAction('Meal card tapped', screen: 'MealPlannerDayRow', metadata: {'recipeId': entry.recipeId});
+                          onRecipeTap?.call(entry.recipeId!);
+                        }
                       : null,
                   onConsumedToggle: () {
+                    appLogger.userAction('Meal consumed toggled', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id, 'isConsumed': !entry.isConsumed});
                     HapticFeedback.lightImpact();
                     onConsumedToggle?.call(entry.id, !entry.isConsumed);
                   },
@@ -116,6 +122,7 @@ class MealPlannerDayRow extends StatelessWidget {
   Widget _buildConsumptionToggle(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        appLogger.userAction('Toggle all consumed tapped', screen: 'MealPlannerDayRow', metadata: {'date': _formattedDate, 'allConsumed': _allConsumed});
         HapticFeedback.mediumImpact();
         // Logic to toggle all would go here or be passed down
       },

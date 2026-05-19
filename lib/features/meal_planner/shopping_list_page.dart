@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/meal_plan.dart';
@@ -14,12 +15,15 @@ class ShoppingListPage extends ConsumerStatefulWidget {
 }
 
 class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
+  final _logger = appLogger;
   final Map<String, bool> _checkedState = {};
   final Set<String> _expandedCategories = {};
 
   @override
   Widget build(BuildContext context) {
     final listAsync = ref.watch(shoppingListProvider);
+
+    _logger.provider('ShoppingListPage build() | listAsync.isLoading: ${listAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -32,7 +36,10 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
             data: (items) => items.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.share_outlined),
-                    onPressed: () => _shareList(items),
+                    onPressed: () {
+                      _logger.userAction('Share list tapped', screen: 'ShoppingListPage');
+                      _shareList(items);
+                    },
                     tooltip: 'Partager',
                   )
                 : null,
@@ -87,7 +94,10 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                         label: const Text('Vider ✓'),
                         style: TextButton.styleFrom(
                             foregroundColor: AkeliColors.error),
-                        onPressed: () => _clearChecked(),
+                        onPressed: () {
+                          _logger.userAction('Clear checked tapped', screen: 'ShoppingListPage');
+                          _clearChecked();
+                        },
                       ),
                   ],
                 ),
@@ -117,9 +127,10 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                       child: Column(
                         children: [
                           InkWell(
-                            onTap: () => setState(() => isExpanded
-                                ? _expandedCategories.remove(category)
-                                : _expandedCategories.add(category)),
+                            onTap: () {
+                              _logger.userAction('Category toggled', screen: 'ShoppingListPage', metadata: {'category': category, 'expanded': !isExpanded});
+                              setState(() => isExpanded ? _expandedCategories.remove(category) : _expandedCategories.add(category));
+                            },
                             child: Padding(
                               padding: const EdgeInsets.all(AkeliSpacing.md),
                               child: Row(
@@ -164,9 +175,10 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                                         '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1)} ${item.unit}',
                                     ingredient: item.name,
                                     checked: isChecked,
-                                    onToggle: () => setState(() =>
-                                        _checkedState[item.ingredientId] =
-                                            !isChecked),
+                                    onToggle: () {
+                                      _logger.userAction('Shopping item toggled', screen: 'ShoppingListPage', metadata: {'itemId': item.ingredientId, 'checked': !isChecked});
+                                      setState(() => _checkedState[item.ingredientId] = !isChecked);
+                                    },
                                   ),
                                 );
                               },
@@ -200,6 +212,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
   }
 
   void _clearChecked() {
+    _logger.d('ShoppingListPage: clearing checked items');
     setState(() {
       for (final key in _checkedState.keys) {
         if (_checkedState[key] == true) {
@@ -210,6 +223,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
   }
 
   void _shareList(List<ShoppingItem> items) {
+    _logger.userAction('Share list executed', screen: 'ShoppingListPage', metadata: {'itemCount': items.length});
     // Share functionality placeholder
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Partage en cours de développement')),
