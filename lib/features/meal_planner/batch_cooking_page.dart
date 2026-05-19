@@ -55,7 +55,6 @@ class BatchCookingPage extends ConsumerWidget {
   }
 
   void _showCreateSessionSheet(BuildContext context) {
-    appLogger.userAction('Create session sheet opened', screen: 'BatchCookingPage');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

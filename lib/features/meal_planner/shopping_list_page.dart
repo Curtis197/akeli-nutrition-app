@@ -212,7 +212,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
   }
 
   void _clearChecked() {
-    _logger.d('ShoppingListPage: clearing checked items');
+    _logger.userAction('Clear checked executed', screen: 'ShoppingListPage');
     setState(() {
       for (final key in _checkedState.keys) {
         if (_checkedState[key] == true) {
