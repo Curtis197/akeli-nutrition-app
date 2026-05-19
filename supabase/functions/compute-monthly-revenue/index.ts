@@ -26,7 +26,7 @@ serve(async (req) => {
     prevDate.setMonth(prevDate.getMonth() - 1);
     const monthKey = prevDate.toISOString().slice(0, 7); // ex: '2026-02'
 
-    logger.info("[STEP 1] Computing revenue for month: " + monthKey);
+    logger.debug("[STEP 1] Computing revenue for month: " + monthKey);
 
     // 1. Récupérer tous les créateurs actifs (qui ont des recettes publiées)
     logger.debug("[STEP 2] Query active creators");
@@ -97,12 +97,12 @@ serve(async (req) => {
       // Mettre à jour creator_balance (colonnes réelles: balance, total_earned)
       if (fanRevenue > 0) {
         logRLSCheck(logger, "creator_balance", "SELECT", creator_id);
-        const { data: existing } = await admin
+        const { data: existing, error: balanceSelectError } = await admin
           .from("creator_balance")
           .select("balance, total_earned")
           .eq("creator_id", creator_id)
           .maybeSingle();
-        logQueryResult(logger, "creator_balance", "SELECT", existing ? 1 : 0, undefined);
+        logQueryResult(logger, "creator_balance", "SELECT", existing ? 1 : 0, balanceSelectError ?? undefined);
 
         logRLSCheck(logger, "creator_balance", "UPSERT", creator_id);
         const { error: balanceError } = await admin.from("creator_balance").upsert({

@@ -124,6 +124,8 @@ serve(async (req) => {
           );
         logQueryResult(logger, "fan_external_recipe_counter", "UPSERT", upsertError ? 0 : 1, upsertError ?? undefined);
       }
+    } else {
+      logger.debug('Fan mode check skipped | base recipe has no creator_id');
     }
 
     // 4. Récupérer le creator_id de chaque recette distincte

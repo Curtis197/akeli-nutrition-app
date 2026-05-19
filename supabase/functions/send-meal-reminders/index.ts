@@ -62,7 +62,7 @@ serve(async (req) => {
         snack: "Collation",
       };
 
-      await fetch(`${SELF_URL}/functions/v1/send-push-notification`, {
+      const pushRes = await fetch(`${SELF_URL}/functions/v1/send-push-notification`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,10 +77,12 @@ serve(async (req) => {
         }),
       });
 
-      sent++;
+      if (pushRes.ok) {
+        sent++;
+      } else {
+        logger.warn('Push notification failed | user_id: ' + reminder.user_id + ' | meal_type: ' + reminder.meal_type + ' | status: ' + pushRes.status);
+      }
     }
-
-    logger.info("Sent " + sent + " push notifications out of " + (reminders?.length ?? 0) + " reminders");
 
     logger.info("✅ EXIT | status: 200 | sent: " + sent + " | duration: " + (Date.now() - start) + "ms");
     return ok({ checked: reminders?.length ?? 0, sent });

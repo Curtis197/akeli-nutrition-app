@@ -89,6 +89,7 @@ async function fetchModules(
   userId: string,
   // deno-lint-ignore no-explicit-any
   client: any,
+  logger: ReturnType<typeof createLogger>,
 ): Promise<Record<string, unknown>> {
   const result: Record<string, unknown> = {};
   const today = new Date().toISOString().split("T")[0];
@@ -178,8 +179,9 @@ async function fetchModules(
           break;
         }
       }
-    } catch {
-      // Module optionnel — on continue sans
+    } catch (e) {
+      logger.debug('fetchModules: module fetch failed | module: ' + mod + ' | ' + (e instanceof Error ? e.message : String(e)));
+      // module optionnel — on continue sans
     }
   }));
 
@@ -337,7 +339,7 @@ serve(async (req) => {
       // Phase 2: Fetch conditionnel des données
       if (intention.needs_data && intention.data_modules.length > 0) {
         logger.debug("[fetchModules] Loading modules: " + intention.data_modules.join(", "));
-        modulesData = await fetchModules(intention.data_modules, user.id, client);
+        modulesData = await fetchModules(intention.data_modules, user.id, client, logger);
       }
 
       // Phase 3: Construire le contexte

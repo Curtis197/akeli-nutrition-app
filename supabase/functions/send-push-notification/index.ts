@@ -75,7 +75,7 @@ serve(async (req) => {
       });
 
       if (!fcmRes.ok) {
-        logger.error("FCM send failed", { status: fcmRes.status });
+        logger.warn('FCM send failed — push skipped | status: ' + fcmRes.status + ' | notification_inserted: true');
       }
     } else {
       logger.debug("[STEP 5] No push token found, skipping FCM");
