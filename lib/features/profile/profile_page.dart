@@ -284,7 +284,6 @@ class ProfilePage extends ConsumerWidget {
   }
 
   void _editProfile(BuildContext context, WidgetRef ref) {
-    appLogger.userAction('Edit profile sheet opened', screen: 'ProfilePage');
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -293,7 +292,6 @@ class ProfilePage extends ConsumerWidget {
   }
 
   void _showSettings(BuildContext context, WidgetRef ref) {
-    appLogger.userAction('Settings triggered', screen: 'ProfilePage');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Paramètres bientôt disponibles.')),
     );

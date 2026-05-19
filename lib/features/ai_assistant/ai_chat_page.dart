@@ -84,7 +84,7 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
       ];
       appLogger.provider('AiChatNotifier → data | messages: ${state.length}');
     } catch (e) {
-      appLogger.provider('AiChatNotifier → error | send failed');
+      appLogger.provider('AiChatNotifier → error | send failed | $e', error: e);
       state = [
         ...state.where((m) => !m.isLoading),
         ChatMessage(
@@ -370,7 +370,6 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('MessageBubble build() | role: ${message.role}');
     final isUser = message.role == 'user';
 
     return Padding(
@@ -496,7 +495,6 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('TypingIndicator build()');
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(

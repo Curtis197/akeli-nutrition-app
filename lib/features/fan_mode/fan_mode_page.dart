@@ -110,7 +110,7 @@ class FanModePage extends ConsumerWidget {
 
   Future<void> _activateFanMode(
       BuildContext context, WidgetRef ref, Creator creator) async {
-    appLogger.userAction('Activate fan mode button tapped', screen: 'FanModePage', metadata: {'creatorId': creator.id});
+    appLogger.userAction('Activate fan mode button tapped', screen: 'FanModePage', metadata: {'creatorId': LogHelper.maskUuid(creator.id)});
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
