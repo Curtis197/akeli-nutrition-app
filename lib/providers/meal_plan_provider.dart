@@ -189,6 +189,9 @@ final cookingSessionsProvider =
         .order('planned_date');
 
     appLogger.db('AFTER | table: cooking_session | rows: ${data.length} | mealPlanId: ${plan.id}');
+    if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: cooking_session | mealPlanId: ${plan.id} | possible RLS block');
+    }
     appLogger.provider('cookingSessionsProvider → data | sessions: ${data.length}');
     return data.map((e) => CookingSession.fromJson(e)).toList();
   } on PostgrestException catch (e, st) {

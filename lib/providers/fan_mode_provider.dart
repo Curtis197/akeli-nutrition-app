@@ -65,6 +65,9 @@ final fanEligibleCreatorsProvider =
   try {
     final data = await client.from('creator').select();
     appLogger.db('AFTER | table: creator | rows: ${data.length}');
+    if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: creator | possible RLS block');
+    }
     final eligible = data.map(Creator.fromJson).where((c) => c.isFanEligible).toList();
     appLogger.provider('fanEligibleCreatorsProvider → data | eligible: ${eligible.length}');
     return eligible;
