@@ -50,10 +50,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           email: _signUpEmail.text.trim(),
           password: _signUpPassword.text,
         );
+    if (!mounted) return;
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
       setState(() => _errorMessage = _friendly(s.error.toString()));
-    } else if (mounted) {
+    } else {
       context.go(AkeliRoutes.onboarding);
     }
   }
@@ -65,6 +66,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           email: _loginEmail.text.trim(),
           password: _loginPassword.text,
         );
+    if (!mounted) return;
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
       setState(() => _errorMessage = _friendly(s.error.toString()));
@@ -243,25 +245,31 @@ class _Tab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: active
-              ? AkeliColors.secondaryContainer
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(AkeliRadius.pill),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+    return Semantics(
+      button: true,
+      selected: active,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
             color: active
-                ? AkeliColors.primaryContainer
-                : AkeliColors.outline,
+                ? AkeliColors.secondaryContainer
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(AkeliRadius.pill),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: active
+                  ? AkeliColors.primaryContainer
+                  : AkeliColors.outline,
+            ),
           ),
         ),
       ),
@@ -471,7 +479,11 @@ class _LoginForm extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () {},
+              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        'Réinitialisation du mot de passe — bientôt disponible')),
+              ),
               style: TextButton.styleFrom(
                 foregroundColor: AkeliColors.primary,
                 padding: const EdgeInsets.symmetric(
@@ -540,8 +552,9 @@ class _AuthField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide:
-              const BorderSide(color: Color(0x6600504A), width: 2),
+          borderSide: BorderSide(
+              color: AkeliColors.primaryContainer.withValues(alpha: 0.4),
+              width: 2),
         ),
         filled: true,
         fillColor: AkeliColors.surfaceContainerLow,
