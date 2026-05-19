@@ -213,6 +213,9 @@ final subscriptionProvider =
         .eq('user_id', user.id)
         .maybeSingle();
     appLogger.db('AFTER | table: subscription | rows: ${data == null ? 0 : 1} | userId: ${user.id}');
+    if (data == null) {
+      appLogger.rls('Zero rows | table: subscription | userId: ${user.id} | possible RLS block');
+    }
     appLogger.provider('subscriptionProvider → data | status: ${data?['status'] ?? "none"}');
     return data;
   } on PostgrestException catch (e, st) {
