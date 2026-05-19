@@ -11,6 +11,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, err, serverError } from "../_shared/response.ts";
 import { serviceClient } from "../_shared/supabase.ts";
+import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
 const STRIPE_WEBHOOK_SECRET = Deno.env.get("STRIPE_WEBHOOK_SECRET")!;
 
@@ -61,18 +62,33 @@ async function verifyStripeSignature(
 }
 
 serve(async (req) => {
+  const logger = createLogger("stripe-webhook");
+  const requestId = crypto.randomUUID();
+  logger.setRequestId(requestId);
+  const start = Date.now();
+  logger.info("⚡ ENTRY | method: " + req.method);
+
   try {
+    logger.debug("[STEP 1] Reading payload and signature");
     const payload = await req.text();
     const signature = req.headers.get("stripe-signature") ?? "";
 
+    logger.debug("[STEP 2] Verifying Stripe signature");
     const valid = await verifyStripeSignature(
       payload,
       signature,
       STRIPE_WEBHOOK_SECRET,
     );
-    if (!valid) return err("Invalid Stripe signature", 401);
+    if (!valid) {
+      logger.warn("EARLY RETURN | reason: invalid Stripe signature");
+      return err("Invalid Stripe signature", 401);
+    }
+    logger.debug("[STEP 2] Stripe signature verified");
 
+    logger.debug("[STEP 3] Parsing event");
     const event = JSON.parse(payload);
+    logger.info("[STEP 3] Parsed event | type: " + event.type);
+
     const admin = serviceClient();
 
     switch (event.type) {
@@ -80,7 +96,9 @@ serve(async (req) => {
       case "payment_intent.succeeded": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("creator_payout").insert({
+          logger.info("payment_intent.succeeded | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: succeeded");
+          logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
+          const { error: payoutError } = await admin.from("creator_payout").insert({
             creator_id: creatorId,
             stripe_payment_intent_id: event.data.object.id as string,
             amount_cents: event.data.object.amount as number,
@@ -88,6 +106,7 @@ serve(async (req) => {
             status: "succeeded",
             paid_at: new Date().toISOString(),
           });
+          logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
         }
         break;
       }
@@ -96,13 +115,16 @@ serve(async (req) => {
       case "payment_intent.payment_failed": {
         const creatorId = event.data?.object?.metadata?.creator_id;
         if (creatorId) {
-          await admin.from("creator_payout").insert({
+          logger.info("payment_intent.payment_failed | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: failed");
+          logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
+          const { error: payoutError } = await admin.from("creator_payout").insert({
             creator_id: creatorId,
             stripe_payment_intent_id: event.data.object.id as string,
             amount_cents: event.data.object.amount as number,
             currency: (event.data.object.currency as string) ?? "eur",
             status: "failed",
           });
+          logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
         }
         break;
       }
@@ -111,25 +133,25 @@ serve(async (req) => {
       case "transfer.created": {
         const transferId = event.data?.object?.id;
         const destination = event.data?.object?.destination;
-        console.log(
-          `[stripe-webhook] Transfer ${transferId} to ${destination} created`,
-        );
+        logger.info("transfer.created | transferId: " + transferId + " | destination: " + destination);
         break;
       }
 
       // Creator Stripe Connect account updated (e.g. KYC verified) — logged only
       case "account.updated": {
         const accountId = event.data?.object?.id;
-        console.log(`[stripe-webhook] account.updated: ${accountId}`);
+        logger.info("account.updated | accountId: " + accountId);
         break;
       }
 
       default:
-        console.log(`[stripe-webhook] Unhandled event: ${event.type}`);
+        logger.info("Unhandled event type: " + event.type);
     }
 
+    logger.info("✅ EXIT | status: 200 | duration: " + (Date.now() - start) + "ms");
     return ok({ received: true, event_type: event.type });
   } catch (e) {
+    logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
     return serverError(e);
   }
 });
