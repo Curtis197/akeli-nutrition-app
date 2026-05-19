@@ -6,6 +6,7 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
+import '../../core/logger.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -33,6 +34,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   String? _errorMessage;
 
+  final _logger = appLogger;
+
   @override
   void dispose() {
     _signUpEmail.dispose();
@@ -44,7 +47,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   Future<void> _signUp() async {
+    _logger.userAction('Sign-up form submitted', screen: 'AuthPage',
+        metadata: {'email_masked': LogHelper.maskEmail(_signUpEmail.text.trim())});
+    _logger.auth('signUp triggered from AuthPage | email: ${LogHelper.maskEmail(_signUpEmail.text.trim())}');
     if (!_signUpKey.currentState!.validate()) return;
+    _logger.d('AuthPage: sign-up form validation passed');
     setState(() => _errorMessage = null);
     await ref.read(authNotifierProvider.notifier).signUp(
           email: _signUpEmail.text.trim(),
@@ -53,13 +60,18 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (!mounted) return;
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
+      _logger.auth('signUp ERROR displayed to user | error: ${s.error}');
       setState(() => _errorMessage = _friendly(s.error.toString()));
     } else {
+      _logger.auth('signUp SUCCESS | navigating to onboarding');
       context.go(AkeliRoutes.onboarding);
     }
   }
 
   Future<void> _signIn() async {
+    _logger.userAction('Login form submitted', screen: 'AuthPage',
+        metadata: {'email_masked': LogHelper.maskEmail(_loginEmail.text.trim())});
+    _logger.auth('signIn triggered from AuthPage | email: ${LogHelper.maskEmail(_loginEmail.text.trim())}');
     if (!_loginKey.currentState!.validate()) return;
     setState(() => _errorMessage = null);
     await ref.read(authNotifierProvider.notifier).signIn(
@@ -69,9 +81,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (!mounted) return;
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
+      _logger.auth('signIn ERROR displayed to user | error: ${s.error}');
       setState(() => _errorMessage = _friendly(s.error.toString()));
+    } else {
+      _logger.auth('signIn SUCCESS | router redirect will handle navigation');
     }
-    // Router redirect handles /home on success
   }
 
   String _friendly(String raw) {
@@ -150,6 +164,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           _PillTabBar(
                             isLogin: _isLogin,
                             onToggle: (v) => setState(() {
+                              _logger.userAction('Auth tab toggled', screen: 'AuthPage', metadata: {'tab': v ? 'login' : 'signup'});
                               _isLogin = v;
                               _errorMessage = null;
                             }),
