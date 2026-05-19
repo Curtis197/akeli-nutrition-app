@@ -20,7 +20,7 @@ class AkeliGradientButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final disabled = onPressed == null && !isLoading;
+    final isGhostMode = onPressed == null && !isLoading;
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.circular(AkeliRadius.xl),
@@ -29,16 +29,16 @@ class AkeliGradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(AkeliRadius.xl),
         child: Ink(
           decoration: BoxDecoration(
-            gradient: disabled
+            gradient: isGhostMode
                 ? null
                 : const LinearGradient(
                     colors: [AkeliColors.primary, AkeliColors.primaryContainer],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-            color: disabled ? AkeliColors.surfaceContainerHighest : null,
+            color: isGhostMode ? AkeliColors.surfaceContainerHighest : null,
             borderRadius: BorderRadius.circular(AkeliRadius.xl),
-            boxShadow: disabled
+            boxShadow: isGhostMode
                 ? null
                 : const [
                     BoxShadow(
@@ -50,13 +50,17 @@ class AkeliGradientButton extends StatelessWidget {
           ),
           child: SizedBox(
             height: height,
+            width: double.infinity,
             child: Center(
               child: isLoading
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2.5, color: Colors.white),
+                  ? Semantics(
+                      label: 'Chargement en cours',
+                      child: const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2.5, color: Colors.white),
+                      ),
                     )
                   : Row(
                       mainAxisSize: MainAxisSize.min,
@@ -66,7 +70,7 @@ class AkeliGradientButton extends StatelessWidget {
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
-                            color: disabled
+                            color: isGhostMode
                                 ? AkeliColors.outline
                                 : Colors.white,
                           ),
