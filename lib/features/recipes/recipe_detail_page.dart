@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/recipe_provider.dart';
 import '../../shared/models/recipe.dart';
@@ -24,6 +25,7 @@ class RecipeDetailPage extends ConsumerStatefulWidget {
 }
 
 class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
+  final _logger = appLogger;
   int _currentImageIndex = 0;
   final _pageController = PageController();
 
@@ -33,20 +35,28 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   @override
   void initState() {
     super.initState();
+    _logger.provider('RecipeDetailPage initState() | recipeId: ${widget.recipeId} | source: ${widget.source}');
     _trackOpen();
   }
 
   Future<void> _trackOpen() async {
-    _currentOpen = await ref
-        .read(recipeTrackingRepositoryProvider)
-        .trackOpen(
-          recipeId: widget.recipeId,
-          source: widget.source,
-        );
+    try {
+      _logger.db('BEFORE | op: trackOpen | recipeId: ${widget.recipeId} | source: ${widget.source}');
+      _currentOpen = await ref
+          .read(recipeTrackingRepositoryProvider)
+          .trackOpen(
+            recipeId: widget.recipeId,
+            source: widget.source,
+          );
+      _logger.db('AFTER | op: trackOpen | openId: ${_currentOpen?.id}');
+    } catch (e, st) {
+      _logger.db('ERROR | op: trackOpen | recipeId: ${widget.recipeId}', error: e, stackTrace: st);
+    }
   }
 
   @override
   void dispose() {
+    _logger.provider('RecipeDetailPage disposed | recipeId: ${widget.recipeId}');
     _trackClose();
     _pageController.dispose();
     super.dispose();
@@ -56,16 +66,20 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
     final open = _currentOpen;
     if (open == null) return;
 
+    _logger.db('BEFORE | op: trackClose | openId: ${open.id}');
     // Fire-and-forget depuis dispose (pas d'async/await dans dispose)
     ref.read(recipeTrackingRepositoryProvider).trackClose(
           openId: open.id,
           openedAt: open.openedAt,
         );
+    _logger.db('AFTER | op: trackClose | openId: ${open.id}');
   }
 
   @override
   Widget build(BuildContext context) {
     final recipeAsync = ref.watch(recipeDetailProvider(widget.recipeId));
+
+    _logger.provider('RecipeDetailPage build() | recipeId: ${widget.recipeId} | recipeAsync.isLoading: ${recipeAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -84,10 +98,14 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
             recipe: recipe,
             currentImageIndex: _currentImageIndex,
             pageController: _pageController,
-            onImageChanged: (i) => setState(() => _currentImageIndex = i),
-            onLike: () => ref
-                .read(recipeLikeProvider.notifier)
-                .toggle(recipe.id, recipe.isLiked),
+            onImageChanged: (i) {
+              _logger.userAction('Recipe image swiped', screen: 'RecipeDetailPage', metadata: {'imageIndex': i});
+              setState(() => _currentImageIndex = i);
+            },
+            onLike: () {
+              _logger.userAction('Like button tapped', screen: 'RecipeDetailPage', metadata: {'recipeId': recipe.id, 'isLiked': recipe.isLiked});
+              ref.read(recipeLikeProvider.notifier).toggle(recipe.id, recipe.isLiked);
+            },
           );
         },
       ),

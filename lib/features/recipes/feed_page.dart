@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/recipe_provider.dart';
@@ -17,6 +18,7 @@ class FeedPage extends ConsumerStatefulWidget {
 }
 
 class _FeedPageState extends ConsumerState<FeedPage> {
+  final _logger = appLogger;
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
   final int _offset = 0;
@@ -25,6 +27,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _logger.provider('FeedPage disposed');
     super.dispose();
   }
 
@@ -38,6 +41,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             FeedParams(limit: _pageSize, offset: _offset)));
 
     final profileAsync = ref.watch(userProfileProvider);
+
+    _logger.provider('FeedPage build() | isSearching: $isSearching | feedAsync.isLoading: ${feedAsync.isLoading}');
 
     return CustomScrollView(
       slivers: [
@@ -91,7 +96,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.chat_bubble_outline_rounded),
-              onPressed: () => context.push(AkeliRoutes.aiChat),
+              onPressed: () {
+                _logger.userAction('AI Chat button tapped', screen: 'FeedPage');
+                context.push(AkeliRoutes.aiChat);
+              },
               tooltip: 'Assistant IA',
             ),
           ],
@@ -109,13 +117,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         IconButton(
                           icon: const Icon(Icons.clear_rounded),
                           onPressed: () {
+                            _logger.userAction('Search cleared', screen: 'FeedPage');
                             _searchCtrl.clear();
                             setState(() => _searchQuery = '');
                           },
                         )
                       ]
                     : null,
-                onChanged: (v) => setState(() => _searchQuery = v),
+                onChanged: (v) {
+                  _logger.userAction('Search query changed', screen: 'FeedPage', metadata: {'length': v.length});
+                  setState(() => _searchQuery = v);
+                },
                 elevation: const WidgetStatePropertyAll(1),
               ),
             ),
@@ -172,10 +184,13 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     emoji: null,
                     region: recipe.regionId,
                     tags: recipe.tagIds.take(2).toList(),
-                    onTap: () => context.push(
-                      AkeliRoutes.recipeDetailPath(recipe.id),
-                      extra: TrackingSource.feed,
-                    ),
+                    onTap: () {
+                      _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
+                      context.push(
+                        AkeliRoutes.recipeDetailPath(recipe.id),
+                        extra: TrackingSource.feed,
+                      );
+                    },
                   );
                 },
               ),
