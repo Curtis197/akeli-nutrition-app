@@ -97,9 +97,10 @@ Reference examples:
 
 ### Deno Edge Functions — Required in every index.ts
 
-1. Create logger + request ID at top of handler:
+1. Create logger + request ID at top of handler (add after existing imports):
    ```typescript
    import { createLogger, logRLSCheck, logQueryResult } from '../_shared/logger.ts';
+   // Note: ok, err, unauthorized, serverError come from '../_shared/response.ts' (already imported in all functions)
    const logger = createLogger('function-name');
    const requestId = crypto.randomUUID();
    logger.setRequestId(requestId);
