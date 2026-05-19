@@ -3,10 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme.dart';
+import 'core/logger.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  appLogger.i('🚀 Akeli app starting | initializing Supabase');
+
   await initializeSupabase();
+  appLogger.i('✅ Supabase initialized | launching ProviderScope');
 
   runApp(
     const ProviderScope(
@@ -20,8 +24,8 @@ class AkeliApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    appLogger.d('🔄 AkeliApp.build() | evaluating router');
     final router = ref.watch(routerProvider);
-
     return MaterialApp.router(
       title: 'Akeli',
       debugShowCheckedModeBanner: false,

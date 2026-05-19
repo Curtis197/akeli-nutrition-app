@@ -24,6 +24,7 @@ import '../features/community/group_detail_page.dart';
 import '../features/home/home_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
+import 'logger.dart';
 
 // Routes
 
@@ -76,9 +77,24 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
       final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
 
-      if (!isAuth && !isOnAuthPage) return AkeliRoutes.auth;
-      if (isAuth && isOnAuthPage) return AkeliRoutes.home;
-      if (isAuth && isOnOnboarding) return null;
+      appLogger.navigation(
+        state.uri.path,
+        '',
+        reason: 'redirect check | isAuth: $isAuth',
+      );
+
+      if (!isAuth && !isOnAuthPage) {
+        appLogger.navigation(state.uri.path, AkeliRoutes.auth, reason: 'unauthenticated → redirect to auth');
+        return AkeliRoutes.auth;
+      }
+      if (isAuth && isOnAuthPage) {
+        appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'already authenticated → redirect to home');
+        return AkeliRoutes.home;
+      }
+      if (isAuth && isOnOnboarding) {
+        appLogger.d('🧭 Router: onboarding allowed | userId: ${user.id}');
+        return null;
+      }
       return null;
     },
     routes: [
