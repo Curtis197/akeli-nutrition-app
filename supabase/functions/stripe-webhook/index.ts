@@ -95,37 +95,41 @@ serve(async (req) => {
       // Creator payout succeeded
       case "payment_intent.succeeded": {
         const creatorId = event.data?.object?.metadata?.creator_id;
-        if (creatorId) {
-          logger.info("payment_intent.succeeded | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: succeeded");
-          logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
-          const { error: payoutError } = await admin.from("creator_payout").insert({
-            creator_id: creatorId,
-            stripe_payment_intent_id: event.data.object.id as string,
-            amount_cents: event.data.object.amount as number,
-            currency: (event.data.object.currency as string) ?? "eur",
-            status: "succeeded",
-            paid_at: new Date().toISOString(),
-          });
-          logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
+        if (!creatorId) {
+          logger.warn('payment_intent.succeeded | no creator_id in metadata | payment_intent: ' + event.data?.object?.id);
+          break;
         }
+        logger.info("payment_intent.succeeded | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: succeeded");
+        logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
+        const { error: payoutError } = await admin.from("creator_payout").insert({
+          creator_id: creatorId,
+          stripe_payment_intent_id: event.data.object.id as string,
+          amount_cents: event.data.object.amount as number,
+          currency: (event.data.object.currency as string) ?? "eur",
+          status: "succeeded",
+          paid_at: new Date().toISOString(),
+        });
+        logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
         break;
       }
 
       // Creator payout failed
       case "payment_intent.payment_failed": {
         const creatorId = event.data?.object?.metadata?.creator_id;
-        if (creatorId) {
-          logger.info("payment_intent.payment_failed | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: failed");
-          logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
-          const { error: payoutError } = await admin.from("creator_payout").insert({
-            creator_id: creatorId,
-            stripe_payment_intent_id: event.data.object.id as string,
-            amount_cents: event.data.object.amount as number,
-            currency: (event.data.object.currency as string) ?? "eur",
-            status: "failed",
-          });
-          logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
+        if (!creatorId) {
+          logger.warn('payment_intent.payment_failed | no creator_id in metadata | payment_intent: ' + event.data?.object?.id);
+          break;
         }
+        logger.info("payment_intent.payment_failed | creator_id: " + creatorId + " | stripe_payment_intent_id: " + event.data.object.id + " | amount: " + event.data.object.amount + " | status: failed");
+        logRLSCheck(logger, "creator_payout", "INSERT", creatorId);
+        const { error: payoutError } = await admin.from("creator_payout").insert({
+          creator_id: creatorId,
+          stripe_payment_intent_id: event.data.object.id as string,
+          amount_cents: event.data.object.amount as number,
+          currency: (event.data.object.currency as string) ?? "eur",
+          status: "failed",
+        });
+        logQueryResult(logger, "creator_payout", "INSERT", payoutError ? 0 : 1, payoutError ?? undefined);
         break;
       }
 

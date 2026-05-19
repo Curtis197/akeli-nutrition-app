@@ -18,7 +18,10 @@ serve(async (req) => {
 
   try {
     const { user, client } = await getAuthUser(req);
-    if (!user || !client) return unauthorized();
+    if (!user || !client) {
+      logger.warn('EARLY RETURN | reason: unauthorized | no authenticated user');
+      return unauthorized();
+    }
 
     logger.setUserId(user.id);
     logger.info("👤 Auth verified | userId: " + user.id);

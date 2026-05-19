@@ -178,7 +178,10 @@ serve(async (req) => {
 
   try {
     const { user } = await getAuthUser(req);
-    if (!user) return unauthorized();
+    if (!user) {
+      logger.warn('EARLY RETURN | reason: unauthorized | no authenticated user');
+      return unauthorized();
+    }
 
     logger.setUserId(user.id);
     logger.info("👤 Auth verified | userId: " + user.id);
@@ -218,7 +221,7 @@ serve(async (req) => {
     logger.info("Purchase validation result | platform: " + platform + " | valid: " + valid);
 
     if (!valid) {
-      logger.warn("EARLY RETURN | reason: purchase validation failed | platform: " + platform);
+      logger.warn('EARLY RETURN | reason: purchase validation failed | product_id: ' + product_id + ' | platform: ' + platform);
       return err("Purchase could not be validated. Please contact support.", 402);
     }
 
