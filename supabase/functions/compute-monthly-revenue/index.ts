@@ -3,10 +3,20 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, serverError } from "../_shared/response.ts";
 import { serviceClient, verifyInternalSecret } from "../_shared/supabase.ts";
+import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
 serve(async (req) => {
+  const logger = createLogger("compute-monthly-revenue");
+  const requestId = crypto.randomUUID();
+  logger.setRequestId(requestId);
+  const start = Date.now();
+
   try {
+    logger.info("⚡ ENTRY | method: " + req.method);
+
+    logger.debug("[STEP 1] Verify internal secret");
     if (!verifyInternalSecret(req)) {
+      logger.warn("EARLY RETURN | reason: invalid internal secret");
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
@@ -17,27 +27,38 @@ serve(async (req) => {
     prevDate.setMonth(prevDate.getMonth() - 1);
     const monthKey = prevDate.toISOString().slice(0, 7); // ex: '2026-02'
 
-    console.log(`[compute-monthly-revenue] Computing revenue for ${monthKey}`);
+    logger.info("[STEP 1] Computing revenue for month: " + monthKey);
 
     // 1. Récupérer tous les créateurs actifs (qui ont des recettes publiées)
+    logger.debug("[STEP 2] Query active creators");
+    logRLSCheck(logger, "creator", "SELECT", "cron");
     const { data: creators, error: creatorsError } = await admin
       .from("creator")
       .select("id")
       .gt("recipe_count", 0);
+    logQueryResult(logger, "creator", "SELECT", creators?.length ?? 0, creatorsError ?? undefined);
 
     if (creatorsError) throw creatorsError;
-    if (!creators?.length) return ok({ month_key: monthKey, creators_processed: 0 });
+    if (!creators?.length) {
+      logger.info("No active creators found, exiting");
+      return ok({ month_key: monthKey, creators_processed: 0 });
+    }
 
     // 2. Éviter de recalculer si déjà fait ce mois-ci
     // Uses UNIQUE(creator_id, month_key) constraint on creator_revenue_log
-    const { data: alreadyLogged } = await admin
+    logger.debug("[STEP 3] Query already-logged creators");
+    logRLSCheck(logger, "creator_revenue_log", "SELECT", "cron");
+    const { data: alreadyLogged, error: alreadyLoggedError } = await admin
       .from("creator_revenue_log")
       .select("creator_id")
       .eq("month_key", monthKey);
+    logQueryResult(logger, "creator_revenue_log", "SELECT", alreadyLogged?.length ?? 0, alreadyLoggedError ?? undefined);
 
     const alreadyDone = new Set((alreadyLogged ?? []).map((r) => r.creator_id));
 
     let processedCount = 0;
+
+    logger.debug("[STEP 4] Processing " + creators.length + " creators | already_done: " + alreadyDone.size);
 
     for (const { id: creator_id } of creators) {
       if (alreadyDone.has(creator_id)) continue;
@@ -63,7 +84,7 @@ serve(async (req) => {
         if (logError) {
           // UNIQUE constraint violation = already processed concurrently, skip
           if (logError.code === "23505") {
-            console.log(`[compute-monthly-revenue] ${creator_id} already processed (race), skipping`);
+            logger.info(creator_id + " already processed (race), skipping");
             continue;
           }
           throw logError;
@@ -89,12 +110,12 @@ serve(async (req) => {
       processedCount++;
     }
 
-    console.log(
-      `[compute-monthly-revenue] Processed ${processedCount}/${creators.length} creators for ${monthKey}`,
-    );
+    logger.info("✅ Revenue computed | processed: " + processedCount + "/" + creators.length + " | month: " + monthKey);
 
+    logger.info("✅ EXIT | status: 200 | processed: " + processedCount + " | duration: " + (Date.now() - start) + "ms");
     return ok({ month_key: monthKey, creators_processed: processedCount });
   } catch (e) {
+    logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
     return serverError(e);
   }
 });

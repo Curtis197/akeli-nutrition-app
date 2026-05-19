@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { ok, err, unauthorized, serverError } from "../_shared/response.ts";
 import { getAuthUser } from "../_shared/supabase.ts";
+import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
@@ -218,57 +219,90 @@ serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
 
-  const startMs = Date.now();
+  const logger = createLogger("ai-assistant-chat");
+  const requestId = crypto.randomUUID();
+  logger.setRequestId(requestId);
+  const start = Date.now();
+  logger.info("⚡ ENTRY | method: " + req.method);
 
   try {
     const { user, client } = await getAuthUser(req);
-    if (!user || !client) return unauthorized();
+    if (!user || !client) {
+      logger.warn("EARLY RETURN | reason: unauthorized");
+      return unauthorized();
+    }
+    logger.setUserId(user.id);
+    logger.info("👤 Auth verified | userId: " + user.id);
 
+    logger.debug("[STEP 1] Parse and validate message");
     const body = await req.json();
     let { message, conversation_id } = body;
 
     // Validation
     message = (message ?? "").trim();
-    if (!message || message.length === 0) return err("Message cannot be empty");
-    if (message.length > 2000) return err("Message too long (max 2000 characters)");
+    logger.debug("[STEP 1] Message parsed", { message_length: message.length, has_conversation_id: !!conversation_id });
+
+    if (!message || message.length === 0) {
+      logger.warn("EARLY RETURN | reason: empty message");
+      return err("Message cannot be empty");
+    }
+    if (message.length > 2000) {
+      logger.warn("EARLY RETURN | reason: message too long | length: " + message.length);
+      return err("Message too long (max 2000 characters)");
+    }
     message = message.replace(/[<>]/g, "").slice(0, 2000);
 
     // Rate limit: 30 messages / minute across all conversations (RLS scopes to this user)
+    logger.debug("[STEP 2] Rate limit check");
     const oneMinuteAgo = new Date(Date.now() - 60_000).toISOString();
-    const { count: recentCount } = await client
+    logRLSCheck(logger, "ai_message", "SELECT", user.id);
+    const { count: recentCount, error: rateError } = await client
       .from("ai_message")
       .select("id", { count: "exact" })
       .gte("sent_at", oneMinuteAgo);
+    logQueryResult(logger, "ai_message", "SELECT", recentCount ?? 0, rateError ?? undefined);
+
+    logger.debug("Rate limit check | recent_count: " + (recentCount ?? 0) + " | limit: " + RATE_LIMIT_PER_MINUTE);
 
     if ((recentCount ?? 0) >= RATE_LIMIT_PER_MINUTE) {
+      logger.warn("EARLY RETURN | reason: rate limited | recent_count: " + recentCount);
       return err("Rate limit exceeded. Max 30 messages per minute.", 429);
     }
 
     // Créer ou charger la conversation
+    logger.debug("[STEP 3] " + (conversation_id ? "Using existing conversation: " + conversation_id : "Creating new conversation"));
     if (!conversation_id) {
-      const { data: conv } = await client
+      logRLSCheck(logger, "ai_conversation", "INSERT", user.id);
+      const { data: conv, error: convError } = await client
         .from("ai_conversation")
         .insert({ user_id: user.id })
         .select()
         .single();
+      logQueryResult(logger, "ai_conversation", "INSERT", conv ? 1 : 0, convError ?? undefined);
       conversation_id = conv?.id;
     }
 
     // Charger le prénom
-    const { data: profile } = await client
+    logger.debug("[STEP 4] Load user profile");
+    logRLSCheck(logger, "user_profile", "SELECT", user.id);
+    const { data: profile, error: profileError } = await client
       .from("user_profile")
       .select("first_name")
       .eq("id", user.id)
       .single();
+    logQueryResult(logger, "user_profile", "SELECT", profile ? 1 : 0, profileError ?? undefined);
     const userName = profile?.first_name ?? "toi";
 
     // Historique de conversation (5 derniers messages)
-    const { data: history } = await client
+    logger.debug("[STEP 5] Load conversation history");
+    logRLSCheck(logger, "ai_message", "SELECT", user.id);
+    const { data: history, error: historyError } = await client
       .from("ai_message")
       .select("role, content")
       .eq("conversation_id", conversation_id)
       .order("sent_at", { ascending: false })
       .limit(MAX_HISTORY);
+    logQueryResult(logger, "ai_message", "SELECT", history?.length ?? 0, historyError ?? undefined);
 
     const historyMessages = (history ?? []).reverse().map((m: { role: string; content: string }) => ({
       role: m.role,
@@ -279,6 +313,8 @@ serve(async (req) => {
     let pathType: "fast" | "smart";
     let tokensUsed = 0;
     let modulesData: Record<string, unknown> = {};
+
+    logger.debug("[STEP 6] AI path: " + (isFastPath(message) ? "fast" : "smart") + " | message_length: " + message.length);
 
     if (isFastPath(message)) {
       // ---- FAST PATH ----
@@ -296,9 +332,11 @@ serve(async (req) => {
 
       // Phase 1: Analyse d'intention
       const intention = await analyzeIntention(message, userName);
+      logger.debug("Smart path intention: needs_data=" + intention.needs_data + " | modules=" + intention.data_modules.join(","));
 
       // Phase 2: Fetch conditionnel des données
       if (intention.needs_data && intention.data_modules.length > 0) {
+        logger.debug("[fetchModules] Loading modules: " + intention.data_modules.join(", "));
         modulesData = await fetchModules(intention.data_modules, user.id, client);
       }
 
@@ -316,8 +354,12 @@ serve(async (req) => {
       tokensUsed = Math.ceil((contextStr.length + response.length) / 4);
     }
 
+    logger.debug("AI response received | path: " + pathType + " | tokens: " + tokensUsed);
+
     // Persister les messages
-    await client.from("ai_message").insert([
+    logger.debug("[STEP 7] Persist messages");
+    logRLSCheck(logger, "ai_message", "INSERT", user.id);
+    const { error: insertError } = await client.from("ai_message").insert([
       {
         conversation_id,
         role: "user",
@@ -332,21 +374,27 @@ serve(async (req) => {
         sent_at: new Date().toISOString(),
       },
     ]);
+    logQueryResult(logger, "ai_message", "INSERT", 2, insertError ?? undefined);
 
     // Mettre à jour updated_at de la conversation
-    await client
+    logger.debug("[STEP 8] Update conversation");
+    logRLSCheck(logger, "ai_conversation", "UPDATE", user.id);
+    const { error: updateError } = await client
       .from("ai_conversation")
       .update({ updated_at: new Date().toISOString() })
       .eq("id", conversation_id);
+    logQueryResult(logger, "ai_conversation", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
+    logger.info("✅ EXIT | status: 200 | path: " + pathType + " | tokens: " + tokensUsed + " | duration: " + (Date.now() - start) + "ms");
     return ok({
       response,
       conversation_id,
       tokens_used: tokensUsed,
       path_type: pathType,
-      processing_time_ms: Date.now() - startMs,
+      processing_time_ms: Date.now() - start,
     });
   } catch (e) {
+    logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
     return serverError(e);
   }
 });
