@@ -260,6 +260,7 @@ class _ComponentChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('ComponentChip build() | role: ${component.role}');
     return Container(
       padding: const EdgeInsets.symmetric(
           horizontal: AkeliSpacing.sm, vertical: 6),
@@ -314,6 +315,7 @@ class _LinkRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('LinkRow build() | label: $label');
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AkeliRadius.sm),

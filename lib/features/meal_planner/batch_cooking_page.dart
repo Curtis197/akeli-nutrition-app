@@ -137,6 +137,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('BatchCookingEmptyState build()');
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AkeliSpacing.xl),
@@ -185,6 +186,7 @@ class _CookingSessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('CookingSessionCard build() | sessionId: ${session.id}');
     final progress = session.totalPortions > 0
         ? session.portionsUsed / session.totalPortions
         : 0.0;
