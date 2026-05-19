@@ -49,7 +49,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     if (user == null) return;
     setState(() => _isSubmitting = true);
     try {
-      _logger.edge('complete-onboarding', 'BEFORE | userId: ${user.id}');
+      _logger.edge('complete-onboarding', 'BEFORE | userId: ${LogHelper.maskUuid(user?.id ?? '')}');
       // TODO(wave2): persist onboardingProvider state to Supabase user profile
       await Future.delayed(const Duration(milliseconds: 600));
       _logger.edge('complete-onboarding', 'AFTER | success');
@@ -64,6 +64,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('OnboardingPageState build() | step: $_currentStep');
     return Scaffold(
       backgroundColor: AkeliColors.surfaceContainerLow,
       body: SafeArea(
@@ -73,7 +74,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               step: _currentStep,
               totalSteps: _totalSteps,
               onBack: _currentStep > 0 ? _back : null,
-              onSkip: () => context.go(AkeliRoutes.home),
+              onSkip: () {
+                _logger.userAction('Onboarding skipped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
+                context.go(AkeliRoutes.home);
+              },
             ),
             Expanded(
               child: PageView(
@@ -377,7 +381,10 @@ class _StepLanguage extends ConsumerWidget {
                         DropdownMenuItem(value: 'de', child: Text('Deutsch')),
                       ],
                       onChanged: (v) {
-                        if (v != null) notifier.updateLanguage(v);
+                        if (v != null) {
+                          appLogger.userAction('Language selected', screen: 'OnboardingPage', metadata: {'language': v});
+                          notifier.updateLanguage(v);
+                        }
                       },
                     ),
                   ),
@@ -565,7 +572,10 @@ class _ConsentCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => onChanged(!value),
+      onTap: () {
+        appLogger.userAction('Consent checkbox toggled', screen: 'OnboardingPage');
+        onChanged(!value);
+      },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -610,6 +620,7 @@ class _StepProfile extends ConsumerStatefulWidget {
 }
 
 class _StepProfileState extends ConsumerState<_StepProfile> {
+  final _logger = appLogger;
   late final TextEditingController _nameCtrl;
 
   static const _activities = [
@@ -782,7 +793,10 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                   children: _activities.map((a) {
                     final selected = data.activityLevel == a.$1;
                     return GestureDetector(
-                      onTap: () => notifier.updateProfile(activityLevel: a.$1),
+                      onTap: () {
+                        _logger.userAction('Activity level selected', screen: 'OnboardingPage', metadata: {'level': a.$1});
+                        notifier.updateProfile(activityLevel: a.$1);
+                      },
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
                         padding: const EdgeInsets.all(AkeliSpacing.md),
@@ -950,11 +964,17 @@ class _SexSegment extends StatelessWidget {
           _SexOption(
               label: 'Femme',
               selected: value == 'female',
-              onTap: () => onChanged('female')),
+              onTap: () {
+                appLogger.userAction('Sex selected', screen: 'OnboardingPage', metadata: {'sex': 'female'});
+                onChanged('female');
+              }),
           _SexOption(
               label: 'Homme',
               selected: value == 'male',
-              onTap: () => onChanged('male')),
+              onTap: () {
+                appLogger.userAction('Sex selected', screen: 'OnboardingPage', metadata: {'sex': 'male'});
+                onChanged('male');
+              }),
         ],
       ),
     );
@@ -1217,6 +1237,7 @@ class _StepPreferences extends ConsumerStatefulWidget {
 }
 
 class _StepPreferencesState extends ConsumerState<_StepPreferences> {
+  final _logger = appLogger;
   final _allergyCtrl = TextEditingController();
 
   @override
@@ -1330,6 +1351,7 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                     const SizedBox(width: AkeliSpacing.sm),
                     GestureDetector(
                       onTap: () {
+                        _logger.userAction('Add allergy tapped', screen: 'OnboardingPage');
                         final txt = _allergyCtrl.text.trim();
                         if (txt.isNotEmpty) {
                           final updated = [...data.allergies, txt];
@@ -1364,6 +1386,7 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                         backgroundColor: AkeliColors.surfaceContainerLow,
                         deleteIcon: const Icon(Icons.close_rounded, size: 16),
                         onDeleted: () {
+                          _logger.userAction('Allergy removed', screen: 'OnboardingPage', metadata: {'allergy': a});
                           final updated = data.allergies
                               .where((x) => x != a)
                               .toList();

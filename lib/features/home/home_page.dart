@@ -254,7 +254,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                               unit: 'kcal',
                               progress: (consumed / target).clamp(0.0, 1.0), 
                               gradientColors: const [AkeliColors.secondary, AkeliColors.secondaryContainer],
-                              onTap: () => context.go('/nutrition'),
+                              onTap: () {
+                                _logger.userAction('Nutrition metric tapped', screen: 'HomePage');
+                                context.go('/nutrition');
+                              },
                             );
                           },
                           loading: () => const Center(child: CircularProgressIndicator()),
@@ -372,7 +375,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: AkeliSectionHeader(
                 title:          'Liste de courses',
                 trailingLabel:  'Voir tout',
-                onTrailingTap:  () => context.go('/shopping-list'), // navigate to full list
+                onTrailingTap:  () {
+                  _logger.userAction('View all shopping tapped', screen: 'HomePage');
+                  context.go('/shopping-list');
+                }, // navigate to full list
               ),
             ),
             const SizedBox(height: 16),
@@ -455,6 +461,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             checked:    isChecked,
                             onToggle:   () {
                               HapticFeedback.mediumImpact();
+                              _logger.userAction('Shopping item toggled', screen: 'HomePage', metadata: {'itemId': item.ingredientId, 'checked': !isChecked});
                               setState(() {
                                 if (isChecked) {
                                   _checkedShoppingIds.remove(item.ingredientId);
