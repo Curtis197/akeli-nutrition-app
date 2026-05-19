@@ -136,6 +136,42 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
           allergies: allergies,
           cuisinePreferences: cuisinePreferences);
 
+  // copyWith uses ?? so it can't clear nullable fields to null.
+  // Use these explicit reset methods when the user removes a previously set value.
+  void clearProfile() => state = OnboardingData(
+        language: state.language,
+        consentPrivacy: state.consentPrivacy,
+        consentCgu: state.consentCgu,
+        timelineMonths: state.timelineMonths,
+        motivations: state.motivations,
+        noPork: state.noPork,
+        noMeat: state.noMeat,
+        noGluten: state.noGluten,
+        noLactose: state.noLactose,
+        allergies: state.allergies,
+        cuisinePreferences: state.cuisinePreferences,
+      );
+
+  void clearTargetWeight() => state = OnboardingData(
+        language: state.language,
+        consentPrivacy: state.consentPrivacy,
+        consentCgu: state.consentCgu,
+        name: state.name,
+        age: state.age,
+        sex: state.sex,
+        weight: state.weight,
+        height: state.height,
+        activityLevel: state.activityLevel,
+        timelineMonths: state.timelineMonths,
+        motivations: state.motivations,
+        noPork: state.noPork,
+        noMeat: state.noMeat,
+        noGluten: state.noGluten,
+        noLactose: state.noLactose,
+        allergies: state.allergies,
+        cuisinePreferences: state.cuisinePreferences,
+      );
+
   /// Returns true if the user may advance from the given step index (0-based).
   bool canAdvance(int stepIndex) {
     switch (stepIndex) {
