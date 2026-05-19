@@ -123,6 +123,9 @@ ThemeData buildLightTheme() {
     onSurface: AkeliColors.onSurface,
     surfaceContainerLow: AkeliColors.surfaceContainerLow,
     surfaceContainerLowest: AkeliColors.surfaceContainerLowest,
+    surfaceContainer: AkeliColors.surfaceContainer,
+    surfaceContainerHigh: AkeliColors.surfaceContainerHigh,
+    surfaceContainerHighest: AkeliColors.surfaceContainerHighest,
     error: AkeliColors.error,
     brightness: Brightness.light,
   );
@@ -182,7 +185,7 @@ ThemeData buildLightTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AkeliColors.surfaceContainerHighest,
+      fillColor: AkeliColors.surfaceContainerLow,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AkeliSpacing.md,
         vertical: AkeliSpacing.md,
@@ -197,8 +200,8 @@ ThemeData buildLightTheme() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
-        borderSide: const BorderSide(
-            color: Color(0x66006A63), width: 2),
+        borderSide: BorderSide(
+            color: AkeliColors.primaryContainer.withValues(alpha: 0.4), width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
