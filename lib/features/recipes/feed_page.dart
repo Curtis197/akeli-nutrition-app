@@ -131,7 +131,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ]
                     : null,
                 onChanged: (v) {
-                  _logger.userAction('Search query changed', screen: 'FeedPage', metadata: {'length': v.length});
+                  _logger.userAction('Search query changed', screen: 'FeedPage', metadata: {'length': v.length, 'triggerSearch': v.length >= 2});
                   setState(() => _searchQuery = v);
                 },
                 elevation: const WidgetStatePropertyAll(1),

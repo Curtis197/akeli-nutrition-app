@@ -65,18 +65,11 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   void _trackClose() {
     final open = _currentOpen;
     if (open == null) return;
-
-    _logger.db('BEFORE | op: trackClose | openId: ${open.id}');
-    // Fire-and-forget depuis dispose (pas d'async/await dans dispose)
-    try {
-      ref.read(recipeTrackingRepositoryProvider).trackClose(
-            openId: open.id,
-            openedAt: open.openedAt,
-          );
-      _logger.db('AFTER | op: trackClose | openId: ${open.id}');
-    } catch (e, st) {
-      _logger.db('ERROR | op: trackClose | openId: ${open.id}', error: e, stackTrace: st);
-    }
+    _logger.db('FIRE | op: trackClose | openId: ${open.id} | fire-and-forget from dispose');
+    ref.read(recipeTrackingRepositoryProvider).trackClose(
+      openId: open.id,
+      openedAt: open.openedAt,
+    );
   }
 
   @override
