@@ -24,7 +24,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _logger = appLogger;
 
   void _next() {
-    _logger.userAction('Onboarding step advanced', screen: 'OnboardingPage', metadata: {'step': _currentStep});
+    _logger.userAction('Onboarding next tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
     if (!notifier.canAdvance(_currentStep)) return;
     if (_currentStep < _totalSteps - 1) {
@@ -49,7 +49,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     if (user == null) return;
     setState(() => _isSubmitting = true);
     try {
-      _logger.edge('complete-onboarding', 'BEFORE | userId: ${LogHelper.maskUuid(user?.id ?? '')}');
+      _logger.edge('complete-onboarding', 'BEFORE | userId: ${LogHelper.maskUuid(user.id)}');
       // TODO(wave2): persist onboardingProvider state to Supabase user profile
       await Future.delayed(const Duration(milliseconds: 600));
       _logger.edge('complete-onboarding', 'AFTER | success');
@@ -573,7 +573,7 @@ class _ConsentCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        appLogger.userAction('Consent checkbox toggled', screen: 'OnboardingPage');
+        appLogger.userAction('Consent checkbox toggled', screen: 'OnboardingPage', metadata: {'checked': !value});
         onChanged(!value);
       },
       child: Row(
