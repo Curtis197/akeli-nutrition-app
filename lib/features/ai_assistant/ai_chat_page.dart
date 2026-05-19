@@ -456,10 +456,12 @@ class _TypingIndicatorState extends State<_TypingIndicator>
     with TickerProviderStateMixin {
   late final List<AnimationController> _controllers;
   late final List<Animation<double>> _animations;
+  final _logger = appLogger;
 
   @override
   void initState() {
     super.initState();
+    _logger.provider('TypingIndicator initState()');
     _controllers = List.generate(
       3,
       (i) => AnimationController(
@@ -485,6 +487,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
   @override
   void dispose() {
+    _logger.provider('TypingIndicator disposed');
     for (final c in _controllers) {
       c.dispose();
     }

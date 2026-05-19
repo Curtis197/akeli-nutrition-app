@@ -14,7 +14,7 @@ class NotificationsPage extends StatelessWidget {
       (type: NotifType.request, title: 'Jean souhaite rejoindre votre groupe', subtitle: 'Groupe: Famille Saine', time: 'hier', emoji: null, avatarUrl: null),
       (type: NotifType.meal, title: 'Rappel : dîner', subtitle: 'Poulet grillé ce soir', time: '18:00', emoji: '🍗', avatarUrl: null),
     ];
-    appLogger.provider('NotificationsPage build() | notifCount: ${notifs.length}');
+    appLogger.d('NotificationsPage build() | notifCount: ${notifs.length}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,

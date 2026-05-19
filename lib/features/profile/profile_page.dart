@@ -262,7 +262,10 @@ class ProfilePage extends ConsumerWidget {
         content: const Text('Voulez-vous vraiment vous déconnecter ?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
+              onPressed: () {
+                appLogger.userAction('Sign out cancelled', screen: 'ProfilePage');
+                Navigator.pop(ctx, false);
+              },
               child: const Text('Annuler')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),

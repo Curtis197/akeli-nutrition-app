@@ -11,7 +11,7 @@ class GroupDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    appLogger.provider('GroupDetailPage build() | groupId: $groupId');
+    appLogger.d('GroupDetailPage build() | groupId: $groupId');
     const members = ['AB', 'CD', 'EF', 'GH', 'IJ'];
     const recipes = [
       ('Salade César', 320, 4.5),
