@@ -44,6 +44,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     if (user == null) return;
     setState(() => _isSubmitting = true);
     try {
+      // TODO(wave2): persist onboardingProvider state to Supabase user profile
       await Future.delayed(const Duration(milliseconds: 600));
       if (mounted) context.go(AkeliRoutes.home);
     } finally {
@@ -382,17 +383,12 @@ class _StepLanguage extends ConsumerWidget {
 
 // ── Step 2: Consent ──────────────────────────────────────────────────────────
 
-class _StepConsent extends ConsumerStatefulWidget {
+class _StepConsent extends ConsumerWidget {
   final int step;
   const _StepConsent({required this.step});
 
   @override
-  ConsumerState<_StepConsent> createState() => _StepConsentState();
-}
-
-class _StepConsentState extends ConsumerState<_StepConsent> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -852,7 +848,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
   }
 }
 
-class _MetricField extends StatelessWidget {
+class _MetricField extends StatefulWidget {
   final String value;
   final String suffix;
   final ValueChanged<String> onChanged;
@@ -862,6 +858,25 @@ class _MetricField extends StatelessWidget {
     required this.suffix,
     required this.onChanged,
   });
+
+  @override
+  State<_MetricField> createState() => _MetricFieldState();
+}
+
+class _MetricFieldState extends State<_MetricField> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.value);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -874,8 +889,8 @@ class _MetricField extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
-              controller: TextEditingController(text: value),
-              onChanged: onChanged,
+              controller: _ctrl,
+              onChanged: widget.onChanged,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
@@ -892,7 +907,7 @@ class _MetricField extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: Text(
-              suffix,
+              widget.suffix,
               style: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
