@@ -52,7 +52,7 @@ serve(async (req) => {
         .delete()
         .eq("user_id", user.id)
         .eq("recipe_id", recipe_id);
-      logQueryResult(logger, "recipe_like", "DELETE", 0, deleteError ?? undefined);
+      logQueryResult(logger, "recipe_like", "DELETE", deleteError ? 0 : 1, deleteError ?? undefined);
       logger.info("✅ EXIT | status: 200 | action: unliked | duration: " + (Date.now() - start) + "ms");
       return ok({ liked: false });
     } else {
@@ -62,7 +62,7 @@ serve(async (req) => {
       const { error: insertError } = await client
         .from("recipe_like")
         .insert({ user_id: user.id, recipe_id });
-      logQueryResult(logger, "recipe_like", "INSERT", 0, insertError ?? undefined);
+      logQueryResult(logger, "recipe_like", "INSERT", insertError ? 0 : 1, insertError ?? undefined);
       logger.info("✅ EXIT | status: 200 | action: liked | duration: " + (Date.now() - start) + "ms");
       return ok({ liked: true });
     }

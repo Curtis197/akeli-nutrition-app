@@ -101,7 +101,7 @@ serve(async (req) => {
         .from("fan_subscription")
         .update({ status: "cancelled", effective_until: effectiveFrom })
         .eq("id", existingSub.id);
-      logQueryResult(logger, "fan_subscription", "UPDATE", 0, updateError ?? undefined);
+      logQueryResult(logger, "fan_subscription", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
       // Historique: action "changed" avec le créateur précédent
       logRLSCheck(logger, "fan_subscription_history", "INSERT", user.id);
@@ -112,7 +112,7 @@ serve(async (req) => {
         previous_creator_id: existingSub.creator_id,
         month_key: monthKey,
       });
-      logQueryResult(logger, "fan_subscription_history", "INSERT", 0, historyChangeError ?? undefined);
+      logQueryResult(logger, "fan_subscription_history", "INSERT", historyChangeError ? 0 : 1, historyChangeError ?? undefined);
     }
 
     // 5. Créer le nouveau fan_subscription (pending → actif le 1er du mois suivant)
@@ -141,7 +141,7 @@ serve(async (req) => {
       action: "activated",
       month_key: monthKey,
     });
-    logQueryResult(logger, "fan_subscription_history", "INSERT", 0, historyActivateError ?? undefined);
+    logQueryResult(logger, "fan_subscription_history", "INSERT", historyActivateError ? 0 : 1, historyActivateError ?? undefined);
 
     logger.info("✅ EXIT | status: 200 | fan_sub_id: " + newSub.id + " | effective_from: " + effectiveFrom + " | duration: " + (Date.now() - start) + "ms");
     return ok({

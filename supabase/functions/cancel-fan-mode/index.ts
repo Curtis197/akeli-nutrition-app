@@ -58,7 +58,7 @@ serve(async (req) => {
       .from("fan_subscription")
       .update({ status: "cancelled", effective_until: effectiveUntil })
       .eq("id", fanSub.id);
-    logQueryResult(logger, "fan_subscription", "UPDATE", 0, updateError ?? undefined);
+    logQueryResult(logger, "fan_subscription", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
     // [STEP 3] Historique: action "cancelled"
     logger.debug("[STEP 3] Insert cancellation history");
@@ -69,7 +69,7 @@ serve(async (req) => {
       action: "cancelled",
       month_key: monthKey,
     });
-    logQueryResult(logger, "fan_subscription_history", "INSERT", 0, historyError ?? undefined);
+    logQueryResult(logger, "fan_subscription_history", "INSERT", historyError ? 0 : 1, historyError ?? undefined);
 
     logger.info("✅ EXIT | status: 200 | effective_until: " + effectiveUntil + " | duration: " + (Date.now() - start) + "ms");
     return ok({ cancelled: true, effective_until: effectiveUntil });
