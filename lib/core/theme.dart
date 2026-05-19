@@ -7,44 +7,50 @@ import 'package:google_fonts/google_fonts.dart';
 // ---------------------------------------------------------------------------
 
 abstract class AkeliColors {
-  // Brand - Digital Editorial System
-  static const primary = Color(0xFF006A63);            // Teal Dark (CTA, Active)
-  static const primaryContainer = Color(0xFF4DB6AC);   // Teal Light (Surfaces, Secondary)
-  static const secondary = Color(0xFFFF9F43);          // Orange (Alerts/Calories)
-  static const accentPurple = Color(0xFFA18AFF);       // Title Purple
-  static const tertiary = Color(0xFF8B7FD4);           // Violet (Fallback)
+  // Brand — matches stitch exactly
+  static const primary = Color(0xFF00504A);            // Deep teal (CTA, Active)
+  static const primaryContainer = Color(0xFF006A63);   // Mid teal (gradient end, header)
+  static const onPrimary = Colors.white;
+  static const secondary = Color(0xFFFF9F43);          // Orange accent
+  static const accentAmber = Color(0xFFFF9F1C);        // Vivid amber (CTAs/highlights)
 
   // Surface Philosophy — "The Organic Layer"
-  static const surface = Color(0xFFFCFAEF);             // Warm Cream (Page Background)
-  static const surfaceContainerLow = Color(0xFFF6F4E9); // Cream Dark (Sections)
-  static const surfaceContainerLowest = Color(0xFFFFFFFF); // Pure White (Interactive Cards)
-  static const surfaceContainerHigh = Color(0xFFF1F3F5); // High Contrast Surface
-  static const surfaceContainerHighest = Color(0xFFE4E3D8); // Track/Disabled Surface
-  static const secondaryContainer = Color(0xFFC3EAE5);    // Very Light Teal
-  static const background = surface;                    // Anchor to warm cream
+  static const surface = Color(0xFFFCFAEF);
+  static const surfaceContainerLowest = Color(0xFFFFFFFF);
+  static const surfaceContainerLow = Color(0xFFF6F4E9);
+  static const surfaceContainer = Color(0xFFF0EEE3);
+  static const surfaceContainerHigh = Color(0xFFEAE8DE);
+  static const surfaceContainerHighest = Color(0xFFE4E3D8);
+  static const secondaryContainer = Color(0xFFC3EAE5);
+  static const onSecondaryContainer = Color(0xFF476B67);
+  static const background = surface;
 
-  // Text Roles
-  static const onSurface = Color(0xFF1B1C16);           // Main Text
-  static const onSurfaceVariant = Color(0xFF3D4947);    // Soft/Secondary Text
-  static const outline = Color(0xFF6D7A77);             // Metadata Labels
-  static const outlineVariant = Color(0xFFBDC9C6);      // Ghost Borders
+  // Text
+  static const onSurface = Color(0xFF1B1C16);
+  static const onSurfaceVariant = Color(0xFF3E4947);
+  static const outline = Color(0xFF6E7977);
+  static const outlineVariant = Color(0xFFBEC9C6);
 
-  // Legacy (Keeping for compat with other features during transition)
-  static const textPrimary = Color(0xFF1B1C16);
-  static const textSecondary = Color(0xFF3D4947);
-  static const textMuted = Color(0xFFC8C8C8);
+  // Tertiary / amber
+  static const tertiaryFixed = Color(0xFFFFDCBC);
+  static const onTertiaryFixed = Color(0xFF2C1700);
 
   // Semantics
   static const success = Color(0xFF249689);
   static const warning = Color(0xFFF9CF58);
   static const error = Color(0xFFBA1A1A);
-  static const info = Color(0xFF4D96FF);
 
-  // Dark mode
+  // Legacy aliases (kept for transition)
+  static const textPrimary = onSurface;
+  static const textSecondary = onSurfaceVariant;
+  static const textMuted = Color(0xFFC8C8C8);
   static const backgroundDark = Color(0xFF1A1A2E);
   static const surfaceDark = Color(0xFF16213E);
   static const textPrimaryDark = Color(0xFFF5F5F5);
   static const textSecondaryDark = Color(0xFFB0B0C0);
+  // Removed tokens — aliased to nearest equivalent for backward compatibility
+  static const tertiary = Color(0xFF8B7FD4);           // Violet — kept for transition
+  static const info = Color(0xFF4D96FF);               // Blue info — kept for transition
 }
 
 // ---------------------------------------------------------------------------
@@ -132,7 +138,7 @@ ThemeData buildLightTheme() {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.outfit(
+      titleTextStyle: GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: AkeliColors.onSurface,
@@ -154,9 +160,9 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AkeliRadius.pill),
         ),
-        textStyle: GoogleFonts.outfit(
+        textStyle: GoogleFonts.plusJakartaSans(
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
     ),
@@ -168,7 +174,7 @@ ThemeData buildLightTheme() {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AkeliRadius.pill),
         ),
-        textStyle: GoogleFonts.outfit(
+        textStyle: GoogleFonts.plusJakartaSans(
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -176,29 +182,38 @@ ThemeData buildLightTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AkeliColors.surface,
+      fillColor: AkeliColors.surfaceContainerHighest,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: AkeliSpacing.md,
         vertical: AkeliSpacing.md,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
-        borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+        borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
-        borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
+        borderSide: const BorderSide(
+            color: Color(0x66006A63), width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
         borderSide: const BorderSide(color: AkeliColors.error),
       ),
-      labelStyle: GoogleFonts.poppins(color: AkeliColors.onSurfaceVariant),
-      hintStyle: GoogleFonts.poppins(color: AkeliColors.onSurfaceVariant),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: const BorderSide(color: AkeliColors.error, width: 2),
+      ),
+      labelStyle: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: AkeliColors.onSurfaceVariant,
+          letterSpacing: 0.08),
+      hintStyle: GoogleFonts.inter(color: AkeliColors.outline),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: AkeliColors.surface,
@@ -210,7 +225,7 @@ ThemeData buildLightTheme() {
     chipTheme: ChipThemeData(
       backgroundColor: AkeliColors.background,
       selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
-      labelStyle: GoogleFonts.poppins(fontSize: 12),
+      labelStyle: GoogleFonts.inter(fontSize: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.pill),
         side: const BorderSide(color: Color(0xFFE0E0E0)),
@@ -249,7 +264,7 @@ ThemeData buildDarkTheme() {
       foregroundColor: AkeliColors.textPrimaryDark,
       elevation: 0,
       scrolledUnderElevation: 0,
-      titleTextStyle: GoogleFonts.outfit(
+      titleTextStyle: GoogleFonts.plusJakartaSans(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         color: AkeliColors.textPrimaryDark,
@@ -267,39 +282,34 @@ ThemeData buildDarkTheme() {
 }
 
 TextTheme _buildTextTheme(Color baseColor) => TextTheme(
-      // Display — Outfit
-      displayLarge: GoogleFonts.outfit(
-          fontSize: 32, fontWeight: FontWeight.w800, color: baseColor, letterSpacing: -0.02),
-      displayMedium: GoogleFonts.outfit(
-          fontSize: 24, fontWeight: FontWeight.w700, color: baseColor, letterSpacing: -0.01),
-      displaySmall: GoogleFonts.outfit(
-          fontSize: 20, fontWeight: FontWeight.w700, color: baseColor),
-      // Headlines — Outfit
-      headlineLarge: GoogleFonts.outfit(
+      displayLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 56, fontWeight: FontWeight.w800, color: baseColor, letterSpacing: -0.02),
+      displayMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 40, fontWeight: FontWeight.w800, color: baseColor, letterSpacing: 0.02),
+      displaySmall: GoogleFonts.plusJakartaSans(
+          fontSize: 28, fontWeight: FontWeight.w700, color: baseColor),
+      headlineLarge: GoogleFonts.plusJakartaSans(
           fontSize: 32, fontWeight: FontWeight.w700, color: baseColor),
-      headlineMedium: GoogleFonts.outfit(
-          fontSize: 18, fontWeight: FontWeight.w700, color: baseColor),
-      headlineSmall: GoogleFonts.outfit(
+      headlineMedium: GoogleFonts.plusJakartaSans(
+          fontSize: 24, fontWeight: FontWeight.w700, color: baseColor),
+      headlineSmall: GoogleFonts.plusJakartaSans(
+          fontSize: 20, fontWeight: FontWeight.w700, color: baseColor),
+      titleLarge: GoogleFonts.plusJakartaSans(
+          fontSize: 22, fontWeight: FontWeight.w600, color: baseColor),
+      titleMedium: GoogleFonts.plusJakartaSans(
           fontSize: 16, fontWeight: FontWeight.w600, color: baseColor),
-      // Titles — Outfit
-      titleLarge: GoogleFonts.outfit(
-          fontSize: 22, fontWeight: FontWeight.w700, color: baseColor),
-      titleMedium: GoogleFonts.outfit(
-          fontSize: 16, fontWeight: FontWeight.w500, color: baseColor),
-      titleSmall: GoogleFonts.outfit(
+      titleSmall: GoogleFonts.plusJakartaSans(
           fontSize: 14, fontWeight: FontWeight.w500, color: baseColor),
-      // Body — Poppins (Readability optimized)
-      bodyLarge: GoogleFonts.poppins(
-          fontSize: 16, fontWeight: FontWeight.w400, color: AkeliColors.onSurfaceVariant),
-      bodyMedium: GoogleFonts.poppins(
+      bodyLarge: GoogleFonts.inter(
+          fontSize: 16, fontWeight: FontWeight.w400, color: AkeliColors.onSurfaceVariant, height: 1.6),
+      bodyMedium: GoogleFonts.inter(
           fontSize: 14, fontWeight: FontWeight.w400, color: AkeliColors.onSurfaceVariant),
-      bodySmall: GoogleFonts.poppins(
+      bodySmall: GoogleFonts.inter(
           fontSize: 13, fontWeight: FontWeight.w400, color: AkeliColors.onSurfaceVariant),
-      // Labels — Poppins
-      labelLarge: GoogleFonts.poppins(
-          fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
-      labelMedium: GoogleFonts.poppins(
-          fontSize: 12, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
-      labelSmall: GoogleFonts.poppins(
-          fontSize: 11, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
+      labelLarge: GoogleFonts.inter(
+          fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.05),
+      labelMedium: GoogleFonts.inter(
+          fontSize: 12, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.05),
+      labelSmall: GoogleFonts.inter(
+          fontSize: 11, fontWeight: FontWeight.w600, color: AkeliColors.outlineVariant, letterSpacing: 0.08),
     );
