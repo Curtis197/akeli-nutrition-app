@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../core/router.dart';
 import '../../shared/widgets/avatar.dart';
 final communityGroupsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  appLogger.provider('communityGroupsProvider created');
   await Future.delayed(const Duration(milliseconds: 800));
   return [
     {
@@ -42,6 +44,7 @@ class CommunityPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsAsync = ref.watch(communityGroupsProvider);
+    appLogger.provider('CommunityPage build() | groupsAsync.isLoading: ${groupsAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -70,8 +73,10 @@ class CommunityPage extends ConsumerWidget {
               final name = group['name'] as String;
 
               return InkWell(
-                onTap: () => context
-                    .go(AkeliRoutes.groupChatPath(group['id'] as String)),
+                onTap: () {
+                  appLogger.userAction('Group card tapped', screen: 'CommunityPage', metadata: {'groupId': group['id']});
+                  context.go(AkeliRoutes.groupChatPath(group['id'] as String));
+                },
                 borderRadius: BorderRadius.circular(AkeliRadius.md),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: AkeliSpacing.sm),
@@ -129,6 +134,7 @@ class CommunityPage extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          appLogger.userAction('Create group FAB tapped', screen: 'CommunityPage');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text('Création de groupe — bientôt disponible')),

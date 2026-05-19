@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/shared/widgets/notif_card.dart';
 
@@ -8,11 +9,12 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final notifs = [
-      (type: NotifType.meal, title: 'Heure du déjeuner', subtitle: 'N’oubliez pas votre repas de midi', time: '12:00', emoji: '🥗', avatarUrl: null),
+      (type: NotifType.meal, title: 'Heure du déjeuner', subtitle: 'N\'oubliez pas votre repas de midi', time: '12:00', emoji: '🥗', avatarUrl: null),
       (type: NotifType.chat, title: 'Marie vous a envoyé un message', subtitle: 'Super recette !', time: '11:30', emoji: null, avatarUrl: null),
       (type: NotifType.request, title: 'Jean souhaite rejoindre votre groupe', subtitle: 'Groupe: Famille Saine', time: 'hier', emoji: null, avatarUrl: null),
       (type: NotifType.meal, title: 'Rappel : dîner', subtitle: 'Poulet grillé ce soir', time: '18:00', emoji: '🍗', avatarUrl: null),
     ];
+    appLogger.provider('NotificationsPage build() | notifCount: ${notifs.length}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,

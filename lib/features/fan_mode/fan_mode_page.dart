@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/fan_mode_provider.dart';
 import '../../providers/user_profile_provider.dart';
@@ -15,6 +16,7 @@ class FanModePage extends ConsumerWidget {
     final fanSubAsync = ref.watch(myFanSubscriptionProvider);
     final creatorsAsync = ref.watch(fanEligibleCreatorsProvider);
     final isPremium = ref.watch(isPremiumProvider);
+    appLogger.provider('FanModePage build() | isPremium: $isPremium | fanSubAsync.isLoading: ${fanSubAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -108,6 +110,7 @@ class FanModePage extends ConsumerWidget {
 
   Future<void> _activateFanMode(
       BuildContext context, WidgetRef ref, Creator creator) async {
+    appLogger.userAction('Activate fan mode button tapped', screen: 'FanModePage', metadata: {'creatorId': creator.id});
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -130,6 +133,7 @@ class FanModePage extends ConsumerWidget {
 
     if (confirmed != true || !context.mounted) return;
 
+    appLogger.userAction('Activate fan mode confirmed', screen: 'FanModePage');
     await ref.read(fanModeNotifierProvider.notifier).activate(creator.id);
     final state = ref.read(fanModeNotifierProvider);
     if (!context.mounted) return;
@@ -150,6 +154,7 @@ class FanModePage extends ConsumerWidget {
   }
 
   Future<void> _cancelFanMode(BuildContext context, WidgetRef ref) async {
+    appLogger.userAction('Cancel fan mode button tapped', screen: 'FanModePage');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -173,6 +178,7 @@ class FanModePage extends ConsumerWidget {
 
     if (confirmed != true || !context.mounted) return;
 
+    appLogger.userAction('Cancel fan mode confirmed', screen: 'FanModePage');
     await ref.read(fanModeNotifierProvider.notifier).cancel();
     if (!context.mounted) return;
 
@@ -185,6 +191,7 @@ class FanModePage extends ConsumerWidget {
 class _PremiumRequired extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    appLogger.d('PremiumRequired build()');
     return const EmptyState(
       icon: Icons.star_rounded,
       title: 'Fonctionnalité Premium',
@@ -198,6 +205,7 @@ class _PremiumRequired extends StatelessWidget {
 class _FanModeExplanation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    appLogger.d('FanModeExplanation build()');
     return Container(
       margin: const EdgeInsets.all(AkeliSpacing.lg),
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -245,6 +253,7 @@ class _ActiveFanBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('ActiveFanBanner build() | isPending: ${sub.isPending}');
     return Container(
       margin: const EdgeInsets.all(AkeliSpacing.lg),
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -301,6 +310,7 @@ class _CreatorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('CreatorCard build() | creatorId: ${creator.id} | isCurrentFan: $isCurrentFan');
     return Card(
       margin: const EdgeInsets.symmetric(
           horizontal: AkeliSpacing.md, vertical: AkeliSpacing.xs),

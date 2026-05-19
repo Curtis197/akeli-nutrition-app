@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/user_profile_provider.dart';
 
@@ -11,6 +12,7 @@ class SubscriptionPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isPremium = ref.watch(isPremiumProvider);
     final subAsync = ref.watch(subscriptionProvider);
+    appLogger.provider('SubscriptionPage build() | isPremium: $isPremium');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -126,6 +128,7 @@ class SubscriptionPage extends ConsumerWidget {
               const SizedBox(height: AkeliSpacing.lg),
               FilledButton.icon(
                 onPressed: () {
+                  appLogger.userAction('Subscribe button tapped', screen: 'SubscriptionPage');
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -161,6 +164,7 @@ class _ActiveSubCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('ActiveSubCard build()');
     final expiresAt = sub['current_period_end'] != null
         ? DateTime.tryParse(sub['current_period_end'] as String)
         : null;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/shared/widgets/chat_bubble.dart';
@@ -23,10 +24,12 @@ class GroupChatPage extends StatefulWidget {
 class _GroupChatPageState extends State<GroupChatPage> {
   final _controller = TextEditingController();
   late List<_ChatMessage> _messages;
+  final _logger = appLogger;
 
   @override
   void initState() {
     super.initState();
+    _logger.provider('GroupChatPage initState() | groupId: ${widget.groupId}');
     _messages = [
       const _ChatMessage(text: 'Bonjour tout le monde !', time: '09:00', isMine: false, senderName: 'Marie'),
       const _ChatMessage(text: 'Salut Marie ! Comment ça va ?', time: '09:02', isMine: true, senderName: 'Moi', isRead: true),
@@ -38,10 +41,15 @@ class _GroupChatPageState extends State<GroupChatPage> {
   }
 
   @override
-  void dispose() { _controller.dispose(); super.dispose(); }
+  void dispose() {
+    _logger.provider('GroupChatPage disposed | groupId: ${widget.groupId}');
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _sendMessage() {
     final text = _controller.text.trim();
+    _logger.userAction('Message sent', screen: 'GroupChatPage', metadata: {'groupId': widget.groupId, 'contentLength': text.length});
     if (text.isEmpty) return;
     setState(() {
       _messages.add(_ChatMessage(text: text, time: 'maintenant', isMine: true, senderName: 'Moi', isRead: false));
@@ -51,6 +59,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('GroupChatPage build() | groupId: ${widget.groupId} | messageCount: ${_messages.length}');
     final reversed = _messages.reversed.toList();
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -61,7 +70,10 @@ class _GroupChatPageState extends State<GroupChatPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
-            onPressed: () => context.go(AkeliRoutes.groupDetailPath(widget.groupId)),
+            onPressed: () {
+              _logger.userAction('Group info tapped', screen: 'GroupChatPage');
+              context.go(AkeliRoutes.groupDetailPath(widget.groupId));
+            },
           ),
         ],
       ),
@@ -90,7 +102,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
             Expanded(child: TextField(
               controller: _controller,
               textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _sendMessage(),
+              onSubmitted: (_) { _logger.userAction('Message submitted via keyboard', screen: 'GroupChatPage'); _sendMessage(); },
               decoration: InputDecoration(
                 hintText: 'Écrire un message…',
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
@@ -98,7 +110,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
               ),
             )),
             const SizedBox(width: AkeliSpacing.sm),
-            IconButton(icon: const Icon(Icons.send), color: AkeliColors.primary, onPressed: _sendMessage),
+            IconButton(icon: const Icon(Icons.send), color: AkeliColors.primary, onPressed: () { _logger.userAction('Send message button tapped', screen: 'GroupChatPage'); _sendMessage(); }),
           ]),
         ),
       ]),

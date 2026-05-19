@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/shared/widgets/section_header.dart';
 import 'package:akeli/shared/widgets/avatar.dart';
@@ -10,6 +11,7 @@ class GroupDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.provider('GroupDetailPage build() | groupId: $groupId');
     const members = ['AB', 'CD', 'EF', 'GH', 'IJ'];
     const recipes = [
       ('Salade César', 320, 4.5),
@@ -54,9 +56,12 @@ class GroupDetailPage extends StatelessWidget {
                   AkeliSectionHeader(
                     title: 'Membres',
                     trailingLabel: 'Inviter',
-                    onTrailingTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Inviter un ami')),
-                    ),
+                    onTrailingTap: () {
+                      appLogger.userAction('Invite tapped', screen: 'GroupDetailPage');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Inviter un ami')),
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
                   Wrap(

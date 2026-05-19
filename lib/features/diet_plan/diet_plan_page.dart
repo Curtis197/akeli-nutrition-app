@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
@@ -18,9 +19,12 @@ class DietPlanPage extends ConsumerStatefulWidget {
 }
 
 class _DietPlanPageState extends ConsumerState<DietPlanPage> {
+  final _logger = appLogger;
+
   @override
   Widget build(BuildContext context) {
     final planAsync = ref.watch(activeMealPlanProvider);
+    _logger.provider('DietPlanPage build() | planAsync.isLoading: ${planAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -99,14 +103,17 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                       context,
                       icon: Icons.restaurant_menu,
                       label: 'Voir mon plan diététique',
-                      onTap: () {},
+                      onTap: () { _logger.userAction('Diet plan nav link tapped', screen: 'DietPlanPage'); },
                     ),
                     const SizedBox(height: 12),
                     _buildNavLink(
                       context,
                       icon: Icons.shopping_basket_outlined,
                       label: 'Voir ma liste de course',
-                      onTap: () => context.go(AkeliRoutes.shoppingList),
+                      onTap: () {
+                        _logger.userAction('Shopping list nav link tapped', screen: 'DietPlanPage');
+                        context.go(AkeliRoutes.shoppingList);
+                      },
                     ),
                   ],
                 ),
@@ -134,7 +141,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () { _logger.userAction('Generate plan FAB tapped', screen: 'DietPlanPage'); },
         backgroundColor: AkeliColors.primary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.auto_awesome, color: Colors.white),
@@ -215,7 +222,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () { _logger.userAction('Add snack button tapped', screen: 'DietPlanPage'); },
             style: ElevatedButton.styleFrom(
               backgroundColor: AkeliColors.primary,
               foregroundColor: Colors.white,
@@ -276,7 +283,10 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                     mealType: m.mealTypeLabel,
                     calories: (m.calories ?? 0).toDouble(),
                     // Injecting mockup tags where available or using defaults
-                    onTap: () => context.go(AkeliRoutes.mealDetailPath(m.id)),
+                    onTap: () {
+                      _logger.userAction('Meal card tapped', screen: 'DietPlanPage', metadata: {'mealId': m.id});
+                      context.go(AkeliRoutes.mealDetailPath(m.id));
+                    },
                   ),
                 ),
               );

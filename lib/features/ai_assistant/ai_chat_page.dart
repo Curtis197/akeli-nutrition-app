@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import '../../core/supabase_client.dart'; // Removed Supabase
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
 // ---------------------------------------------------------------------------
@@ -29,9 +30,13 @@ class ChatMessage {
 
 class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
   @override
-  List<ChatMessage> build() => [];
+  List<ChatMessage> build() {
+    appLogger.provider('AiChatNotifier build()');
+    return [];
+  }
 
   Future<void> sendMessage(String content) async {
+    appLogger.provider('AiChatNotifier sendMessage | content length: ${content.trim().length}');
     if (content.trim().isEmpty) return;
 
     final userMsg = ChatMessage(
@@ -49,8 +54,9 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
       isLoading: true,
     );
 
+    appLogger.provider('AiChatNotifier → loading (sending)');
     state = [...state, userMsg, loadingMsg];
- 
+
     try {
       // Mocking AI response instead of calling Supabase
       await Future.delayed(const Duration(seconds: 2));
@@ -76,7 +82,9 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
         ...state.where((m) => !m.isLoading),
         assistantMsg,
       ];
+      appLogger.provider('AiChatNotifier → data | messages: ${state.length}');
     } catch (e) {
+      appLogger.provider('AiChatNotifier → error | send failed');
       state = [
         ...state.where((m) => !m.isLoading),
         ChatMessage(
@@ -90,6 +98,7 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
   }
 
   void clear() {
+    appLogger.provider('AiChatNotifier clear()');
     state = [];
   }
 }
@@ -112,9 +121,11 @@ class AiChatPage extends ConsumerStatefulWidget {
 class _AiChatPageState extends ConsumerState<AiChatPage> {
   final _inputCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
+  final _logger = appLogger;
 
   @override
   void dispose() {
+    _logger.provider('AiChatPage disposed');
     _inputCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
@@ -134,6 +145,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
 
   Future<void> _sendMessage() async {
     final text = _inputCtrl.text.trim();
+    _logger.userAction('Send message tapped', screen: 'AiChatPage', metadata: {'contentLength': text.length});
     if (text.isEmpty) return;
     _inputCtrl.clear();
     await ref.read(aiChatProvider.notifier).sendMessage(text);
@@ -144,6 +156,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
   Widget build(BuildContext context) {
     final messages = ref.watch(aiChatProvider);
     final hasLoading = messages.any((m) => m.isLoading);
+    _logger.provider('AiChatPage build() | messageCount: ${messages.length} | hasLoading: $hasLoading');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -167,6 +180,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
             IconButton(
               icon: const Icon(Icons.refresh_rounded),
               onPressed: () {
+                _logger.userAction('Clear conversation tapped', screen: 'AiChatPage');
                 ref.read(aiChatProvider.notifier).clear();
               },
               tooltip: 'Nouvelle conversation',
@@ -233,14 +247,14 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                     ),
                     maxLines: null,
                     textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _sendMessage(),
+                    onSubmitted: (_) { _logger.userAction('Message submitted via keyboard', screen: 'AiChatPage'); _sendMessage(); },
                   ),
                 ),
                 const SizedBox(width: AkeliSpacing.xs),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   child: FilledButton(
-                    onPressed: hasLoading ? null : _sendMessage,
+                    onPressed: hasLoading ? null : () { _logger.userAction('Send button tapped', screen: 'AiChatPage'); _sendMessage(); },
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(48, 48),
                       maximumSize: const Size(48, 48),
@@ -280,6 +294,7 @@ class _WelcomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('WelcomeView build()');
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       child: Column(
@@ -314,7 +329,7 @@ class _WelcomeView extends StatelessWidget {
             (s) => Padding(
               padding: const EdgeInsets.only(bottom: AkeliSpacing.sm),
               child: InkWell(
-                onTap: () => onSuggestion(s),
+                onTap: () { appLogger.userAction('Suggestion tapped', screen: 'AiChatPage', metadata: {'suggestion': s.substring(0, s.length > 30 ? 30 : s.length)}); onSuggestion(s); },
                 borderRadius: BorderRadius.circular(AkeliRadius.md),
                 child: Container(
                   width: double.infinity,
@@ -355,6 +370,7 @@ class _MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('MessageBubble build() | role: ${message.role}');
     final isUser = message.role == 'user';
 
     return Padding(
@@ -477,6 +493,7 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('TypingIndicator build()');
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -16,21 +17,25 @@ class NutritionPage extends ConsumerStatefulWidget {
 class _NutritionPageState extends ConsumerState<NutritionPage>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  final _logger = appLogger;
 
   @override
   void initState() {
     super.initState();
+    _logger.provider('NutritionPage initState()');
     _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
+    _logger.provider('NutritionPage disposed');
     _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('NutritionPage build()');
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
@@ -60,6 +65,7 @@ class _TodayTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final todayAsync = ref.watch(todayNutritionProvider);
+    appLogger.provider('TodayTab build() | todayAsync.isLoading: ${todayAsync.isLoading}');
 
     return todayAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -113,6 +119,7 @@ class _WeeklyTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weekAsync = ref.watch(weeklyNutritionProvider);
+    appLogger.provider('WeeklyTab build() | weekAsync.isLoading: ${weekAsync.isLoading}');
 
     return weekAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -161,6 +168,7 @@ class _MacroDonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('MacroDonutChart build()');
     final total = proteinG + carbsG + fatG;
     if (total == 0) return const SizedBox.shrink();
 
@@ -237,6 +245,7 @@ class _Legend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('Legend build() | label: $label');
     return Row(
       children: [
         Container(
@@ -267,6 +276,7 @@ class _WaterTrackerState extends State<_WaterTracker> {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('WaterTracker build() | waterMl: ${widget.waterMl}');
     final current = widget.waterMl;
     final glasses = (current / _glassSize).floor();
     final targetGlasses = (_targetMl / _glassSize).floor();
@@ -315,6 +325,7 @@ class _WeightSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weightAsync = ref.watch(weightLogProvider);
+    appLogger.provider('WeightSection build() | weightAsync.isLoading: ${weightAsync.isLoading}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,7 +337,10 @@ class _WeightSection extends ConsumerWidget {
             const Spacer(),
             IconButton(
               icon: const Icon(Icons.add_rounded, color: AkeliColors.primary),
-              onPressed: () => _showAddWeightDialog(context, ref),
+              onPressed: () {
+                appLogger.userAction('Add weight button tapped', screen: 'NutritionPage');
+                _showAddWeightDialog(context, ref);
+              },
             ),
           ],
         ),
@@ -377,13 +391,17 @@ class _WeightSection extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx),
+            onPressed: () {
+              appLogger.userAction('Weight dialog cancelled', screen: 'NutritionPage');
+              Navigator.pop(ctx);
+            },
             child: const Text('Annuler'),
           ),
           FilledButton(
             onPressed: () async {
               final kg = double.tryParse(ctrl.text);
               if (kg != null) {
+                appLogger.userAction('Weight dialog saved', screen: 'NutritionPage', metadata: {'weightKg': kg});
                 await ref
                     .read(weightLogNotifierProvider.notifier)
                     .addEntry(kg);
@@ -406,6 +424,7 @@ class _WeeklyCaloriesChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('WeeklyCaloriesChart build()');
     final bars = days.asMap().entries.map((entry) {
       return BarChartGroupData(
         x: entry.key,
@@ -464,6 +483,7 @@ class _AverageStats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    appLogger.d('AverageStats build()');
     if (days.isEmpty) return const SizedBox.shrink();
 
     final n = days.length;
