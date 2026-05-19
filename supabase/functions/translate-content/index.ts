@@ -3,7 +3,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, err, serverError } from "../_shared/response.ts";
 import { verifyInternalSecret } from "../_shared/supabase.ts";
-import { createLogger } from "../_shared/logger.ts";
+import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 const GEMINI_URL =
@@ -27,10 +27,9 @@ serve(async (req) => {
   const requestId = crypto.randomUUID();
   logger.setRequestId(requestId);
   const start = Date.now();
+  logger.info("⚡ ENTRY | method: " + req.method);
 
   try {
-    logger.info("⚡ ENTRY | method: " + req.method);
-
     logger.debug("[STEP 1] Verify internal secret");
     if (!verifyInternalSecret(req)) {
       logger.warn("EARLY RETURN | reason: invalid internal secret");

@@ -10,10 +10,9 @@ serve(async (req) => {
   const requestId = crypto.randomUUID();
   logger.setRequestId(requestId);
   const start = Date.now();
+  logger.info("⚡ ENTRY | method: " + req.method);
 
   try {
-    logger.info("⚡ ENTRY | method: " + req.method);
-
     logger.debug("[STEP 1] Verify internal secret");
     if (!verifyInternalSecret(req)) {
       logger.warn("EARLY RETURN | reason: invalid internal secret");
@@ -40,7 +39,7 @@ serve(async (req) => {
 
     if (creatorsError) throw creatorsError;
     if (!creators?.length) {
-      logger.info("No active creators found, exiting");
+      logger.info('✅ EXIT | status: 200 | no active creators | duration: ' + (Date.now() - start) + 'ms');
       return ok({ month_key: monthKey, creators_processed: 0 });
     }
 
@@ -64,23 +63,27 @@ serve(async (req) => {
       if (alreadyDone.has(creator_id)) continue;
 
       // Fan revenue: nombre de fans actifs ce mois × 1€
+      logRLSCheck(logger, "fan_subscription", "SELECT", creator_id);
       const { count: fanCount } = await admin
         .from("fan_subscription")
         .select("id", { count: "exact" })
         .eq("creator_id", creator_id)
         .eq("status", "active");
+      logQueryResult(logger, "fan_subscription", "SELECT", fanCount ?? 0, undefined);
 
       const fans = fanCount ?? 0;
       const fanRevenue = fans * 1.0;
 
       // Insérer dans creator_revenue_log (colonnes réelles du schéma)
       if (fanRevenue > 0) {
+        logRLSCheck(logger, "creator_revenue_log", "INSERT", creator_id);
         const { error: logError } = await admin.from("creator_revenue_log").insert({
           creator_id,
           month_key: monthKey,
           fan_revenue: fanRevenue,
           fan_count: fans,
         });
+        logQueryResult(logger, "creator_revenue_log", "INSERT", logError ? 0 : 1, logError ?? undefined);
         if (logError) {
           // UNIQUE constraint violation = already processed concurrently, skip
           if (logError.code === "23505") {
@@ -93,18 +96,22 @@ serve(async (req) => {
 
       // Mettre à jour creator_balance (colonnes réelles: balance, total_earned)
       if (fanRevenue > 0) {
+        logRLSCheck(logger, "creator_balance", "SELECT", creator_id);
         const { data: existing } = await admin
           .from("creator_balance")
           .select("balance, total_earned")
           .eq("creator_id", creator_id)
           .maybeSingle();
+        logQueryResult(logger, "creator_balance", "SELECT", existing ? 1 : 0, undefined);
 
-        await admin.from("creator_balance").upsert({
+        logRLSCheck(logger, "creator_balance", "UPSERT", creator_id);
+        const { error: balanceError } = await admin.from("creator_balance").upsert({
           creator_id,
           balance: (existing?.balance ?? 0) + fanRevenue,
           total_earned: (existing?.total_earned ?? 0) + fanRevenue,
           last_updated: new Date().toISOString(),
         });
+        logQueryResult(logger, "creator_balance", "UPSERT", balanceError ? 0 : 1, balanceError ?? undefined);
       }
 
       processedCount++;

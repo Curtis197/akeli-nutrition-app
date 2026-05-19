@@ -13,10 +13,9 @@ serve(async (req) => {
   const requestId = crypto.randomUUID();
   logger.setRequestId(requestId);
   const start = Date.now();
+  logger.info("⚡ ENTRY | method: " + req.method);
 
   try {
-    logger.info("⚡ ENTRY | method: " + req.method);
-
     logger.debug("[STEP 1] Verify internal secret");
     if (!verifyInternalSecret(req)) {
       logger.warn("EARLY RETURN | reason: invalid internal secret");
