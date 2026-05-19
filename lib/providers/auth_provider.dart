@@ -90,11 +90,11 @@ class AuthNotifier extends AsyncNotifier<void> {
     state = await AsyncValue.guard(() async {
       try {
         _logger.db('BEFORE | op: signInWithPassword | supabase.auth');
-        await client.auth.signInWithPassword(
+        final response = await client.auth.signInWithPassword(
           email: email,
           password: password,
         );
-        _logger.auth('signIn SUCCESS');
+        _logger.auth('signIn SUCCESS | userId: ${response.user?.id ?? "null"}');
         _logger.provider('AuthNotifier → data (signIn success)');
       } on AuthException catch (e, st) {
         _logger.auth('signIn ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
@@ -144,6 +144,7 @@ class AuthNotifier extends AsyncNotifier<void> {
         rethrow;
       } catch (e, st) {
         _logger.auth('resetPassword ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (resetPassword unexpected)');
         rethrow;
       }
     });
