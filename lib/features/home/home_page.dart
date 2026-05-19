@@ -19,6 +19,7 @@ import '../../shared/widgets/shopping_row.dart';          // AkeliShoppingRow wi
 import '../../shared/widgets/section_header.dart';        // AkeliSectionHeader widget
 import '../../shared/widgets/akeli_recipe_card.dart';     // AkeliRecipeCard widget
 import '../../shared/widgets/akeli_weight_stepper.dart';  // AkeliWeightStepper widget
+import '../../core/logger.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WIDGET CLASS
@@ -50,6 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   // ── LOCAL STATE FOR INTERACTION ─────────────────────────────────────────────
   double _currentWeight = 68.5;  // Local state for the stepper
   String _activeFilter  = 'tout'; // 'tout', 'acheter', 'pris'
+  final _logger = appLogger;
 
   // ── LOCAL METHOD (Removed placeholder logic) ──────────────────────────────
 
@@ -77,6 +79,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     final recipesAsync   = ref.watch(feedProvider(          // → AsyncValue<List<Recipe>>
       const FeedParams(limit: 10),                          //   FeedParams is the filter/param object
     ));
+
+    _logger.provider('HomePage build() | profileAsync.isLoading: ${profileAsync.isLoading} | mealPlanAsync.isLoading: ${mealPlanAsync.isLoading}');
 
     // ─────────────────────────────────────────────────────────────────────────
     // ROOT WIDGET: Scaffold
@@ -133,13 +137,19 @@ class _HomePageState extends ConsumerState<HomePage> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.notifications_none_rounded, color: AkeliColors.secondary, size: 26),
-                onPressed: () => context.go('/notifications'),
+                onPressed: () {
+                  _logger.userAction('Notifications button tapped', screen: 'HomePage');
+                  context.go('/notifications');
+                },
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: IconButton(
                   icon: const Icon(Icons.settings_outlined, color: AkeliColors.secondary, size: 26),
-                  onPressed: () => context.go('/profile'),
+                  onPressed: () {
+                    _logger.userAction('Settings button tapped', screen: 'HomePage');
+                    context.go('/profile');
+                  },
                 ),
               ),
             ],
@@ -265,6 +275,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 weight: _currentWeight,
                 onChanged: (newWeight) {
                   HapticFeedback.lightImpact();
+                  _logger.userAction('Weight stepper changed', screen: 'HomePage', metadata: {'newWeight': newWeight});
                   setState(() => _currentWeight = newWeight);
                 },
               ),
@@ -325,7 +336,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                         carbs:    entry.carbsG,
                         fat:      entry.fatG,
                         imageUrl: entry.recipeThumbnail,
-                        onTap:    () => context.go('/meal/${entry.id}'),
+                        onTap:    () {
+                          _logger.userAction('Meal card tapped', screen: 'HomePage', metadata: {'mealId': entry.id});
+                          context.go('/meal/${entry.id}');
+                        },
                       );
                     },
                   );
@@ -374,6 +388,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     isActive: _activeFilter == 'tout',
                     onTap: () {
                       HapticFeedback.selectionClick();
+                      _logger.userAction('Shopping filter changed', screen: 'HomePage', metadata: {'filter': 'tout'});
                       setState(() => _activeFilter = 'tout');
                     },
                   ),
@@ -382,6 +397,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     isActive: _activeFilter == 'acheter',
                     onTap: () {
                       HapticFeedback.selectionClick();
+                      _logger.userAction('Shopping filter changed', screen: 'HomePage', metadata: {'filter': 'acheter'});
                       setState(() => _activeFilter = 'acheter');
                     },
                   ),
@@ -390,6 +406,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     isActive: _activeFilter == 'pris',
                     onTap: () {
                       HapticFeedback.selectionClick();
+                      _logger.userAction('Shopping filter changed', screen: 'HomePage', metadata: {'filter': 'pris'});
                       setState(() => _activeFilter = 'pris');
                     },
                   ),
@@ -513,7 +530,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
                               isMinimalist: true,       // DIGITAL EDITORIAL aesthetic
-                              onTap:    () => context.go('/recipe/${recipe.id}'),
+                              onTap:    () {
+                                _logger.userAction('Recipe card tapped', screen: 'HomePage', metadata: {'recipeId': recipe.id});
+                                context.go('/recipe/${recipe.id}');
+                              },
                             ),
                         ),
                       );
@@ -552,6 +572,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     } else {
       filtered = allItems.where((i) => _checkedShoppingIds.contains(i.ingredientId)).toList();
     }
+    _logger.d('HomePage: filtering shopping items | filter: $_activeFilter | total: ${allItems.length} | filtered: ${filtered.length}');
     return filtered.take(4).toList();
   }
 }

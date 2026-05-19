@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
+import '../../core/logger.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -20,8 +21,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   int _currentStep = 0;
   static const int _totalSteps = 6;
   bool _isSubmitting = false;
+  final _logger = appLogger;
 
   void _next() {
+    _logger.userAction('Onboarding step advanced', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
     if (!notifier.canAdvance(_currentStep)) return;
     if (_currentStep < _totalSteps - 1) {
@@ -33,6 +36,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _back() {
+    _logger.userAction('Onboarding step back', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     if (_currentStep > 0) {
       _pageController.previousPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
@@ -40,13 +44,19 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   Future<void> _submit() async {
+    _logger.userAction('Onboarding submitted', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     setState(() => _isSubmitting = true);
     try {
+      _logger.edge('complete-onboarding', 'BEFORE | userId: ${user.id}');
       // TODO(wave2): persist onboardingProvider state to Supabase user profile
       await Future.delayed(const Duration(milliseconds: 600));
+      _logger.edge('complete-onboarding', 'AFTER | success');
       if (mounted) context.go(AkeliRoutes.home);
+    } catch (e, st) {
+      _logger.edge('complete-onboarding', 'ERROR | $e', error: e, stackTrace: st);
+      rethrow;
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
