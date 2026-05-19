@@ -106,6 +106,7 @@ final recipeDetailProvider =
 
     if (data == null) {
       appLogger.db('AFTER | table: recipe | rows: 0 | recipeId: $id | not found');
+      appLogger.rls('Zero rows | table: recipe | recipeId: $id | possible RLS block');
       appLogger.provider('recipeDetailProvider → data (null)');
       return null;
     }
@@ -121,6 +122,10 @@ final recipeDetailProvider =
       appLogger.db('ERROR | table: recipe | recipeId: $id | code: ${e.code}', error: e, stackTrace: st);
     }
     appLogger.provider('recipeDetailProvider → error | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: recipe | recipeId: $id | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('recipeDetailProvider → error | $e');
     rethrow;
   }
 });
@@ -188,6 +193,7 @@ final searchRecipesProvider =
     appLogger.db('AFTER | table: recipe | rows: ${data.length} | query: "${params.query}"');
 
     if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: recipe | search query: "${params.query}" | possible RLS block or no matches');
       appLogger.provider('searchRecipesProvider → data (empty) | no results for "${params.query}"');
     }
 
