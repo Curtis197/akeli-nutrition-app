@@ -1,5 +1,42 @@
-```markdown
-# Documentation and architecture files are source files that should not be ignored
-# No build artifacts, dependencies, or temporary files detected in changes
-# Current .gitignore content appears to be empty or only contains source files
+```
+# Flutter/Dart specific
+.dart_tool/
+.build/
+*.dart.js
+*.part.js
+*.map
+*.g.dart
+*.freezed.dart
+
+# Dependencies
+.pub/
+build/
+
+# Environment variables
+.env
+.env.local
+*.env.*
+
+# Logs
+*.log
+**/logs
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Temporary files
+*.tmp
+*.temp
 ```
