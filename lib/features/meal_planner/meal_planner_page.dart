@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
-import '../../shared/mocks/mock_meal_plan.dart';
+import '../../providers/meal_plan_provider.dart';
 import 'widgets/meal_planner_day_row.dart';
 
 class MealPlannerPage extends ConsumerWidget {
@@ -13,17 +13,23 @@ class MealPlannerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // For the current UI refactor, we use MockMealPlan
-    // In production, we would use: final planAsync = ref.watch(activeMealPlanProvider);
-    final mockPlan = MockMealPlan.sevenDayPlan();
-    final entriesByDay = mockPlan.entriesByDay;
-    final dayKeys = entriesByDay.keys.toList();
-
-    appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length}');
+    final planAsync = ref.watch(activeMealPlanProvider);
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,
-      body: NestedScrollView(
+      body: planAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('Erreur: $error', style: const TextStyle(color: AkeliColors.error))),
+        data: (plan) {
+          if (plan == null) {
+            return _buildEmptyState(context, ref);
+          }
+          final entriesByDay = plan.entriesByDay;
+          final dayKeys = entriesByDay.keys.toList()..sort();
+
+          appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length}');
+
+          return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── TOP NAVIGATION BAR ───────────────────────────────────────
           SliverAppBar(
@@ -163,6 +169,42 @@ class MealPlannerPage extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.restaurant_menu, size: 64, color: AkeliColors.outline),
+          const SizedBox(height: 16),
+          Text(
+            'Aucun plan alimentaire',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Générez votre premier plan pour commencer',
+            style: TextStyle(color: AkeliColors.onSurfaceVariant),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              appLogger.userAction('Generate plan FAB tapped from empty state', screen: 'MealPlannerPage');
+              _generatePlan(context, ref);
+            },
+            icon: const Icon(Icons.auto_awesome),
+            label: const Text('Générer un plan'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AkeliColors.primary,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           appLogger.userAction('Generate plan FAB tapped', screen: 'MealPlannerPage');

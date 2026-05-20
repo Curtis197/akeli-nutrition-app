@@ -17,7 +17,6 @@ class ShoppingListPage extends ConsumerStatefulWidget {
 
 class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
   final _logger = appLogger;
-  final Map<String, bool> _checkedState = {};
   _ShoppingFilter _filter = _ShoppingFilter.all;
 
   @override
@@ -80,21 +79,15 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
             );
           }
 
-          // Sync checked state
-          for (final item in items) {
-            _checkedState.putIfAbsent(item.ingredientId, () => item.isChecked);
-          }
-
           // Filter items
           final filteredItems = items.where((item) {
-            final isChecked = _checkedState[item.ingredientId] ?? false;
             switch (_filter) {
               case _ShoppingFilter.all:
                 return true;
               case _ShoppingFilter.bought:
-                return isChecked;
+                return item.isChecked;
               case _ShoppingFilter.remaining:
-                return !isChecked;
+                return !item.isChecked;
             }
           }).toList();
 
@@ -184,17 +177,13 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final item = filteredItems[index];
-                      final isChecked = _checkedState[item.ingredientId] ?? false;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: _ShoppingItemRow(
                           item: item,
-                          isChecked: isChecked,
+                          isChecked: item.isChecked,
                           onToggle: () {
-                            _logger.userAction('Shopping item toggled', screen: 'ShoppingListPage', metadata: {'itemId': item.ingredientId, 'checked': !isChecked});
-                            setState(() {
-                              _checkedState[item.ingredientId] = !isChecked;
-                            });
+                            ref.read(shoppingListProvider.notifier).toggleItem(item.ingredientId, !item.isChecked);
                           },
                         ),
                       );

@@ -106,18 +106,120 @@ final mealPlanGeneratorProvider =
 // Shopping list — kept as stub until ingredient data is seeded
 // ---------------------------------------------------------------------------
 
-final shoppingListProvider =
-    FutureProvider.autoDispose<List<ShoppingItem>>((ref) async {
-  appLogger.provider('shoppingListProvider build()');
-  ref.onDispose(() => appLogger.provider('shoppingListProvider disposed'));
-  final plan = await ref.watch(activeMealPlanProvider.future);
-  if (plan == null) {
-    appLogger.provider('shoppingListProvider EARLY RETURN | reason: no active meal plan');
-    return [];
+class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> {
+  final _logger = appLogger;
+
+  @override
+  Future<List<ShoppingItem>> build() async {
+    _logger.provider('ShoppingListNotifier build()');
+    ref.onDispose(() => _logger.provider('ShoppingListNotifier disposed'));
+
+    final plan = await ref.watch(activeMealPlanProvider.future);
+    if (plan == null) {
+      _logger.provider('ShoppingListNotifier EARLY RETURN | reason: no active meal plan');
+      return [];
+    }
+
+    final client = ref.watch(supabaseClientProvider);
+    _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id}');
+    
+    try {
+      final existingList = await client
+          .from('shopping_list')
+          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, category))')
+          .eq('meal_plan_id', plan.id)
+          .maybeSingle();
+
+      List<dynamic> itemsData = [];
+
+      if (existingList != null && existingList['shopping_list_item'] != null) {
+         itemsData = existingList['shopping_list_item'] as List<dynamic>;
+         _logger.db('AFTER | table: shopping_list | found existing list with ${itemsData.length} items');
+      } else {
+         _logger.db('Shopping list not found. Calling generate_shopping_list RPC');
+         final rpcResult = await client.rpc('generate_shopping_list', params: {'p_meal_plan_id': plan.id}) as List<dynamic>;
+         _logger.db('AFTER | rpc: generate_shopping_list | returned ${rpcResult.length} items');
+         
+         final newList = await client
+          .from('shopping_list')
+          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, category))')
+          .eq('meal_plan_id', plan.id)
+          .maybeSingle();
+         
+         if (newList != null && newList['shopping_list_item'] != null) {
+           itemsData = newList['shopping_list_item'] as List<dynamic>;
+         }
+      }
+
+      final items = itemsData.map((e) {
+         final ingredient = e['ingredient'] as Map<String, dynamic>?;
+         return ShoppingItem(
+            ingredientId: e['ingredient_id'] as String,
+            name: (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? 'Unknown',
+            quantity: (e['quantity'] as num).toDouble(),
+            unit: e['unit'] as String,
+            category: ingredient?['category'] as String?,
+            isChecked: (e['is_checked'] as bool?) ?? false,
+         );
+      }).toList();
+      
+      items.sort((a, b) {
+        final catCmp = (a.category ?? '').compareTo(b.category ?? '');
+        if (catCmp != 0) return catCmp;
+        return a.name.compareTo(b.name);
+      });
+
+      _logger.provider('ShoppingListNotifier → data | items: ${items.length}');
+      return items;
+    } catch (e, st) {
+      _logger.db('ERROR | shopping_list fetch | $e', error: e, stackTrace: st);
+      _logger.provider('ShoppingListNotifier → error | $e');
+      rethrow;
+    }
   }
-  appLogger.provider('shoppingListProvider → data (stub, empty list) | mealPlanId: ${plan.id}');
-  return [];
-});
+
+  Future<void> toggleItem(String ingredientId, bool isChecked) async {
+    final client = ref.read(supabaseClientProvider);
+    final plan = await ref.read(activeMealPlanProvider.future);
+    if (plan == null) return;
+
+    _logger.userAction('Toggle shopping item', metadata: {'ingredientId': ingredientId, 'isChecked': isChecked});
+    
+    final previousState = state.valueOrNull;
+    if (previousState != null) {
+      state = AsyncData([
+        for (final item in previousState)
+          if (item.ingredientId == ingredientId)
+            item.copyWith(isChecked: isChecked)
+          else
+            item
+      ]);
+    }
+
+    try {
+      final listData = await client.from('shopping_list').select('id').eq('meal_plan_id', plan.id).maybeSingle();
+      if (listData == null) return;
+      
+      await client
+          .from('shopping_list_item')
+          .update({'is_checked': isChecked})
+          .eq('shopping_list_id', listData['id'])
+          .eq('ingredient_id', ingredientId);
+          
+      _logger.db('AFTER | table: shopping_list_item | op: UPDATE is_checked=$isChecked');
+    } catch (e, st) {
+      _logger.db('ERROR | table: shopping_list_item | op: UPDATE | $e', error: e, stackTrace: st);
+      if (previousState != null) {
+        state = AsyncData(previousState);
+      }
+      rethrow;
+    }
+  }
+}
+
+final shoppingListProvider =
+    AsyncNotifierProvider.autoDispose<ShoppingListNotifier, List<ShoppingItem>>(
+        ShoppingListNotifier.new);
 
 // ---------------------------------------------------------------------------
 // Log meal consumption — Edge Function
