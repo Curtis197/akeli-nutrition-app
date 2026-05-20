@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import '../../core/theme.dart';
+
+final _log = Logger();
 
 /// Privacy Policy Page - Editorial Design
 /// Displays privacy policy with sections on data collection, user rights (RGPD), and contact info
@@ -9,6 +12,8 @@ class PrivacyPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _log.i('Privacy policy page loaded');
+    
     return Scaffold(
       backgroundColor: AkeliColors.surface,
       appBar: AppBar(
@@ -28,434 +33,353 @@ class PrivacyPolicyPage extends StatelessWidget {
               size: 20,
             ),
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _log.d('Navigate back from privacy policy');
+            Navigator.pop(context);
+          },
         ),
         title: Text(
-          'Akeli Oasis',
+          'Politique de Confidentialité',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: AkeliColors.onSurface,
-            letterSpacing: -0.5,
           ),
         ),
-        actions: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AkeliColors.secondaryContainer,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Icon(
-              Icons.person,
-              color: AkeliColors.onSecondaryContainer,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AkeliSpacing.sm),
-        ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AkeliSpacing.lg,
-          32,
-          AkeliSpacing.lg,
-          96,
-        ),
+        padding: EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AkeliSpacing.xl),
-            
-            // Hero Section
-            Text(
-              'Politique de Confidentialité',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: AkeliColors.primary,
-                letterSpacing: -1,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AkeliSpacing.md),
-            Text(
-              'Dernière mise à jour : 15 Octobre 2023',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: AkeliColors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: AkeliSpacing.xxl),
-
-            // Summary Card
+            // Header Card
             Container(
+              padding: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AkeliColors.secondaryContainer,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AkeliColors.onSurface.withValues(alpha: 0.06),
-                    blurRadius: 48,
-                    offset: const Offset(0, 24),
-                  ),
-                ],
+                gradient: LinearGradient(
+                  colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AkeliRadius.xl),
               ),
-              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.info_outline,
-                        color: AkeliColors.onSecondaryContainer,
-                        size: 24,
-                      ),
-                      const SizedBox(width: AkeliSpacing.sm),
-                      Text(
-                        'En Bref',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: AkeliColors.onSecondaryContainer,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AkeliSpacing.lg),
-                  _buildSummaryItem(
-                    'Nous ne vendons jamais vos données personnelles à des tiers.',
-                    highlight: 'jamais',
-                  ),
-                  const SizedBox(height: AkeliSpacing.md),
-                  _buildSummaryItem(
-                    'Vos données sont sécurisées et hébergées au sein de l\'Union Européenne.',
-                  ),
-                  const SizedBox(height: AkeliSpacing.md),
-                  _buildSummaryItem(
-                    'Vous gardez le contrôle total : consultez, modifiez ou supprimez vos données à tout moment.',
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AkeliSpacing.xxl),
-
-            // Policy Sections
-            _buildSection(
-              icon: Icons.business_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '1. Responsable du traitement',
-              content:
-                  'Le responsable du traitement des données à caractère personnel collectées via la plateforme Akeli Oasis est la société Akeli Oasis SAS, immatriculée au RCS de Paris sous le numéro 123 456 789, dont le siège social est situé au 10 Rue de la Paix, 75002 Paris.',
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-
-            _buildSection(
-              icon: Icons.database_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '2. Données collectées',
-              content: 'Nous collectons les données suivantes lors de votre utilisation de nos services :',
-              bullets: [
-                'Données d\'identification : Nom, prénom, adresse e-mail.',
-                'Données de connexion : Adresse IP, logs de connexion, type de navigateur.',
-                'Données d\'utilisation : Pages visitées, temps passé, interactions avec l\'interface.',
-              ],
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-
-            _buildSection(
-              icon: Icons.target_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '3. Finalités du traitement',
-              content: 'Vos données sont collectées pour les finalités suivantes :',
-              bullets: [
-                'Fourniture et gestion de nos services.',
-                'Amélioration de l\'expérience utilisateur et personnalisation du contenu.',
-                'Sécurité de la plateforme et prévention des fraudes.',
-                'Communication (newsletters, alertes de sécurité) avec votre consentement préalable.',
-              ],
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-
-            _buildSection(
-              icon: Icons.gavel_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '4. Vos Droits (RGPD)',
-              content:
-                  'Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez des droits suivants concernant vos données :',
-              gridItems: [
-                _buildGridItem('Droit d\'accès', 'Obtenir la confirmation que vos données sont traitées et en recevoir une copie.'),
-                _buildGridItem('Droit de rectification', 'Demander la correction de données inexactes ou incomplètes.'),
-                _buildGridItem('Droit à l\'effacement', 'Demander la suppression de vos données ("droit à l\'oubli").'),
-                _buildGridItem('Droit d\'opposition', 'Vous opposer à certains traitements, notamment à des fins de prospection.'),
-              ],
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-
-            _buildSection(
-              icon: Icons.shield_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '5. Sécurité des données',
-              content:
-                  'Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données personnelles contre l\'altération, la perte accidentelle ou illicite, l\'utilisation, la divulgation ou l\'accès non autorisé, notamment via le chiffrement des communications (SSL/TLS) et des bases de données hautement sécurisées.',
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-
-            _buildSection(
-              icon: Icons.cookie_outlined,
-              iconColor: AkeliColors.tertiaryFixedDim,
-              title: '6. Utilisation des cookies',
-              content:
-                  'Notre site utilise des cookies essentiels pour assurer son bon fonctionnement. Nous utilisons également des cookies analytiques pour comprendre comment vous interagissez avec notre plateforme. Vous pouvez gérer vos préférences de cookies à tout moment via notre bannière de gestion des consentements.',
-            ),
-            const SizedBox(height: AkeliSpacing.xxl),
-
-            // Contact Section
-            Container(
-              decoration: BoxDecoration(
-                color: AkeliColors.primaryContainer,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AkeliColors.onSurface.withValues(alpha: 0.06),
-                    blurRadius: 48,
-                    offset: const Offset(0, 24),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.mail_outline,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      const SizedBox(width: AkeliSpacing.sm),
-                      Text(
-                        '7. Contact',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AkeliSpacing.md),
+                  Icon(Icons.security_rounded, size: 48, color: AkeliColors.onPrimary),
+                  SizedBox(height: 16),
                   Text(
-                    'Pour toute question relative à la présente politique de confidentialité ou pour exercer vos droits, veuillez nous contacter à l\'adresse suivante :',
+                    'Vos données sont protégées',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Nous nous engageons à protéger votre vie privée conformément au RGPD',
                     style: GoogleFonts.inter(
                       fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.9),
-                    ),
-                  ),
-                  const SizedBox(height: AkeliSpacing.lg),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AkeliSpacing.lg,
-                      vertical: AkeliSpacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AkeliColors.primary,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    child: Text(
-                      'dpo@akelioasis.fr',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
+                      color: AkeliColors.onPrimary.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: AkeliSpacing.xxl),
-          ],
-        ),
-      ),
-    );
-  }
+            SizedBox(height: 32),
 
-  Widget _buildSummaryItem(String text, {String? highlight}) {
-    if (highlight != null) {
-      final parts = text.split(highlight);
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(
-            Icons.check_circle,
-            color: AkeliColors.primary,
-            size: 20,
-          ),
-          const SizedBox(width: AkeliSpacing.sm),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  color: AkeliColors.onSecondaryContainer.withValues(alpha: 0.9),
-                  height: 1.5,
-                ),
-                children: [
-                  TextSpan(text: parts[0]),
-                  TextSpan(
-                    text: highlight,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  if (parts.length > 1) TextSpan(text: parts[1]),
-                ],
-              ),
+            // Summary Highlights
+            _buildSectionTitle('En bref'),
+            SizedBox(height: 12),
+            _buildHighlightCard(
+              icon: Icons.data_usage_outlined,
+              title: 'Collecte minimale',
+              description: 'Seules les données nécessaires au fonctionnement de l\'application',
             ),
-          ),
-        ],
-      );
-    }
+            SizedBox(height: 12),
+            _buildHighlightCard(
+              icon: Icons.lock_outline,
+              title: 'Sécurité maximale',
+              description: 'Chiffrement de bout en bout et stockage sécurisé',
+            ),
+            SizedBox(height: 12),
+            _buildHighlightCard(
+              icon: Icons.person_outline,
+              title: 'Contrôle total',
+              description: 'Vous pouvez accéder, modifier ou supprimer vos données à tout moment',
+            ),
+            SizedBox(height: 32),
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Icon(
-          Icons.check_circle,
-          color: AkeliColors.primary,
-          size: 20,
-        ),
-        const SizedBox(width: AkeliSpacing.sm),
-        Expanded(
-          child: Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AkeliColors.onSecondaryContainer.withValues(alpha: 0.9),
-              height: 1.5,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+            // Section 1
+            _buildSectionTitle('1. Collecte de données'),
+            SizedBox(height: 12),
+            _buildContentCard(
+              content: '''Nous collectons uniquement les données nécessaires pour vous offrir la meilleure expérience :
 
-  Widget _buildSection({
-    required IconData icon,
-    required Color iconColor,
-    required String title,
-    required String content,
-    List<String>? bullets,
-    List<Widget>? gridItems,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AkeliColors.onSurface.withValues(alpha: 0.04),
-            blurRadius: 48,
-            offset: const Offset(0, 24),
-          ),
-        ],
-        border: Border.all(
-          color: AkeliColors.outlineVariant.withValues(alpha: 0.1),
-        ),
-      ),
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(icon, color: iconColor, size: 24),
-              const SizedBox(width: AkeliSpacing.sm),
-              Text(
-                title,
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AkeliColors.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AkeliSpacing.md),
-          Text(
-            content,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AkeliColors.onSurface.withValues(alpha: 0.8),
-              height: 1.6,
+• Informations de profil (nom, email, préférences alimentaires)
+• Historique de navigation dans l'application
+• Données de santé que vous choisissez de partager
+• Préférences de contenu et interactions''',
             ),
-          ),
-          if (bullets != null) ...[
-            const SizedBox(height: AkeliSpacing.md),
-            ...bullets.map((bullet) => Padding(
-              padding: const EdgeInsets.only(bottom: AkeliSpacing.sm),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('• ', style: GoogleFonts.inter(fontSize: 14)),
-                  Expanded(
-                    child: Text(
-                      bullet,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        color: AkeliColors.onSurface.withValues(alpha: 0.8),
-                        height: 1.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-          ],
-          if (gridItems != null) ...[
-            const SizedBox(height: AkeliSpacing.md),
+            SizedBox(height: 24),
+
+            // Section 2
+            _buildSectionTitle('2. Utilisation des données'),
+            SizedBox(height: 12),
+            _buildContentCard(
+              content: '''Vos données nous permettent de :
+
+• Personnaliser vos recommandations de recettes
+• Améliorer continuellement notre service
+• Vous envoyer des notifications pertinentes
+• Assurer la sécurité de votre compte''',
+            ),
+            SizedBox(height: 24),
+
+            // Section 3 - RGPD Rights Grid
+            _buildSectionTitle('3. Vos droits RGPD'),
+            SizedBox(height: 12),
             GridView.count(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
+              physics: NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
-              mainAxisSpacing: AkeliSpacing.md,
-              crossAxisSpacing: AkeliSpacing.md,
-              children: gridItems,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              children: [
+                _buildRightsCard(
+                  icon: Icons.visibility_outlined,
+                  title: 'Accès',
+                  description: 'Consulter vos données',
+                ),
+                _buildRightsCard(
+                  icon: Icons.edit_outlined,
+                  title: 'Rectification',
+                  description: 'Modifier vos informations',
+                ),
+                _buildRightsCard(
+                  icon: Icons.delete_outline,
+                  title: 'Effacement',
+                  description: 'Supprimer votre compte',
+                ),
+                _buildRightsCard(
+                  icon: Icons.download_outlined,
+                  title: 'Portabilité',
+                  description: 'Exporter vos données',
+                ),
+              ],
+            ),
+            SizedBox(height: 24),
+
+            // Section 4
+            _buildSectionTitle('4. Partage des données'),
+            SizedBox(height: 12),
+            _buildContentCard(
+              content: '''Nous ne vendons jamais vos données personnelles.
+
+Elles peuvent être partagées uniquement avec :
+• Nos prestataires techniques hébergés en UE
+• Les autorités légales si requis par la loi
+• Vos créateurs favoris (uniquement avec votre consentement explicite)''',
+            ),
+            SizedBox(height: 24),
+
+            // Section 5
+            _buildSectionTitle('5. Conservation'),
+            SizedBox(height: 12),
+            _buildContentCard(
+              content: '''Vos données sont conservées :
+• Tant que votre compte est actif
+• Jusqu'à 3 ans après votre dernière connexion
+• Immédiatement supprimées après demande de suppression de compte''',
+            ),
+            SizedBox(height: 24),
+
+            // Contact Card
+            _buildSectionTitle('Contact DPO'),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.mail_outline, color: AkeliColors.primary, size: 24),
+                      SizedBox(width: 12),
+                      Text(
+                        'dpo@akeli.app',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AkeliColors.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Notre délégué à la protection des données répond sous 48h ouvrées à toute demande concernant vos données personnelles.',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: AkeliColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 32),
+
+            // Version Badge
+            Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Text(
+                  'Version 1.0 • Dernière mise à jour: Janvier 2026',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AkeliColors.onSecondaryContainer,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: AkeliColors.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildHighlightCard({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+              ),
+              borderRadius: BorderRadius.circular(AkeliRadius.md),
+            ),
+            child: Icon(icon, color: AkeliColors.onPrimary, size: 24),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  description,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AkeliColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildGridItem(String title, String description) {
+  Widget _buildContentCard({required String content}) {
     return Container(
-      padding: const EdgeInsets.all(AkeliSpacing.md),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
+        color: AkeliColors.surface,
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        content,
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          height: 1.6,
+          color: AkeliColors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRightsCard({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AkeliColors.secondaryContainer.withValues(alpha: 0.3),
+            AkeliColors.tertiaryContainer.withValues(alpha: 0.3),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icon, color: AkeliColors.primary, size: 28),
+          SizedBox(height: 12),
           Text(
             title,
             style: GoogleFonts.plusJakartaSans(
-              fontSize: 12,
+              fontSize: 15,
               fontWeight: FontWeight.w600,
               color: AkeliColors.onSurface,
             ),
           ),
-          const SizedBox(height: AkeliSpacing.xs),
+          SizedBox(height: 4),
           Text(
             description,
             style: GoogleFonts.inter(
-              fontSize: 10,
+              fontSize: 12,
               color: AkeliColors.onSurfaceVariant,
-              height: 1.4,
             ),
           ),
         ],

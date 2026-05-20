@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import '../../core/theme.dart';
+
+final _log = Logger();
 
 /// Journaling Bottom Sheet - Editorial Design
 /// Modal for daily journal entry with media upload, description, and meal type selection
@@ -8,6 +11,7 @@ class JournalingBottomSheet extends StatefulWidget {
   const JournalingBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    _log.i('Journaling bottom sheet shown');
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -23,30 +27,101 @@ class JournalingBottomSheet extends StatefulWidget {
 class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
   final _descriptionController = TextEditingController();
   String _selectedMealType = 'Déjeuner';
+  bool _isSaving = false;
+  List<String> _uploadedMedia = [];
+
+  final List<String> _mealTypes = ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Collation'];
+
+  @override
+  void initState() {
+    super.initState();
+    _log.i('Journaling bottom sheet initialized');
+  }
 
   @override
   void dispose() {
     _descriptionController.dispose();
+    _log.d('Journaling bottom sheet disposed');
     super.dispose();
   }
 
   Future<void> _saveEntry() async {
-    // TODO: Integrate with journaling edge function
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    if (mounted) {
+    if (_descriptionController.text.isEmpty) {
+      _log.w('Attempted to save empty journal entry');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Entrée enregistrée avec succès!'),
-          backgroundColor: AkeliColors.success,
+          content: Text('Veuillez ajouter une description'),
+          backgroundColor: AkeliColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AkeliRadius.lg),
           ),
         ),
       );
-      Navigator.pop(context);
+      return;
     }
+
+    _log.i('Saving journal entry', {
+      'mealType': _selectedMealType,
+      'descriptionLength': _descriptionController.text.length,
+      'mediaCount': _uploadedMedia.length,
+    });
+
+    setState(() => _isSaving = true);
+
+    try {
+      // TODO: Integrate with journaling edge function
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      _log.i('Journal entry saved successfully');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Entrée enregistrée avec succès!'),
+            backgroundColor: AkeliColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.lg),
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e, stackTrace) {
+      _log.e('Failed to save journal entry', error: e, stackTrace: stackTrace);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de l\'enregistrement'),
+            backgroundColor: AkeliColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.lg),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _uploadMedia() {
+    _log.i('Media upload triggered');
+    // TODO: Implement image picker
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Sélectionnez une photo dans votre galerie'),
+        backgroundColor: AkeliColors.secondaryContainer,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        ),
+      ),
+    );
   }
 
   @override
@@ -54,7 +129,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: AkeliColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AkeliRadius.xl)),
         boxShadow: [
           BoxShadow(
             color: AkeliColors.onSurface.withValues(alpha: 0.06),
@@ -66,289 +141,230 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Drag Handle & Header
+          // Drag Handle
           Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: Container(
               width: 48,
-              height: 6,
+              height: 4,
               decoration: BoxDecoration(
-                color: AkeliColors.outlineVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(3),
+                color: AkeliColors.outline.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AkeliSpacing.lg,
-              AkeliSpacing.md,
-              AkeliSpacing.lg,
-              100, // Extra padding for floating action button
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Text(
-                  'Dites nous ce que vous avez mangé',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: AkeliColors.onSurface,
-                    letterSpacing: -0.5,
-                    height: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: AkeliSpacing.xxl),
-
-                // Section: Media
-                Text(
-                  'MEDIA',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AkeliColors.outline,
-                    letterSpacing: 2,
-                  ),
-                ),
-                const SizedBox(height: AkeliSpacing.sm),
-                InkWell(
-                  onTap: () {
-                    // TODO: Implement image picker
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Upload photo - Bientôt disponible'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: AkeliColors.outlineVariant.withValues(alpha: 0.5),
-                        strokeAlign: BorderSide.strokeAlignInside,
-                        style: BorderStyle.solid,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      color: AkeliColors.surfaceContainerLow,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AkeliColors.surfaceContainerLowest,
-                            borderRadius: BorderRadius.circular(50),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AkeliColors.onSurface.withValues(alpha: 0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.add_a_photo_outlined,
-                            color: AkeliColors.primary,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(height: AkeliSpacing.md),
-                        Text(
-                          'Ajouter une photo',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AkeliColors.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: AkeliSpacing.xs),
-                        Text(
-                          'JPG, PNG jusqu\'à 10MB',
-                          style: GoogleFonts.inter(
-                            fontSize: 11,
-                            color: AkeliColors.outline,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AkeliSpacing.xxl),
-
-                // Section: Description
-                Text(
-                  'DESCRIPTION',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AkeliColors.outline,
-                    letterSpacing: 2,
-                  ),
-                ),
-                const SizedBox(height: AkeliSpacing.sm),
-                Container(
-                  constraints: const BoxConstraints(minHeight: 160),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: const EdgeInsets.all(AkeliSpacing.md),
-                  child: TextField(
-                    controller: _descriptionController,
-                    maxLines: null,
-                    minLines: 4,
-                    decoration: InputDecoration(
-                      hintText: 'Décrivez votre repas ou vos sensations...',
-                      hintStyle: GoogleFonts.inter(
-                        color: AkeliColors.outline.withValues(alpha: 0.6),
-                        fontSize: 16,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: AkeliColors.onSurface,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AkeliSpacing.xxl),
-
-                // Bento Style Secondary Options
-                Container(
-                  padding: const EdgeInsets.all(AkeliSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          
+          // Content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Row(
                     children: [
-                      Icon(
-                        Icons.restaurant_outlined,
-                        color: AkeliColors.primary,
-                        size: 24,
-                      ),
-                      const SizedBox(height: AkeliSpacing.sm),
-                      Text(
-                        'Type',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AkeliColors.onSecondaryContainer,
-                          letterSpacing: 0.5,
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AkeliColors.tertiary, AkeliColors.secondary],
+                          ),
+                          borderRadius: BorderRadius.circular(AkeliRadius.md),
                         ),
+                        child: Icon(Icons.edit_note_rounded, size: 28, color: AkeliColors.onTertiary),
                       ),
-                      const SizedBox(height: AkeliSpacing.xs),
-                      DropdownButton<String>(
-                        value: _selectedMealType,
-                        underline: const SizedBox.shrink(),
-                        items: ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Collation']
-                            .map((type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Text(
-                                    type,
-                                    style: GoogleFonts.plusJakartaSans(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AkeliColors.onSurface,
-                                    ),
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => _selectedMealType = value);
-                          }
-                        },
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Nouvelle entrée',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AkeliColors.onSurface,
+                              ),
+                            ),
+                            Text(
+                              'Notez votre expérience culinaire',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                color: AkeliColors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  SizedBox(height: 24),
+                  
+                  // Media Upload
+                  Text(
+                    'Photos',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _uploadMedia,
+                    child: Container(
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                        border: Border.all(
+                          color: AkeliColors.outline.withValues(alpha: 0.3),
+                          strokeAlign: BorderSide.strokeAlignInside,
+                        ),
+                      ),
+                      child: _uploadedMedia.isEmpty
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 40,
+                                  color: AkeliColors.primary,
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Ajouter des photos',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 14,
+                                    color: AkeliColors.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : GridView.builder(
+                              padding: EdgeInsets.all(8),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                mainAxisSpacing: 8,
+                                crossAxisSpacing: 8,
+                              ),
+                              itemCount: _uploadedMedia.length,
+                              itemBuilder: (context, index) => Container(
+                                decoration: BoxDecoration(
+                                  color: AkeliColors.primaryContainer.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(AkeliRadius.md),
+                                ),
+                                child: Icon(Icons.image, color: AkeliColors.primary),
+                              ),
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  
+                  // Meal Type Selector
+                  Text(
+                    'Type de repas',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _mealTypes.map((type) {
+                      final isSelected = _selectedMealType == type;
+                      return ChoiceChip(
+                        label: Text(type),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            _log.i('Meal type selected', {'type': type});
+                            setState(() => _selectedMealType = type);
+                          }
+                        },
+                        selectedColor: AkeliColors.primary,
+                        labelStyle: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                          color: isSelected ? AkeliColors.onPrimary : AkeliColors.onSurface,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 24),
+                  
+                  // Description Field
+                  Text(
+                    'Description',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText: 'Comment s\'est passé ce repas? Goûts, textures, émotions...',
+                      filled: true,
+                      fillColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: EdgeInsets.all(16),
+                    ),
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  SizedBox(height: 32),
+                  
+                  // Save Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _isSaving ? null : _saveEntry,
+                      icon: _isSaving
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(AkeliColors.onPrimary),
+                              ),
+                            )
+                          : Icon(Icons.save_outlined),
+                      label: Text(
+                        _isSaving ? 'Enregistrement...' : 'Enregistrer l\'entrée',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 56),
+                        backgroundColor: AkeliColors.primary,
+                        foregroundColor: AkeliColors.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
-      ),
-      // Floating Action Button Area
-      decoration: BoxDecoration(
-        color: AkeliColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        gradient: RadialGradient(
-          colors: [
-            AkeliColors.surface,
-            AkeliColors.surface.withValues(alpha: 0.9),
-            AkeliColors.surface.withValues(alpha: 0),
-          ],
-          stops: const [0.0, 0.7, 1.0],
-          center: Alignment.bottomCenter,
-          radius: 1.2,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return Positioned(
-      bottom: AkeliSpacing.lg,
-      left: AkeliSpacing.lg,
-      right: AkeliSpacing.lg,
-      child: Material(
-        borderRadius: BorderRadius.circular(50),
-        elevation: 0,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(50),
-          onTap: _saveEntry,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  AkeliColors.primary,
-                  AkeliColors.primaryContainer,
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: AkeliColors.primary.withValues(alpha: 0.15),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.save_rounded,
-                  color: Colors.white,
-                  size: 24,
-                  fill: 1,
-                ),
-                const SizedBox(width: AkeliSpacing.sm),
-                Text(
-                  'Enregistrer',
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

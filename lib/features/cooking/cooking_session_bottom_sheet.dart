@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import '../../core/theme.dart';
+
+final _log = Logger();
 
 /// Cooking Session Bottom Sheet - Editorial Design
 /// Modal for creating a new batch cooking session (currently placeholder)
@@ -8,6 +11,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
   const CookingSessionBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
+    _log.i('Cooking session bottom sheet shown');
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -21,7 +25,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AkeliColors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AkeliRadius.xl)),
         boxShadow: [
           BoxShadow(
             color: AkeliColors.onSurface.withValues(alpha: 0.06),
@@ -38,146 +42,116 @@ class CookingSessionBottomSheet extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16, bottom: 8),
             child: Container(
               width: 48,
-              height: 6,
+              height: 4,
               decoration: BoxDecoration(
-                color: AkeliColors.outlineVariant.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(3),
+                color: AkeliColors.outline.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           
+          // Content
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AkeliSpacing.lg,
-              AkeliSpacing.md,
-              AkeliSpacing.lg,
-              AkeliSpacing.xl,
-            ),
+            padding: const EdgeInsets.all(24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Nouvelle session',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: AkeliColors.onSurface,
-                        letterSpacing: -0.5,
-                      ),
+                // Icon
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AkeliColors.primary, AkeliColors.primaryContainer],
                     ),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AkeliColors.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.close,
-                          color: AkeliColors.onSurfaceVariant,
-                          size: 20,
-                        ),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                  ],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.kitchen_rounded, size: 40, color: AkeliColors.onPrimary),
                 ),
-                const SizedBox(height: AkeliSpacing.xxl),
-
-                // Content Canvas
-                Column(
-                  children: [
-                    // Decorative Visual Element
-                    Container(
-                      width: double.infinity,
-                      height: 128,
-                      decoration: BoxDecoration(
-                        color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    AkeliColors.primary.withValues(alpha: 0.05),
-                                    Colors.transparent,
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(16),
+                SizedBox(height: 24),
+                
+                // Title
+                Text(
+                  'Session de Batch Cooking',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+                SizedBox(height: 8),
+                
+                // Subtitle
+                Text(
+                  'Organisez vos repas de la semaine',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AkeliColors.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 32),
+                
+                // Placeholder message
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                    border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.2)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.construction_outlined, color: AkeliColors.secondary, size: 24),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bientôt disponible',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AkeliColors.onSecondaryContainer,
                               ),
                             ),
-                          ),
-                          Center(
-                            child: Icon(
-                              Icons.calendar_month_outlined,
-                              color: AkeliColors.primary.withValues(alpha: 0.2),
-                              size: 48,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AkeliSpacing.lg),
-
-                    // Info Banner
-                    Container(
-                      padding: const EdgeInsets.all(AkeliSpacing.md),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFF3E0), // muted-orange from stitch
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            color: AkeliColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: AkeliSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              'La création de sessions batch sera disponible prochainement…',
+                            SizedBox(height: 4),
+                            Text(
+                              'Cette fonctionnalité sera disponible dans une prochaine mise à jour',
                               style: GoogleFonts.inter(
-                                fontSize: 14,
-                                color: AkeliColors.onSurface.withValues(alpha: 0.8),
-                                height: 1.5,
+                                fontSize: 13,
+                                color: AkeliColors.onSecondaryContainer.withValues(alpha: 0.8),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 32),
+                
+                // Close button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _log.d('Cooking session bottom sheet dismissed');
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 56),
+                      backgroundColor: AkeliColors.primary,
+                      foregroundColor: AkeliColors.onPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.lg),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: AkeliSpacing.xl),
-
-                // Footer Action - Disabled Button
-                SizedBox(
-                  height: 52,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AkeliColors.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    alignment: Alignment.center,
                     child: Text(
-                      'Bientôt disponible',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: AkeliColors.outline,
+                      'Compris',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),

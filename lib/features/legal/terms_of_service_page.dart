@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import '../../core/theme.dart';
+
+final _log = Logger();
 
 /// Terms of Service Page - Editorial Design
 /// Displays terms and conditions with articles on access, data collection, IP rights, and liability
@@ -9,6 +12,8 @@ class TermsOfServicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _log.i('Terms of service page loaded');
+    
     return Scaffold(
       backgroundColor: AkeliColors.surfaceContainerLow,
       appBar: AppBar(
@@ -28,223 +33,276 @@ class TermsOfServicePage extends StatelessWidget {
               size: 20,
             ),
           ),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            _log.d('Navigate back from terms of service');
+            Navigator.pop(context);
+          },
         ),
         title: Text(
-          'Terms of Service',
+          'Conditions Générales',
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w600,
             color: AkeliColors.onSurface,
-            letterSpacing: -0.5,
           ),
         ),
-        // Trailing placeholder for balance as per design
-        actions: const [SizedBox(width: 48)],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          AkeliSpacing.lg,
-          32,
-          AkeliSpacing.lg,
-          128,
-        ),
+        padding: EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: AkeliSpacing.xl),
-            
-            // Hero Title Section
-            Text(
-              'Conditions Générales d\'Utilisation',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 40,
-                fontWeight: FontWeight.w800,
-                color: AkeliColors.onSurface,
-                letterSpacing: -1.5,
-                height: 1.1,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
+            // Header Card
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AkeliSpacing.md,
-                vertical: AkeliSpacing.sm,
-              ),
+              padding: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AkeliColors.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(50),
+                gradient: LinearGradient(
+                  colors: [AkeliColors.secondary, AkeliColors.tertiary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(AkeliRadius.xl),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.history,
-                    color: AkeliColors.onSurfaceVariant,
-                    size: 16,
-                  ),
-                  const SizedBox(width: AkeliSpacing.xs),
+                  Icon(Icons.description_rounded, size: 48, color: AkeliColors.onSecondary),
+                  SizedBox(height: 16),
                   Text(
-                    'En vigueur au 15 Mars 2024',
+                    'Bienvenue sur Akeli',
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onSecondary,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'En utilisant notre application, vous acceptez ces conditions',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AkeliColors.onSurfaceVariant,
-                      letterSpacing: 0.5,
+                      fontSize: 14,
+                      color: AkeliColors.onSecondary.withValues(alpha: 0.9),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: AkeliSpacing.xxl),
+            SizedBox(height: 32),
 
-            // Article 1: Access
-            _buildArticle(
-              icon: Icons.login_outlined,
-              title: 'Article 1 : Accès au site',
-              paragraphs: [
-                'L\'accès au service est réservé aux personnes majeures et capables juridiquement de souscrire des contrats en droit français. Nous nous efforçons de maintenir un accès continu au site, 7 jours sur 7 et 24 heures sur 24.',
-                'Toutefois, l\'accès peut être temporairement suspendu pour des raisons de maintenance, de mise à jour ou en raison de circonstances indépendantes de notre volonté (force majeure). La responsabilité de l\'éditeur ne saurait être engagée en cas d\'impossibilité d\'accès.',
-              ],
+            // Article 1
+            _buildArticleCard(
+              number: '1',
+              title: 'Accès au service',
+              content: '''Akeli est une application mobile gratuite dédiée à la nutrition africaine et aux recettes traditionnelles.
+
+L'accès au service nécessite :
+• Un smartphone compatible iOS ou Android
+• Une connexion internet pour synchroniser les données
+• La création d'un compte utilisateur
+
+Certaines fonctionnalités premium (Fan Mode, plans personnalisés) sont accessibles via abonnement.''',
             ),
-            const SizedBox(height: AkeliSpacing.lg),
+            SizedBox(height: 16),
 
-            // Article 2: Data Collection
-            _buildArticle(
-              icon: Icons.lock_outline,
-              title: 'Article 2 : Collecte des données',
-              paragraphs: [
-                'Le site assure à l\'utilisateur une collecte et un traitement d\'informations personnelles dans le respect de la vie privée conformément à la loi n°78-17 du 6 janvier 1978 relative à l\'informatique, aux fichiers et aux libertés, ainsi qu\'au Règlement Général sur la Protection des Données (RGPD).',
-                'Vous disposez d\'un droit d\'accès, de rectification, de suppression et d\'opposition de vos données personnelles. L\'exercice de ce droit s\'effectue via votre espace personnel ou en contactant notre service dédié.',
-              ],
+            // Article 2
+            _buildArticleCard(
+              number: '2',
+              title: 'Compte utilisateur',
+              content: '''Vous êtes responsable de :
+• La confidentialité de vos identifiants
+• L'exactitude des informations fournies
+• Toutes les activités effectuées depuis votre compte
+
+Nous nous réservons le droit de suspendre ou supprimer tout compte en cas de violation des présentes conditions.''',
             ),
-            const SizedBox(height: AkeliSpacing.lg),
+            SizedBox(height: 16),
 
-            // Article 3: Intellectual Property
-            _buildArticle(
-              icon: Icons.copyright_outlined,
-              title: 'Article 3 : Propriété intellectuelle',
-              paragraphs: [
-                'Les marques, logos, signes ainsi que l\'ensemble des contenus du site (textes, images, son) font l\'objet d\'une protection par le Code de la propriété intellectuelle et plus particulièrement par le droit d\'auteur.',
-                'L\'utilisateur doit solliciter l\'autorisation préalable du site pour toute reproduction, publication, copie des différents contenus. Il s\'engage à une utilisation des contenus du site dans un cadre strictement privé. Toute utilisation à des fins commerciales est strictement interdite.',
-              ],
+            // Article 3
+            _buildArticleCard(
+              number: '3',
+              title: 'Propriété intellectuelle',
+              content: '''Tous les contenus présents sur Akeli (recettes, textes, images, logos) sont la propriété exclusive d'Akeli ou de ses partenaires.
+
+Interdictions :
+• Reproduction sans autorisation
+• Utilisation commerciale non autorisée
+• Modification ou altération des contenus
+
+Les créateurs conservent les droits sur leurs recettes publiées.''',
             ),
-            const SizedBox(height: AkeliSpacing.lg),
+            SizedBox(height: 16),
 
-            // Article 4: Liability
-            _buildArticle(
-              icon: Icons.gavel_outlined,
-              title: 'Article 4 : Responsabilité',
-              paragraphs: [
-                'Les sources des informations diffusées sur le site sont réputées fiables mais le site ne garantit pas qu\'il soit exempt de défauts, d\'erreurs ou d\'omissions. Les informations communiquées sont présentées à titre indicatif et général sans valeur contractuelle.',
-                'Le site ne peut être tenu responsable de l\'utilisation et de l\'interprétation de l\'information contenue dans ce site. La responsabilité de l\'éditeur ne peut être engagée en cas de force majeure ou du fait imprévisible et insurmontable d\'un tiers.',
-              ],
+            // Article 4
+            _buildArticleCard(
+              number: '4',
+              title: 'Responsabilité',
+              content: '''Akeli fournit des informations nutritionnelles à titre indicatif uniquement.
+
+Nous ne pouvons être tenus responsables :
+• Des erreurs dans les informations nutritionnelles
+• Des réactions allergiques ou problèmes de santé liés aux recettes
+• Des interruptions temporaires du service pour maintenance
+
+Consultez toujours un professionnel de santé pour des conseils médicaux.''',
             ),
-            const SizedBox(height: AkeliSpacing.xxl),
+            SizedBox(height: 16),
 
-            // Bottom Action Button
-            SizedBox(
-              width: double.infinity,
-              child: Material(
-                borderRadius: BorderRadius.circular(24),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(24),
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          AkeliColors.primary,
-                          AkeliColors.primaryContainer,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AkeliColors.primary.withValues(alpha: 0.2),
-                          blurRadius: 24,
-                          offset: const Offset(0, 12),
-                        ),
-                      ],
+            // Article 5
+            _buildArticleCard(
+              number: '5',
+              title: 'Abonnements et paiements',
+              content: '''Les abonnements Fan Mode (€3/mois) sont facturés mensuellement via les stores (Google Play / App Store).
+
+• Résiliation possible à tout moment
+• Accès maintenu jusqu'à la fin de période payée
+• Aucun remboursement partiel
+
+Les créateurs reçoivent 70% des revenus générés par leurs abonnés.''',
+            ),
+            SizedBox(height: 16),
+
+            // Article 6
+            _buildArticleCard(
+              number: '6',
+              title: 'Modifications',
+              content: '''Nous nous réservons le droit de modifier ces conditions à tout moment.
+
+Les utilisateurs seront notifiés :
+• Par notification push pour changements majeurs
+• Par email si modification impacte les données personnelles
+
+La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
+            ),
+            SizedBox(height: 24),
+
+            // Contact Section
+            _buildSectionTitle('Contact'),
+            SizedBox(height: 12),
+            Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.mail_outline, color: AkeliColors.secondary, size: 24),
+                  SizedBox(width: 12),
+                  Text(
+                    'legal@akeli.app',
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface,
                     ),
-                    child: Center(
-                      child: Text(
-                        'Retour à l\'accueil',
-                        style: GoogleFonts.plusJakartaSans(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 32),
+
+            // Version Badge
+            Center(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AkeliColors.tertiaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Text(
+                  'Version 1.0 • Dernière mise à jour: Janvier 2026',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AkeliColors.onTertiaryContainer,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: AkeliSpacing.xxl),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildArticle({
-    required IconData icon,
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.plusJakartaSans(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: AkeliColors.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildArticleCard({
+    required String number,
     required String title,
-    required List<String> paragraphs,
+    required String content,
   }) {
     return Container(
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(24),
+        color: AkeliColors.surface,
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        border: Border.all(color: AkeliColors.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AkeliColors.onSurface.withValues(alpha: 0.02),
-            blurRadius: 48,
-            offset: const Offset(0, 24),
+            color: AkeliColors.shadow.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                color: AkeliColors.primary,
-                size: 28,
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AkeliColors.secondary, AkeliColors.tertiary],
+                  ),
+                  borderRadius: BorderRadius.circular(AkeliRadius.md),
+                ),
+                child: Center(
+                  child: Text(
+                    number,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onSecondary,
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(width: AkeliSpacing.sm),
+              SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: AkeliColors.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: AkeliSpacing.lg),
-          ...paragraphs.map((paragraph) => Padding(
-            padding: const EdgeInsets.only(bottom: AkeliSpacing.md),
-            child: Text(
-              paragraph,
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                color: AkeliColors.onSurface.withValues(alpha: 0.8),
-                height: 1.6,
-              ),
+          SizedBox(height: 16),
+          Text(
+            content,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              height: 1.6,
+              color: AkeliColors.onSurfaceVariant,
             ),
-          )),
+          ),
         ],
       ),
     );
