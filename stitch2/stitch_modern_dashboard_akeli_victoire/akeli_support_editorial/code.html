@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Support - Akeli Oasis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline-variant": "#bec9c6",
+                      "on-error": "#ffffff",
+                      "secondary-fixed-dim": "#a8cec9",
+                      "on-primary": "#ffffff",
+                      "background": "#fcfaef",
+                      "inverse-surface": "#30312a",
+                      "secondary-fixed": "#c3eae5",
+                      "inverse-on-surface": "#f3f1e6",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed": "#00201d",
+                      "on-secondary-fixed-variant": "#294d49",
+                      "on-primary-fixed-variant": "#00504a",
+                      "surface-container-low": "#f6f4e9",
+                      "secondary-container": "#c3eae5",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-container": "#476b67",
+                      "surface-bright": "#fcfaef",
+                      "primary-container": "#006a63",
+                      "primary": "#00504a",
+                      "tertiary-fixed-dim": "#ffb86b",
+                      "on-background": "#1b1c16",
+                      "on-surface": "#1b1c16",
+                      "primary-fixed-dim": "#84d5cc",
+                      "surface": "#fcfaef",
+                      "surface-variant": "#e4e3d8",
+                      "on-secondary-fixed": "#00201e",
+                      "tertiary-container": "#895100",
+                      "error-container": "#ffdad6",
+                      "on-tertiary-container": "#ffd0a1",
+                      "surface-dim": "#dcdad0",
+                      "on-primary-container": "#95e7de",
+                      "inverse-primary": "#84d5cc",
+                      "surface-container": "#f0eee3",
+                      "on-tertiary-fixed": "#2c1700",
+                      "surface-container-high": "#eae8de",
+                      "secondary": "#416561",
+                      "tertiary-fixed": "#ffdcbc",
+                      "on-tertiary-fixed-variant": "#683d00",
+                      "surface-tint": "#006a63",
+                      "surface-container-highest": "#e4e3d8",
+                      "primary-fixed": "#a0f1e8",
+                      "tertiary": "#683c00",
+                      "on-surface-variant": "#3e4947",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "outline": "#6e7977"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {}
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fcfaef; /* surface */
+        }
+        h1, h2, h3, h4, h5, h6, .font-headline {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        .glass-panel {
+            background: rgba(252, 250, 239, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col pb-24 md:pb-0 pt-20">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<button class="text-primary hover:bg-surface-container-high/50 transition-all duration-300 active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline font-bold text-primary tracking-tighter text-headline-md">Akeli Oasis</h1>
+<button class="text-primary hover:bg-surface-container-high/50 transition-all duration-300 active:scale-95 duration-200 p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</button>
+</div>
+<!-- Web Navigation (Hidden on Mobile) -->
+<nav class="hidden md:flex justify-center gap-8 pb-4">
+<a class="text-on-surface-variant hover:bg-surface-container-high/50 transition-all duration-300 px-4 py-2 rounded-lg font-label text-label-md tracking-wider uppercase" href="#">Home</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high/50 transition-all duration-300 px-4 py-2 rounded-lg font-label text-label-md tracking-wider uppercase" href="#">Explore</a>
+<a class="text-primary font-bold hover:bg-surface-container-high/50 transition-all duration-300 px-4 py-2 rounded-lg font-label text-label-md tracking-wider uppercase" href="#">Support</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high/50 transition-all duration-300 px-4 py-2 rounded-lg font-label text-label-md tracking-wider uppercase" href="#">Profile</a>
+</nav>
+</header>
+<main class="flex-grow flex flex-col items-center justify-start px-6 pt-8 pb-16 max-w-4xl mx-auto w-full">
+<!-- Header Section -->
+<section class="w-full text-center mb-10">
+<h2 class="font-headline font-bold text-[28px] text-on-surface mb-2 tracking-tight">Support</h2>
+<p class="font-body text-body-lg text-on-surface-variant">Faîtes-nous part de votre question ou problème</p>
+</section>
+<!-- Form Card -->
+<div class="w-full bg-surface-container-lowest rounded-[24px] p-8 md:p-12 shadow-[0px_24px_48px_rgba(27,28,22,0.06)] relative overflow-hidden">
+<!-- Ghost Border Fallback -->
+<div class="absolute inset-0 rounded-[24px] border border-outline-variant/10 pointer-events-none"></div>
+<form class="flex flex-col gap-6 relative z-10">
+<!-- Input: Name -->
+<div class="flex flex-col gap-2">
+<label class="font-headline font-medium text-on-surface ml-1" for="name">Votre nom</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">person</span>
+</div>
+<input class="w-full bg-surface-container-low text-on-surface font-body rounded-[16px] py-4 pl-12 pr-4 border-none focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow placeholder:text-outline/70" id="name" name="name" placeholder="Entrez votre nom" type="text"/>
+</div>
+</div>
+<!-- Input: Email -->
+<div class="flex flex-col gap-2">
+<label class="font-headline font-medium text-on-surface ml-1" for="email">Votre mail</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">mail</span>
+</div>
+<input class="w-full bg-surface-container-low text-on-surface font-body rounded-[16px] py-4 pl-12 pr-4 border-none focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow placeholder:text-outline/70" id="email" name="email" placeholder="Entrez votre email" type="email"/>
+</div>
+</div>
+<!-- Input: Message -->
+<div class="flex flex-col gap-2">
+<label class="font-headline font-medium text-on-surface ml-1" for="message">Votre message</label>
+<div class="relative">
+<div class="absolute top-4 left-4 flex items-start pointer-events-none">
+<span class="material-symbols-outlined text-outline">message</span>
+</div>
+<textarea class="w-full bg-surface-container-low text-on-surface font-body rounded-[16px] py-4 pl-12 pr-4 h-[160px] border-none focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow resize-none placeholder:text-outline/70" id="message" name="message" placeholder="Décrivez votre problème..."></textarea>
+</div>
+</div>
+<!-- Upload Area -->
+<div class="mt-2 relative">
+<input accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="screenshot" name="screenshot" type="file"/>
+<div class="w-full border-2 border-dashed border-outline-variant/50 rounded-[16px] bg-surface-container-low/50 py-8 flex flex-col items-center justify-center gap-3 transition-colors hover:bg-surface-container-low">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+</div>
+<span class="font-headline font-medium text-on-surface-variant">Upload Screenshot</span>
+<span class="font-body text-sm text-outline">PNG, JPG, max 5MB</span>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="mt-4 w-full h-[52px] bg-gradient-to-br from-[#00504A] to-[#006A63] text-on-primary font-headline font-bold rounded-[16px] flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all duration-200 shadow-md" type="submit">
+<span class="material-symbols-outlined">receipt_long</span>
+                    Envoyer
+                </button>
+</form>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-surface/80 backdrop-blur-md shadow-[0px_-24px_48px_rgba(27,28,22,0.04)] rounded-t-[24px] md:hidden z-50">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-6 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label text-[10px] tracking-wider uppercase">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-6 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="rebase_edit">rebase_edit</span>
+<span class="font-label text-[10px] tracking-wider uppercase">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-[16px] px-6 py-2 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined icon-fill mb-1" data-icon="contact_support">contact_support</span>
+<span class="font-label text-[10px] tracking-wider uppercase font-bold">Support</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors px-6 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label text-[10px] tracking-wider uppercase">Profile</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Modifier vos informations</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#6e7977",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#476b67",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "surface-bright": "#fcfaef",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "secondary": "#416561",
+                        "tertiary": "#683c00",
+                        "background": "#fcfaef",
+                        "on-primary-fixed-variant": "#00504a",
+                        "surface-variant": "#e4e3d8",
+                        "on-tertiary-fixed": "#2c1700",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "on-surface-variant": "#3e4947",
+                        "surface-container-low": "#f6f4e9",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#f0eee3",
+                        "on-tertiary": "#ffffff",
+                        "outline-variant": "#bec9c6",
+                        "surface": "#fcfaef",
+                        "surface-tint": "#006a63",
+                        "on-surface": "#1b1c16",
+                        "on-primary-container": "#95e7de",
+                        "inverse-surface": "#30312a",
+                        "surface-container-high": "#eae8de",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1b1c16",
+                        "primary": "#00504a",
+                        "on-secondary-fixed": "#00201e",
+                        "primary-container": "#006a63",
+                        "inverse-on-surface": "#f3f1e6",
+                        "secondary-container": "#c3eae5",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-tertiary-container": "#ffd0a1",
+                        "tertiary-container": "#895100",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdcbc",
+                        "surface-container-highest": "#e4e3d8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#a0f1e8",
+                        "secondary-fixed": "#c3eae5",
+                        "surface-dim": "#dcdad0",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "on-primary-fixed": "#00201d",
+                        "inverse-primary": "#84d5cc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "1.5rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "label-md": ["0.75rem", { letterSpacing: "0.05em", lineHeight: "1rem", fontWeight: "600" }],
+                        "body-lg": ["1rem", { lineHeight: "1.6" }],
+                        "title-lg": ["1.375rem", { lineHeight: "1.2", fontWeight: "700" }],
+                        "headline-md": ["1.75rem", { lineHeight: "1.1", fontWeight: "800", letterSpacing: "-0.02em" }],
+                        "display-lg": ["3.5rem", { lineHeight: "1.1", fontWeight: "800", letterSpacing: "-0.02em" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .ghost-border {
+            box-shadow: inset 0 0 0 1px rgba(190, 201, 198, 0.15);
+        }
+        .focus-ghost-border:focus-within {
+            box-shadow: inset 0 0 0 2px rgba(0, 80, 74, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="sticky top-0 z-50 w-full bg-surface/80 backdrop-blur-xl shadow-[0px_24px_48px_rgba(27,28,22,0.06)] flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-highest/50 transition-colors active:scale-95 text-on-surface-variant" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-headline text-headline-md text-primary font-bold tracking-tight">Modifier vos informations</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden shrink-0">
+<img alt="Akeli Victoire" class="w-full h-full object-cover" data-alt="A close up portrait of a young woman with natural makeup, warm soft studio lighting, organic editorial style, neutral background, reflecting a sophisticated digital editorial aesthetic with a warm bone and deep teal undertone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoHrwasT7mMuDxN7NqhJHWXtjFZncfVfnkJFB9IFtucja5pdcZYfuhVsErv9x4vcNj4tJ455IAi-n3SDF3aC-WdrmXpDWOKfpMRvdTnORktYWMLoJuWCeP1gFFNhDdasFZrqGH67xxqwaG0KqGmFsujMnpt31n8L3_4Ab3GeSXg5IB7SJGFibtHoqL0yVSuSqIrRVHTdACDl-9Sh7iKH2AoEPSkVZRAb0XtJMboV5nRRGXjgUe-qnIj1sOIw_DSc1J9cls2Y8Wj5g"/>
+</div>
+</header>
+<main class="max-w-3xl mx-auto px-4 sm:px-6 py-10 pb-32 md:pb-20">
+<form action="#" class="bg-surface-container-lowest rounded-lg p-6 sm:p-10 shadow-[0px_24px_48px_rgba(27,28,22,0.06)] ghost-border" method="POST">
+<!-- Health Parameters Section -->
+<section class="mb-12">
+<h2 class="font-label text-label-md text-primary mb-6 uppercase tracking-wider">Paramètres de santé</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<!-- Age -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="age">Âge</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">face</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" id="age" name="age" placeholder="ex: 30" type="number" value="28"/>
+</div>
+</div>
+<!-- Weight -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="weight">Poids (kg)</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">monitor_weight</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" id="weight" name="weight" placeholder="ex: 70.5" step="0.1" type="number" value="65"/>
+</div>
+</div>
+<!-- Height -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="height">Taille (cm)</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">straighten</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" id="height" name="height" placeholder="ex: 175" type="number" value="170"/>
+</div>
+</div>
+<!-- Activity Level -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="activity">Niveau d'activité</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">fitness_center</span>
+<select class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 appearance-none pr-8" id="activity" name="activity">
+<option value="sedentary">Sédentaire</option>
+<option selected="" value="light">Légèrement actif</option>
+<option value="moderate">Modérément actif</option>
+<option value="active">Très actif</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Goals Section -->
+<section class="mb-10">
+<h2 class="font-label text-label-md text-primary mb-6 uppercase tracking-wider">Objectifs</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<!-- Target Weight -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="target_weight">Poids cible (kg)</label>
+<!-- Example of a field with missing/error state using subtle red border (error-container) -->
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 shadow-[inset_0_0_0_2px_#ffdad6] focus-within:shadow-[inset_0_0_0_2px_#ba1a1a] transition-shadow">
+<span class="material-symbols-outlined text-error/70 mr-3">track_changes</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-error/50" id="target_weight" name="target_weight" placeholder="Champ requis" step="0.1" type="number"/>
+</div>
+<p class="text-xs text-error ml-1 mt-1 font-medium">Ce champ est requis.</p>
+</div>
+<!-- Duration -->
+<div class="flex flex-col gap-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="duration">Durée (semaines)</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">calendar_month</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" id="duration" name="duration" type="number" value="12"/>
+</div>
+</div>
+<!-- Daily Calories -->
+<div class="flex flex-col gap-2 sm:col-span-2">
+<label class="font-label text-label-md text-on-surface-variant ml-1" for="calories">Calories journalières visées (kcal)</label>
+<div class="relative flex items-center bg-surface-container-highest rounded-DEFAULT px-4 py-3 focus-ghost-border transition-shadow">
+<span class="material-symbols-outlined text-primary/70 mr-3">local_fire_department</span>
+<input class="bg-transparent border-none p-0 w-full text-body-lg text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50" id="calories" name="calories" type="number" value="2100"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Button -->
+<div class="mt-8 pt-6 border-t border-surface-container-highest/0"> <!-- No actual border line per design system -->
+<button class="w-full bg-gradient-to-br from-[#00504a] to-[#006a63] text-on-primary font-headline font-bold text-lg py-4 px-8 rounded-lg shadow-md hover:shadow-lg hover:from-primary hover:to-primary-container active:scale-[0.98] transition-all duration-200" type="submit">
+                    Enregistrer
+                </button>
+</div>
+</form>
+</main>
+</body></html>

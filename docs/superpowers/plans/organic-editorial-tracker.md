@@ -40,14 +40,14 @@ stitch{N}/stitch_modern_dashboard_akeli_victoire/{stitch-name}/
 | Onboarding | `lib/features/auth/onboarding_page.dart` | Medium | `stitch2/.../akeli_onboarding_*` (6 screens) | ✅ DONE | Wave 1 |
 | Home Dashboard | `lib/features/home/home_page.dart` | Medium | `stitch4/.../akeli_digital_editorial_dashboard` | ✅ DONE | d2635f5 |
 | Feed | `lib/features/recipes/feed_page.dart` | Low | `stitch2/.../akeli_recipe_discovery_editorial` | ✅ DONE | cb84a1f |
-| Recipe Detail | `lib/features/recipes/recipe_detail_page.dart` | Medium | `stitch2/.../akeli_premium_recipe_detail_editorial` | 🔲 PENDING | — |
-| Meal Planner | `lib/features/meal_planner/meal_planner_page.dart` | Medium | `stitch4/.../akeli_full_week_planner_v2` | 🔲 PENDING | — |
-| Meal Detail | `lib/features/meal_planner/meal_detail_page.dart` | Low | `stitch4/.../akeli_meal_detail_simplified_ingredients` | 🔲 PENDING | — |
-| Batch Cooking | `lib/features/meal_planner/batch_cooking_page.dart` | Medium | `stitch3/.../akeli_batch_cooking_tracker` | 🔲 PENDING | — |
-| Shopping List | `lib/features/meal_planner/shopping_list_page.dart` | Medium | `stitch2/.../akeli_editorial_shopping_list` | 🔲 PENDING | — |
-| Nutrition | `lib/features/nutrition/nutrition_page.dart` | High | *(no stitch — use design system spec)* | 🔲 PENDING | — |
-| Diet Plan | `lib/features/diet_plan/diet_plan_page.dart` | High | `stitch3/.../akeli_diet_plan_editorial` | 🔲 PENDING | — |
-| AI Chat | `lib/features/ai_assistant/ai_chat_page.dart` | High | `stitch3/.../akeli_editorial_chat` | 🔲 PENDING | — |
+| Recipe Detail | `lib/features/recipes/recipe_detail_page.dart` | Medium | `stitch2/.../akeli_premium_recipe_detail_editorial` | ✅ DONE | Wave 3 |
+| Meal Planner | `lib/features/meal_planner/meal_planner_page.dart` | Medium | `stitch4/.../akeli_full_week_planner_v2` | ✅ DONE | Wave 3 |
+| Meal Detail | `lib/features/meal_planner/meal_detail_page.dart` | Low | `stitch4/.../akeli_meal_detail_simplified_ingredients` | ✅ DONE | Wave 3 |
+| Batch Cooking | `lib/features/meal_planner/batch_cooking_page.dart` | Medium | `stitch3/.../akeli_batch_cooking_tracker` | ✅ DONE | Wave 3 |
+| Shopping List | `lib/features/meal_planner/shopping_list_page.dart` | Medium | `stitch2/.../akeli_editorial_shopping_list` | ✅ DONE | Wave 3 |
+| Nutrition | `lib/features/nutrition/nutrition_page.dart` | High | *(no stitch — use design system spec)* | ✅ DONE | Wave 3 |
+| Diet Plan | `lib/features/diet_plan/diet_plan_page.dart` | High | `stitch3/.../akeli_diet_plan_editorial` | ✅ DONE | Wave 3 |
+| AI Chat | `lib/features/ai_assistant/ai_chat_page.dart` | High | `stitch3/.../akeli_editorial_chat` | ✅ DONE | Wave 3 |
 | Profile | `lib/features/profile/profile_page.dart` | High | `stitch2/.../akeli_profile_digital_editorial` + `stitch3/.../akeli_profile_create_edit` + `stitch3/.../akeli_edit_info_editorial` | 🔲 PENDING | — |
 | Fan Mode | `lib/features/fan_mode/fan_mode_page.dart` | Medium | *(no stitch — use design system spec)* | 🔲 PENDING | — |
 | Subscription | `lib/features/subscription/subscription_page.dart` | Low | `stitch2/.../akeli_subscription_management_editorial` | 🔲 PENDING | — |

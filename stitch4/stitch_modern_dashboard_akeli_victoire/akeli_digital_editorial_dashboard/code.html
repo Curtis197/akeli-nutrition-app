@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli Home Dashboard</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#683c00",
+                        "surface-bright": "#fcfaef",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "on-tertiary-container": "#ffd0a1",
+                        "on-secondary-container": "#476b67",
+                        "surface-container-low": "#f6f4e9",
+                        "surface": "#fcfaef",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-background": "#1b1c16",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#00201e",
+                        "inverse-on-surface": "#f3f1e6",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e4e3d8",
+                        "surface-container-highest": "#e4e3d8",
+                        "tertiary-container": "#895100",
+                        "secondary-fixed": "#c3eae5",
+                        "primary-container": "#006a63",
+                        "inverse-surface": "#30312a",
+                        "secondary": "#416561",
+                        "on-error-container": "#93000a",
+                        "outline": "#6e7977",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#ffdcbc",
+                        "outline-variant": "#bec9c6",
+                        "surface-tint": "#006a63",
+                        "primary": "#00504a",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-primary-fixed": "#00201d",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#95e7de",
+                        "inverse-primary": "#84d5cc",
+                        "surface-dim": "#dcdad0",
+                        "background": "#fcfaef",
+                        "surface-container": "#f0eee3",
+                        "on-surface": "#1b1c16",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#eae8de",
+                        "secondary-container": "#c3eae5",
+                        "on-tertiary-fixed": "#2c1700",
+                        "on-surface-variant": "#3e4947",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#a0f1e8",
+                        // Custom specific requests mapping to closest design system tokens if possible or explicitly defining for accurate render if forced
+                        "brand-teal": "#3BB78F",
+                        "brand-orange": "#FF9F1C",
+                        "brand-cream": "#F9F9E8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    "spacing": {
+                        "safe": "env(safe-area-inset-bottom)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F9F9E8; } /* Forced cream as requested, overrides surface token slightly for this specific view */
+        .glass-panel { background: rgba(252, 250, 239, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(190, 201, 198, 0.15); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 glass-panel shadow-[0px_24px_48px_rgba(27,28,22,0.06)] px-6 py-4 flex justify-between items-center hidden md:flex">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full border-2 border-[#3BB78F] overflow-hidden">
+<img alt="Profile picture of Akeli Victoire" class="w-full h-full object-cover" data-alt="A beautifully lit studio portrait of a confident Black woman with natural hair styled elegantly. The setting is modern and minimal, with a soft, warm light-mode aesthetic that perfectly matches a high-end digital editorial sanctuary theme. Deep teal and warm bone tones are subtly reflected in the ambient lighting, ensuring visual cohesion with the overall UI palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZHQAgBn1O7InX3ypHv0eWbjtqVer6tkZ5fs2KyIX8tvfX5kz8Emx23f8vft2Pj2qHMyPgAF4yST99XwWZIQG3I3-Y2RFC0Cnn65IAKINHeHI8qnlc0GuGWjLmDcNwGmCENZfe-PbBSBQ6wzh3ADV1FL2ijnEdZ_p-4L83iJuVeiwNrffYabDs1mrFYEVKucRnVlxGDbbAP0xSdaME7Ksd6TAy9VxR-bv2kITQUMQhidiaBu4bVGcdJ9sVP5MaHlY-llbHeH-cSv0"/>
+</div>
+<h1 class="font-headline text-headline-md font-bold text-primary tracking-tight">Akeli Victoire</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-highest/50 transition-colors text-on-surface-variant active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-highest/50 transition-colors text-on-surface-variant active:scale-95 duration-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<!-- Mobile Top Nav (Simplified for view) -->
+<header class="w-full px-6 pt-12 pb-6 flex justify-between items-center md:hidden">
+<div class="w-12 h-12 rounded-full border-2 border-[#3BB78F] overflow-hidden">
+<img alt="Profile picture of Akeli Victoire" class="w-full h-full object-cover" data-alt="A beautifully lit studio portrait of a confident Black woman with natural hair styled elegantly. The setting is modern and minimal, with a soft, warm light-mode aesthetic that perfectly matches a high-end digital editorial sanctuary theme. Deep teal and warm bone tones are subtly reflected in the ambient lighting, ensuring visual cohesion with the overall UI palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2fwTkMPBA-bN08AcUqRSYg2C8XqWJUld27ekdaee-FJwA2fRDJNlXjP9Xi1T8QWm8nGL9IycumOFu9dIE4T4y28pziJWl9DbPATZa1X9FYy6oSHemvTF97outbHA1pUrnSSqgd1pucjGzBtjNSDY8n2-uDYuZVBFd8E2HgxaNuoRK1Kp92lQiPQerEVNl_6usC0h3bnGAKOCuuAgxewVDUttZkBGcqmipzsNELA50kY1irqXSKjedBh3Xk60DTibe_9-UosZ38pk"/>
+</div>
+<div class="flex gap-2">
+<button class="p-2 rounded-full bg-surface-container-lowest shadow-sm text-on-surface">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="px-6 md:pt-32 space-y-10 max-w-7xl mx-auto">
+<!-- Welcome Section -->
+<section>
+<h2 class="font-headline text-4xl font-[800] tracking-[-0.02em] text-on-surface">Bonjour, Victoire!</h2>
+<p class="text-on-surface-variant text-lg mt-1 font-medium">Heureux de vous revoir.</p>
+</section>
+<!-- Metrics Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Progress Ring Card -->
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-sm flex items-center justify-around">
+<!-- Weight Ring -->
+<div class="relative w-32 h-32 flex flex-col items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#F6F4E9" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#3BB78F" stroke-dasharray="283" stroke-dashoffset="70" stroke-width="8"></circle>
+</svg>
+<div class="relative z-10 text-center flex flex-col items-center">
+<span class="text-xs font-label text-on-surface-variant uppercase tracking-wider mb-1">Poids actuel</span>
+<span class="font-headline font-bold text-2xl text-on-surface">104kg</span>
+</div>
+</div>
+<!-- Calories Ring -->
+<div class="relative w-32 h-32 flex flex-col items-center justify-center">
+<svg class="absolute inset-0 w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="#F6F4E9" stroke-width="8"></circle>
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="none" r="45" stroke="#FF9F1C" stroke-dasharray="283" stroke-dashoffset="283" stroke-width="8"></circle>
+</svg>
+<div class="relative z-10 text-center flex flex-col items-center">
+<span class="text-xs font-label text-on-surface-variant uppercase tracking-wider mb-1">Calories</span>
+<span class="font-headline font-bold text-xl text-on-surface">0/<span class="text-sm">1600</span></span>
+<span class="text-[10px] text-on-surface-variant">kcal</span>
+</div>
+</div>
+</div>
+<!-- Weight Stepper -->
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-sm flex flex-col items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+<h3 class="font-label text-sm uppercase tracking-wider text-on-surface-variant mb-4">Ajuster Poids</h3>
+<div class="flex items-center gap-8 relative z-10">
+<button class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">remove</span>
+</button>
+<div class="font-headline text-5xl font-extrabold text-on-surface tracking-tight">104.0</div>
+<button class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Today's Meals Carousel -->
+<section class="space-y-6">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Repas d'aujourd'hui</h3>
+<div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-6 px-6 md:mx-0 md:px-0">
+<!-- Meal Card 1 -->
+<div class="min-w-[280px] bg-surface-container-lowest rounded-[24px] p-4 shadow-sm flex gap-4 items-center">
+<div class="w-20 h-20 rounded-2xl overflow-hidden shrink-0 bg-surface-container-low">
+<img alt="Breakfast bowl" class="w-full h-full object-cover" data-alt="A top-down view of a highly stylized, organic breakfast bowl featuring fresh fruits, seeds, and yogurt. The composition is asymmetrical, resting on a textured warm bone surface. Soft, diffused lighting creates gentle shadows, emphasizing the deep teal and vibrant amber hues of the fresh ingredients, aligning perfectly with a premium digital editorial sanctuary aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnpewP_79gcZfxTR-5gY52tbySGWuNdw6GEiowftjph5ieAryTDtc1x23ZZQFo67MT_usFsSXJrTlrzvVYkvhHZn-YvjEIvks-1flqgqHbIAcZ2JxohibtavJ-_Gdvr1N1soTLIOi0a5vxkZi0DK3ThWQ7ihpy1QnstKXPXHR1gWStDTDS_UtJwaHn_apBaBT1-pAmJx96Ff9lVkAzmsLgBc_iX6nRy2cGDJ7QQ82ATEVvVBOiOIq41LVb5fWSUr8u8yyox1AKAhM"/>
+</div>
+<div class="flex-1">
+<span class="text-xs font-label uppercase tracking-widest text-[#8A4FFF] font-semibold mb-1 block">Petit-Déjeuner</span>
+<h4 class="font-headline font-bold text-on-surface text-lg leading-tight mb-1">Oats &amp; Fruits</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-[16px]">local_fire_department</span>
+<span>350 kcal</span>
+</div>
+</div>
+</div>
+<!-- Meal Card 2 -->
+<div class="min-w-[280px] bg-surface-container-lowest rounded-[24px] p-4 shadow-sm flex gap-4 items-center">
+<div class="w-20 h-20 rounded-2xl overflow-hidden shrink-0 bg-surface-container-low">
+<img alt="Lunch dish" class="w-full h-full object-cover" data-alt="A beautifully plated traditional African dish, likely a vibrant stew or sauce with rich, earthy colors, served in a handmade ceramic bowl. The scene is shot from a slight angle with selective focus, highlighting the textured ingredients. The lighting is warm and natural, casting soft ambient shadows on a light cream surface, embodying the curated sanctuary design style with its sophisticated tonal layering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7VGFXlXmqe68AIi2xZi_m9ivmqdUel4HJRGyIeHufNvl1zNJ9_0NdR29kAhulKQHK7sn594EYmqA0HSKWt0gzn02SfOMV_Lo9jycjyvr-aubDET5cTZm0JulfUQttHC257HIiNFUCDMEPruZtQYR8Dn-ofjQ0eFI_50q1mv13OsoaD7QtFTkrcebO9iG_UUJLQ6SucUy6DARc8ElyvHgf107jiBOxHXg0y4JQovGR-1tLunVRwvF9czGRR3sBd0T6tmPzifQgxqA"/>
+</div>
+<div class="flex-1">
+<span class="text-xs font-label uppercase tracking-widest text-[#FF9F1C] font-semibold mb-1 block">Déjeuner</span>
+<h4 class="font-headline font-bold text-on-surface text-lg leading-tight mb-1">Sauce Pistache</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-sm">
+<span class="material-symbols-outlined text-[16px]">local_fire_department</span>
+<span>650 kcal</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Shopping List -->
+<section class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="font-headline text-2xl font-bold text-on-surface">Liste de Courses</h3>
+</div>
+<!-- Filters -->
+<div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+<button class="px-5 py-2 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-label text-sm uppercase tracking-wider whitespace-nowrap">Tout</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-label text-sm uppercase tracking-wider whitespace-nowrap border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">À acheter</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-low text-on-surface-variant font-label text-sm uppercase tracking-wider whitespace-nowrap border border-outline-variant/20 hover:bg-surface-container-highest transition-colors">Pris</button>
+</div>
+<!-- List Card -->
+<div class="bg-surface-container-lowest rounded-[24px] p-6 shadow-sm">
+<ul class="space-y-4">
+<li class="flex items-center gap-4 p-2 hover:bg-surface-container-highest/30 rounded-xl transition-colors cursor-pointer group">
+<div class="w-6 h-6 rounded-md border-2 border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors"></div>
+<span class="text-lg text-on-surface font-medium flex-1">Graines de Pistache</span>
+<span class="text-sm text-on-surface-variant">500g</span>
+</li>
+<li class="flex items-center gap-4 p-2 hover:bg-surface-container-highest/30 rounded-xl transition-colors cursor-pointer group">
+<div class="w-6 h-6 rounded-md border-2 border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors"></div>
+<span class="text-lg text-on-surface font-medium flex-1">Poisson fumé</span>
+<span class="text-sm text-on-surface-variant">2 pcs</span>
+</li>
+<li class="flex items-center gap-4 p-2 bg-surface-container-lowest opacity-60 rounded-xl">
+<div class="w-6 h-6 rounded-md bg-[#3BB78F] flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-lg text-on-surface font-medium flex-1 line-through">Tomates fraîches</span>
+<span class="text-sm text-on-surface-variant">1 kg</span>
+</li>
+<li class="flex items-center gap-4 p-2 hover:bg-surface-container-highest/30 rounded-xl transition-colors cursor-pointer group">
+<div class="w-6 h-6 rounded-md border-2 border-outline-variant flex items-center justify-center group-hover:border-primary transition-colors"></div>
+<span class="text-lg text-on-surface font-medium flex-1">Atiéké</span>
+<span class="text-sm text-on-surface-variant">3 boules</span>
+</li>
+</ul>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only based on rules) -->
+<nav class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl shadow-[0px_-12px_32px_rgba(27,28,22,0.04)] fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe z-50 rounded-t-[24px] md:hidden">
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-xl px-6 py-2 transition-transform duration-200 active:scale-90" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label text-[10px] tracking-wider uppercase mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-2xl">restaurant</span>
+<span class="font-label text-[10px] tracking-wider uppercase mt-1">Nutrition</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-2xl">shopping_cart</span>
+<span class="font-label text-[10px] tracking-wider uppercase mt-1">Groceries</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span class="font-label text-[10px] tracking-wider uppercase mt-1">Settings</span>
+</a>
+</nav>
+</body></html>

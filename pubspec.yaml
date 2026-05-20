@@ -38,7 +38,7 @@ dependencies:
   fl_chart: ^0.68.0
 
   # Internationalisation
-  intl: ^0.20.0
+  intl: ^0.20.2
 
 
   # Tracking — visibility detection for recipe impression events

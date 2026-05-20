@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daily Journal - Interactive Entry</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-on-surface": "#f3f1e6",
+              "surface-dim": "#dcdad0",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#c3eae5",
+              "background": "#fcfaef",
+              "inverse-surface": "#30312a",
+              "secondary-fixed": "#c3eae5",
+              "on-primary-fixed": "#00201d",
+              "on-tertiary-fixed": "#380d00",
+              "on-background": "#1b1c16",
+              "on-primary-fixed-variant": "#00504a",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "tertiary": "#94492d",
+              "primary": "#006a63",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed": "#ffdbcf",
+              "surface-variant": "#e4e3d8",
+              "on-secondary-fixed": "#00201d",
+              "surface-container": "#f0eee3",
+              "tertiary-fixed-dim": "#ffb59b",
+              "tertiary-container": "#ea8e6d",
+              "inverse-primary": "#71d7cd",
+              "on-surface-variant": "#3d4947",
+              "primary-fixed": "#8ef4e9",
+              "secondary-fixed-dim": "#a8cec9",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f6f4e9",
+              "on-surface": "#1b1c16",
+              "on-error-container": "#93000a",
+              "surface-bright": "#fcfaef",
+              "error-container": "#ffdad6",
+              "surface-tint": "#006a63",
+              "primary-container": "#4db6ac",
+              "on-secondary-container": "#476b67",
+              "surface-container-highest": "#e4e3d8",
+              "outline": "#6d7a77",
+              "secondary": "#416561",
+              "surface-container-high": "#eae8de",
+              "primary-fixed-dim": "#71d7cd",
+              "on-secondary-fixed-variant": "#294d49",
+              "outline-variant": "#bdc9c6",
+              "on-primary-container": "#00433f",
+              "on-tertiary-fixed-variant": "#763219",
+              "on-tertiary-container": "#67280e",
+              "surface": "#fcfaef"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .custom-shadow-glow {
+        box-shadow: 0px 8px 24px rgba(0, 106, 99, 0.15);
+      }
+      body {
+        background-color: #fcfaef;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<!-- Top App Bar (Shared Component Strategy) -->
+<header class="fixed top-0 w-full z-50 bg-[#FCFAEF]/70 dark:bg-stone-900/70 backdrop-blur-md flex items-center justify-between px-6 h-16 w-full">
+<button class="text-[#3D4947] hover:bg-[#F6F4E9] transition-colors p-2 rounded-full active:scale-95 duration-200" style="">
+<span class="material-symbols-outlined" style="">close</span>
+</button>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold tracking-tight text-[#1B1C16] text-lg" style="">Daily Journal</h1>
+<button class="text-[#3D4947] hover:bg-[#F6F4E9] transition-colors p-2 rounded-full active:scale-95 duration-200" style="">
+<span class="material-symbols-outlined" style="">more_vert</span>
+</button>
+</header>
+<!-- Background Content (Simulated) -->
+<main class="pt-20 px-6 pb-32">
+<div class="mb-8">
+<h2 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2 leading-tight" style="">Bonjour, Sophie</h2>
+<p class="text-on-surface-variant font-medium" style="">Capturez l'essence de votre journée.</p>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="bg-surface-container-lowest rounded-2xl p-6 border border-outline-variant/10">
+<div class="flex justify-between items-center mb-4">
+<span class="text-xs font-bold tracking-widest text-outline uppercase" style="">STATISTIQUES</span>
+<span class="material-symbols-outlined text-primary" style="">auto_stories</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full border-4 border-primary-container border-t-primary flex items-center justify-center">
+<span class="text-lg font-bold" style="">75%</span>
+</div>
+<div>
+<div class="text-xl font-bold" style="">Cohérence</div>
+<div class="text-sm text-on-surface-variant" style="">12 jours consécutifs</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Interactive Bottom Sheet -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-sm z-[60] flex items-end">
+<div class="w-full bg-background rounded-t-[24px] max-h-[813px] overflow-y-auto no-scrollbar relative animate-slide-up">
+<!-- Handle & Header -->
+<div class="sticky top-0 bg-background pt-3 pb-6 px-6 z-10">
+<div class="w-12 h-1.5 bg-surface-container-highest rounded-full mx-auto mb-6"></div>
+<h2 class="text-2xl font-bold text-on-surface text-center font-headline leading-snug" style="">
+                    Dites nous ce que vous avez mangé
+                </h2>
+</div>
+<!-- Content Area -->
+<div class="px-6 pb-32 space-y-8">
+<!-- Section: Media -->
+<section>
+<span class="block text-[10px] font-extrabold tracking-[0.2em] text-outline mb-3 uppercase font-label" style="">MEDIA</span>
+<div class="w-full aspect-video md:aspect-[21/9] rounded-2xl border-2 border-dashed border-outline-variant/50 bg-surface-container-low flex flex-col items-center justify-center group hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="bg-surface-container-lowest p-4 rounded-full mb-3 group-hover:scale-110 transition-transform shadow-sm">
+<span class="material-symbols-outlined text-primary text-3xl" style="">add_a_photo</span>
+</div>
+<p class="text-on-surface-variant font-semibold text-sm" style="">Ajouter une photo</p>
+<p class="text-[11px] text-outline mt-1 italic" style="">JPG, PNG jusqu'à 10MB</p>
+</div>
+</section>
+<!-- Section: Day Selection -->
+<!-- Section: Description (Bento Tonal Block) -->
+<section>
+<span class="block text-[10px] font-extrabold tracking-[0.2em] text-outline mb-3 uppercase font-label" style="">DESCRIPTION</span>
+<div class="bg-surface-container-low rounded-2xl p-5 min-h-[160px] focus-within:bg-surface-container-high transition-colors">
+<textarea class="w-full h-full bg-transparent border-none focus:ring-0 p-0 text-on-surface placeholder:text-outline/60 text-lg font-medium resize-none leading-relaxed" placeholder="Décrivez votre repas ou vos sensations..."></textarea>
+</div>
+</section>
+<!-- Bento Style Secondary Options -->
+<div class="grid gap-4 grid-cols-1">
+<div class="bg-secondary-container/30 rounded-2xl p-4 flex flex-col gap-2">
+<span class="material-symbols-outlined text-primary" style="">restaurant</span>
+<div class="text-xs font-bold text-on-secondary-container uppercase tracking-wider" style="">Type</div>
+<div class="text-sm font-semibold" style="">Déjeuner</div>
+</div>
+</div>
+</div>
+<!-- Footer Action Area -->
+<div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
+<div class="max-w-md mx-auto pointer-events-auto">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold py-5 rounded-full custom-shadow-glow flex items-center justify-center gap-3 transition-transform active:scale-95 hover:opacity-95" style="">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>save</span>
+<span class="text-lg" style="">Enregistrer</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Hidden Bottom Nav (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-20 pb-safe px-4 bg-[#F6F4E9] dark:bg-stone-900 border-t border-[#BDC9C6]/10 z-50">
+<div class="flex flex-col items-center justify-center text-[#006A63] font-bold">
+<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>edit_note</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-medium mt-1" style="">Journal</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947]">
+<span class="material-symbols-outlined" style="">insert_chart</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-medium mt-1" style="">Insights</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947]">
+<span class="material-symbols-outlined" style="">auto_stories</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-medium mt-1" style="">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3D4947]">
+<span class="material-symbols-outlined" style="">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-medium mt-1" style="">Profile</span>
+</div>
+</nav>
+</body></html>

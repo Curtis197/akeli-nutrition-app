@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chat - Victoire</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#006a63",
+                        "inverse-primary": "#84d5cc",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "background": "#fcfaef",
+                        "surface-container-high": "#eae8de",
+                        "on-tertiary-fixed": "#2c1700",
+                        "on-secondary-fixed": "#00201e",
+                        "surface-tint": "#006a63",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-surface": "#1b1c16",
+                        "on-background": "#1b1c16",
+                        "tertiary-container": "#895100",
+                        "outline-variant": "#bec9c6",
+                        "tertiary-fixed": "#ffdcbc",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-primary-container": "#95e7de",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "surface-container-low": "#f6f4e9",
+                        "surface-bright": "#fcfaef",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "on-tertiary-container": "#ffd0a1",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#416561",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e4e3d8",
+                        "surface-variant": "#e4e3d8",
+                        "surface": "#fcfaef",
+                        "secondary-fixed": "#c3eae5",
+                        "surface-container": "#f0eee3",
+                        "on-secondary-container": "#476b67",
+                        "secondary-container": "#c3eae5",
+                        "outline": "#6e7977",
+                        "on-surface-variant": "#3e4947",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "inverse-surface": "#30312a",
+                        "surface-dim": "#dcdad0",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-primary-fixed": "#00201d",
+                        "primary": "#00504a",
+                        "primary-fixed": "#a0f1e8",
+                        "tertiary": "#683c00",
+                        "inverse-on-surface": "#f3f1e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-header {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface h-screen flex flex-col overflow-hidden selection:bg-primary-container selection:text-on-primary">
+<!-- Top Navigation / Header -->
+<header class="glass-header bg-surface/80 fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 max-w-full">
+<div class="flex items-center gap-4">
+<button class="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined text-2xl" data-icon="arrow_back" data-weight="fill" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-surface-container-highest">
+<img alt="Victoire Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a young woman with natural makeup, looking slightly away from the camera. The lighting is soft and cinematic, creating a premium, modern aesthetic consistent with a high-end wellness app. The background is softly blurred in warm bone tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjieuCxo-UOtZzULuJpua1EGG4L5BIQsrWx2MAjVNNghbjUVh5YYBKPVHA4AaEg2GHdvlGXz4mR5UaXcI-cCJI4DTojhm8YiCPHNIndDtzFtU8BBLNwWKIStyi_VcQ04SB5bsNo88YnhUnWzQh5sFs82kComhgK8s6LwZo3AAL7QGNmyhnzkvJUC-pEnvGvPWn6Ae8Mk2DntmukxJkJIBfKUm61xTGWGq3uMstNUws4HDRaIDioL_QHTP246qCvhhMkdgSox1ofYM"/>
+</div>
+<div>
+<h1 class="font-headline text-lg font-bold text-on-surface tracking-tight">Victoire</h1>
+<p class="font-label text-xs text-primary tracking-wide">En ligne</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-xl" data-icon="videocam">videocam</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<!-- Chat Area -->
+<main class="flex-1 overflow-y-auto px-4 pt-24 pb-24 flex flex-col gap-2">
+<!-- Date Divider -->
+<div class="flex justify-center my-4">
+<span class="font-label text-xs text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full uppercase tracking-widest">Aujourd'hui</span>
+</div>
+<!-- Received Message -->
+<div class="flex justify-start w-full mb-1">
+<div class="max-w-[80%] bg-surface-container-lowest shadow-sm rounded-t-[1.5rem] rounded-br-[1.5rem] rounded-bl-md px-4 py-3 flex flex-col gap-1">
+<p class="font-body text-[1rem] leading-relaxed text-on-surface">Bonjour! Comment s'est passée ta séance de méditation ce matin?</p>
+<span class="font-label text-[0.65rem] text-on-surface-variant self-end mt-1">09:41</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex justify-end w-full mb-1">
+<div class="max-w-[80%] bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-t-[1.5rem] rounded-bl-[1.5rem] rounded-br-md px-4 py-3 flex flex-col gap-1">
+<p class="font-body text-[1rem] leading-relaxed text-on-primary/95">Vraiment apaisante, merci! J'ai essayé la nouvelle routine guidée.</p>
+<div class="flex items-center justify-end gap-1 mt-1">
+<span class="font-label text-[0.65rem] text-on-primary/70">09:45</span>
+<span class="material-symbols-outlined text-[0.8rem] text-on-primary/70" data-icon="done_all" data-weight="fill">done_all</span>
+</div>
+</div>
+</div>
+<!-- Received Message -->
+<div class="flex justify-start w-full mb-1">
+<div class="max-w-[80%] bg-surface-container-lowest shadow-sm rounded-t-[1.5rem] rounded-br-[1.5rem] rounded-bl-md px-4 py-3 flex flex-col gap-1">
+<p class="font-body text-[1rem] leading-relaxed text-on-surface">Super. On se retrouve pour le yoga cet après-midi?</p>
+<span class="font-label text-[0.65rem] text-on-surface-variant self-end mt-1">09:46</span>
+</div>
+</div>
+<!-- Sent Message -->
+<div class="flex justify-end w-full mb-1">
+<div class="max-w-[80%] bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-t-[1.5rem] rounded-bl-[1.5rem] rounded-br-md px-4 py-3 flex flex-col gap-1">
+<p class="font-body text-[1rem] leading-relaxed text-on-primary/95">Absolument! Je serai là vers 14h.</p>
+<div class="flex items-center justify-end gap-1 mt-1">
+<span class="font-label text-[0.65rem] text-on-primary/70">09:50</span>
+<span class="material-symbols-outlined text-[0.8rem] text-on-primary/70" data-icon="done_all" data-weight="fill">done_all</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Input Area -->
+<div class="fixed bottom-0 left-0 w-full bg-surface/90 glass-header px-4 py-4 pb-8 z-50">
+<div class="flex items-end gap-3 max-w-4xl mx-auto">
+<div class="flex-1 bg-surface-container-highest rounded-3xl flex items-center px-4 py-2 border border-outline-variant/10 focus-within:border-primary/40 transition-colors">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 shrink-0">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+</button>
+<textarea class="w-full bg-transparent border-none focus:ring-0 resize-none max-h-32 min-h-[44px] py-3 text-body-lg text-on-surface placeholder:text-on-surface-variant/60" placeholder="Message..." rows="1"></textarea>
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 shrink-0">
+<span class="material-symbols-outlined" data-icon="mood">mood</span>
+</button>
+</div>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary w-12 h-12 rounded-full flex items-center justify-center shrink-0 hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20">
+<span class="material-symbols-outlined" data-icon="send" data-weight="fill" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</body></html>

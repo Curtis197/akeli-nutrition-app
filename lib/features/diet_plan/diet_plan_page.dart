@@ -5,12 +5,11 @@ import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
-import 'package:akeli/shared/widgets/meal_card.dart';
 import 'package:intl/intl.dart';
 
 /// [Akeli] DietPlanPage - High-Fidelity Editorial Redesign
-/// This page presents the weekly meal plan in a high-fidelity scrollable list of days.
-/// Each day contains a horizontal snap list of meals, matching the "Digital Editorial" aesthetic.
+/// This page presents the weekly meal plan with an editorial summary and a vertical
+/// list of meals per day, matching the "akeli_diet_plan_editorial" HTML aesthetic.
 class DietPlanPage extends ConsumerStatefulWidget {
   const DietPlanPage({super.key});
 
@@ -27,32 +26,47 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     _logger.provider('DietPlanPage build() | planAsync.isLoading: ${planAsync.isLoading}');
 
     return Scaffold(
-      backgroundColor: AkeliColors.background,
-      // Fixed sticky header with editorial blur
+      backgroundColor: AkeliColors.surface,
       appBar: AppBar(
-        backgroundColor: AkeliColors.background,
+        backgroundColor: AkeliColors.surface.withValues(alpha: 0.8),
+        scrolledUnderElevation: 0,
         elevation: 0,
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        title: Text(
-          'Akeli Victoire',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: AkeliColors.onSurface,
-          ),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              radius: 16,
-              backgroundColor: AkeliColors.surfaceContainerHighest,
-              backgroundImage: NetworkImage(
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBZp-6DEHw83vZ3znlhBFiNEDWo5PLlAfKX5oY6YR2wrBH9HyBeIuzo60H9m4vN9ZE0FruyJjub4iPtcF7l07HzLVePD4kS16e7dpPOclHJNmCKlHt361s6CQbcj823oCzBMNBpCfrwheID2tD2wt6QGydVwPEQDGTANtf5RLSzZDmwbd1aFhJkvZkD7OG1uejkB4Th7qbvgnWJnGW0fFxf0e9WUV8fc-uapul52TVLC2YQv_oKBF0jkoRT9ihI7ZX7LLjrF3el5Zc',
+        centerTitle: true,
+        title: const Column(
+          children: [
+            Text(
+              'Récapitulatif',
+              style: TextStyle(
+                color: AkeliColors.primary,
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
               ),
             ),
+            Text(
+              'Votre plan diététique',
+              style: TextStyle(
+                color: AkeliColors.onSurfaceVariant,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/');
+              }
+            },
+            style: IconButton.styleFrom(
+              backgroundColor: AkeliColors.surfaceContainerLowest,
+            ),
           ),
-        ],
+        ),
       ),
       body: planAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -82,218 +96,339 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
           final weekDates = List.generate(7, (i) => startOfWeek.add(Duration(days: i)));
 
           return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 20),
+            padding: const EdgeInsets.all(24),
             children: [
-              // Header Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Vos repas de la semaine',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Navigation Shortcuts
-                    _buildNavLink(
-                      context,
-                      icon: Icons.restaurant_menu,
-                      label: 'Voir mon plan diététique',
-                      onTap: () { _logger.userAction('Diet plan nav link tapped', screen: 'DietPlanPage'); },
-                    ),
-                    const SizedBox(height: 12),
-                    _buildNavLink(
-                      context,
-                      icon: Icons.shopping_basket_outlined,
-                      label: 'Voir ma liste de course',
-                      onTap: () {
-                        _logger.userAction('Shopping list nav link tapped', screen: 'DietPlanPage');
-                        context.go(AkeliRoutes.shoppingList);
-                      },
-                    ),
-                  ],
-                ),
-              ),
+              _buildSummaryCard(context),
               const SizedBox(height: 32),
-
-              // Snacks Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildSnackBanner(context),
-              ),
-              const SizedBox(height: 32),
-
-              // Weekly Planner Sections
+              
+              // Daily Recaps
               ...weekDates.map((date) {
                 final meals = groupedMeals[date] ?? [];
-                final dailyCals = meals.fold<double>(0, (sum, m) => sum + (m.calories ?? 0));
-                
-                return _buildDaySection(context, date, dailyCals, meals);
+                if (meals.isEmpty) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: _buildDailyRecapCard(context, date, meals),
+                );
               }),
 
-              const SizedBox(height: 100), // Space for FAB and BottomNav
+              const SizedBox(height: 16),
+              _buildActionButtons(context),
+              const SizedBox(height: 80),
             ],
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () { _logger.userAction('Generate plan FAB tapped', screen: 'DietPlanPage'); },
-        backgroundColor: AkeliColors.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.auto_awesome, color: Colors.white),
-      ),
     );
   }
 
-  Widget _buildNavLink(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AkeliColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AkeliColors.onSurface.withValues(alpha: 0.05)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: AkeliColors.primary, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AkeliColors.onSurfaceVariant,
+  Widget _buildSummaryCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AkeliColors.primaryContainer.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.track_changes, color: AkeliColors.primary),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        '5 kg',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.primary, letterSpacing: -0.5),
+                      ),
+                      const Text(
+                        'À PERDRE',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: AkeliColors.outline, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSnackBanner(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AkeliColors.secondaryContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: AkeliColors.primary,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.cookie_outlined, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ajouter une collation',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AkeliColors.tertiary.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.restaurant_menu, color: AkeliColors.tertiary),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text(
+                        '3 mois',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.tertiary, letterSpacing: -0.5),
+                      ),
+                      const Text(
+                        'OBJECTIF',
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+                      ),
+                    ],
+                  ),
                 ),
-                Text(
-                  'Personnalisez votre plan',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AkeliColors.onSurfaceVariant),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [AkeliColors.secondaryContainer, AkeliColors.surfaceContainerLow],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: const BoxDecoration(
+                    color: AkeliColors.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.local_fire_department, color: AkeliColors.secondary),
+                ),
+                const SizedBox(width: 16),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '1800 kcal/jour',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AkeliColors.onSecondaryContainer),
+                    ),
+                    Text(
+                      'Objectif calorique',
+                      style: TextStyle(fontSize: 14, color: AkeliColors.onSecondaryContainer),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () { _logger.userAction('Add snack button tapped', screen: 'DietPlanPage'); },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AkeliColors.primary,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            ),
-            child: const Text('Ajouter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          const SizedBox(height: 24),
+          const Text(
+            'RESTRICTIONS',
+            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AkeliColors.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.4)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.eco, size: 18, color: AkeliColors.primary),
+                    SizedBox(width: 8),
+                    Text('Végétarien', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AkeliColors.error.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: AkeliColors.error.withValues(alpha: 0.2)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.block, size: 18, color: AkeliColors.error),
+                    SizedBox(width: 8),
+                    Text('Gluten', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AkeliColors.error)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDaySection(BuildContext context, DateTime date, double dailyCals, List<dynamic> meals) {
+  Widget _buildDailyRecapCard(BuildContext context, DateTime date, List<dynamic> meals) {
     final dateStr = DateFormat('EEEE d MMMM', 'fr_FR').format(date);
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                dateStr,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AkeliColors.primary,
-                ),
-              ),
-              Text(
-                '${dailyCals.toInt()} kcal',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: AkeliColors.outline,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
-        ),
-        SizedBox(
-          height: 300, 
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: meals.length,
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              final m = meals[index];
-              return Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: SizedBox(
-                  width: 280,
-                  child: AkeliMealCard(
-                    title: m.recipeTitle ?? 'Repas',
-                    mealType: m.mealTypeLabel,
-                    calories: (m.calories ?? 0).toDouble(),
-                    // Injecting mockup tags where available or using defaults
-                    onTap: () {
-                      _logger.userAction('Meal card tapped', screen: 'DietPlanPage', metadata: {'mealId': m.id});
-                      context.go(AkeliRoutes.mealDetailPath(m.id));
-                    },
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            dateStr.replaceFirst(dateStr[0], dateStr[0].toUpperCase()),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: AkeliColors.onSurface),
+          ),
+          const SizedBox(height: 24),
+          ...meals.map((m) {
+            IconData icon;
+            Color iconColor = AkeliColors.primary;
+            switch (m.mealType) {
+              case 'breakfast':
+                icon = Icons.sunny;
+                break;
+              case 'lunch':
+                icon = Icons.lunch_dining;
+                break;
+              case 'dinner':
+                icon = Icons.dark_mode;
+                iconColor = AkeliColors.tertiary;
+                break;
+              default:
+                icon = Icons.restaurant;
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    _logger.userAction('Meal item tapped', screen: 'DietPlanPage', metadata: {'mealId': m.id});
+                    context.go(AkeliRoutes.mealDetailPath(m.id));
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: AkeliColors.surfaceContainerLowest,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: iconColor),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                m.mealTypeLabel,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AkeliColors.onSurface),
+                              ),
+                              Text(
+                                m.recipeTitle ?? 'Repas',
+                                style: const TextStyle(fontSize: 14, color: AkeliColors.onSurfaceVariant),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${(m.calories ?? 0).toInt()} kcal',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AkeliColors.primary),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              );
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              _logger.userAction('Regenerate plan tapped', screen: 'DietPlanPage');
+              await ref.read(mealPlanGeneratorProvider.notifier).generate();
             },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Régénérer'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              foregroundColor: AkeliColors.onSurface,
+              side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.5), width: 2),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(width: 16),
+        Expanded(
+          child: FilledButton.icon(
+            onPressed: () {
+              _logger.userAction('Shopping list button tapped', screen: 'DietPlanPage');
+              context.go(AkeliRoutes.shoppingList);
+            },
+            icon: const Icon(Icons.shopping_basket),
+            label: const Text('Liste courses'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: AkeliColors.primary,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              textStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ),
+        ),
       ],
     );
   }

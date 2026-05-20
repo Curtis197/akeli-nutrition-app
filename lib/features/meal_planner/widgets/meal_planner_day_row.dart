@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../../core/logger.dart';
 import '../../../core/theme.dart';
 import '../../../shared/models/meal_plan.dart';
-import '../../../shared/widgets/meal_card.dart';
 
 class MealPlannerDayRow extends StatelessWidget {
   final DateTime date;
   final List<MealPlanEntry> entries;
-  final Function(String entryId, bool isConsumed)? onConsumedToggle;
   final Function(String recipeId)? onRecipeTap;
 
   const MealPlannerDayRow({
     super.key,
     required this.date,
     required this.entries,
-    this.onConsumedToggle,
     this.onRecipeTap,
   });
 
   static const _dayNames = [
-    'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'
+    'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'
   ];
   
   static const _monthNames = [
-    '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    '', 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 
+    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'
   ];
 
   String get _formattedDate {
@@ -33,18 +29,14 @@ class MealPlannerDayRow extends StatelessWidget {
   }
 
   double get _totalCalories {
-    return entries.fold(0.0, (sum, e) => sum + (e.calories ?? 0));
-  }
-
-  bool get _allConsumed {
-    return entries.isNotEmpty && entries.every((e) => e.isConsumed);
+    return entries.fold(0.0, (sum, e) => sum + e.calories);
   }
 
   @override
   Widget build(BuildContext context) {
     appLogger.provider('MealPlannerDayRow build() | date: $_formattedDate | entries: ${entries.length}');
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24.0),
+      padding: const EdgeInsets.only(bottom: 40.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -53,36 +45,29 @@ class MealPlannerDayRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _formattedDate.toUpperCase(),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: AkeliColors.primary,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    Text(
-                      '${_totalCalories.toInt()} kcal prévues',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AkeliColors.outline,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                Text(
+                  _formattedDate,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: AkeliColors.accentAmber,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-                _buildConsumptionToggle(context),
+                Text(
+                  '${_totalCalories.toInt()} kcal',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: AkeliColors.accentAmber,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           // Horizontal Meal List
           SizedBox(
-            height: 310, // Increased to accommodate new card design
+            height: 260,
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               scrollDirection: Axis.horizontal,
@@ -91,24 +76,13 @@ class MealPlannerDayRow extends StatelessWidget {
               clipBehavior: Clip.none,
               itemBuilder: (context, index) {
                 final entry = entries[index];
-                return AkeliMealCard(
-                  title: entry.recipeTitle ?? 'Recette',
-                  imageUrl: entry.recipeThumbnail,
-                  mealType: entry.mealType,
-                  calories: entry.calories ?? 0,
-                  duration: ((entry.recipeId?.length ?? 20) % 20) + 15,
-                  isPlanner: true,
-                  isConsumed: entry.isConsumed,
-                  onTap: entry.recipeId != null
-                      ? () {
-                          appLogger.userAction('Meal card tapped', screen: 'MealPlannerDayRow', metadata: {'recipeId': entry.recipeId});
-                          onRecipeTap?.call(entry.recipeId!);
-                        }
-                      : null,
-                  onConsumedToggle: () {
-                    appLogger.userAction('Meal consumed toggled', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id, 'isConsumed': !entry.isConsumed});
-                    HapticFeedback.lightImpact();
-                    onConsumedToggle?.call(entry.id, !entry.isConsumed);
+                return _PlannerMealCard(
+                  entry: entry,
+                  onTap: () {
+                    if (entry.recipeId != null) {
+                      appLogger.userAction('Meal plan recipe tapped', screen: 'MealPlannerDayRow', metadata: {'recipeId': entry.recipeId});
+                      onRecipeTap?.call(entry.recipeId!);
+                    }
                   },
                 );
               },
@@ -118,40 +92,97 @@ class MealPlannerDayRow extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildConsumptionToggle(BuildContext context) {
+class _PlannerMealCard extends StatelessWidget {
+  final MealPlanEntry entry;
+  final VoidCallback onTap;
+
+  const _PlannerMealCard({required this.entry, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        appLogger.userAction('Toggle all consumed tapped', screen: 'MealPlannerDayRow', metadata: {'date': _formattedDate, 'allConsumed': _allConsumed});
-        HapticFeedback.mediumImpact();
-        // Logic to toggle all would go here or be passed down
-      },
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        width: 280,
+        margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: _allConsumed 
-              ? AkeliColors.success.withValues(alpha: 0.1) 
-              : AkeliColors.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(AkeliRadius.pill),
-          border: Border.all(
-            color: _allConsumed ? AkeliColors.success : AkeliColors.outlineVariant,
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _allConsumed ? Icons.check_circle : Icons.radio_button_unchecked,
-              size: 16,
-              color: _allConsumed ? AkeliColors.success : AkeliColors.outline,
+          color: AkeliColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            const SizedBox(width: 8),
-            Text(
-              'Tout consommé',
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: _allConsumed ? AkeliColors.success : AkeliColors.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 160,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                    child: entry.recipeThumbnail != null
+                        ? Image.network(entry.recipeThumbnail!, fit: BoxFit.cover)
+                        : Container(color: AkeliColors.surfaceContainerHigh),
+                  ),
+                  Positioned(
+                    top: 12,
+                    right: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        (entry.mealType == 'breakfast' ? 'PETIT DÉJEUNER' : 'DÉJEUNER').toUpperCase(),
+                        style: const TextStyle(
+                          color: AkeliColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.recipeTitle ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      height: 1.2,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Icon(Icons.schedule, size: 16, color: AkeliColors.onSurfaceVariant),
+                      const SizedBox(width: 4),
+                      const Text('20 min', style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                      const SizedBox(width: 16),
+                      const Icon(Icons.local_fire_department, size: 16, color: AkeliColors.accentAmber),
+                      const SizedBox(width: 4),
+                      Text('${entry.calories.toInt()} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
@@ -160,3 +191,4 @@ class MealPlannerDayRow extends StatelessWidget {
     );
   }
 }
+

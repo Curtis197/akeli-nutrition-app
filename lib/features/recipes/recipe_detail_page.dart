@@ -1,12 +1,13 @@
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/recipe_provider.dart';
 import '../../shared/models/recipe.dart';
 import '../../shared/widgets/empty_state.dart';
-import '../../shared/widgets/macro_card.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
 
@@ -81,7 +82,7 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
     return Scaffold(
       backgroundColor: AkeliColors.background,
       body: recipeAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator(color: AkeliColors.primary)),
         error: (err, _) => ErrorState(
           message: err.toString(),
           onRetry: () =>
@@ -132,33 +133,28 @@ class _RecipeContent extends StatelessWidget {
         ? recipe.imageUrls
         : [if (recipe.thumbnailUrl != null) recipe.thumbnailUrl!];
 
-    return CustomScrollView(
-      slivers: [
-        // Image carousel in SliverAppBar
-        SliverAppBar(
-          expandedHeight: 280,
-          pinned: true,
-          leading: const BackButton(),
-          actions: [
-            IconButton(
-              icon: Icon(
-                recipe.isLiked
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                color: recipe.isLiked ? Colors.red : null,
-              ),
-              onPressed: onLike,
-            ),
-          ],
-          flexibleSpace: FlexibleSpaceBar(
-            background: images.isEmpty
-                ? Container(
-                    color: AkeliColors.background,
-                    child: const Icon(Icons.restaurant_rounded,
-                        size: 80, color: AkeliColors.primary),
-                  )
-                : Stack(
-                    children: [
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 120),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // HERO SECTION
+              SizedBox(
+                height: 320,
+                child: Stack(
+                  children: [
+                    if (images.isEmpty)
+                      Container(
+                        color: AkeliColors.background,
+                        child: const Center(
+                          child: Icon(Icons.restaurant_rounded, size: 80, color: AkeliColors.primary),
+                        ),
+                      )
+                    else
                       PageView.builder(
                         controller: pageController,
                         onPageChanged: onImageChanged,
@@ -168,210 +164,424 @@ class _RecipeContent extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorWidget: (_, __, ___) => Container(
                             color: AkeliColors.background,
-                            child: const Icon(Icons.restaurant_rounded,
-                                size: 60, color: AkeliColors.primary),
+                            child: const Center(
+                              child: Icon(Icons.restaurant_rounded, size: 60, color: AkeliColors.primary),
+                            ),
                           ),
                         ),
                       ),
-                      if (images.length > 1)
-                        Positioned(
-                          bottom: AkeliSpacing.md,
-                          left: 0,
-                          right: 0,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              images.length,
-                              (i) => AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                width: i == currentImageIndex ? 20 : 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: i == currentImageIndex
-                                      ? Colors.white
-                                      : Colors.white54,
-                                  borderRadius:
-                                      BorderRadius.circular(AkeliRadius.full),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-          ),
-        ),
-
-        SliverPadding(
-          padding: const EdgeInsets.all(AkeliSpacing.lg),
-          sliver: SliverList(
-            delegate: SliverChildListDelegate([
-              // Title
-              Text(recipe.title,
-                  style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: AkeliSpacing.sm),
-
-              // Meta row
-              Wrap(
-                spacing: AkeliSpacing.sm,
-                runSpacing: AkeliSpacing.xs,
-                children: [
-                  _MetaChip(
-                    icon: Icons.timer_outlined,
-                    label:
-                        '${recipe.totalTimeMin} min',
-                  ),
-                  _MetaChip(
-                    icon: Icons.people_outline_rounded,
-                    label: '${recipe.servings} pers.',
-                  ),
-                  _MetaChip(
-                    icon: Icons.bar_chart_rounded,
-                    label: _difficultyLabel(recipe.difficulty),
-                    color: _difficultyColor(recipe.difficulty),
-                  ),
-                  _MetaChip(
-                    icon: Icons.star_rounded,
-                    label: recipe.averageRating.toStringAsFixed(1),
-                    color: AkeliColors.secondary,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AkeliSpacing.lg),
-
-              // Macros
-              if (recipe.calories != null) ...[
-                MacroRow(
-                  calories: recipe.calories,
-                  proteinG: recipe.proteinG,
-                  carbsG: recipe.carbsG,
-                  fatG: recipe.fatG,
-                ),
-                const SizedBox(height: AkeliSpacing.lg),
-              ],
-
-              // Description
-              if (recipe.description != null) ...[
-                Text(recipe.description!,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AkeliColors.textSecondary,
-                        )),
-                const SizedBox(height: AkeliSpacing.lg),
-              ],
-
-              const Divider(),
-              const SizedBox(height: AkeliSpacing.md),
-
-              // Ingredients
-              if (recipe.ingredients.isNotEmpty) ...[
-                Text('Ingrédients',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: AkeliSpacing.md),
-                ...recipe.ingredients.map(
-                  (ing) => Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: AkeliSpacing.sm),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.circle,
-                            size: 6, color: AkeliColors.primary),
-                        const SizedBox(width: AkeliSpacing.sm),
-                        Expanded(
-                          child: Text(ing.name,
-                              style: Theme.of(context).textTheme.bodyMedium),
-                        ),
-                        Text(
-                          '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
-                              ?.copyWith(
-                                color: AkeliColors.textSecondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                        ),
-                        if (ing.isOptional)
-                          Text(
-                            ' (opt.)',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: AkeliColors.textSecondary,
-                                ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AkeliSpacing.lg),
-                const Divider(),
-                const SizedBox(height: AkeliSpacing.md),
-              ],
-
-              // Steps
-              if (recipe.steps.isNotEmpty) ...[
-                Text('Préparation',
-                    style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: AkeliSpacing.md),
-                ...recipe.steps.map(
-                  (step) => Padding(
-                    padding:
-                        const EdgeInsets.only(bottom: AkeliSpacing.lg),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: const BoxDecoration(
-                            color: AkeliColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${step.stepNumber}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: AkeliSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(step.instruction,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium),
-                              if (step.durationMin != null) ...[
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${step.durationMin} min',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: AkeliColors.textSecondary,
-                                      ),
-                                ),
-                              ],
+                    
+                    // Gradient Overlay
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              AkeliColors.onSurface.withValues(alpha: 0.8),
+                              AkeliColors.onSurface.withValues(alpha: 0.2),
+                              Colors.transparent,
                             ],
                           ),
                         ),
+                      ),
+                    ),
+
+                    // Hero Text
+                    Positioned(
+                      bottom: 40,
+                      left: 24,
+                      right: 24,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'DÉJEUNER',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AkeliColors.onPrimary.withValues(alpha: 0.8),
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            recipe.title,
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w700,
+                              color: AkeliColors.onPrimary,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // META CARD (Overlapping Hero)
+              Transform.translate(
+                offset: const Offset(0, -24),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                      boxShadow: const [
+                        BoxShadow(color: Color(0x0A1B1C16), blurRadius: 24, offset: Offset(0, 12)),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Quick Info Row
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _QuickInfo(
+                              icon: Icons.schedule,
+                              iconColor: AkeliColors.primary,
+                              label: '${recipe.totalTimeMin} min',
+                            ),
+                            _QuickInfo(
+                              icon: Icons.trending_up,
+                              iconColor: AkeliColors.accentAmber,
+                              label: _difficultyLabel(recipe.difficulty),
+                            ),
+                            _QuickInfo(
+                              icon: Icons.local_fire_department,
+                              iconColor: AkeliColors.primary,
+                              label: '${recipe.calories ?? 0} kcal',
+                              isBold: true,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Divider(color: AkeliColors.surfaceContainerHighest, height: 1),
+                        const SizedBox(height: 24),
+
+                        // Macros
+                        Row(
+                          children: [
+                            Expanded(child: _MacroBox(label: 'PROTÉINES', value: '${recipe.proteinG ?? 0}g')),
+                            const SizedBox(width: 12),
+                            Expanded(child: _MacroBox(label: 'GLUCIDES', value: '${recipe.carbsG ?? 0}g')),
+                            const SizedBox(width: 12),
+                            Expanded(child: _MacroBox(label: 'LIPIDES', value: '${recipe.fatG ?? 0}g')),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Tags
+                        const Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            _TagChip(label: 'Sans gluten'),
+                            _TagChip(label: 'Riche en protéines'),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+
+                        // Primary Action
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                            ),
+                            borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                              onTap: () {
+                                appLogger.userAction('Add to calendar tapped', screen: 'RecipeDetailPage');
+                                // TODO: Implement Add to Calendar
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.calendar_today_rounded, color: AkeliColors.onPrimary, size: 20),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      'Ajouter au calendrier',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: AkeliColors.onPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-              ],
+              ),
 
-              const SizedBox(height: AkeliSpacing.xxl),
-            ]),
+              // DESCRIPTION SECTION
+              if (recipe.description != null && recipe.description!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'L\'Histoire du Plat',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          recipe.description!,
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            height: 1.6,
+                            color: AkeliColors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // INGREDIENTS SECTION
+              if (recipe.ingredients.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Ingrédients',
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: AkeliColors.onSurface,
+                              ),
+                            ),
+                            Text(
+                              '${recipe.servings} portions',
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AkeliColors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        ...recipe.ingredients.map(
+                          (ing) => Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AkeliRadius.md),
+                              color: Colors.transparent, 
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    ing.name + (ing.isOptional ? ' (opt.)' : ''),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      color: AkeliColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: AkeliColors.accentAmber,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // STEPS SECTION
+              if (recipe.steps.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AkeliColors.surfaceContainerLowest,
+                      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Étapes',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        ...recipe.steps.map(
+                          (step) => Padding(
+                            padding: const EdgeInsets.only(bottom: 24),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: const BoxDecoration(
+                                    color: AkeliColors.surfaceContainer,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${step.stepNumber}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: AkeliColors.primary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    step.instruction,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      height: 1.6,
+                                      color: AkeliColors.onSurface,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // CREATOR CARD
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [AkeliShadows.sm],
+                          image: DecorationImage(
+                            image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBZoZmH1Y5a-Pc2GzIrFGmGCXlHreRhu1Z6JxT9Tc54fo417lFxPztaj8LHhnjfsKKuweQ7x2Sock9uBCk7-Mpelfn9yk-kq3cyJTZQHk8AHBjpmB4wiG-1nIt3SfGk7lpQ0anmR-m7zgit9sN0-OUMsgmx6DKQYVYYCO4zH1_AtzeaSbWnW3Yy5P3ax9SVNe5Cl1cmCc5TqlCt_uLfwIsnetSu5K9v5LG-GtLx19sLzk6rtkSnRQx9XDcIfxkvN3pSgEix_8t1c1Q'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'RECETTE CRÉÉE PAR',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AkeliColors.onSurfaceVariant,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Chef Amina', 
+                            style: GoogleFonts.plusJakartaSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: AkeliColors.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // TOP NAVIGATION (Fixed/Sticky)
+        Positioned(
+          top: topPadding + 16,
+          left: 24,
+          right: 24,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _FrostedIconButton(
+                icon: Icons.arrow_back,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              _FrostedIconButton(
+                icon: recipe.isLiked ? Icons.bookmark : Icons.bookmark_border,
+                iconColor: recipe.isLiked ? AkeliColors.primary : AkeliColors.onSurface,
+                onPressed: onLike,
+              ),
+            ],
           ),
         ),
       ],
@@ -379,7 +589,7 @@ class _RecipeContent extends StatelessWidget {
   }
 
   String _difficultyLabel(String d) {
-    switch (d) {
+    switch (d.toLowerCase()) {
       case 'easy':
         return 'Facile';
       case 'medium':
@@ -390,46 +600,133 @@ class _RecipeContent extends StatelessWidget {
         return d;
     }
   }
-
-  Color _difficultyColor(String d) {
-    switch (d) {
-      case 'easy':
-        return AkeliColors.success;
-      case 'medium':
-        return AkeliColors.secondary;
-      case 'hard':
-        return AkeliColors.error;
-      default:
-        return AkeliColors.textSecondary;
-    }
-  }
 }
 
-class _MetaChip extends StatelessWidget {
+class _QuickInfo extends StatelessWidget {
   final IconData icon;
+  final Color iconColor;
   final String label;
-  final Color? color;
+  final bool isBold;
 
-  const _MetaChip({required this.icon, required this.label, this.color});
+  const _QuickInfo({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    this.isBold = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? AkeliColors.textSecondary;
+    return Row(
+      children: [
+        Icon(icon, color: iconColor, size: 20),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
+            color: AkeliColors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MacroBox extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _MacroBox({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: c.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AkeliRadius.full),
+        color: AkeliColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Column(
         children: [
-          Icon(icon, size: 14, color: c),
-          const SizedBox(width: 4),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 12, color: c, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AkeliColors.onSurfaceVariant,
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AkeliColors.primary,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _TagChip extends StatelessWidget {
+  final String label;
+
+  const _TagChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainer,
+        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: AkeliColors.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _FrostedIconButton extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final VoidCallback onPressed;
+
+  const _FrostedIconButton({
+    required this.icon,
+    this.iconColor = AkeliColors.onSurface,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipOval(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          width: 40,
+          height: 40,
+          color: AkeliColors.surfaceContainerLowest.withValues(alpha: 0.8),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onPressed,
+              child: Icon(icon, color: iconColor, size: 20),
+            ),
+          ),
+        ),
       ),
     );
   }

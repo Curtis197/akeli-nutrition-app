@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli Oasis - Notifications</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f6f4e9",
+                        "outline-variant": "#bec9c6",
+                        "on-background": "#1b1c16",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#00504a",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "tertiary-container": "#895100",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#416561",
+                        "secondary-fixed": "#c3eae5",
+                        "surface-container-high": "#eae8de",
+                        "on-secondary-fixed": "#00201e",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e4e3d8",
+                        "inverse-primary": "#84d5cc",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "on-surface": "#1b1c16",
+                        "inverse-on-surface": "#f3f1e6",
+                        "tertiary": "#683c00",
+                        "surface-bright": "#fcfaef",
+                        "surface-container": "#f0eee3",
+                        "secondary-container": "#c3eae5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006a63",
+                        "on-primary-fixed": "#00201d",
+                        "on-primary-container": "#95e7de",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-secondary-container": "#476b67",
+                        "background": "#fcfaef",
+                        "primary-container": "#006a63",
+                        "tertiary-fixed": "#ffdcbc",
+                        "surface": "#fcfaef",
+                        "primary": "#00504a",
+                        "surface-dim": "#dcdad0",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffd0a1",
+                        "on-surface-variant": "#3e4947",
+                        "primary-fixed": "#a0f1e8",
+                        "surface-variant": "#e4e3d8",
+                        "outline": "#6e7977",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#2c1700",
+                        "inverse-surface": "#30312a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom Toggle Switch Styles leveraging Tailwind colors */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #006a63; /* primary-container */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #006a63; /* primary-container */
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e4e3d8; /* surface-container-highest */
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: #eae8de; /* surface-container-high */
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(1.5rem);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col antialiased selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation (Transactional intent -> no bottom nav, customized top bar for focused task) -->
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-2xl px-6 py-6 flex items-center shadow-[0px_4px_24px_rgba(27,28,22,0.02)]">
+<button aria-label="Go back" class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-lowest shadow-[0px_8px_16px_rgba(27,28,22,0.04)] text-on-surface hover:bg-surface-container-low transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="ml-6 font-headline text-[1.5rem] font-bold text-primary-container tracking-tight">Notifications</h1>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow px-6 pt-6 pb-24 max-w-2xl mx-auto w-full flex flex-col gap-8">
+<!-- Intro text (Editorial rhythm) -->
+<div class="px-2">
+<p class="text-on-surface-variant text-[1rem] leading-[1.6]">
+                Configurez vos préférences pour rester connecté sans être submergé. La tranquillité de votre sanctuaire numérique est primordiale.
+            </p>
+</div>
+<!-- Settings Card -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] shadow-[0px_24px_48px_rgba(27,28,22,0.04)] overflow-hidden flex flex-col p-2">
+<!-- Item 1: Push Notifications -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors duration-300 rounded-[1rem] group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-primary-container group-hover:bg-secondary-container transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline font-semibold text-[1.125rem] text-on-surface">Push Notifications</span>
+<span class="font-label text-[0.875rem] text-outline mt-0.5">Recevez vos notifications sur votre appareil</span>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-push" name="toggle-push" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-push"></label>
+</div>
+</div>
+<!-- Subtle Tonal Shift (No line rule) -->
+<div class="h-4 w-full bg-gradient-to-b from-transparent to-surface/30"></div>
+<!-- Item 2: Chat -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors duration-300 rounded-[1rem] group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-primary-container group-hover:bg-secondary-container transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline font-semibold text-[1.125rem] text-on-surface">Chat</span>
+<span class="font-label text-[0.875rem] text-outline mt-0.5">Messages et conversations</span>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-chat" name="toggle-chat" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-chat"></label>
+</div>
+</div>
+<div class="h-4 w-full bg-gradient-to-b from-transparent to-surface/30"></div>
+<!-- Item 3: Rappels de repas -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors duration-300 rounded-[1rem] group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-primary-container group-hover:bg-secondary-container transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline font-semibold text-[1.125rem] text-on-surface">Rappels de repas</span>
+<span class="font-label text-[0.875rem] text-outline mt-0.5">Heures de repas planifiés</span>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-meals" name="toggle-meals" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-meals"></label>
+</div>
+</div>
+<div class="h-4 w-full bg-gradient-to-b from-transparent to-surface/30"></div>
+<!-- Item 4: Demandes de conversation -->
+<div class="flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors duration-300 rounded-[1rem] group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center text-primary-container group-hover:bg-secondary-container transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline font-semibold text-[1.125rem] text-on-surface">Demandes de conversation</span>
+<span class="font-label text-[0.875rem] text-outline mt-0.5">Nouvelles demandes de connexion</span>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer opacity-0" id="toggle-requests" name="toggle-requests" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="toggle-requests"></label>
+</div>
+</div>
+</div>
+</main>
+<!-- Fixed Action Area -->
+<div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-surface via-surface/90 to-transparent pb-8">
+<div class="max-w-2xl mx-auto">
+<button class="w-full h-[52px] bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-[1.125rem] rounded-[1rem] shadow-[0px_8px_24px_rgba(0,106,99,0.2)] hover:shadow-[0px_12px_32px_rgba(0,106,99,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300">
+                Enregistrer
+            </button>
+</div>
+</div>
+</body></html>

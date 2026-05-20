@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli Oasis - Nouvelle Session</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-dim": "#dcdad0",
+                        "surface": "#fcfaef",
+                        "on-surface": "#1b1c16",
+                        "on-tertiary-container": "#ffd0a1",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdcbc",
+                        "tertiary-container": "#895100",
+                        "on-surface-variant": "#3e4947",
+                        "primary-fixed-dim": "#84d5cc",
+                        "surface-tint": "#006a63",
+                        "surface-container-high": "#eae8de",
+                        "on-primary-container": "#95e7de",
+                        "inverse-primary": "#84d5cc",
+                        "secondary-container": "#c3eae5",
+                        "secondary-fixed": "#c3eae5",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "on-secondary-container": "#476b67",
+                        "primary": "#00504a",
+                        "inverse-surface": "#30312a",
+                        "outline": "#6e7977",
+                        "primary-fixed": "#a0f1e8",
+                        "surface-container-highest": "#e4e3d8",
+                        "surface-variant": "#e4e3d8",
+                        "on-background": "#1b1c16",
+                        "tertiary": "#683c00",
+                        "background": "#fcfaef",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#00201d",
+                        "surface-container-low": "#f6f4e9",
+                        "on-secondary-fixed": "#00201e",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#2c1700",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "surface-bright": "#fcfaef",
+                        "outline-variant": "#bec9c6",
+                        "inverse-on-surface": "#f3f1e6",
+                        "on-primary-fixed-variant": "#00504a",
+                        "primary-container": "#006a63",
+                        "surface-container": "#f0eee3",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "secondary": "#416561",
+                        "error-container": "#ffdad6",
+                        "muted-orange": "#FFF3E0" // Added specifically from prompt instructions
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcfaef; }
+        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen relative overflow-hidden flex justify-center">
+<!-- Background App Context (Blurred/Dimmed) -->
+<div class="absolute inset-0 z-0">
+<!-- Top App Bar (Mocked for context) -->
+<header class="flex justify-between items-center px-6 py-4 w-full bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A close-up portrait of a relaxed person in soft, warm lighting against a bright, creamy light-mode background. The color palette features deep teal accents and warm bone neutrals. The style is organic, high-end editorial, evoking a sense of calm and curation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDs3solYvyKOdVJ-PBi_NcyqOgpfKJyI6WHhdW3kXGFX027oGyDP43Ea60D4YaTylj4IbBeNAWoO8xvt2z-MZew7OKtZ_VTFCosCwRkYglYw5xXRsxb8uPhOY6ojyG1pGCipraqoxYqlBHtYWuej9_ag47XDZSM-5UH_xhMgvrmd89cel2jsnfJdHp_OOvYN_13Qah6dNqMNOS2GshP-WVMVMSdxYvV-SwpcR9XQVScFhA7nCda_8sSseqkYRLZ-vX5GiQdbC9os0"/>
+</div>
+<h1 class="font-display font-bold text-headline-md tracking-tight text-primary">Akeli Oasis</h1>
+</div>
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="notifications">notifications</span>
+</header>
+<!-- Main Content Area (Mocked for context) -->
+<main class="p-6 pt-24 pb-32 max-w-md mx-auto w-full">
+<div class="space-y-8 opacity-40">
+<section>
+<h2 class="font-display font-bold text-2xl text-primary mb-4">Batch Cooking Tracker</h2>
+<div class="bg-surface-container-low rounded-lg p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container rounded-full blur-3xl opacity-50 transform translate-x-1/2 -translate-y-1/2"></div>
+<h3 class="font-body font-medium text-lg text-on-surface mb-2">Semaine 42</h3>
+<p class="font-body text-on-surface-variant text-sm mb-4">4 recettes prévues</p>
+<div class="flex gap-2">
+<div class="h-2 flex-1 bg-primary rounded-full"></div>
+<div class="h-2 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-2 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-lg p-4 h-32 flex flex-col justify-end">
+<span class="font-display font-bold text-xl text-primary">Repas 1</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4 h-32 flex flex-col justify-end">
+<span class="font-display font-bold text-xl text-primary">Repas 2</span>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Nav Bar (Mocked for context) -->
+<nav class="fixed bottom-0 left-0 w-full z-10 flex justify-around items-center px-4 py-3 pb-safe bg-surface/80 backdrop-blur-2xl shadow-[0px_-4px_24px_rgba(27,28,22,0.04)] rounded-t-lg opacity-40">
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3">
+<span class="material-symbols-outlined mb-1" data-icon="spa">spa</span>
+<span class="font-label text-[10px] font-medium tracking-wide">Sanctuary</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-lg p-3">
+<span class="material-symbols-outlined mb-1" data-icon="monitoring" data-weight="fill" style="font-variation-settings: 'FILL' 1;">monitoring</span>
+<span class="font-label text-[10px] font-medium tracking-wide">Track</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant p-3">
+<span class="material-symbols-outlined mb-1" data-icon="auto_awesome">auto_awesome</span>
+<span class="font-label text-[10px] font-medium tracking-wide">Oasis AI</span>
+</div>
+</nav>
+</div>
+<!-- Backdrop Overlay -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-40 transition-opacity"></div>
+<!-- Bottom Sheet -->
+<div class="fixed bottom-0 left-0 w-full max-w-2xl mx-auto z-50 bg-surface rounded-t-[24px] shadow-[0px_-24px_48px_rgba(27,28,22,0.06)] transform transition-transform duration-300 ease-out flex flex-col" style="left: 50%; transform: translateX(-50%);">
+<!-- Drag Handle Indicator -->
+<div class="w-full flex justify-center pt-4 pb-2">
+<div class="w-12 h-1.5 bg-outline-variant/40 rounded-full"></div>
+</div>
+<div class="px-6 pb-8 pt-4 space-y-8">
+<!-- Header -->
+<div class="flex items-center justify-between">
+<h2 class="font-display font-bold text-[24px] text-on-surface tracking-tight">Nouvelle session</h2>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Content Canvas -->
+<div class="space-y-6">
+<!-- Decorative / Abstract visual element to enhance organic editorial feel without lines -->
+<div class="w-full h-32 bg-secondary-container/30 rounded-xl relative overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<span class="material-symbols-outlined text-5xl text-primary opacity-20" data-icon="calendar_month">calendar_month</span>
+</div>
+<!-- Info Banner -->
+<div class="bg-muted-orange rounded-[12px] p-4 flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-0.5 flex-shrink-0" data-icon="info">info</span>
+<p class="font-body text-[14px] leading-relaxed text-on-surface/80">
+                        La création de sessions batch sera disponible prochainement…
+                    </p>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="pt-4">
+<button class="w-full h-[52px] bg-surface-container-highest text-outline font-body font-medium rounded-[12px] cursor-not-allowed transition-all" disabled="">
+                    Bientôt disponible
+                </button>
+</div>
+</div>
+</div>
+</body></html>

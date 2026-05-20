@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Choisir votre langue - Akeli</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f6f4e9",
+                    "on-secondary-container": "#476b67",
+                    "on-tertiary-container": "#ffd0a1",
+                    "surface-bright": "#fcfaef",
+                    "on-secondary-fixed-variant": "#294d49",
+                    "tertiary": "#683c00",
+                    "inverse-on-surface": "#f3f1e6",
+                    "on-secondary-fixed": "#00201e",
+                    "surface": "#fcfaef",
+                    "primary-fixed-dim": "#84d5cc",
+                    "on-background": "#1b1c16",
+                    "error-container": "#ffdad6",
+                    "secondary": "#416561",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#895100",
+                    "secondary-fixed": "#c3eae5",
+                    "primary-container": "#006a63",
+                    "inverse-surface": "#30312a",
+                    "surface-container-highest": "#e4e3d8",
+                    "surface-variant": "#e4e3d8",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "outline-variant": "#bec9c6",
+                    "tertiary-fixed": "#ffdcbc",
+                    "outline": "#6e7977",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#683d00",
+                    "on-primary-fixed": "#00201d",
+                    "on-primary-fixed-variant": "#00504a",
+                    "surface-tint": "#006a63",
+                    "primary": "#00504a",
+                    "on-primary-container": "#95e7de",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb86b",
+                    "secondary-fixed-dim": "#a8cec9",
+                    "surface-container": "#f0eee3",
+                    "on-surface": "#1b1c16",
+                    "background": "#fcfaef",
+                    "surface-dim": "#dcdad0",
+                    "inverse-primary": "#84d5cc",
+                    "primary-fixed": "#a0f1e8",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#3e4947",
+                    "surface-container-high": "#eae8de",
+                    "secondary-container": "#c3eae5",
+                    "on-tertiary-fixed": "#2c1700",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "display": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body": [
+                            "Inter"
+                    ],
+                    "label": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {}
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.surface-container-low');
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface min-h-screen flex flex-col items-center justify-center p-6 antialiased relative">
+<!-- Progress Bar (Absolute Top) -->
+<div class="absolute top-0 left-0 w-full h-2 bg-surface-container-highest">
+<div class="h-full bg-primary" style="width: 16.66%;"></div>
+</div>
+<div class="absolute top-4 right-6 font-label text-sm font-medium text-on-surface-variant tracking-widest uppercase">
+        1 / 6
+    </div>
+<!-- Main Container -->
+<main class="w-full max-w-md mx-auto space-y-12">
+<!-- Header -->
+<header class="text-center space-y-4">
+<h1 class="font-display text-4xl md:text-5xl font-extrabold tracking-tight text-on-surface">
+                Choisir votre langue
+            </h1>
+<p class="font-body text-on-surface-variant text-lg">
+                Veuillez sélectionner la langue de l'interface.
+            </p>
+</header>
+<!-- Form Card -->
+<div class="bg-surface-container-lowest rounded-DEFAULT p-8 shadow-[0_24px_48px_rgba(27,28,22,0.06)] relative isolate overflow-hidden">
+<!-- Ghost Border Fallback -->
+<div class="absolute inset-0 rounded-DEFAULT border-2 border-outline-variant/10 pointer-events-none"></div>
+<form action="#" class="space-y-10 relative z-10" method="POST">
+<!-- Input Group -->
+<div class="space-y-2">
+<label class="block font-label text-sm font-semibold tracking-widest text-on-surface-variant uppercase" for="language">Langue</label>
+<div class="relative">
+<select class="block w-full appearance-none bg-surface-container-highest border-0 text-on-surface font-body text-lg py-4 pl-4 pr-12 rounded-lg focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow cursor-pointer" id="language" name="language">
+<option value="fr">Français</option>
+<option value="en">English</option>
+<option value="es">Español</option>
+<option value="de">Deutsch</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-bold text-xl py-5 rounded-DEFAULT shadow-lg hover:shadow-xl hover:opacity-95 transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2" type="submit">
+                    Valider
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+</form>
+</div>
+</main>
+</body></html>

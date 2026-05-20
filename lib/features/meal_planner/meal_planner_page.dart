@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:percent_indicator/percent_indicator.dart' as import_percent;
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -23,7 +22,7 @@ class MealPlannerPage extends ConsumerWidget {
     appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length}');
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFCFAEF),
+      backgroundColor: AkeliColors.surface,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── TOP NAVIGATION BAR ───────────────────────────────────────
@@ -33,11 +32,11 @@ class MealPlannerPage extends ConsumerWidget {
             expandedHeight: 0,
             toolbarHeight: 64,
             elevation: 0,
-            backgroundColor: const Color(0xFFFCFAEF),
+            backgroundColor: AkeliColors.surface,
             automaticallyImplyLeading: false,
             title: Row(
               children: [
-                const Icon(Icons.menu, color: Color(0xFF4DB6AC)),
+                const Icon(Icons.menu, color: AkeliColors.primaryContainer),
                 const SizedBox(width: 16),
                 Text(
                   'Akeli Victoire',
@@ -59,62 +58,31 @@ class MealPlannerPage extends ConsumerWidget {
                       color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        'https://lh3.googleusercontent.com/aida-public/AB6AXuBZp-6DEHw83vZ3znlhBFiNEDWo5PLlAfKX5oY6YR2wrBH9HyBeIuzo60H9m4vN9ZE0FruyJjub4iPtcF7l07HzLVePD4kS16e7dpPOclHJNmCKlHt361s6CQbcj823oCzBMNBpCfrwheID2tD2wt6QGydVwPEQDGTANtf5RLSzZDmwbd1aFhJkvZkD7OG1uejkB4Th7qbvgnWJnGW0fFxf0e9WUV8fc-uapul52TVLC2YQv_oKBF0jkoRT9ihI7ZX7LLjrF3el5Zc',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                      ),
+                    ),
                   ),
                 ),
               ),
             ],
           ),
           
-          // ── HEADER & PROGRESS ────────────────────────────────────────
+          // ── HEADER ────────────────────────────────────────
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             sliver: SliverToBoxAdapter(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Vos repas ${dayKeys.length > 3 ? 'de la semaine' : 'des prochains jours'}',
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            height: 1.1,
-                            letterSpacing: -1.0,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Découvrez votre programme nutritionnel personnalisé pour les ${dayKeys.length} prochains jours.',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AkeliColors.outline,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Progress Indicator aligned with FF
-                  import_percent.CircularPercentIndicator(
-                    radius: 38.0,
-                    lineWidth: 8.0,
-                    percent: 0.72,
-                    animation: true,
-                    progressColor: AkeliColors.primary,
-                    backgroundColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.3),
-                    center: Text(
-                      "72%",
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: AkeliColors.primary,
-                      ),
-                    ),
-                    circularStrokeCap: import_percent.CircularStrokeCap.round,
-                  ),
-                ],
+              child: Text(
+                'Vos repas ${dayKeys.length > 3 ? 'de la semaine' : 'des prochains jours'}',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
+                  letterSpacing: -1.0,
+                ),
               ),
             ),
           ),
@@ -159,7 +127,13 @@ class MealPlannerPage extends ConsumerWidget {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+          // ── SNACK BLOCK ───────────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
+            sliver: SliverToBoxAdapter(
+              child: _buildSnackSection(context),
+            ),
+          ),
         ],
         body: SafeArea(
           top: false,
@@ -172,27 +146,13 @@ class MealPlannerPage extends ConsumerWidget {
                     final date = dayKeys[index];
                     final entries = entriesByDay[date]!;
                     
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MealPlannerDayRow(
-                          date: date,
-                          entries: entries,
-                          onRecipeTap: (recipeId) {
-                            appLogger.userAction('Meal plan recipe tapped', screen: 'MealPlannerPage', metadata: {'recipeId': recipeId});
-                            context.push(AkeliRoutes.recipeDetailPath(recipeId));
-                          },
-                          onConsumedToggle: (entryId, isConsumed) {
-                            appLogger.userAction('Meal consumed toggled', screen: 'MealPlannerPage', metadata: {'entryId': entryId, 'isConsumed': isConsumed});
-                            HapticFeedback.mediumImpact();
-                          },
-                        ),
-                        // Snack button per day
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 0, 24, 48),
-                          child: _buildSnackSection(context),
-                        ),
-                      ],
+                    return MealPlannerDayRow(
+                      date: date,
+                      entries: entries,
+                      onRecipeTap: (recipeId) {
+                        appLogger.userAction('Meal plan recipe tapped', screen: 'MealPlannerPage', metadata: {'recipeId': recipeId});
+                        context.push(AkeliRoutes.recipeDetailPath(recipeId));
+                      },
                     );
                   },
                   childCount: dayKeys.length,
@@ -259,35 +219,68 @@ class MealPlannerPage extends ConsumerWidget {
   }
 
   Widget _buildSnackSection(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage');
-        HapticFeedback.lightImpact();
-        // Implement add snack action
-      },
-      borderRadius: BorderRadius.circular(AkeliRadius.card),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE4F5F2), // Light teal background matching FF
-          borderRadius: BorderRadius.circular(AkeliRadius.card),
-          border: Border.all(color: const Color(0xFFB2DFDB).withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.add_circle_outline, color: Color(0xFF00796B), size: 20),
-            const SizedBox(width: 12),
-            Text(
-              'Ajouter une collation',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: const Color(0xFF00796B),
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AkeliColors.secondaryContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: AkeliColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.cookie, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Ajouter une collation',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  Text(
+                    'Personnalisez votre plan',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () {
+              appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage');
+              HapticFeedback.lightImpact();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AkeliColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AkeliRadius.pill),
               ),
             ),
-          ],
-        ),
+            child: const Text(
+              'Ajouter',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
       ),
     );
   }

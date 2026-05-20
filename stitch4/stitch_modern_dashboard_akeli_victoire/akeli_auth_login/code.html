@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli - Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#3e4947",
+                      "tertiary-fixed": "#ffdcbc",
+                      "on-secondary-fixed-variant": "#294d49",
+                      "on-tertiary-fixed-variant": "#683d00",
+                      "on-tertiary-fixed": "#2c1700",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f6f4e9",
+                      "secondary-fixed-dim": "#a8cec9",
+                      "on-surface": "#1b1c16",
+                      "on-error-container": "#93000a",
+                      "secondary": "#416561",
+                      "inverse-surface": "#30312a",
+                      "inverse-primary": "#84d5cc",
+                      "on-tertiary-container": "#ffd0a1",
+                      "surface-container-high": "#eae8de",
+                      "secondary-container": "#c3eae5",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#dcdad0",
+                      "on-error": "#ffffff",
+                      "primary-container": "#006a63",
+                      "surface-container": "#f0eee3",
+                      "tertiary": "#683c00",
+                      "on-primary-fixed-variant": "#00504a",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb86b",
+                      "inverse-on-surface": "#f3f1e6",
+                      "error-container": "#ffdad6",
+                      "outline": "#6e7977",
+                      "on-secondary-fixed": "#00201e",
+                      "on-primary": "#ffffff",
+                      "surface-tint": "#006a63",
+                      "outline-variant": "#bec9c6",
+                      "on-primary-container": "#95e7de",
+                      "surface-variant": "#e4e3d8",
+                      "background": "#fcfaef",
+                      "on-primary-fixed": "#00201d",
+                      "surface-bright": "#fcfaef",
+                      "on-secondary-container": "#476b67",
+                      "on-background": "#1b1c16",
+                      "primary-fixed": "#a0f1e8",
+                      "primary-fixed-dim": "#84d5cc",
+                      "surface-container-highest": "#e4e3d8",
+                      "tertiary-container": "#895100",
+                      "surface": "#fcfaef",
+                      "secondary-fixed": "#c3eae5",
+                      "primary": "#00504a",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {}
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex items-center justify-center p-6 antialiased selection:bg-primary-container selection:text-on-primary-container">
+<div class="w-full max-w-md mx-auto flex flex-col space-y-10">
+<!-- Brand Header -->
+<div class="text-center space-y-2">
+<h1 class="font-headline font-bold text-[40px] tracking-[2px] text-primary">AKELI</h1>
+<p class="font-body text-on-surface-variant text-sm">Bienvenue sur Akeli</p>
+</div>
+<!-- Login Card -->
+<div class="bg-surface-container-lowest rounded-[24px] p-8 shadow-[0_24px_48px_rgba(27,28,22,0.06)] flex flex-col space-y-8 relative overflow-hidden">
+<!-- Subtle gradient texture top -->
+<div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-primary-container opacity-20"></div>
+<!-- Tab Bar -->
+<div class="flex justify-center space-x-2">
+<button class="px-6 py-2 rounded-full font-label text-sm text-on-surface-variant hover:text-primary transition-colors">
+                    S'inscrire
+                </button>
+<button class="px-6 py-2 rounded-full font-label text-sm bg-primary-container text-on-primary-container font-medium transition-colors">
+                    Se connecter
+                </button>
+</div>
+<!-- Content -->
+<div class="space-y-8">
+<!-- Heading -->
+<div class="space-y-1 text-center">
+<h2 class="font-headline font-bold text-2xl text-on-surface">Heureux de vous revoir !</h2>
+<p class="font-body text-on-surface-variant text-sm">Connectez-vous à votre compte</p>
+</div>
+<!-- Form Fields -->
+<form class="space-y-6">
+<div class="space-y-4">
+<!-- Email Field -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" style="font-variation-settings: 'FILL' 0;">mail</span>
+<input class="w-full bg-surface-container-low border-0 rounded-[16px] py-4 pl-12 pr-4 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow font-body" placeholder="Email" required="" type="email"/>
+</div>
+<!-- Password Field -->
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" style="font-variation-settings: 'FILL' 0;">lock</span>
+<input class="w-full bg-surface-container-low border-0 rounded-[16px] py-4 pl-12 pr-12 text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 focus:outline-none transition-shadow font-body" placeholder="Mot de passe" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface-variant transition-colors" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">visibility</span>
+</button>
+</div>
+</div>
+<!-- Actions -->
+<div class="space-y-4 pt-2">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline font-semibold rounded-[16px] py-4 hover:opacity-90 transition-opacity active:scale-[0.98] duration-200" type="submit">
+                            Se connecter
+                        </button>
+<div class="text-center">
+<button class="font-label text-sm text-primary hover:text-primary-container transition-colors" type="button">
+                                Mot de passe oublié ?
+                            </button>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>

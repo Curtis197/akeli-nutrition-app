@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Votre profil - Paramètres de santé</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f6f4e9",
+                        "on-secondary-container": "#476b67",
+                        "on-tertiary-container": "#ffd0a1",
+                        "surface-bright": "#fcfaef",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "tertiary": "#683c00",
+                        "inverse-on-surface": "#f3f1e6",
+                        "on-secondary-fixed": "#00201e",
+                        "surface": "#fcfaef",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-background": "#1b1c16",
+                        "error-container": "#ffdad6",
+                        "secondary": "#416561",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#895100",
+                        "secondary-fixed": "#c3eae5",
+                        "primary-container": "#006a63",
+                        "inverse-surface": "#30312a",
+                        "surface-container-highest": "#e4e3d8",
+                        "surface-variant": "#e4e3d8",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#bec9c6",
+                        "tertiary-fixed": "#ffdcbc",
+                        "outline": "#6e7977",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "on-primary-fixed": "#00201d",
+                        "on-primary-fixed-variant": "#00504a",
+                        "surface-tint": "#006a63",
+                        "primary": "#00504a",
+                        "on-primary-container": "#95e7de",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "surface-container": "#f0eee3",
+                        "on-surface": "#1b1c16",
+                        "background": "#fcfaef",
+                        "surface-dim": "#dcdad0",
+                        "inverse-primary": "#84d5cc",
+                        "primary-fixed": "#a0f1e8",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#3e4947",
+                        "surface-container-high": "#eae8de",
+                        "secondary-container": "#c3eae5",
+                        "on-tertiary-fixed": "#2c1700",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom utilities based on design system */
+        .ghost-border:focus-within {
+            outline: 2px solid rgba(0, 80, 74, 0.4); /* primary at 40% */
+            outline-offset: -2px;
+        }
+        /* Hide number input arrows */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-low min-h-screen text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- Main Container -->
+<main class="max-w-3xl mx-auto px-6 py-8 md:py-12 flex flex-col min-h-screen">
+<!-- Top Header & Progress -->
+<header class="flex flex-col gap-6 mb-10 w-full">
+<div class="flex justify-between items-center w-full">
+<!-- Back Action (Implied for flow, empty to push Passer to right if needed, but flex-end works too) -->
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<a class="font-label text-[0.75rem] uppercase tracking-[0.05em] text-primary hover:text-primary-container transition-colors font-semibold" href="#">Passer</a>
+</div>
+<!-- Progress Bar -->
+<div class="w-full flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="font-label text-[0.75rem] uppercase tracking-[0.05em] text-on-surface-variant">Étape 3 sur 6</span>
+<span class="font-headline font-semibold text-primary">50%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" style="width: 50%;"></div>
+</div>
+</div>
+<!-- Page Title -->
+<h1 class="font-headline text-[1.75rem] md:text-[2.5rem] font-bold tracking-tight text-on-surface mt-4">Votre profil</h1>
+</header>
+<!-- White Card Container -->
+<div class="bg-surface-container-lowest rounded-[1.5rem] p-8 md:p-12 shadow-[0_24px_48px_rgba(27,28,22,0.06)] flex-grow">
+<form class="space-y-16">
+<!-- Section: Name -->
+<div class="space-y-4">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug" for="name">Comment vous appelez-vous ?</label>
+<div class="ghost-border bg-surface-container-highest rounded-[0.5rem] transition-all">
+<input class="w-full bg-transparent border-none text-[1rem] p-4 text-on-surface placeholder:text-on-surface-variant/60 focus:ring-0" id="name" name="name" placeholder="Prénom ou surnom" type="text"/>
+</div>
+</div>
+<!-- Section: Basic Demographics (Age & Sex) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-6">
+<!-- Age -->
+<div class="space-y-4">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug" for="age">Quel est votre âge ?</label>
+<div class="relative ghost-border bg-surface-container-highest rounded-[0.5rem] transition-all flex items-center">
+<input class="w-full bg-transparent border-none text-[1.125rem] p-4 pr-16 text-on-surface placeholder:text-on-surface-variant/60 focus:ring-0 text-center font-medium" id="age" max="99" min="16" name="age" placeholder="Ex: 32" type="number"/>
+<span class="absolute right-4 font-label text-[0.75rem] uppercase tracking-widest text-on-surface-variant">Ans</span>
+</div>
+</div>
+<!-- Sex Segmented Button -->
+<div class="space-y-4">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug">Votre sexe bioloigque</label>
+<div class="flex bg-surface-container-highest p-1.5 rounded-[1rem] h-[3.75rem]">
+<!-- Active state -->
+<label class="flex-1 cursor-pointer">
+<input checked="" class="peer hidden" name="sex" type="radio" value="female"/>
+<div class="h-full flex items-center justify-center rounded-[0.75rem] peer-checked:bg-surface-container-lowest peer-checked:text-primary peer-checked:shadow-[0_4px_12px_rgba(27,28,22,0.05)] text-on-surface-variant font-body font-medium transition-all">
+                                    Femme
+                                </div>
+</label>
+<!-- Inactive state -->
+<label class="flex-1 cursor-pointer">
+<input class="peer hidden" name="sex" type="radio" value="male"/>
+<div class="h-full flex items-center justify-center rounded-[0.75rem] peer-checked:bg-surface-container-lowest peer-checked:text-primary peer-checked:shadow-[0_4px_12px_rgba(27,28,22,0.05)] text-on-surface-variant font-body font-medium transition-all hover:text-on-surface">
+                                    Homme
+                                </div>
+</label>
+</div>
+</div>
+</div>
+<!-- Section: Body Metrics (Weight & Height) -->
+<div class="grid grid-cols-2 gap-6">
+<!-- Weight -->
+<div class="space-y-4">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug" for="weight">Poids</label>
+<div class="relative ghost-border bg-surface-container-highest rounded-[0.5rem] transition-all flex items-center">
+<input class="w-full bg-transparent border-none text-[1.125rem] p-4 pr-12 text-on-surface placeholder:text-on-surface-variant/60 focus:ring-0 text-center font-medium" id="weight" max="300" min="12" name="weight" placeholder="0" type="number"/>
+<span class="absolute right-4 font-label text-[0.75rem] uppercase tracking-widest text-on-surface-variant">kg</span>
+</div>
+</div>
+<!-- Height -->
+<div class="space-y-4">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug" for="height">Taille</label>
+<div class="relative ghost-border bg-surface-container-highest rounded-[0.5rem] transition-all flex items-center">
+<input class="w-full bg-transparent border-none text-[1.125rem] p-4 pr-12 text-on-surface placeholder:text-on-surface-variant/60 focus:ring-0 text-center font-medium" id="height" max="250" min="100" name="height" placeholder="0" type="number"/>
+<span class="absolute right-4 font-label text-[0.75rem] uppercase tracking-widest text-on-surface-variant">cm</span>
+</div>
+</div>
+</div>
+<!-- Section: Activity Level -->
+<div class="space-y-6">
+<label class="block font-body text-[1.375rem] text-on-surface font-medium leading-snug">Niveau d'activité physique</label>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Option 1 -->
+<label class="relative cursor-pointer group">
+<input checked="" class="peer hidden" name="activity" type="radio" value="sedentary"/>
+<div class="p-5 rounded-[1rem] bg-surface border border-transparent peer-checked:bg-secondary-container/40 peer-checked:border-secondary-container transition-colors group-hover:bg-surface-container-high h-full flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant peer-checked:text-primary">weekend</span>
+<!-- Selected Indicator Pip -->
+<div class="w-5 h-5 rounded-full border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-colors">
+<div class="w-2 h-2 rounded-full bg-on-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div>
+<h4 class="font-body text-[1rem] font-semibold text-on-surface">Sédentaire</h4>
+<p class="font-body text-[0.875rem] text-on-surface-variant mt-1 leading-relaxed">Travail de bureau, peu ou pas d'exercice quotidien.</p>
+</div>
+</div>
+</label>
+<!-- Option 2 -->
+<label class="relative cursor-pointer group">
+<input class="peer hidden" name="activity" type="radio" value="light"/>
+<div class="p-5 rounded-[1rem] bg-surface border border-transparent peer-checked:bg-secondary-container/40 peer-checked:border-secondary-container transition-colors group-hover:bg-surface-container-high h-full flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant peer-checked:text-primary">directions_walk</span>
+<div class="w-5 h-5 rounded-full border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-colors">
+<div class="w-2 h-2 rounded-full bg-on-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div>
+<h4 class="font-body text-[1rem] font-semibold text-on-surface">Légèrement actif</h4>
+<p class="font-body text-[0.875rem] text-on-surface-variant mt-1 leading-relaxed">Exercice léger 1 à 3 fois par semaine.</p>
+</div>
+</div>
+</label>
+<!-- Option 3 -->
+<label class="relative cursor-pointer group">
+<input class="peer hidden" name="activity" type="radio" value="moderate"/>
+<div class="p-5 rounded-[1rem] bg-surface border border-transparent peer-checked:bg-secondary-container/40 peer-checked:border-secondary-container transition-colors group-hover:bg-surface-container-high h-full flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant peer-checked:text-primary">fitness_center</span>
+<div class="w-5 h-5 rounded-full border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-colors">
+<div class="w-2 h-2 rounded-full bg-on-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div>
+<h4 class="font-body text-[1rem] font-semibold text-on-surface">Modéré</h4>
+<p class="font-body text-[0.875rem] text-on-surface-variant mt-1 leading-relaxed">Exercice modéré 3 à 5 fois par semaine.</p>
+</div>
+</div>
+</label>
+<!-- Option 4 -->
+<label class="relative cursor-pointer group">
+<input class="peer hidden" name="activity" type="radio" value="intense"/>
+<div class="p-5 rounded-[1rem] bg-surface border border-transparent peer-checked:bg-secondary-container/40 peer-checked:border-secondary-container transition-colors group-hover:bg-surface-container-high h-full flex flex-col gap-3">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant peer-checked:text-primary">directions_run</span>
+<div class="w-5 h-5 rounded-full border-2 border-outline-variant peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-colors">
+<div class="w-2 h-2 rounded-full bg-on-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+</div>
+<div>
+<h4 class="font-body text-[1rem] font-semibold text-on-surface">Très actif</h4>
+<p class="font-body text-[0.875rem] text-on-surface-variant mt-1 leading-relaxed">Exercice intense 6 à 7 fois par semaine.</p>
+</div>
+</div>
+</label>
+</div>
+</div>
+</form>
+</div>
+<!-- Footer / CTA -->
+<div class="mt-8 mb-4 w-full">
+<button class="w-full bg-gradient-to-br from-[#00504A] to-[#006A63] text-on-primary rounded-[1.5rem] py-5 px-8 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[0.99] transition-all shadow-lg shadow-primary/20 group" type="button">
+<span class="font-headline text-[1.125rem] font-semibold tracking-wide">Suivant</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</main>
+</body></html>

@@ -38,6 +38,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   void dispose() {
+    _logger.provider('_AuthPageState disposed');
     _signUpEmail.dispose();
     _signUpPassword.dispose();
     _signUpConfirm.dispose();
@@ -101,6 +102,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('_AuthPageState build() | tab: ${_isLogin ? "login" : "signup"}');
     final isLoading = ref.watch(authNotifierProvider).isLoading;
     return Scaffold(
       backgroundColor: AkeliColors.background,

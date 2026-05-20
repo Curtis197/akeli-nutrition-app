@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#FF9F1C",
+              "tertiary-container": "#FF9F1C",
+              "inverse-surface": "#30312a",
+              "on-tertiary-fixed-variant": "#7A4A00",
+              "primary": "#006a63",
+              "on-tertiary-container": "#5C3800",
+              "surface": "#fcfaef",
+              "inverse-on-surface": "#f3f1e6",
+              "error": "#ba1a1a",
+              "secondary-fixed-dim": "#a8cec9",
+              "on-error-container": "#93000a",
+              "surface-container-low": "#f6f4e9",
+              "on-secondary-fixed": "#00201d",
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#00504a",
+              "tertiary": "#FF9F1C",
+              "surface-container-lowest": "#ffffff",
+              "secondary": "#416561",
+              "on-background": "#1b1c16",
+              "primary-fixed-dim": "#71d7cd",
+              "on-primary-container": "#00433f",
+              "background": "#fcfaef",
+              "primary-fixed": "#8ef4e9",
+              "on-primary-fixed": "#00201d",
+              "on-secondary-fixed-variant": "#294d49",
+              "on-secondary-container": "#476b67",
+              "on-secondary": "#ffffff",
+              "surface-bright": "#fcfaef",
+              "outline": "#6d7a77",
+              "on-tertiary": "#ffffff",
+              "surface-container": "#f0eee3",
+              "error-container": "#ffdad6",
+              "surface-container-highest": "#e4e3d8",
+              "surface-variant": "#e4e3d8",
+              "surface-dim": "#dcdad0",
+              "secondary-container": "#c3eae5",
+              "inverse-primary": "#71d7cd",
+              "secondary-fixed": "#c3eae5",
+              "tertiary-fixed": "#FF9F1C",
+              "surface-container-high": "#eae8de",
+              "primary-container": "#4db6ac",
+              "on-tertiary-fixed": "#2B1A00",
+              "on-surface-variant": "#3d4947",
+              "surface-tint": "#006a63",
+              "on-surface": "#1b1c16",
+              "outline-variant": "#bdc9c6"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FCFAEF; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .akeli-badge {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            backdrop-filter: blur(8px);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Top Navigation Anchor -->
+<header class="sticky top-0 z-50 bg-[#FCFAEF]/70 dark:bg-[#1B1C16]/70 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface cursor-pointer">menu</span>
+<h1 class="text-xl font-bold text-[#1B1C16] dark:text-[#FCFAEF]">AkeliBadge</h1>
+</div>
+<div class="flex items-center gap-4">
+<nav class="hidden md:flex gap-6">
+<a class="text-[#4DB6AC] font-semibold" href="#">Showcase</a>
+<a class="text-[#3D4947] hover:text-[#4DB6AC] transition-colors" href="#">Library</a>
+<a class="text-[#3D4947] hover:text-[#4DB6AC] transition-colors" href="#">Saved</a>
+</nav>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant/10">
+<img alt="User Profile" data-alt="professional portrait of a person for a user profile avatar with clean minimalist background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDizRAxCdmNVZrAQM7VKtKlZI1yHaKaVZGpz6gGoBAEHhU66NZ68yjsa8gaGcWfpzf_JC84sFgNnm1fGn0P5TU5H5YhIjUn8BX_FvQWT55fuWMkxb2M3udPrTDaCHpKmXo5SncCspRd7BXKJ15yzSzVoteZfZCxAQ_Hs01GHFAyuvUP4hczS5lAohtnltAWvLMaZqtj0YXm5C945f5wLDUN5uU-ONi7PlFM6wDj8YKXVFvjE9ZLQKlI7guCHoFL2uTSbWFE3SCN-pI"/>
+</div>
+</div>
+</header>
+<main class="max-w-6xl mx-auto px-6 pt-12 pb-32">
+<!-- Hero Section -->
+<section class="mb-16">
+<h2 class="text-4xl font-extrabold tracking-tight mb-4 text-on-surface">Component Showcase</h2>
+<p class="text-on-surface-variant max-w-2xl text-lg leading-relaxed">
+            Exploring the digital editorial metadata system. Minimalist badges designed for breathability, tactile depth, and tonal harmony.
+        </p>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Main Feature Card: Macronutrients -->
+<div class="md:col-span-7 bg-surface-container-lowest p-8 rounded-[24px] flex flex-col justify-between min-h-[320px]">
+<div>
+<span class="text-xs font-bold uppercase tracking-[2px] text-outline mb-4 block">Macronutrients</span>
+<h3 class="text-2xl font-bold mb-6 text-on-surface">Nutritional Balance</h3>
+</div>
+<div class="flex flex-wrap gap-4 items-end">
+<!-- Protein Badge -->
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">fitness_center</span>
+<span>Protein 18g</span>
+</div>
+<!-- Carbs Badge -->
+<div class="akeli-badge bg-[#FF9F1C]/15 text-[#FF9F1C]">
+<span class="material-symbols-outlined text-[18px]">bakery_dining</span>
+<span>Carbs 52g</span>
+</div>
+<!-- Fats Badge -->
+<div class="akeli-badge bg-[#E4E3D8]/40 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">opacity</span>
+<span>Fats 14g</span>
+</div>
+</div>
+<div class="mt-8 rounded-2xl overflow-hidden aspect-[16/6]">
+<img class="w-full h-full object-cover grayscale-[0.2]" data-alt="high-end editorial food photography of a colorful healthy bowl with salmon, avocado and seeds on a cream ceramic plate" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5tK3Z6SUGGeuZCh7QTpec0VPYF6slxXMXbZ0C8TsVrbI2NvH_eLxS2Ta7Gi4Q7szsfmSq-DyBZVaphC1Zx2-YzP_64ouuPgMNgxX4cfz9qpimPzB8mMQxSJ1t3kkHKvGDYFKZGwngj7qBdfTrGUfnEHi2TfGqKb86dVNv6H4DpxjFQFsJ6pQMGJAgIqfvjibqWbt41Jwzh2NGt7tUg3Mf44bAuzDkJBprUBBkq5UDBYLoDbnTmreHZNqYDikrnf1_Y3YbBDr0lT8"/>
+</div>
+</div>
+<!-- Secondary Card: Recipe Metadata -->
+<div class="md:col-span-5 bg-surface-container-lowest p-8 rounded-[24px] flex flex-col gap-6">
+<div>
+<span class="text-xs font-bold uppercase tracking-[2px] text-outline mb-4 block">Recipe Metadata</span>
+<h3 class="text-2xl font-bold text-on-surface">Prep &amp; Difficulty</h3>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low/50">
+<span class="text-on-surface-variant font-medium">Preparation Time</span>
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span>25 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-2xl bg-surface-container-low/50">
+<span class="text-on-surface-variant font-medium">Cooking Difficulty</span>
+<div class="akeli-badge bg-[#FF9F1C]/15 text-[#FF9F1C]">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
+<span>Facile</span>
+</div>
+</div>
+</div>
+<div class="mt-auto p-6 bg-[#FF9F1C]/10 rounded-2xl">
+<p class="text-sm italic text-[#7A4A00] leading-relaxed">
+                    "The metadata system prioritizes rapid recognition through subtle tonal shifting and iconographic anchors."
+                </p>
+</div>
+</div>
+<!-- Full Width Card: Dietary Tags -->
+<div class="md:col-span-12 bg-surface-container-lowest p-8 rounded-[24px]">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="max-w-md">
+<span class="text-xs font-bold uppercase tracking-[2px] text-outline mb-4 block">Dietary Tags</span>
+<h3 class="text-2xl font-bold text-on-surface mb-2">Lifestyle Compatibility</h3>
+<p class="text-on-surface-variant text-sm">Automated filtering based on ingredient profiling and user preferences.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">energy_savings_leaf</span>
+<span>Végétarien</span>
+</div>
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">do_not_disturb_on</span>
+<span>Sans gluten</span>
+</div>
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Riche en protéines</span>
+</div>
+<div class="akeli-badge bg-primary/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">eco</span>
+<span>Bio</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Aesthetic Accent: Design Principles -->
+<div class="md:col-span-4 bg-primary text-on-primary p-8 rounded-[24px]">
+<h4 class="text-xl font-bold mb-4">The "No-Line" Rule</h4>
+<p class="text-primary-fixed opacity-90 text-sm leading-relaxed mb-8">
+                Structure is achieved through background shifts and negative space. We treat the UI as physical layers of fine paper rather than a flat digital grid.
+            </p>
+<div class="w-full h-1 bg-on-primary/20 rounded-full overflow-hidden">
+<div class="w-2/3 h-full bg-on-primary"></div>
+</div>
+</div>
+<div class="md:col-span-8 bg-surface-container-low p-8 rounded-[24px] grid grid-cols-2 gap-8">
+<div class="flex flex-col gap-2">
+<span class="text-3xl font-bold text-on-surface">15%</span>
+<span class="text-sm text-outline">Maximum Opacity for Tonal Backgrounds</span>
+</div>
+<div class="flex flex-col gap-2">
+<span class="text-3xl font-bold text-on-surface">8px</span>
+<span class="text-sm text-outline">Standard Backdrop Blur Radius</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-[#F6F4E9]/80 dark:bg-[#1B1C16]/80 backdrop-blur-xl z-50 rounded-t-3xl shadow-[0px_-8px_24px_rgba(0,106,99,0.05)]">
+<div class="flex flex-col items-center justify-center bg-[#C3EAE5] dark:bg-[#006A63]/30 text-[#006A63] dark:text-[#4DB6AC] rounded-2xl px-5 py-2">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-plus-jakarta-sans text-[11px] font-medium tracking-wide">Showcase</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6D7A77] dark:text-[#8D9B98] px-5 py-2">
+<span class="material-symbols-outlined" data-icon="local_library">local_library</span>
+<span class="font-plus-jakarta-sans text-[11px] font-medium tracking-wide">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6D7A77] dark:text-[#8D9B98] px-5 py-2">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="font-plus-jakarta-sans text-[11px] font-medium tracking-wide">Saved</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#6D7A77] dark:text-[#8D9B98] px-5 py-2">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-plus-jakarta-sans text-[11px] font-medium tracking-wide">Settings</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<title>Akeli Victoire - Edit Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#ea8e6d",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "primary-container": "#4db6ac",
+                        "outline-variant": "#bdc9c6",
+                        "outline": "#6d7a77",
+                        "on-background": "#1b1c16",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "surface-dim": "#dcdad0",
+                        "inverse-primary": "#71d7cd",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e4e3d8",
+                        "on-error-container": "#93000a",
+                        "secondary": "#416561",
+                        "tertiary-fixed": "#ffdbcf",
+                        "on-tertiary-fixed-variant": "#763219",
+                        "secondary-fixed": "#c3eae5",
+                        "secondary-container": "#c3eae5",
+                        "on-primary-fixed": "#00201d",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-surface": "#1b1c16",
+                        "primary-fixed": "#8ef4e9",
+                        "on-primary-container": "#00433f",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#f0eee3",
+                        "on-tertiary-container": "#67280e",
+                        "on-secondary-container": "#476b67",
+                        "tertiary": "#94492d",
+                        "inverse-surface": "#30312a",
+                        "primary-fixed-dim": "#71d7cd",
+                        "surface-container-low": "#f6f4e9",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#006a63",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#eae8de",
+                        "surface-variant": "#e4e3d8",
+                        "on-secondary-fixed": "#00201d",
+                        "on-surface-variant": "#3d4947",
+                        "on-error": "#ffffff",
+                        "primary": "#006a63",
+                        "on-tertiary-fixed": "#380d00",
+                        "inverse-on-surface": "#f3f1e6",
+                        "background": "#fcfaef",
+                        "surface-bright": "#fcfaef",
+                        "surface": "#fcfaef"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="antialiased min-h-screen flex flex-col font-body pb-safe">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-xl docked full-width top-0 shadow-[0px_24px_48px_rgba(27,28,22,0.06)] flex justify-between items-center px-6 py-4 w-full z-50 sticky">
+<button aria-label="Go back" class="text-on-surface-variant hover:bg-surface-container-highest/50 transition-colors p-2 rounded-full active:scale-95 duration-200" type="button">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline text-headline-md font-bold text-primary dark:text-primary-fixed-dim tracking-tight">Akeli Victoire</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<!-- Main Content Scaffold -->
+<main class="flex-grow flex flex-col items-center px-4 pt-8 pb-24 max-w-2xl mx-auto w-full">
+<!-- Avatar Section -->
+<div class="flex flex-col items-center mb-8 relative">
+<div class="relative group cursor-pointer">
+<div class="w-[100px] h-[100px] rounded-full overflow-hidden border-[3px] border-primary-container shadow-[0px_8px_24px_rgba(0,106,99,0.15)] relative">
+<img alt="Profile Picture" class="w-full h-full object-cover" data-alt="A close-up portrait of a serene young woman with natural makeup, looking warmly at the camera. The background is a soft, blurred studio setting with neutral tones. Lighting is soft and diffused, emphasizing a healthy, glowing complexion, perfectly matching a premium wellness app's light-mode aesthetic with cream and teal subtle undertones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwLPrtuQLKXdg45yP_g3gsyCstUtelaloU3KX6oirJKWCDEUv78lztvl4wATq-E2S4UrgP5eNZMYmuZFjejtvKcgO2jxDaCtfvPZ9mIgy2-lPYb3cTPWDp9y3caTQMtGwmLAMcUVEFeh4umuk9wP5HWwuS18ZiNOuQJep2Le96m6LJnWZVzQZ1h7-Wr64SfyQ643sLLCcsyvZVPOV7r3OlM7GdE5iK5nhK_ggzX7hy8wh7pIWkSyMAoI-jS9dOPLzqxoaM1j0Y7XA"/>
+<div class="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white">photo_camera</span>
+</div>
+</div>
+<div class="absolute bottom-0 right-0 bg-surface-container-lowest p-1.5 rounded-full shadow-sm border border-surface-container-low translate-x-2 translate-y-2">
+<span class="material-symbols-outlined text-primary text-sm filled">edit</span>
+</div>
+</div>
+<button class="mt-4 font-headline text-sm font-semibold text-primary hover:text-primary-container transition-colors focus:outline-none rounded px-2 py-1 focus-visible:ring-2 focus-visible:ring-primary-container" type="button">
+                Changer la photo
+            </button>
+</div>
+<!-- Profile Card -->
+<form class="w-full bg-surface-container-lowest rounded-3xl shadow-[0px_12px_32px_rgba(27,28,22,0.03)] p-6 space-y-6">
+<!-- Switch Row: Public Account -->
+<div class="flex items-center justify-between py-2 border-b border-surface-container-highest/50 pb-6">
+<div class="flex flex-col pr-4">
+<label class="font-headline text-base font-semibold text-on-surface" for="public-toggle">Compte public</label>
+<p class="text-sm text-on-surface-variant mt-1 leading-snug">Votre profil sera visible par la communauté Akeli.</p>
+</div>
+<button aria-checked="true" class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-primary-container transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-container-lowest" id="public-toggle" role="switch" type="button">
+<span aria-hidden="true" class="translate-x-5 pointer-events-none inline-block h-6 w-6 transform rounded-full bg-surface-container-lowest shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Fields -->
+<div class="space-y-5">
+<!-- Name Field -->
+<div class="space-y-1.5">
+<label class="block font-headline text-sm font-medium text-on-surface" for="name">Nom</label>
+<div class="relative rounded-xl overflow-hidden shadow-sm">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+<span class="material-symbols-outlined text-outline-variant">person</span>
+</div>
+<input class="block w-full rounded-xl border-0 py-3.5 pl-11 pr-4 text-on-surface bg-surface-container-low ring-1 ring-inset ring-outline-variant/20 focus:ring-2 focus:ring-inset focus:ring-primary-container focus:bg-surface-container-lowest transition-all duration-200 sm:text-sm sm:leading-6 placeholder:text-outline-variant font-body" id="name" name="name" type="text" value="Akeli Victoire"/>
+</div>
+</div>
+<!-- Description Field -->
+<div class="space-y-1.5">
+<label class="block font-headline text-sm font-medium text-on-surface" for="description">Description</label>
+<div class="relative rounded-xl overflow-hidden shadow-sm">
+<div class="pointer-events-none absolute top-3.5 left-0 flex items-start pl-4">
+<span class="material-symbols-outlined text-outline-variant">description</span>
+</div>
+<textarea class="block w-full rounded-xl border-0 py-3.5 pl-11 pr-4 text-on-surface bg-surface-container-low ring-1 ring-inset ring-outline-variant/20 focus:ring-2 focus:ring-inset focus:ring-primary-container focus:bg-surface-container-lowest transition-all duration-200 sm:text-sm sm:leading-6 placeholder:text-outline-variant font-body resize-none" id="description" name="description" placeholder="Parlez-nous un peu de vous..." rows="3"></textarea>
+</div>
+</div>
+<!-- Language Dropdown -->
+<div class="space-y-1.5">
+<label class="block font-headline text-sm font-medium text-on-surface" for="language">Langue</label>
+<div class="relative rounded-xl overflow-hidden shadow-sm">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+<span class="material-symbols-outlined text-outline-variant">language</span>
+</div>
+<select class="block w-full rounded-xl border-0 py-3.5 pl-11 pr-10 text-on-surface bg-surface-container-low ring-1 ring-inset ring-outline-variant/20 focus:ring-2 focus:ring-inset focus:ring-primary-container focus:bg-surface-container-lowest transition-all duration-200 sm:text-sm sm:leading-6 font-body appearance-none" id="language" name="language">
+<option selected="" value="fr">Français</option>
+<option value="en">English</option>
+<option value="es">Español</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+<span class="material-symbols-outlined text-outline-variant">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Primary Action Button -->
+<div class="pt-4">
+<button class="w-full flex items-center justify-center rounded-full bg-gradient-to-r from-primary to-primary-container px-6 py-4 font-headline text-base font-semibold text-on-primary shadow-[0px_8px_24px_rgba(0,106,99,0.15)] hover:shadow-[0px_12px_28px_rgba(0,106,99,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" type="submit">
+                    Enregistrer
+                </button>
+</div>
+</form>
+</main>
+</body></html>

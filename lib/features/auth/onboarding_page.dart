@@ -23,6 +23,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   bool _isSubmitting = false;
   final _logger = appLogger;
 
+  @override
+  void dispose() {
+    _logger.provider('_OnboardingPageState disposed');
+    _pageController.dispose();
+    super.dispose();
+  }
+
   void _next() {
     _logger.userAction('Onboarding next tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
@@ -83,7 +90,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               child: PageView(
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (i) => setState(() => _currentStep = i),
+                onPageChanged: (i) {
+                  _logger.provider('OnboardingPageState step → $i');
+                  setState(() => _currentStep = i);
+                },
                 children: [
                   _StepLanguage(step: _currentStep),
                   _StepConsent(step: _currentStep),
@@ -649,6 +659,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('_StepProfileState build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1035,6 +1046,7 @@ class _StepGoals extends ConsumerStatefulWidget {
 }
 
 class _StepGoalsState extends ConsumerState<_StepGoals> {
+  final _logger = appLogger;
   late final TextEditingController _targetWeightCtrl;
   late final TextEditingController _motivationsCtrl;
 
@@ -1056,6 +1068,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('_StepGoalsState build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1248,6 +1261,7 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider('_StepPreferencesState build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 

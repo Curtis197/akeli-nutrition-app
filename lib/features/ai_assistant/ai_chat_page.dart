@@ -1,6 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import '../../core/supabase_client.dart'; // Removed Supabase
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 
@@ -159,119 +159,207 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
     _logger.provider('AiChatPage build() | messageCount: ${messages.length} | hasLoading: $hasLoading');
 
     return Scaffold(
-      backgroundColor: AkeliColors.background,
-      appBar: AppBar(
-        backgroundColor: AkeliColors.background,
-        elevation: 0,
-        title: const Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: AkeliColors.primary,
-              child:
-                  Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16),
-            ),
-            SizedBox(width: AkeliSpacing.sm),
-            Text('Assistant Akeli'),
-          ],
-        ),
-        actions: [
-          if (messages.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.refresh_rounded),
-              onPressed: () {
-                _logger.userAction('Clear conversation tapped', screen: 'AiChatPage');
-                ref.read(aiChatProvider.notifier).clear();
-              },
-              tooltip: 'Nouvelle conversation',
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: messages.isEmpty
-                ? _WelcomeView(
-                    onSuggestion: (s) {
-                      _inputCtrl.text = s;
-                      _sendMessage();
-                    },
-                  )
-                : ListView.builder(
-                    controller: _scrollCtrl,
-                    padding: const EdgeInsets.all(AkeliSpacing.md),
-                    itemCount: messages.length,
-                    itemBuilder: (context, i) {
-                      final msg = messages[i];
-                      return _MessageBubble(message: msg);
-                    },
+      backgroundColor: AkeliColors.surface,
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 16),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              color: AkeliColors.surface.withValues(alpha: 0.8),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 8,
+                bottom: 8,
+                left: 16,
+                right: 16,
+              ),
+              child: Row(
+                children: [
+                  const BackButton(color: AkeliColors.primary),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: AkeliColors.surfaceContainerHighest,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.auto_awesome_rounded, color: AkeliColors.primary),
                   ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Assistant Akeli',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5),
+                        ),
+                        Text(
+                          'En ligne',
+                          style: TextStyle(fontSize: 12, color: AkeliColors.primary, letterSpacing: 0.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.videocam, color: AkeliColors.onSurfaceVariant),
+                    onPressed: () {},
+                  ),
+                  if (messages.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.refresh_rounded, color: AkeliColors.onSurfaceVariant),
+                      onPressed: () {
+                        _logger.userAction('Clear conversation tapped', screen: 'AiChatPage');
+                        ref.read(aiChatProvider.notifier).clear();
+                      },
+                      tooltip: 'Nouvelle conversation',
+                    ),
+                ],
+              ),
+            ),
           ),
-          // Input area
-          Container(
-            padding: EdgeInsets.only(
-              left: AkeliSpacing.md,
-              right: AkeliSpacing.sm,
-              top: AkeliSpacing.sm,
-              bottom:
-                  MediaQuery.of(context).padding.bottom + AkeliSpacing.sm,
-            ),
-            decoration: const BoxDecoration(
-              color: AkeliColors.surface,
-              border: Border(top: BorderSide(color: Color(0xFFE0E0E0))),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _inputCtrl,
-                    decoration: InputDecoration(
-                      hintText: 'Posez votre question nutritionnelle...',
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AkeliRadius.full),
-                        borderSide:
-                            const BorderSide(color: Color(0xFFE0E0E0)),
+        ),
+      ),
+      body: Stack(
+        children: [
+          messages.isEmpty
+              ? _WelcomeView(
+                  onSuggestion: (s) {
+                    _inputCtrl.text = s;
+                    _sendMessage();
+                  },
+                )
+              : ListView.builder(
+                  controller: _scrollCtrl,
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + kToolbarHeight + 32,
+                    bottom: MediaQuery.of(context).padding.bottom + 120,
+                    left: 16,
+                    right: 16,
+                  ),
+                  itemCount: messages.length + 1,
+                  itemBuilder: (context, i) {
+                    if (i == 0) {
+                      return Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AkeliColors.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: const Text(
+                            "AUJOURD'HUI",
+                            style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                          ),
+                        ),
+                      );
+                    }
+                    final msg = messages[i - 1];
+                    return _MessageBubble(message: msg);
+                  },
+                ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                child: Container(
+                  color: AkeliColors.surface.withValues(alpha: 0.9),
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: MediaQuery.of(context).padding.bottom + 32,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AkeliColors.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.add_circle_outline, color: AkeliColors.onSurfaceVariant),
+                                onPressed: () {},
+                              ),
+                              Expanded(
+                                child: TextField(
+                                  controller: _inputCtrl,
+                                  minLines: 1,
+                                  maxLines: 4,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Message...',
+                                    hintStyle: TextStyle(color: AkeliColors.onSurfaceVariant),
+                                    border: InputBorder.none,
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                  style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface),
+                                  textInputAction: TextInputAction.send,
+                                  onSubmitted: (_) {
+                                    _logger.userAction('Message submitted via keyboard', screen: 'AiChatPage');
+                                    _sendMessage();
+                                  },
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.mood, color: AkeliColors.onSurfaceVariant),
+                                onPressed: () {},
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AkeliRadius.full),
-                        borderSide:
-                            const BorderSide(color: Color(0xFFE0E0E0)),
+                      const SizedBox(width: 12),
+                      Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AkeliColors.primary.withValues(alpha: 0.2),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: hasLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: AkeliColors.onPrimary),
+                                )
+                              : const Icon(Icons.send, color: AkeliColors.onPrimary),
+                          onPressed: hasLoading
+                              ? null
+                              : () {
+                                  _logger.userAction('Send button tapped', screen: 'AiChatPage');
+                                  _sendMessage();
+                                },
+                        ),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AkeliSpacing.md,
-                          vertical: AkeliSpacing.sm),
-                      filled: true,
-                      fillColor: AkeliColors.background,
-                    ),
-                    maxLines: null,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) { _logger.userAction('Message submitted via keyboard', screen: 'AiChatPage'); _sendMessage(); },
+                    ],
                   ),
                 ),
-                const SizedBox(width: AkeliSpacing.xs),
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  child: FilledButton(
-                    onPressed: hasLoading ? null : () { _logger.userAction('Send button tapped', screen: 'AiChatPage'); _sendMessage(); },
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(48, 48),
-                      maximumSize: const Size(48, 48),
-                      padding: EdgeInsets.zero,
-                      shape: const CircleBorder(),
-                    ),
-                    child: hasLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Icon(Icons.send_rounded, size: 20),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -296,61 +384,68 @@ class _WelcomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     appLogger.d('WelcomeView build()');
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AkeliSpacing.lg),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + kToolbarHeight + 64,
+        left: 24,
+        right: 24,
+        bottom: 120,
+      ),
       child: Column(
         children: [
-          const SizedBox(height: AkeliSpacing.xl),
-          const CircleAvatar(
-            radius: 36,
-            backgroundColor: AkeliColors.primary,
-            child: Icon(Icons.auto_awesome_rounded,
-                color: Colors.white, size: 36),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: AkeliColors.surfaceContainerLowest,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.auto_awesome_rounded, color: AkeliColors.primary, size: 48),
           ),
-          const SizedBox(height: AkeliSpacing.lg),
-          Text(
+          const SizedBox(height: 24),
+          const Text(
             'Bonjour, je suis votre assistant nutritionnel Akeli.',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5, height: 1.2),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AkeliSpacing.sm),
-          Text(
+          const SizedBox(height: 12),
+          const Text(
             'Posez-moi vos questions sur la nutrition, les recettes africaines ou votre plan alimentaire.',
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(color: AkeliColors.textSecondary),
+            style: TextStyle(fontSize: 16, color: AkeliColors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: AkeliSpacing.xl),
-          Text('Suggestions',
-              style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: AkeliSpacing.md),
+          const SizedBox(height: 48),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Suggestions',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.5),
+            ),
+          ),
+          const SizedBox(height: 16),
           ..._suggestions.map(
             (s) => Padding(
-              padding: const EdgeInsets.only(bottom: AkeliSpacing.sm),
+              padding: const EdgeInsets.only(bottom: 12),
               child: InkWell(
-                onTap: () { appLogger.userAction('Suggestion tapped', screen: 'AiChatPage', metadata: {'suggestion': s.substring(0, s.length > 30 ? 30 : s.length)}); onSuggestion(s); },
-                borderRadius: BorderRadius.circular(AkeliRadius.md),
+                onTap: () {
+                  appLogger.userAction('Suggestion tapped', screen: 'AiChatPage', metadata: {'suggestion': s.substring(0, s.length > 30 ? 30 : s.length)});
+                  onSuggestion(s);
+                },
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(AkeliSpacing.md),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AkeliColors.surface,
-                    borderRadius: BorderRadius.circular(AkeliRadius.md),
-                    border:
-                        Border.all(color: const Color(0xFFE0E0E0)),
+                    color: AkeliColors.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.lightbulb_outline_rounded,
-                          size: 16, color: AkeliColors.secondary),
-                      const SizedBox(width: AkeliSpacing.sm),
+                      const Icon(Icons.lightbulb_outline_rounded, size: 20, color: AkeliColors.primary),
+                      const SizedBox(width: 12),
                       Expanded(
-                        child: Text(s,
-                            style: Theme.of(context).textTheme.bodyMedium),
+                        child: Text(s, style: const TextStyle(fontSize: 15, color: AkeliColors.onSurface, fontWeight: FontWeight.w500)),
                       ),
-                      const Icon(Icons.arrow_forward_ios_rounded,
-                          size: 14, color: AkeliColors.textSecondary),
+                      const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AkeliColors.onSurfaceVariant),
                     ],
                   ),
                 ),
@@ -371,73 +466,78 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUser = message.role == 'user';
+    final timeStr = "${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}";
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: AkeliSpacing.sm),
+      padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
-          if (!isUser) ...[
-            const CircleAvatar(
-              radius: 16,
-              backgroundColor: AkeliColors.primary,
-              child: Icon(Icons.auto_awesome_rounded,
-                  color: Colors.white, size: 14),
-            ),
-            const SizedBox(width: AkeliSpacing.sm),
-          ],
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AkeliSpacing.md,
-                vertical: AkeliSpacing.sm,
-              ),
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isUser ? AkeliColors.primary : AkeliColors.surface,
+                color: isUser ? null : AkeliColors.surfaceContainerLowest,
+                gradient: isUser
+                    ? const LinearGradient(
+                        colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
                 borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(AkeliRadius.md),
-                  topRight: const Radius.circular(AkeliRadius.md),
-                  bottomLeft:
-                      Radius.circular(isUser ? AkeliRadius.md : 4),
-                  bottomRight:
-                      Radius.circular(isUser ? 4 : AkeliRadius.md),
+                  topLeft: const Radius.circular(24),
+                  topRight: const Radius.circular(24),
+                  bottomLeft: Radius.circular(isUser ? 24 : 6),
+                  bottomRight: Radius.circular(isUser ? 6 : 24),
                 ),
-                border: isUser
-                    ? null
-                    : Border.all(color: const Color(0xFFE0E0E0)),
                 boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
+                  if (!isUser)
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
                 ],
               ),
-              child: message.isLoading
-                  ? const _TypingIndicator()
-                  : Text(
-                      message.content,
-                      style: TextStyle(
-                        color: isUser
-                            ? Colors.white
-                            : AkeliColors.textPrimary,
-                        fontSize: 14,
-                        height: 1.5,
+              child: Column(
+                crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  message.isLoading
+                      ? const _TypingIndicator()
+                      : Text(
+                          message.content,
+                          style: TextStyle(
+                            fontSize: 16,
+                            height: 1.5,
+                            color: isUser ? AkeliColors.onPrimary : AkeliColors.onSurface,
+                          ),
+                        ),
+                  if (!message.isLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            timeStr,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isUser ? AkeliColors.onPrimary.withValues(alpha: 0.7) : AkeliColors.onSurfaceVariant,
+                            ),
+                          ),
+                          if (isUser) ...[
+                            const SizedBox(width: 4),
+                            Icon(Icons.done_all, size: 14, color: AkeliColors.onPrimary.withValues(alpha: 0.7)),
+                          ]
+                        ],
                       ),
                     ),
+                ],
+              ),
             ),
           ),
-          if (isUser) ...[
-            const SizedBox(width: AkeliSpacing.sm),
-            const CircleAvatar(
-              radius: 16,
-              backgroundColor: AkeliColors.secondary,
-              child: Icon(Icons.person_rounded,
-                  color: Colors.white, size: 14),
-            ),
-          ],
         ],
       ),
     );
@@ -495,22 +595,25 @@ class _TypingIndicatorState extends State<_TypingIndicator>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(
-        3,
-        (i) => AnimatedBuilder(
-          animation: _animations[i],
-          builder: (_, __) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Transform.translate(
-              offset: Offset(0, -4 * _animations[i].value),
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AkeliColors.textSecondary,
-                  shape: BoxShape.circle,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          3,
+          (i) => AnimatedBuilder(
+            animation: _animations[i],
+            builder: (_, __) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 3),
+              child: Transform.translate(
+                offset: Offset(0, -4 * _animations[i].value),
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: AkeliColors.onSurfaceVariant,
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ),
@@ -520,3 +623,4 @@ class _TypingIndicatorState extends State<_TypingIndicator>
     );
   }
 }
+

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli Oasis - Groupes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#f0eee3",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f6f4e9",
+                        "surface": "#fcfaef",
+                        "outline-variant": "#bec9c6",
+                        "on-tertiary-fixed": "#2c1700",
+                        "surface-variant": "#e4e3d8",
+                        "on-primary-fixed-variant": "#00504a",
+                        "secondary-fixed-dim": "#a8cec9",
+                        "on-surface-variant": "#3e4947",
+                        "surface-bright": "#fcfaef",
+                        "tertiary": "#683c00",
+                        "background": "#fcfaef",
+                        "tertiary-fixed-dim": "#ffb86b",
+                        "secondary": "#416561",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "outline": "#6e7977",
+                        "on-secondary-fixed-variant": "#294d49",
+                        "on-secondary-container": "#476b67",
+                        "secondary-fixed": "#c3eae5",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#a0f1e8",
+                        "inverse-primary": "#84d5cc",
+                        "on-primary-fixed": "#00201d",
+                        "on-tertiary-fixed-variant": "#683d00",
+                        "surface-dim": "#dcdad0",
+                        "secondary-container": "#c3eae5",
+                        "tertiary-fixed": "#ffdcbc",
+                        "surface-container-highest": "#e4e3d8",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#895100",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#84d5cc",
+                        "on-tertiary-container": "#ffd0a1",
+                        "on-background": "#1b1c16",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#006a63",
+                        "inverse-on-surface": "#f3f1e6",
+                        "primary": "#00504a",
+                        "on-secondary-fixed": "#00201e",
+                        "on-primary-container": "#95e7de",
+                        "inverse-surface": "#30312a",
+                        "surface-tint": "#006a63",
+                        "on-surface": "#1b1c16",
+                        "surface-container-high": "#eae8de"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    "fontSize": {}
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body antialiased min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl docked full-width top-0 z-50 flex justify-between items-center w-full px-6 py-4 border-b-0 shadow-none sticky">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A close up portrait photo of a relaxed individual enjoying the sun. The setting is natural and outdoors, soft bright light hitting the face. The mood is calm and inviting, reflecting the curated sanctuary aesthetic of the brand, utilizing warm bone and deep teal undertones in the shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDAVHMyXJybHp-UEhI_ymnTw5IwkSAl435WPir7JDFp8kNe3Wkpw3zj95xQjtl8QDYAgowQzAqql_Z7xt2DF6LLCI93c7e1LyWrLdjz60o0uJAMN2xHvWGjfG7PeotajEsdiwyrjnj469ViKjrpSF2Fa8GMSPzZ7wP1SUdRmTeTbh5vNAQlen9zogi1UGoPjsxCU2ZrsEFDcV7lCyZMsj-nqkZq7nAbOSGTtxy7RIDywcuVjx_WnoM4OMLATajZ8KGKbql9ei4B21w"/>
+</div>
+<h1 class="text-headline-md font-headline font-bold text-primary dark:text-primary-fixed-dim tracking-tight">
+            Akeli Oasis
+        </h1>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary dark:text-primary-fixed-dim hover:opacity-80 transition-opacity flex-shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col pb-24 md:pb-8 pt-4 px-4 md:px-8 max-w-5xl mx-auto w-full">
+<!-- View Header -->
+<div class="text-center mb-8">
+<h2 class="font-headline font-bold text-[28px] text-primary">Discussion</h2>
+</div>
+<!-- Tabs -->
+<div class="flex justify-center mb-8 gap-4">
+<button class="px-6 py-3 rounded-full font-label text-sm font-semibold text-on-surface-variant bg-surface-container-low hover:bg-surface-container transition-colors shadow-[0px_4px_12px_rgba(27,28,22,0.02)]">
+                Conversations
+            </button>
+<button class="px-6 py-3 rounded-full font-label text-sm font-semibold bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-[0px_8px_16px_rgba(0,106,99,0.15)] transform hover:scale-105 transition-all">
+                Groupes
+            </button>
+</div>
+<!-- Search Bar -->
+<div class="mb-8 relative max-w-2xl mx-auto w-full">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-lowest border-0 rounded-[24px] shadow-[0px_8px_24px_rgba(27,28,22,0.04)] focus:ring-2 focus:ring-primary/40 focus:outline-none font-body text-base text-on-surface placeholder-outline-variant transition-shadow" placeholder="Chercher un groupe" type="text"/>
+</div>
+<!-- Filters & Actions -->
+<div class="flex flex-wrap justify-between items-center mb-8 gap-4 max-w-2xl mx-auto w-full">
+<div class="flex gap-3">
+<button class="px-5 py-2 rounded-full font-label text-xs tracking-wide font-medium bg-tertiary-fixed text-on-tertiary-fixed transition-colors">
+                    Tous
+                </button>
+<button class="px-5 py-2 rounded-full font-label text-xs tracking-wide font-medium bg-surface-container-low text-on-surface-variant hover:bg-surface-container transition-colors">
+                    Participant
+                </button>
+</div>
+<button class="flex items-center gap-2 px-5 py-2 rounded-xl bg-primary text-on-primary font-label text-sm font-medium hover:opacity-90 transition-opacity shadow-[0px_4px_12px_rgba(0,80,74,0.1)]">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Créer
+            </button>
+</div>
+<!-- Group List (Bento-ish/Editorial layout rather than strict list) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-5 flex items-center gap-5 hover:bg-surface-container-highest transition-colors cursor-pointer group shadow-[0px_8px_32px_rgba(27,28,22,0.03)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-[16px] bg-secondary-fixed/50 flex items-center justify-center flex-shrink-0 text-primary-container">
+<span class="material-symbols-outlined text-[28px]">mindfulness</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline font-bold text-lg text-on-surface mb-1 group-hover:text-primary transition-colors">Méditation Matinale</h3>
+<p class="font-body text-sm text-on-surface-variant line-clamp-2">Rejoignez-nous pour 20 minutes de calme avant de commencer la journée. Ouvert à tous les niveaux.</p>
+</div>
+<div class="flex-shrink-0 text-outline-variant group-hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-5 flex items-center gap-5 hover:bg-surface-container-highest transition-colors cursor-pointer group shadow-[0px_8px_32px_rgba(27,28,22,0.03)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-[16px] bg-tertiary-fixed/30 flex items-center justify-center flex-shrink-0 text-tertiary">
+<span class="material-symbols-outlined text-[28px]">book</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline font-bold text-lg text-on-surface mb-1 group-hover:text-primary transition-colors">Club de Lecture</h3>
+<p class="font-body text-sm text-on-surface-variant line-clamp-2">Discussions mensuelles sur des ouvrages de développement personnel et de philosophie.</p>
+</div>
+<div class="flex-shrink-0 text-outline-variant group-hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-5 flex items-center gap-5 hover:bg-surface-container-highest transition-colors cursor-pointer group shadow-[0px_8px_32px_rgba(27,28,22,0.03)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-[16px] bg-primary-fixed/30 flex items-center justify-center flex-shrink-0 text-primary">
+<span class="material-symbols-outlined text-[28px]">hiking</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline font-bold text-lg text-on-surface mb-1 group-hover:text-primary transition-colors">Randonnées Nature</h3>
+<p class="font-body text-sm text-on-surface-variant line-clamp-2">Sorties en plein air tous les week-ends pour se reconnecter avec l'environnement.</p>
+</div>
+<div class="flex-shrink-0 text-outline-variant group-hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-[24px] p-5 flex items-center gap-5 hover:bg-surface-container-highest transition-colors cursor-pointer group shadow-[0px_8px_32px_rgba(27,28,22,0.03)] border border-outline-variant/10">
+<div class="w-16 h-16 rounded-[16px] bg-surface-variant flex items-center justify-center flex-shrink-0 text-on-surface-variant">
+<span class="material-symbols-outlined text-[28px]">restaurant</span>
+</div>
+<div class="flex-grow">
+<h3 class="font-headline font-bold text-lg text-on-surface mb-1 group-hover:text-primary transition-colors">Recettes Saines</h3>
+<p class="font-body text-sm text-on-surface-variant line-clamp-2">Partage de recettes végétariennes, astuces nutrition et repas équilibrés.</p>
+</div>
+<div class="flex-shrink-0 text-outline-variant group-hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only per instructions, hiding on md+) -->
+<nav class="md:hidden bg-surface/80 dark:bg-surface/80 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-lg bg-surface-container-low dark:bg-surface-dim shadow-[0px_-4px_24px_rgba(27,28,22,0.04)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-5 py-2 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label text-[10px] tracking-widest uppercase">Sanctuary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-5 py-2 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">chat_bubble</span>
+<span class="font-label text-[10px] tracking-widest uppercase">Messages</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary text-on-primary-container dark:text-on-primary rounded-lg px-5 py-2 scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label text-[10px] tracking-widest uppercase font-bold">Circles</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline px-5 py-2 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label text-[10px] tracking-widest uppercase">Profile</span>
+</a>
+</nav>
+</body></html>

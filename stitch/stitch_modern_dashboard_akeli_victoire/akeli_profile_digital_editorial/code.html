@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Akeli Oasis - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface": "#fcfaef",
+                      "on-surface-variant": "#3e4947",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#95e7de",
+                      "inverse-primary": "#84d5cc",
+                      "on-surface": "#1b1c16",
+                      "secondary": "#416561",
+                      "surface-dim": "#dcdad0",
+                      "surface-tint": "#006a63",
+                      "on-secondary-fixed": "#00201e",
+                      "surface-container-low": "#f6f4e9",
+                      "outline": "#6e7977",
+                      "on-primary-fixed-variant": "#00504a",
+                      "tertiary": "#683c00",
+                      "on-tertiary-fixed": "#2c1700",
+                      "on-secondary-fixed-variant": "#294d49",
+                      "tertiary-fixed": "#ffdcbc",
+                      "primary": "#00504a",
+                      "secondary-fixed-dim": "#a8cec9",
+                      "on-tertiary-fixed-variant": "#683d00",
+                      "surface-container-highest": "#e4e3d8",
+                      "on-error-container": "#93000a",
+                      "inverse-surface": "#30312a",
+                      "outline-variant": "#bec9c6",
+                      "on-secondary-container": "#476b67",
+                      "secondary-container": "#c3eae5",
+                      "on-background": "#1b1c16",
+                      "tertiary-fixed-dim": "#ffb86b",
+                      "surface-container": "#f0eee3",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#895100",
+                      "inverse-on-surface": "#f3f1e6",
+                      "surface-variant": "#e4e3d8",
+                      "primary-container": "#006a63",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "primary-fixed": "#a0f1e8",
+                      "secondary-fixed": "#c3eae5",
+                      "surface-bright": "#fcfaef",
+                      "on-secondary": "#ffffff",
+                      "background": "#fcfaef",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed": "#00201d",
+                      "primary-fixed-dim": "#84d5cc",
+                      "surface-container-high": "#eae8de",
+                      "on-tertiary-container": "#ffd0a1"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {}
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col">
+<!-- Top Navigation (Contextual departure implies suppression of global nav, but we keep a back action) -->
+<header class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-surface/80 backdrop-blur-xl">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-headline font-bold text-primary tracking-tighter">Akeli Oasis</div>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-grow pt-24 pb-32">
+<!-- Header Section: Hero & Profile -->
+<section class="px-6 relative flex flex-col items-center pt-8 pb-10">
+<!-- Decorative Frosted Gradient Background -->
+<div class="absolute inset-0 top-[-6rem] -z-10 bg-gradient-to-br from-primary/10 via-surface to-tertiary/10 blur-3xl opacity-70"></div>
+<!-- Avatar -->
+<div class="relative w-[120px] h-[120px] rounded-full p-1 bg-gradient-to-br from-primary to-primary-container shadow-xl shadow-primary/10 mb-6">
+<div class="w-full h-full rounded-full overflow-hidden bg-surface-container-lowest">
+<img alt="Portrait of Sophie Martin" class="w-full h-full object-cover" data-alt="A professional, editorial-style portrait of a confident young woman with soft, natural lighting. The mood is serene and welcoming, set against a warm, slightly blurred background that evokes a cozy, curated lifestyle space. The color palette features deep teals and warm amber tones, consistent with a premium digital sanctuary aesthetic. The composition centers on her engaging expression, capturing a sense of calm authority." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt9NPHFhBYCTTWsBrRJBZT2EYdlJnImfBuuWB_rqg8B2ZfPkD9rV6DvVw8R7EfvDTpSaqXFBZ1n5qMm5zv7wVHyf4dELNOY2aGdqRIeHh98-cMvgXZntnWx90Y_GUV8VegN9OJ_NxKGHduKpepIpp54JORIrdwdHRAuBZ6dZVJLIg3f6V9vWxDp1ZC6Jnvtr298xSVFL0YvIAKdz_Xq90TPNlcBWfI89JpQcKYk-ndgV4P8jvuPYnemg7X0e3qGHxnv1iOjQ0A3OQ"/>
+</div>
+</div>
+<!-- Identity -->
+<h1 class="font-headline text-[1.5rem] font-bold text-on-surface mb-2">Sophie Martin</h1>
+<p class="text-on-surface-variant text-body-lg mb-8">Curating wellness &amp; culinary serenity.</p>
+<!-- Action Buttons -->
+<div class="flex gap-4 w-full max-w-sm">
+<button class="flex-1 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg py-3 font-label font-medium tracking-wide flex justify-center items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                    Ajouter
+                </button>
+<button class="flex-1 bg-surface-container-lowest text-primary rounded-lg py-3 font-label font-medium tracking-wide flex justify-center items-center gap-2 shadow-[inset_0_0_0_1px_rgba(190,201,198,0.3)] hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+                    Ecrire
+                </button>
+</div>
+</section>
+<!-- Content Section -->
+<section class="mt-4 bg-surface-container-lowest rounded-t-xl min-h-screen px-4 pt-6 shadow-[0_-8px_48px_rgba(27,28,22,0.02)]">
+<!-- Tab Navigation -->
+<nav class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+<button class="px-6 py-2 rounded-full bg-secondary-container text-on-secondary-container font-label font-medium tracking-wide whitespace-nowrap">
+                    Recettes
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors font-label font-medium tracking-wide whitespace-nowrap">
+                    Abonné(e)s
+                </button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant hover:bg-surface-container-low transition-colors font-label font-medium tracking-wide whitespace-nowrap">
+                    Abonnements
+                </button>
+</nav>
+<!-- Tab Content: Recettes (Active) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+<!-- Recipe Card 1 -->
+<article class="bg-surface-container-low rounded-lg p-3 flex gap-4 items-center group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0">
+<img alt="Healthy Salad" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="A top-down, high-end editorial food photograph of a vibrant, healthy salad in an artisanal ceramic bowl. The scene is brightly lit with natural, diffused light, highlighting the fresh greens, deep red tomatoes, and warm amber dressing. The aesthetic is clean and organic, set on a warm bone-colored surface with subtle textures. The composition feels like a premium lifestyle magazine spread." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUjx6smA7Ilh6wV-sTHD8ocyk5c5gD0emIG7JO9BDoXJz4ZlU1IuWppKrZS5poIvT7UhMJ3NrjMAK94beYmHZSH5eB1YT4vNqkUgkAcBdYZT0IpCCY2LqF9XG-K9ZUTBftYXFWpIeCMUYsUJcV66cG6q-_-yPFt1CNaemwSTfFt4jT8cYVu85MsN68yq9x6mTP8rkbi2xH3b5--BXuUrXIdDc0f8JPxLtKYxpdFY5hTDJmiuus7tvwxFn_QDu8AAb0oHXuQsQ8qIc"/>
+</div>
+<div class="flex flex-col justify-center flex-grow">
+<h3 class="font-headline font-semibold text-on-surface text-lg mb-1 leading-tight">Salade d'Été aux Agrumes</h3>
+<p class="text-on-surface-variant text-sm mb-3">15 min • Végétarien</p>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label text-xs font-medium">4.9</span>
+</div>
+</div>
+</article>
+<!-- Recipe Card 2 -->
+<article class="bg-surface-container-low rounded-lg p-3 flex gap-4 items-center group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0">
+<img alt="Avocado Toast" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="A close-up, beautifully styled food photograph of gourmet avocado toast on rustic sourdough bread. The soft, directional morning light casts gentle shadows, emphasizing the creamy texture of the avocado and the crispness of the bread. The color palette features rich earthy tones and vibrant greens, aligned with a sophisticated, curated digital editorial style. The mood is fresh, healthy, and deeply satisfying." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAawHHbGZqa-Mi91qJQLniscwZcQZHvP__n6K44bJWarS6ZFqRYIpgbwBJaCF6UKP3TahnlpDUldowT1rk6AddiQRYjgnzyej30y4GAJvNafujc-rrYhex0oP59XJLLPlBKW8FhkXuhpCDr0ONZXQbh9q-HppkZwcWCWharZPEiu64GxIWyQDhlvZSVc8lzmhC6hfMQ_4eTdFXW4bK7cUU1JOXN93LC76SaBQBA-uu67Ne3OfEaLyNm78HSBofPW7AywC6X3uPZRjU"/>
+</div>
+<div class="flex flex-col justify-center flex-grow">
+<h3 class="font-headline font-semibold text-on-surface text-lg mb-1 leading-tight">Tartine Avocat &amp; Sésame</h3>
+<p class="text-on-surface-variant text-sm mb-3">10 min • Vegan</p>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label text-xs font-medium">4.7</span>
+</div>
+</div>
+</article>
+<!-- Recipe Card 3 -->
+<article class="bg-surface-container-low rounded-lg p-3 flex gap-4 items-center group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0">
+<img alt="Smoothie Bowl" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" data-alt="An aesthetically pleasing, top-down view of a vibrant açaí smoothie bowl topped with fresh berries, coconut flakes, and chia seeds. The bowl rests on a minimalist, warm-toned surface that complements the deep purples and bright reds of the fruit. Soft, natural lighting creates a calm, morning-ritual atmosphere. The overall style is premium, organic, and highly curated, fitting a high-end wellness platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdxCJHwntpXPStFMUDWvKL9jFWBdCCCNRAiVzp9uZq3x6F0WwQNaWtlCpZYbTPdiwuxDS64aNXM8AibeFkvWpX-7HYiIvK_XsW04tBu2RxHzp0S5-56mzJTgXuzKRVbtGZEoBcZsa3FRi4FLW0u5QMD-I2wvT8QjsswSCpc3FHCoxYhYYwlR9qSfo2FeKsIv8WraWI2B-7edeDYV7D2ApM2NErA6_5JseSMKlC098AoGXekbCDGWAJcIxaDqtDC_-JArm0fOVCfYU"/>
+</div>
+<div class="flex flex-col justify-center flex-grow">
+<h3 class="font-headline font-semibold text-on-surface text-lg mb-1 leading-tight">Bol Énergie Açaí</h3>
+<p class="text-on-surface-variant text-sm mb-3">5 min • Petit-déjeuner</p>
+<div class="flex items-center gap-2 text-tertiary">
+<span class="material-symbols-outlined text-[16px]" data-icon="star" data-weight="fill">star</span>
+<span class="font-label text-xs font-medium">5.0</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<!-- Suppressed due to context: This is a user profile detail screen, acting as a sub-destination or specific user context, not a primary app ecosystem hub. -->
+</body></html>
