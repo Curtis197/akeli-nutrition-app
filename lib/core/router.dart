@@ -22,6 +22,8 @@ import '../features/notifications/notifications_page.dart';
 import '../features/community/group_chat_page.dart';
 import '../features/community/group_detail_page.dart';
 import '../features/home/home_page.dart';
+import '../features/nutrition/nutrition_page.dart';
+import '../core/sdui/widgets/dynamic_layout_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import 'logger.dart';
@@ -32,6 +34,7 @@ abstract class AkeliRoutes {
   static const auth = "/auth";
   static const onboarding = "/onboarding";
   static const home = "/home";
+  static const beauty = "/beauty";
   static const mealPlanner = "/meal-planner";
   static const recipes = "/recipes";
   static const community = "/community";
@@ -178,7 +181,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: AkeliRoutes.home,
-            builder: (context, state) => const HomePage(),
+            builder: (context, state) => const DynamicLayoutPage(mode: 'nutrition'),
+          ),
+          GoRoute(
+            path: AkeliRoutes.beauty,
+            builder: (context, state) => const DynamicLayoutPage(mode: 'beauty'),
           ),
           GoRoute(
             path: AkeliRoutes.mealPlanner,
