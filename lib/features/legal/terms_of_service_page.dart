@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
@@ -35,7 +36,7 @@ class TermsOfServicePage extends StatelessWidget {
           ),
           onPressed: () {
             _logger.userAction('Back tapped', screen: 'TermsOfServicePage');
-            Navigator.pop(context);
+            context.pop();
           },
         ),
         title: Text(

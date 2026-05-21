@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
@@ -64,7 +65,7 @@ class _SupportPageState extends State<SupportPage> {
             ),
           ),
         );
-        Navigator.pop(context);
+        context.pop();
       }
     } catch (e, stackTrace) {
       _logger.provider('SupportPage | submit error | $e', error: e, stackTrace: stackTrace);
@@ -94,7 +95,7 @@ class _SupportPageState extends State<SupportPage> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new, color: AkeliColors.onSurface),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           'Support',
