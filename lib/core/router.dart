@@ -181,6 +181,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(
+        path: AkeliRoutes.support,
+        builder: (context, state) => const SupportPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.privacyPolicy,
+        builder: (context, state) => const PrivacyPolicyPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.termsOfService,
+        builder: (context, state) => const TermsOfServicePage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.referral,
+        builder: (context, state) => const ReferralPage(),
+      ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
         routes: [
@@ -199,22 +215,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AkeliRoutes.community,
             builder: (context, state) => const CommunityPage(),
-          ),
-          GoRoute(
-            path: AkeliRoutes.support,
-            builder: (context, state) => const SupportPage(),
-          ),
-          GoRoute(
-            path: AkeliRoutes.privacyPolicy,
-            builder: (context, state) => const PrivacyPolicyPage(),
-          ),
-          GoRoute(
-            path: AkeliRoutes.termsOfService,
-            builder: (context, state) => const TermsOfServicePage(),
-          ),
-          GoRoute(
-            path: AkeliRoutes.referral,
-            builder: (context, state) => const ReferralPage(),
           ),
         ],
       ),

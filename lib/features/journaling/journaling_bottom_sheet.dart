@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/logger.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
-final _log = Logger();
+final _logger = appLogger;
 
 /// Journaling Bottom Sheet - Editorial Design
 /// Modal for daily journal entry with media upload, description, and meal type selection
@@ -11,7 +11,7 @@ class JournalingBottomSheet extends StatefulWidget {
   const JournalingBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    _log.i('Journaling bottom sheet shown');
+    _logger.userAction('Journaling sheet opened', screen: 'JournalingBottomSheet');
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -35,19 +35,19 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _log.i('Journaling bottom sheet initialized');
+    _logger.provider('JournalingBottomSheet build()');
   }
 
   @override
   void dispose() {
     _descriptionController.dispose();
-    _log.d('Journaling bottom sheet disposed');
+    _logger.provider('JournalingBottomSheet disposed');
     super.dispose();
   }
 
   Future<void> _saveEntry() async {
     if (_descriptionController.text.isEmpty) {
-      _log.w('Attempted to save empty journal entry');
+      _logger.provider('JournalingBottomSheet | save blocked | empty description');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Veuillez ajouter une description'),
@@ -61,11 +61,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
       return;
     }
 
-    _log.i('Saving journal entry', {
-      'mealType': _selectedMealType,
-      'descriptionLength': _descriptionController.text.length,
-      'mediaCount': _uploadedMedia.length,
-    });
+    _logger.userAction('Save journal entry tapped', screen: 'JournalingBottomSheet');
 
     setState(() => _isSaving = true);
 
@@ -73,7 +69,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
       // TODO: Integrate with journaling edge function
       await Future.delayed(const Duration(milliseconds: 500));
       
-      _log.i('Journal entry saved successfully');
+      _logger.provider('JournalingBottomSheet | entry saved');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,7 +85,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
         Navigator.pop(context);
       }
     } catch (e, stackTrace) {
-      _log.e('Failed to save journal entry', error: e, stackTrace: stackTrace);
+      _logger.provider('JournalingBottomSheet | save error | $e', error: e, stackTrace: stackTrace);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -110,7 +106,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
   }
 
   void _uploadMedia() {
-    _log.i('Media upload triggered');
+    _logger.userAction('Add photo tapped', screen: 'JournalingBottomSheet');
     // TODO: Implement image picker
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -283,7 +279,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                         selected: isSelected,
                         onSelected: (selected) {
                           if (selected) {
-                            _log.i('Meal type selected', {'type': type});
+                            _logger.userAction('Meal type selected: $type', screen: 'JournalingBottomSheet');
                             setState(() => _selectedMealType = type);
                           }
                         },

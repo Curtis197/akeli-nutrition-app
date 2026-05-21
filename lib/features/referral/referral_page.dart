@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
 /// Referral Management Page - Editorial Design
@@ -12,18 +13,27 @@ class ReferralPage extends StatefulWidget {
 }
 
 class _ReferralPageState extends State<ReferralPage> {
+  final _logger = appLogger;
   final _codeController = TextEditingController(text: 'AKELI-SOFI');
   int _referralCount = 3;
   bool _isEditing = false;
   bool _isSaving = false;
 
   @override
+  void initState() {
+    super.initState();
+    _logger.provider('ReferralPage build()');
+  }
+
+  @override
   void dispose() {
     _codeController.dispose();
+    _logger.provider('ReferralPage disposed');
     super.dispose();
   }
 
   Future<void> _saveCode() async {
+    _logger.userAction('Save referral code tapped', screen: 'ReferralPage');
     setState(() => _isSaving = true);
 
     // TODO: Integrate with referral edge function
@@ -50,9 +60,9 @@ class _ReferralPageState extends State<ReferralPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9E8),
+      backgroundColor: AkeliColors.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9F9E8).withValues(alpha: 0.8),
+        backgroundColor: AkeliColors.surface.withValues(alpha: 0.8),
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -249,7 +259,10 @@ class _ReferralPageState extends State<ReferralPage> {
                         borderRadius: BorderRadius.circular(16),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16),
-                          onTap: () => setState(() => _isEditing = true),
+                          onTap: () {
+                            _logger.userAction('Edit referral code tapped', screen: 'ReferralPage');
+                            setState(() => _isEditing = true);
+                          },
                           child: Container(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(

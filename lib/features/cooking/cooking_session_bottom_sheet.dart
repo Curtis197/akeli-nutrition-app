@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/logger.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
-final _log = Logger();
+final _logger = appLogger;
 
 /// Cooking Session Bottom Sheet - Editorial Design
 /// Modal for creating a new batch cooking session (currently placeholder)
@@ -11,7 +11,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
   const CookingSessionBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    _log.i('Cooking session bottom sheet shown');
+    _logger.userAction('Cooking session sheet opened', screen: 'CookingSessionBottomSheet');
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -136,7 +136,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      _log.d('Cooking session bottom sheet dismissed');
+                      _logger.userAction('Cooking session sheet dismissed', screen: 'CookingSessionBottomSheet');
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/logger.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
-final _log = Logger();
+final _logger = appLogger;
 
 /// Support Page - Editorial Design
 /// Allows users to submit support tickets with name, email, message, and screenshot upload
@@ -24,37 +24,33 @@ class _SupportPageState extends State<SupportPage> {
   @override
   void initState() {
     super.initState();
-    _log.i('Support page initialized');
+    _logger.provider('SupportPage build()');
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _messageController.dispose();
-    _log.d('Support page disposed');
+    _logger.provider('SupportPage disposed');
     super.dispose();
   }
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) {
-      _log.w('Support form validation failed');
+      _logger.provider('SupportPage | form validation failed');
       return;
     }
 
-    _log.i('Submitting support ticket', {
-      'name': _nameController.text,
-      'email': _emailController.text,
-      'messageLength': _messageController.text.length,
-    });
+    _logger.userAction('Submit support ticket tapped', screen: 'SupportPage');
 
     setState(() => _isSubmitting = true);
 
     try {
       // TODO: Integrate with support edge function
       await Future.delayed(const Duration(seconds: 1));
-      
-      _log.i('Support ticket submitted successfully');
+
+      _logger.provider('SupportPage | ticket submitted');
 
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -71,7 +67,7 @@ class _SupportPageState extends State<SupportPage> {
         Navigator.pop(context);
       }
     } catch (e, stackTrace) {
-      _log.e('Failed to submit support ticket', error: e, stackTrace: stackTrace);
+      _logger.provider('SupportPage | submit error | $e', error: e, stackTrace: stackTrace);
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -282,7 +278,7 @@ class _SupportPageState extends State<SupportPage> {
               // Screenshot upload button
               OutlinedButton.icon(
                 onPressed: () {
-                  _log.i('Screenshot upload triggered');
+                  _logger.userAction('Add screenshot tapped', screen: 'SupportPage');
                   // TODO: Implement image picker
                 },
                 icon: Icon(Icons.add_photo_alternate_outlined, color: AkeliColors.primary),

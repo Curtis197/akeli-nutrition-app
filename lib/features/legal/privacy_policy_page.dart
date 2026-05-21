@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/logger.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
-final _log = Logger();
+final _logger = appLogger;
 
 /// Privacy Policy Page - Editorial Design
 /// Displays privacy policy with sections on data collection, user rights (RGPD), and contact info
@@ -12,7 +12,7 @@ class PrivacyPolicyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _log.i('Privacy policy page loaded');
+    _logger.provider('PrivacyPolicyPage build()');
     
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -34,7 +34,7 @@ class PrivacyPolicyPage extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            _log.d('Navigate back from privacy policy');
+            _logger.userAction('Back tapped', screen: 'PrivacyPolicyPage');
             Navigator.pop(context);
           },
         ),

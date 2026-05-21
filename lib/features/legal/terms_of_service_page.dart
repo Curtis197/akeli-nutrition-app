@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:logger/logger.dart';
+import '../../core/logger.dart';
 import '../../core/theme.dart';
 
-final _log = Logger();
+final _logger = appLogger;
 
 /// Terms of Service Page - Editorial Design
 /// Displays terms and conditions with articles on access, data collection, IP rights, and liability
@@ -12,7 +12,7 @@ class TermsOfServicePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _log.i('Terms of service page loaded');
+    _logger.provider('TermsOfServicePage build()');
     
     return Scaffold(
       backgroundColor: AkeliColors.surfaceContainerLow,
@@ -34,7 +34,7 @@ class TermsOfServicePage extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            _log.d('Navigate back from terms of service');
+            _logger.userAction('Back tapped', screen: 'TermsOfServicePage');
             Navigator.pop(context);
           },
         ),
