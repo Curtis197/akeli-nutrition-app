@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
+import '../../providers/auth_provider.dart';
 
 /// Referral Management Page - Editorial Design
 /// Displays user's referral code, stats, and allows code customization
-class ReferralPage extends StatefulWidget {
+class ReferralPage extends ConsumerStatefulWidget {
   const ReferralPage({super.key});
 
   @override
-  State<ReferralPage> createState() => _ReferralPageState();
+  ConsumerState<ReferralPage> createState() => _ReferralPageState();
 }
 
-class _ReferralPageState extends State<ReferralPage> {
+class _ReferralPageState extends ConsumerState<ReferralPage> {
   final _logger = appLogger;
-  final _codeController = TextEditingController(text: 'AKELI-SOFI');
-  int _referralCount = 3;
+  final _codeController = TextEditingController();
+  int _referralCount = 0;
   bool _isEditing = false;
   bool _isSaving = false;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _logger.provider('ReferralPage build()');
+    _loadData();
   }
 
   @override
@@ -33,33 +39,93 @@ class _ReferralPageState extends State<ReferralPage> {
     super.dispose();
   }
 
+  Future<void> _loadData() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final client = ref.read(supabaseClientProvider);
+
+    try {
+      _logger.db('BEFORE | table: user_profile | op: SELECT referral_code | userId: ${user.id}');
+      final profile = await client
+          .from('user_profile')
+          .select('referral_code')
+          .eq('id', user.id)
+          .maybeSingle();
+      _logger.db('AFTER | table: user_profile | rows: ${profile == null ? 0 : 1}');
+
+      _logger.db('BEFORE | table: referral | op: COUNT | referrerId: ${user.id}');
+      final referrals = await client
+          .from('referral')
+          .select('id')
+          .eq('referrer_id', user.id);
+      _logger.db('AFTER | table: referral | rows: ${referrals.length}');
+
+      if (mounted) {
+        setState(() {
+          _codeController.text = (profile?['referral_code'] as String?) ??
+              'AKELI-${user.id.substring(0, 6).toUpperCase()}';
+          _referralCount = referrals.length;
+          _isLoading = false;
+        });
+      }
+    } on PostgrestException catch (e, st) {
+      _logger.db('ERROR | table: user_profile/referral | ${e.code}', error: e, stackTrace: st);
+      if (mounted) setState(() => _isLoading = false);
+    } catch (e, st) {
+      _logger.db('ERROR | _loadData | unexpected | $e', error: e, stackTrace: st);
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   Future<void> _saveCode() async {
     _logger.userAction('Save referral code tapped', screen: 'ReferralPage');
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+    final client = ref.read(supabaseClientProvider);
+
     setState(() => _isSaving = true);
+    try {
+      _logger.db('BEFORE | table: user_profile | op: UPDATE referral_code | userId: ${user.id}');
+      await client
+          .from('user_profile')
+          .update({'referral_code': _codeController.text.trim().toUpperCase()})
+          .eq('id', user.id);
+      _logger.db('AFTER | table: user_profile | referral_code updated');
 
-    // TODO: Integrate with referral edge function
-    await Future.delayed(const Duration(seconds: 1));
-
-    if (mounted) {
-      setState(() {
-        _isSaving = false;
-        _isEditing = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Code mis à jour avec succès!'),
-          backgroundColor: AkeliColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AkeliRadius.lg),
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+          _isEditing = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Code mis à jour avec succès!'),
+            backgroundColor: AkeliColors.success,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.lg),
+            ),
           ),
-        ),
-      );
+        );
+      }
+    } on PostgrestException catch (e, st) {
+      _logger.db('ERROR | table: user_profile | code: ${e.code}', error: e, stackTrace: st);
+      if (mounted) setState(() => _isSaving = false);
+    } catch (e, st) {
+      _logger.db('ERROR | _saveCode | $e', error: e, stackTrace: st);
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AkeliColors.surface,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AkeliColors.surface,
       appBar: AppBar(
@@ -129,15 +195,16 @@ class _ReferralPageState extends State<ReferralPage> {
                     ),
                   ),
                   const SizedBox(height: AkeliSpacing.sm),
-                  Text(
-                    _isEditing ? '' : 'AKELI-SOFI',
-                    style: GoogleFonts.plusJakartaSans(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w800,
-                      color: AkeliColors.primary,
-                      letterSpacing: 2,
+                  if (!_isEditing)
+                    Text(
+                      _codeController.text,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w800,
+                        color: AkeliColors.primary,
+                        letterSpacing: 2,
+                      ),
                     ),
-                  ),
                   if (_isEditing) ...[
                     const SizedBox(height: AkeliSpacing.sm),
                     TextField(
