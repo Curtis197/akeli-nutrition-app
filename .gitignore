@@ -1,18 +1,35 @@
-```
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
 # Environment
 .env
 .env.local
-.env.
+.env.*
 
 # Editors
 .vscode/
 .idea/
+*.swp
+*.tmp
 
-# Original rules preserved
+# Flutter / Dart build outputs
+build/
+.dart_tool/
+.flutter-plugins
+*.iml
+
+# iOS generated / ephemeral (not committed)
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+ios/Pods/
+ios/.symlinks/
+
+# Android generated
+android/.gradle/
+android/local.properties
+
+# Python bytecode
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Logs
 *.log
-```
