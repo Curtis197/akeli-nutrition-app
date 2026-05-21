@@ -22,6 +22,10 @@ import '../features/notifications/notifications_page.dart';
 import '../features/community/group_chat_page.dart';
 import '../features/community/group_detail_page.dart';
 import '../features/home/home_page.dart';
+import '../features/support/support_page.dart';
+import '../features/legal/privacy_policy_page.dart';
+import '../features/legal/terms_of_service_page.dart';
+import '../features/referral/referral_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import 'logger.dart';
@@ -48,6 +52,10 @@ abstract class AkeliRoutes {
   static const batchCooking = "/batch-cooking";
   static const groupChat = "/group/:id";
   static const groupDetail = "/group/:id/detail";
+  static const support = "/support";
+  static const privacyPolicy = "/privacy-policy";
+  static const termsOfService = "/terms-of-service";
+  static const referral = "/referral";
 
   static String recipeDetailPath(String id) => "/recipe/$id";
   static String mealDetailPath(String id) => "/meal/$id";
@@ -172,6 +180,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: AkeliRoutes.support,
+        builder: (context, state) => const SupportPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.privacyPolicy,
+        builder: (context, state) => const PrivacyPolicyPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.termsOfService,
+        builder: (context, state) => const TermsOfServicePage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.referral,
+        builder: (context, state) => const ReferralPage(),
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
