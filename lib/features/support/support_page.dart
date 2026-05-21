@@ -1,31 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
-
-final _logger = appLogger;
+import '../../providers/auth_provider.dart';
 
 /// Support Page - Editorial Design
 /// Allows users to submit support tickets with name, email, message, and screenshot upload
-class SupportPage extends StatefulWidget {
+class SupportPage extends ConsumerStatefulWidget {
   const SupportPage({super.key});
-  
+
   @override
-  State<SupportPage> createState() => _SupportPageState();
+  ConsumerState<SupportPage> createState() => _SupportPageState();
 }
 
-class _SupportPageState extends State<SupportPage> {
+class _SupportPageState extends ConsumerState<SupportPage> {
+  final _logger = appLogger;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isSubmitting = false;
-  
+
   @override
   void initState() {
     super.initState();
     _logger.provider('SupportPage build()');
+    final user = ref.read(currentUserProvider);
+    if (user?.email != null) {
+      _emailController.text = user!.email!;
+    }
   }
 
   @override
@@ -44,20 +51,27 @@ class _SupportPageState extends State<SupportPage> {
     }
 
     _logger.userAction('Submit support ticket tapped', screen: 'SupportPage');
-
     setState(() => _isSubmitting = true);
 
-    try {
-      // TODO: Integrate with support edge function
-      await Future.delayed(const Duration(seconds: 1));
+    final user = ref.read(currentUserProvider);
+    final client = ref.read(supabaseClientProvider);
 
+    try {
+      _logger.db('BEFORE | table: support_message | op: INSERT | userId: ${user?.id}');
+      await client.from('support_message').insert({
+        'user_id': user?.id,
+        'email': _emailController.text.trim(),
+        'subject': _nameController.text.trim(),
+        'content': _messageController.text.trim(),
+      });
+      _logger.db('AFTER | table: support_message | rows: 1');
       _logger.provider('SupportPage | ticket submitted');
 
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Message envoyé avec succès!'),
+            content: const Text('Message envoyé avec succès!'),
             backgroundColor: AkeliColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -67,13 +81,28 @@ class _SupportPageState extends State<SupportPage> {
         );
         context.pop();
       }
-    } catch (e, stackTrace) {
-      _logger.provider('SupportPage | submit error | $e', error: e, stackTrace: stackTrace);
+    } on PostgrestException catch (e, st) {
+      _logger.db('ERROR | table: support_message | code: ${e.code}', error: e, stackTrace: st);
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
+            content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
+            backgroundColor: AkeliColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.lg),
+            ),
+          ),
+        );
+      }
+    } catch (e, st) {
+      _logger.db('ERROR | table: support_message | unexpected | $e', error: e, stackTrace: st);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
             backgroundColor: AkeliColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -153,7 +182,7 @@ class _SupportPageState extends State<SupportPage> {
                 ),
               ),
               SizedBox(height: 32),
-              
+
               // Name field
               Text(
                 'Nom complet',
@@ -191,7 +220,7 @@ class _SupportPageState extends State<SupportPage> {
                 },
               ),
               SizedBox(height: 24),
-              
+
               // Email field
               Text(
                 'Email',
@@ -233,7 +262,7 @@ class _SupportPageState extends State<SupportPage> {
                 },
               ),
               SizedBox(height: 24),
-              
+
               // Message field
               Text(
                 'Message',
@@ -275,7 +304,7 @@ class _SupportPageState extends State<SupportPage> {
                 },
               ),
               SizedBox(height: 32),
-              
+
               // Screenshot upload button
               OutlinedButton.icon(
                 onPressed: () {
@@ -299,7 +328,7 @@ class _SupportPageState extends State<SupportPage> {
                 ),
               ),
               SizedBox(height: 32),
-              
+
               // Submit button
               SizedBox(
                 width: double.infinity,
