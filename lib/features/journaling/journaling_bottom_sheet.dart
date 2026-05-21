@@ -177,7 +177,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                           ),
                           borderRadius: BorderRadius.circular(AkeliRadius.md),
                         ),
-                        child: const Icon(Icons.edit_note_rounded, size: 28, color: AkeliColors.onTertiary),
+                        child: const Icon(Icons.edit_note_rounded, size: 28, color: AkeliColors.onPrimary),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
