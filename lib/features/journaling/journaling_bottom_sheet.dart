@@ -1,17 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../core/logger.dart';
-import '../../core/theme.dart';
+import 'dart:io';
 
-final _logger = appLogger;
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/logger.dart';
+import '../../core/supabase_client.dart';
+import '../../core/theme.dart';
+import '../../providers/auth_provider.dart';
 
 /// Journaling Bottom Sheet - Editorial Design
 /// Modal for daily journal entry with media upload, description, and meal type selection
-class JournalingBottomSheet extends StatefulWidget {
+class JournalingBottomSheet extends ConsumerStatefulWidget {
   const JournalingBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    _logger.userAction('Journaling sheet opened', screen: 'JournalingBottomSheet');
+    appLogger.userAction('Journaling sheet opened', screen: 'JournalingBottomSheet');
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -21,14 +26,16 @@ class JournalingBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<JournalingBottomSheet> createState() => _JournalingBottomSheetState();
+  ConsumerState<JournalingBottomSheet> createState() => _JournalingBottomSheetState();
 }
 
-class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
+class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
+  final _logger = appLogger;
   final _descriptionController = TextEditingController();
+  final _picker = ImagePicker();
   String _selectedMealType = 'Déjeuner';
   bool _isSaving = false;
-  List<String> _uploadedMedia = [];
+  List<XFile> _selectedImages = [];
 
   final List<String> _mealTypes = ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Collation'];
 
@@ -50,7 +57,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
       _logger.provider('JournalingBottomSheet | save blocked | empty description');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Veuillez ajouter une description'),
+          content: const Text('Veuillez ajouter une description'),
           backgroundColor: AkeliColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -62,19 +69,26 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
     }
 
     _logger.userAction('Save journal entry tapped', screen: 'JournalingBottomSheet');
-
     setState(() => _isSaving = true);
 
+    final user = ref.read(currentUserProvider);
+    final client = ref.read(supabaseClientProvider);
+
     try {
-      // TODO: Integrate with journaling edge function
-      await Future.delayed(const Duration(milliseconds: 500));
-      
+      _logger.db('BEFORE | table: journal_entry | op: INSERT | userId: ${user?.id}');
+      await client.from('journal_entry').insert({
+        'user_id': user?.id,
+        'meal_type': _selectedMealType,
+        'description': _descriptionController.text.trim(),
+        'photo_urls': <String>[],
+      });
+      _logger.db('AFTER | table: journal_entry | rows: 1');
       _logger.provider('JournalingBottomSheet | entry saved');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Entrée enregistrée avec succès!'),
+            content: const Text('Entrée enregistrée avec succès!'),
             backgroundColor: AkeliColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -84,12 +98,13 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
         );
         Navigator.pop(context);
       }
-    } catch (e, stackTrace) {
-      _logger.provider('JournalingBottomSheet | save error | $e', error: e, stackTrace: stackTrace);
+    } on PostgrestException catch (e, st) {
+      _logger.db('ERROR | table: journal_entry | code: ${e.code}', error: e, stackTrace: st);
       if (mounted) {
+        setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de l\'enregistrement'),
+            content: const Text('Erreur lors de l\'enregistrement'),
             backgroundColor: AkeliColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -98,26 +113,20 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
           ),
         );
       }
-    } finally {
+    } catch (e, st) {
+      _logger.db('ERROR | journal_entry | unexpected | $e', error: e, stackTrace: st);
       if (mounted) {
         setState(() => _isSaving = false);
       }
     }
   }
 
-  void _uploadMedia() {
+  Future<void> _uploadMedia() async {
     _logger.userAction('Add photo tapped', screen: 'JournalingBottomSheet');
-    // TODO: Implement image picker
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Sélectionnez une photo dans votre galerie'),
-        backgroundColor: AkeliColors.secondaryContainer,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AkeliRadius.lg),
-        ),
-      ),
-    );
+    final images = await _picker.pickMultiImage(imageQuality: 80);
+    if (images.isNotEmpty && mounted) {
+      setState(() => _selectedImages = images);
+    }
   }
 
   @override
@@ -149,11 +158,11 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
               ),
             ),
           ),
-          
+
           // Content
           Flexible(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -161,16 +170,16 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                   Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [AkeliColors.tertiary, AkeliColors.secondary],
                           ),
                           borderRadius: BorderRadius.circular(AkeliRadius.md),
                         ),
-                        child: Icon(Icons.edit_note_rounded, size: 28, color: AkeliColors.onTertiary),
+                        child: const Icon(Icons.edit_note_rounded, size: 28, color: AkeliColors.onTertiary),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,8 +204,8 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24),
-                  
+                  const SizedBox(height: 24),
+
                   // Media Upload
                   Text(
                     'Photos',
@@ -206,7 +215,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                       color: AkeliColors.onSurface,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   GestureDetector(
                     onTap: _uploadMedia,
                     child: Container(
@@ -219,16 +228,16 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                           strokeAlign: BorderSide.strokeAlignInside,
                         ),
                       ),
-                      child: _uploadedMedia.isEmpty
+                      child: _selectedImages.isEmpty
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.add_photo_alternate_outlined,
                                   size: 40,
                                   color: AkeliColors.primary,
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'Ajouter des photos',
                                   style: GoogleFonts.plusJakartaSans(
@@ -240,25 +249,25 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                               ],
                             )
                           : GridView.builder(
-                              padding: EdgeInsets.all(8),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              padding: const EdgeInsets.all(8),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 3,
                                 mainAxisSpacing: 8,
                                 crossAxisSpacing: 8,
                               ),
-                              itemCount: _uploadedMedia.length,
-                              itemBuilder: (context, index) => Container(
-                                decoration: BoxDecoration(
-                                  color: AkeliColors.primaryContainer.withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(AkeliRadius.md),
+                              itemCount: _selectedImages.length,
+                              itemBuilder: (context, index) => ClipRRect(
+                                borderRadius: BorderRadius.circular(AkeliRadius.md),
+                                child: Image.file(
+                                  File(_selectedImages[index].path),
+                                  fit: BoxFit.cover,
                                 ),
-                                child: Icon(Icons.image, color: AkeliColors.primary),
                               ),
                             ),
                     ),
                   ),
-                  SizedBox(height: 24),
-                  
+                  const SizedBox(height: 24),
+
                   // Meal Type Selector
                   Text(
                     'Type de repas',
@@ -268,7 +277,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                       color: AkeliColors.onSurface,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -292,8 +301,8 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                       );
                     }).toList(),
                   ),
-                  SizedBox(height: 24),
-                  
+                  const SizedBox(height: 24),
+
                   // Description Field
                   Text(
                     'Description',
@@ -303,7 +312,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                       color: AkeliColors.onSurface,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   TextFormField(
                     controller: _descriptionController,
                     maxLines: 4,
@@ -315,22 +324,22 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                         borderRadius: BorderRadius.circular(AkeliRadius.lg),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: EdgeInsets.all(16),
+                      contentPadding: const EdgeInsets.all(16),
                     ),
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: AkeliColors.onSurface,
                     ),
                   ),
-                  SizedBox(height: 32),
-                  
+                  const SizedBox(height: 32),
+
                   // Save Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _isSaving ? null : _saveEntry,
                       icon: _isSaving
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
@@ -338,7 +347,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                                 valueColor: AlwaysStoppedAnimation<Color>(AkeliColors.onPrimary),
                               ),
                             )
-                          : Icon(Icons.save_outlined),
+                          : const Icon(Icons.save_outlined),
                       label: Text(
                         _isSaving ? 'Enregistrement...' : 'Enregistrer l\'entrée',
                         style: GoogleFonts.plusJakartaSans(
@@ -347,7 +356,7 @@ class _JournalingBottomSheetState extends State<JournalingBottomSheet> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        minimumSize: Size(double.infinity, 56),
+                        minimumSize: const Size(double.infinity, 56),
                         backgroundColor: AkeliColors.primary,
                         foregroundColor: AkeliColors.onPrimary,
                         shape: RoundedRectangleBorder(
