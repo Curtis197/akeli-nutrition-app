@@ -42,13 +42,13 @@ VALUES (
     '1.0.0',
     'all',
     true,
-    '[
+    $json$[
         {"type": "header", "config": {"title": "Welcome Back", "subtitle": "Ready for your wellness journey?"}},
         {"type": "weight_tracker_card", "config": {"title": "Weight Progress", "show_graph": true}},
         {"type": "calorie_summary", "config": {"title": "Today's Intake", "target": 2500}},
         {"type": "quick_actions", "config": {"items": ["log_meal", "scan_product", "view_plan"]}},
         {"type": "cultural_spotlight", "config": {"title": "Ingredient of the Day", "item": "Fonio"}}
-    ]'::jsonb,
+    ]$json$::jsonb,
     ARRAY['global', 'urban']
 );
 
