@@ -15,8 +15,13 @@
 -- 1. DROP OLD TABLES IF EXISTS (Cleanup from previous iteration)
 DROP TABLE IF EXISTS beauty_logs CASCADE;
 DROP TABLE IF EXISTS beauty_entries CASCADE;
+DROP TABLE IF EXISTS beauty_analytics CASCADE;
+DROP TABLE IF EXISTS beauty_recipes CASCADE;
+DROP TABLE IF EXISTS fan_subscriptions CASCADE;
+DROP TABLE IF EXISTS creator_payouts CASCADE;
 DROP TABLE IF EXISTS fan_allocations CASCADE;
 DROP TABLE IF EXISTS creator_pool_entries CASCADE;
+DROP TABLE IF EXISTS beauty_plans CASCADE;
 
 -- 2. CORE TABLES
 
@@ -157,10 +162,9 @@ BEGIN
         INSERT INTO creator_monthly_payouts (creator_id, period_month, pool_earnings_cents, fan_earnings_cents, status)
         VALUES (rec.creator_id, target_month, pool_share_cents, (fan_count * 100), 'pending')
         ON CONFLICT (creator_id, period_month) DO UPDATE
-        SET 
+        SET
             pool_earnings_cents = EXCLUDED.pool_earnings_cents,
             fan_earnings_cents = EXCLUDED.fan_earnings_cents,
-            total_earnings_cents = EXCLUDED.pool_earnings_cents + EXCLUDED.fan_earnings_cents,
             status = 'pending';
     END LOOP;
 END;
