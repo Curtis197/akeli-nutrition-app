@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/layout_cache_service.dart';
+import 'package:akeli/core/logger.dart';
 import '../services/layout_fetch_service.dart';
-import '../providers/mode_provider.dart';
+import '../../../providers/mode_provider.dart';
 import '../widgets/widget_factory.dart';
 
-/// A dynamic page that renders its UI based on remote layout configurations
-/// 
-/// This is the core SDUI page that:
-/// - Fetches layout from cache or remote based on current mode
-/// - Renders components dynamically using WidgetFactory
-/// - Handles loading, error, and offline states gracefully
-/// - Supports cultural realignment through layout metadata
+final _logger = appLogger;
+
+/// A dynamic page that renders its UI based on remote layout configurations.
+///
+/// Fetches layout from cache or remote based on current mode, renders
+/// components dynamically using WidgetFactory, and handles loading, error,
+/// and offline states gracefully.
 class DynamicLayoutPage extends ConsumerStatefulWidget {
   final String mode;
-  
+
   const DynamicLayoutPage({
-    Key? key,
+    super.key,
     required this.mode,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<DynamicLayoutPage> createState() => _DynamicLayoutPageState();
@@ -26,8 +26,7 @@ class DynamicLayoutPage extends ConsumerStatefulWidget {
 
 class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   final LayoutFetchService _fetchService = LayoutFetchService();
-  final LayoutCacheService _cacheService = LayoutCacheService();
-  
+
   bool _isLoading = false;
   bool _hasError = false;
   String? _errorMessage;
@@ -35,6 +34,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   @override
   void initState() {
     super.initState();
+    _logger.provider('DynamicLayoutPage initState | mode: ${widget.mode}');
     _loadLayout();
   }
 
@@ -42,11 +42,19 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   void didUpdateWidget(DynamicLayoutPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.mode != widget.mode) {
+      _logger.provider('DynamicLayoutPage didUpdateWidget | mode changed: ${oldWidget.mode} → ${widget.mode}');
       _loadLayout();
     }
   }
 
+  @override
+  void dispose() {
+    _logger.provider('DynamicLayoutPage disposed | mode: ${widget.mode}');
+    super.dispose();
+  }
+
   Future<void> _loadLayout() async {
+    _logger.provider('DynamicLayoutPage → loading | mode: ${widget.mode}');
     setState(() {
       _isLoading = true;
       _hasError = false;
@@ -56,40 +64,42 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
     try {
       ref.read(layoutStateProvider.notifier).setLoading(widget.mode);
 
-      // Get user culture preferences
       final cultureTags = ref.read(userCulturePreferencesProvider);
 
-      // Fetch layout (cache-first strategy)
+      _logger.db('BEFORE | table: layouts | op: SELECT | mode: ${widget.mode}');
       final layoutData = await _fetchService.fetchLayout(
         mode: widget.mode,
         cultureTags: cultureTags.isNotEmpty ? cultureTags : null,
       );
+      _logger.db('AFTER | table: layouts | rows: ${layoutData != null ? 1 : 0}');
 
       if (layoutData != null) {
-        // Store layout data in provider
         ref.read(layoutDataProvider.notifier).setLayout(widget.mode, layoutData);
         ref.read(layoutStateProvider.notifier).setLoaded(widget.mode);
-        
+        _logger.provider('DynamicLayoutPage → loaded | mode: ${widget.mode}');
         setState(() {
           _isLoading = false;
         });
       } else {
         throw Exception('No layout available for mode: ${widget.mode}');
       }
-    } catch (e) {
+    } catch (e, st) {
+      _logger.provider(
+        'DynamicLayoutPage → error | mode: ${widget.mode} | $e',
+        error: e,
+        stackTrace: st,
+      );
       setState(() {
         _isLoading = false;
         _hasError = true;
         _errorMessage = e.toString();
       });
-      
       ref.read(layoutStateProvider.notifier).setError(widget.mode);
-      
-      debugPrint('❌ Error loading layout for ${widget.mode}: $e');
     }
   }
 
   void _retry() {
+    _logger.userAction('Retry tapped', screen: 'DynamicLayoutPage');
     _loadLayout();
   }
 
@@ -103,7 +113,6 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
         onRefresh: _loadLayout,
         child: CustomScrollView(
           slivers: [
-            // App Bar with mode indicator
             SliverAppBar(
               floating: true,
               title: Text(
@@ -118,8 +127,6 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
                 ),
               ],
             ),
-
-            // Content based on state
             if (layoutState == LayoutLoadingState.loading || _isLoading)
               const SliverFillRemaining(
                 child: Center(child: CircularProgressIndicator()),
@@ -145,9 +152,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
     final components = layout?['components'] as List<dynamic>? ?? [];
 
     if (components.isEmpty) {
-      return SliverFillRemaining(
-        child: _buildEmptyView(),
-      );
+      return SliverFillRemaining(child: _buildEmptyView());
     }
 
     return SliverList(
@@ -168,11 +173,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.cloud_off_outlined,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.cloud_off_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text(
               'Unable to load layout',
@@ -203,11 +204,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.layout,
-              size: 64,
-              color: Colors.grey,
-            ),
+            const Icon(Icons.view_quilt_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
               'No content for ${widget.mode} mode',

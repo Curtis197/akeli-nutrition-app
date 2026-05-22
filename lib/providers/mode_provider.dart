@@ -1,120 +1,230 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/sdui/layout_cache_service.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:akeli/core/logger.dart';
 
-/// Provider for managing current app mode state
-final currentModeProvider = StateNotifierProvider<ModeNotifier, AppMode>((ref) {
-  return ModeNotifier();
-});
+final _logger = appLogger;
 
-class ModeNotifier extends StateNotifier<AppMode> {
-  ModeNotifier() : super(AppMode.nutrition) {
-    _loadSavedMode();
+// ---------------------------------------------------------------------------
+// AppMode enum
+// ---------------------------------------------------------------------------
+
+enum AppMode {
+  nutrition,
+  beauty,
+  health,
+  sport,
+  family,
+}
+
+extension AppModeExtension on AppMode {
+  String get displayName {
+    switch (this) {
+      case AppMode.nutrition:
+        return 'Nutrition';
+      case AppMode.beauty:
+        return 'Beauté';
+      case AppMode.health:
+        return 'Santé';
+      case AppMode.sport:
+        return 'Sport';
+      case AppMode.family:
+        return 'Famille';
+    }
   }
 
-  Future<void> _loadSavedMode() async {
-    final savedMode = layoutCacheService.getCurrentMode();
-    state = savedMode;
-    debugPrint('[ModeNotifier] Loaded saved mode: ${savedMode.name}');
+  String get iconData {
+    switch (this) {
+      case AppMode.nutrition:
+        return 'restaurant';
+      case AppMode.beauty:
+        return 'spa';
+      case AppMode.health:
+        return 'favorite';
+      case AppMode.sport:
+        return 'fitness_center';
+      case AppMode.family:
+        return 'family_restroom';
+    }
   }
 
-  /// Switch to a different mode
+  String get routePath {
+    switch (this) {
+      case AppMode.nutrition:
+        return '/nutrition';
+      case AppMode.beauty:
+        return '/beauty';
+      case AppMode.health:
+        return '/health';
+      case AppMode.sport:
+        return '/sport';
+      case AppMode.family:
+        return '/family';
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RemoteLayout model
+// ---------------------------------------------------------------------------
+
+class RemoteLayout {
+  final String id;
+  final AppMode mode;
+  final String version;
+  final Map<String, dynamic> layoutJson;
+  final DateTime fetchedAt;
+  final String? cultureTag;
+
+  RemoteLayout({
+    required this.id,
+    required this.mode,
+    required this.version,
+    required this.layoutJson,
+    required this.fetchedAt,
+    this.cultureTag,
+  });
+
+  factory RemoteLayout.fromJson(Map<String, dynamic> json) {
+    return RemoteLayout(
+      id: json['id'] as String,
+      mode: AppMode.values.firstWhere(
+        (m) => m.name == json['mode'],
+        orElse: () => AppMode.nutrition,
+      ),
+      version: json['version'] as String,
+      layoutJson: json['layout'] as Map<String, dynamic>,
+      fetchedAt: DateTime.parse(json['fetched_at'] as String),
+      cultureTag: json['culture_tag'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'mode': mode.name,
+      'version': version,
+      'layout': layoutJson,
+      'fetched_at': fetchedAt.toIso8601String(),
+      'culture_tag': cultureTag,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ModeNotifier — persists mode in Hive box 'mode_state'
+// ---------------------------------------------------------------------------
+
+final currentModeProvider = NotifierProvider<ModeNotifier, AppMode>(ModeNotifier.new);
+
+class ModeNotifier extends Notifier<AppMode> {
+  static const _boxName = 'mode_state';
+  static const _modeKey = 'current_mode';
+
+  @override
+  AppMode build() {
+    _logger.provider('ModeNotifier build()');
+    ref.onDispose(() => _logger.provider('ModeNotifier disposed'));
+
+    final box = Hive.box(_boxName);
+    final saved = box.get(_modeKey, defaultValue: 'nutrition') as String;
+    final mode = AppMode.values.firstWhere(
+      (m) => m.name == saved,
+      orElse: () => AppMode.nutrition,
+    );
+    _logger.provider('ModeNotifier → initial: ${mode.name} (loaded from cache)');
+    return mode;
+  }
+
   Future<void> switchMode(AppMode newMode) async {
     if (state == newMode) return;
-    
-    debugPrint('[ModeNotifier] Switching mode: ${state.name} -> ${newMode.name}');
-    await layoutCacheService.setCurrentMode(newMode);
+    _logger.provider('ModeNotifier → switching: ${state.name} → ${newMode.name}');
+    final box = Hive.box(_boxName);
+    await box.put(_modeKey, newMode.name);
     state = newMode;
+    _logger.provider('ModeNotifier → ${newMode.name}');
   }
 
-  /// Get current mode synchronously
   AppMode get currentMode => state;
 }
 
-/// Provider for fetching and caching remote layouts
-final remoteLayoutProvider = AsyncNotifierProvider<RemoteLayoutNotifier, RemoteLayout?>((ref) {
-  return RemoteLayoutNotifier();
-});
+// ---------------------------------------------------------------------------
+// SDUI layout loading state
+// ---------------------------------------------------------------------------
 
-class RemoteLayoutNotifier extends AsyncNotifier<RemoteLayout?> {
-  @override
-  Future<RemoteLayout?> build() async {
-    // Initial load from cache
-    final mode = ref.read(currentModeProvider);
-    return _loadFromCache(mode);
+enum LayoutLoadingState {
+  notLoaded,
+  loading,
+  loaded,
+  error,
+}
+
+final layoutStateProvider =
+    StateNotifierProvider<LayoutStateNotifier, Map<String, LayoutLoadingState>>(
+  (_) => LayoutStateNotifier(),
+);
+
+class LayoutStateNotifier extends StateNotifier<Map<String, LayoutLoadingState>> {
+  LayoutStateNotifier() : super({});
+
+  void setLoading(String mode) {
+    _logger.provider('LayoutStateNotifier → loading | mode: $mode');
+    state = {...state, mode: LayoutLoadingState.loading};
   }
 
-  /// Load layout from cache
-  Future<RemoteLayout?> _loadFromCache(AppMode mode) async {
-    // For now, return null - will be implemented with actual layout IDs
-    // In production, you'd fetch the layout ID for this mode from config
-    return null;
+  void setLoaded(String mode) {
+    _logger.provider('LayoutStateNotifier → loaded | mode: $mode');
+    state = {...state, mode: LayoutLoadingState.loaded};
   }
 
-  /// Fetch layout from remote (Supabase)
-  Future<void> fetchLayout(String layoutId, AppMode mode) async {
-    state = const AsyncValue.loading();
-    
-    try {
-      // TODO: Implement Supabase fetch
-      // final response = await supabaseClient
-      //     .from('remote_layouts')
-      //     .select()
-      //     .eq('id', layoutId)
-      //     .single();
-      
-      // For now, simulate network delay
-      await Future.delayed(const Duration(milliseconds: 500));
-      
-      // Placeholder - replace with actual fetch logic
-      final layout = RemoteLayout(
-        id: layoutId,
-        mode: mode,
-        version: '1.0.0',
-        layoutJson: {'components': []},
-        fetchedAt: DateTime.now(),
-      );
-      
-      // Cache the layout
-      await layoutCacheService.cacheLayout(layout);
-      
-      state = AsyncValue.data(layout);
-      debugPrint('[RemoteLayoutNotifier] Fetched and cached layout: $layoutId');
-    } catch (e, stackTrace) {
-      debugPrint('[RemoteLayoutNotifier] Error fetching layout: $e');
-      debugPrint('$stackTrace');
-      state = AsyncValue.error(e, stackTrace);
-    }
+  void setError(String mode) {
+    _logger.provider('LayoutStateNotifier → error | mode: $mode');
+    state = {...state, mode: LayoutLoadingState.error};
   }
 
-  /// Load from cache or fetch if not available
-  Future<void> loadLayout(String layoutId, AppMode mode) async {
-    final cached = layoutCacheService.getCachedLayout(layoutId);
-    
-    if (cached != null) {
-      state = AsyncValue.data(cached);
-      debugPrint('[RemoteLayoutNotifier] Loaded from cache: $layoutId');
-      return;
-    }
-    
-    // Not in cache, fetch from remote
-    await fetchLayout(layoutId, mode);
-  }
+  LayoutLoadingState getState(String mode) =>
+      state[mode] ?? LayoutLoadingState.notLoaded;
 
-  /// Invalidate cache for a specific layout
-  Future<void> invalidateLayout(String layoutId) async {
-    await layoutCacheService.removeLayout(layoutId);
-    ref.invalidateSelf();
+  bool isLoaded(String mode) => state[mode] == LayoutLoadingState.loaded;
+  bool isLoading(String mode) => state[mode] == LayoutLoadingState.loading;
+  bool hasError(String mode) => state[mode] == LayoutLoadingState.error;
+
+  void clear(String mode) {
+    final updated = {...state}..remove(mode);
+    state = updated;
   }
 }
 
-/// Provider for SDUI widget factory
-final sduiWidgetFactoryProvider = Provider<SDUIWidgetFactory>((ref) {
-  return SDUIWidgetFactory();
-});
+// ---------------------------------------------------------------------------
+// SDUI layout data storage
+// ---------------------------------------------------------------------------
 
-/// Factory for creating widgets from remote layout JSON
-class SDUIWidgetFactory {
-  // This will be implemented in the next file
-  // Maps component types to widget builders
+final layoutDataProvider =
+    StateNotifierProvider<LayoutDataNotifier, Map<String, Map<String, dynamic>>>(
+  (_) => LayoutDataNotifier(),
+);
+
+class LayoutDataNotifier extends StateNotifier<Map<String, Map<String, dynamic>>> {
+  LayoutDataNotifier() : super({});
+
+  void setLayout(String mode, Map<String, dynamic> layoutData) {
+    _logger.provider('LayoutDataNotifier → setLayout | mode: $mode');
+    state = {...state, mode: layoutData};
+  }
+
+  Map<String, dynamic>? getLayout(String mode) => state[mode];
+
+  void clearLayout(String mode) {
+    final updated = {...state}..remove(mode);
+    state = updated;
+  }
+
+  void clearAll() {
+    state = {};
+  }
 }
+
+// ---------------------------------------------------------------------------
+// User culture preferences
+// ---------------------------------------------------------------------------
+
+final userCulturePreferencesProvider = StateProvider<List<String>>((_) => []);

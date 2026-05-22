@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../providers/mode_provider.dart';
+import 'package:akeli/core/logger.dart';
+
+final _logger = appLogger;
 
 /// SDUI Widget Factory - Maps JSON component types to Flutter widgets
 /// 
@@ -65,11 +67,11 @@ class WidgetFactory {
 
         // ==================== FALLBACK ====================
         default:
-          debugPrint('⚠️ Unknown component type: $type');
+          _logger.provider('SDUIWidgetFactory | unknown type: $type');
           return _buildUnknownComponent(type, config);
       }
     } catch (e) {
-      debugPrint('❌ Error building component $type: $e');
+      _logger.provider('SDUIWidgetFactory | error: $type | $e', error: e);
       return _buildErrorWidget(type, e.toString());
     }
   }
@@ -80,7 +82,6 @@ class WidgetFactory {
     final title = config['title'] as String? ?? 'Welcome';
     final subtitle = config['subtitle'] as String? ?? '';
     final imageUrl = config['image_url'] as String?;
-    final actionUrl = config['action_url'] as String?;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -161,7 +162,7 @@ class WidgetFactory {
           if (showAction && actionLabel != null)
             TextButton(
               onPressed: () {
-                debugPrint('Action tapped: $actionLabel');
+                _logger.userAction('Section action tapped: $actionLabel', screen: 'SDUIWidgetFactory');
               },
               child: Text(actionLabel),
             ),
@@ -189,9 +190,9 @@ class WidgetFactory {
             child: Column(
               children: [
                 CircleAvatar(
-                  backgroundColor: mode == 'beauty' 
-                      ? const Color(0xFFFF6B6B).withOpacity(0.2)
-                      : const Color(0xFF4CAF50).withOpacity(0.2),
+                  backgroundColor: mode == 'beauty'
+                      ? const Color(0xFFFF6B6B).withValues(alpha: 0.2)
+                      : const Color(0xFF4CAF50).withValues(alpha: 0.2),
                   child: Icon(
                     IconData(int.parse(icon), fontFamily: 'MaterialIcons'),
                     color: mode == 'beauty' 
@@ -290,7 +291,7 @@ class WidgetFactory {
                       final routine = routines[index] as Map<String, dynamic>? ?? {};
                       return Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF6B6B).withOpacity(0.1),
+                          color: const Color(0xFFFF6B6B).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(

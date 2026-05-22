@@ -1,17 +1,12 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:akeli/core/logger.dart';
 
-/// Box name for storing layout configurations
+final _logger = appLogger;
+
 const String layoutsBoxName = 'layouts';
-
-/// Box name for storing mode configurations
 const String modesBoxName = 'modes';
 
-/// Service responsible for caching and retrieving SDUI layouts
-/// 
-/// Uses Hive for fast key-value storage of:
-/// - Layout JSON configurations per mode
-/// - Mode metadata (version, last fetched, culture tags)
-/// - User preferences for layout customization
+/// Service responsible for caching and retrieving SDUI layouts using Hive.
 class LayoutCacheService {
   static final LayoutCacheService _instance = LayoutCacheService._internal();
   factory LayoutCacheService() => _instance;
@@ -20,25 +15,14 @@ class LayoutCacheService {
   Box<dynamic>? _layoutsBox;
   Box<dynamic>? _modesBox;
 
-  /// Initialize Hive and open boxes
   Future<void> initialize() async {
+    _logger.db('BEFORE | cache op: LayoutCacheService.initialize');
     await Hive.initFlutter();
-    
-    // Register adapters if needed for custom types
-    // await Hive.openLayoutAdapter();
-    
     _layoutsBox = await Hive.openBox(layoutsBoxName);
     _modesBox = await Hive.openBox(modesBoxName);
-    
-    print('✅ LayoutCacheService initialized');
+    _logger.db('AFTER | cache op: LayoutCacheService.initialize | boxes: $layoutsBoxName, $modesBoxName');
   }
 
-  /// Cache a layout for a specific mode
-  /// 
-  /// [mode] - The mode identifier (e.g., 'nutrition', 'beauty')
-  /// [layoutId] - Unique identifier for this layout version
-  /// [layoutJson] - The layout configuration as a Map
-  /// [metadata] - Optional metadata (version, fetchedAt, cultureTags)
   Future<void> cacheLayout({
     required String mode,
     required String layoutId,
@@ -46,9 +30,9 @@ class LayoutCacheService {
     Map<String, dynamic>? metadata,
   }) async {
     assert(_layoutsBox != null, 'LayoutCacheService not initialized');
-    
     final layoutKey = '$mode:$layoutId';
-    
+    _logger.db('BEFORE | cache op: cacheLayout | key: $layoutKey');
+
     await _layoutsBox!.put(layoutKey, {
       'layout_id': layoutId,
       'mode': mode,
@@ -56,41 +40,33 @@ class LayoutCacheService {
       'cached_at': DateTime.now().toIso8601String(),
       if (metadata != null) ...metadata,
     });
-    
-    // Update the current layout reference for this mode
     await _modesBox!.put('${mode}_current_layout', layoutId);
-    
-    print('📦 Cached layout $layoutId for mode $mode');
+
+    _logger.db('AFTER | cache op: cacheLayout | key: $layoutKey');
   }
 
-  /// Retrieve a cached layout for a mode
-  /// 
-  /// Returns null if no layout is cached
   Map<String, dynamic>? getLayout(String mode) {
     assert(_layoutsBox != null, 'LayoutCacheService not initialized');
-    
     final currentLayoutId = _modesBox!.get('${mode}_current_layout') as String?;
-    if (currentLayoutId == null) return null;
-    
+    if (currentLayoutId == null) {
+      _logger.db('AFTER | cache op: getLayout | mode: $mode | rows: 0');
+      return null;
+    }
     final layoutKey = '$mode:$currentLayoutId';
     final cachedData = _layoutsBox!.get(layoutKey) as Map<dynamic, dynamic>?;
-    
+    _logger.db('AFTER | cache op: getLayout | mode: $mode | rows: ${cachedData != null ? 1 : 0}');
     if (cachedData == null) return null;
-    
     return Map<String, dynamic>.from(cachedData);
   }
 
-  /// Check if a layout exists for a mode
   bool hasLayout(String mode) {
     assert(_layoutsBox != null, 'LayoutCacheService not initialized');
     return _modesBox!.containsKey('${mode}_current_layout');
   }
 
-  /// Get layout metadata without the full layout
   Map<String, dynamic>? getLayoutMetadata(String mode) {
     final layout = getLayout(mode);
     if (layout == null) return null;
-    
     return {
       'layout_id': layout['layout_id'],
       'mode': layout['mode'],
@@ -100,24 +76,23 @@ class LayoutCacheService {
     };
   }
 
-  /// Clear cached layout for a specific mode
   Future<void> clearLayout(String mode) async {
     final currentLayoutId = _modesBox!.get('${mode}_current_layout') as String?;
     if (currentLayoutId != null) {
+      _logger.db('BEFORE | cache op: clearLayout | mode: $mode');
       await _layoutsBox!.delete('$mode:$currentLayoutId');
       await _modesBox!.delete('${mode}_current_layout');
-      print('🗑️ Cleared layout for mode $mode');
+      _logger.db('AFTER | cache op: clearLayout | mode: $mode');
     }
   }
 
-  /// Clear all cached layouts
   Future<void> clearAll() async {
+    _logger.db('BEFORE | cache op: clearAll');
     await _layoutsBox?.clear();
     await _modesBox?.clear();
-    print('🗑️ Cleared all layouts');
+    _logger.db('AFTER | cache op: clearAll');
   }
 
-  /// Get all cached modes
   List<String> getCachedModes() {
     final modes = <String>[];
     for (final key in _modesBox!.keys) {
@@ -128,19 +103,14 @@ class LayoutCacheService {
     return modes;
   }
 
-  /// Check if a layout is stale (older than [maxAge] hours)
   bool isLayoutStale(String mode, {int maxAgeHours = 24}) {
     final metadata = getLayoutMetadata(mode);
     if (metadata == null || metadata['cached_at'] == null) return true;
-    
     final cachedAt = DateTime.tryParse(metadata['cached_at'] as String);
     if (cachedAt == null) return true;
-    
-    final age = DateTime.now().difference(cachedAt);
-    return age.inHours > maxAgeHours;
+    return DateTime.now().difference(cachedAt).inHours > maxAgeHours;
   }
 
-  /// Close the cache service
   Future<void> close() async {
     await _layoutsBox?.close();
     await _modesBox?.close();
