@@ -15,53 +15,72 @@ class WidgetFactory {
   /// [mode] - Current active mode for context-aware rendering
   static Widget buildComponent(Map<String, dynamic> component, String mode) {
     final type = component['type'] as String?;
-    final config = component['config'] as Map<String, dynamic>? ?? {};
+    final rawConfig = component['config'];
+    final config = rawConfig is Map<String, dynamic>
+        ? rawConfig
+        : rawConfig is Map
+            ? Map<String, dynamic>.from(rawConfig)
+            : <String, dynamic>{};
 
     try {
       switch (type) {
         // ==================== COMMON COMPONENTS ====================
+        case 'header':
+          return _buildHeader(config, mode);
+
         case 'hero_banner':
           return _buildHeroBanner(config, mode);
-        
+
         case 'section_header':
           return _buildSectionHeader(config, mode);
-        
+
         case 'quick_actions':
           return _buildQuickActions(config, mode);
 
+        case 'cultural_spotlight':
+          return _buildCulturalSpotlight(config, mode);
+
         // ==================== NUTRITION COMPONENTS ====================
         case 'weight_tracker':
+        case 'weight_tracker_card':
           return _buildWeightTracker(config, mode);
-        
+
         case 'calories_graph':
+        case 'calorie_summary':
           return _buildCaloriesGraph(config, mode);
-        
+
         case 'meal_log':
           return _buildMealLog(config, mode);
-        
+
         case 'nutrition_summary':
           return _buildNutritionSummary(config, mode);
 
         // ==================== BEAUTY COMPONENTS ====================
         case 'routine_grid':
           return _buildRoutineGrid(config, mode);
-        
+
+        case 'routine_progress':
+          return _buildRoutineProgress(config, mode);
+
         case 'product_tracker':
           return _buildProductTracker(config, mode);
-        
+
         case 'skin_progress':
           return _buildSkinProgress(config, mode);
-        
+
+        case 'skin_hair_status':
+          return _buildSkinHairStatus(config, mode);
+
         case 'hair_care_timeline':
           return _buildHairCareTimeline(config, mode);
-        
+
         case 'ingredient_checker':
           return _buildIngredientChecker(config, mode);
 
         // ==================== CULTURAL COMPONENTS ====================
         case 'cultural_tip':
           return _buildCulturalTip(config, mode);
-        
+
         case 'traditional_remedy':
           return _buildTraditionalRemedy(config, mode);
 
@@ -77,6 +96,203 @@ class WidgetFactory {
   }
 
   // ==================== COMMON WIDGETS ====================
+
+  static Widget _buildHeader(Map<String, dynamic> config, String mode) {
+    final title = config['title'] as String? ?? '';
+    final subtitle = config['subtitle'] as String? ?? '';
+    final isBeauty = mode == 'beauty';
+    final accent = isBeauty ? const Color(0xFFFF6B6B) : const Color(0xFF4CAF50);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: accent,
+              letterSpacing: -0.5,
+            ),
+          ),
+          if (subtitle.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(fontSize: 15, color: Colors.black54),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildCulturalSpotlight(Map<String, dynamic> config, String mode) {
+    final title = config['title'] as String? ?? 'Spotlight';
+    final item = config['item'] as String? ?? '';
+    final isBeauty = mode == 'beauty';
+    final accent = isBeauty ? const Color(0xFFFF6B6B) : const Color(0xFF4CAF50);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: accent.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isBeauty ? Icons.auto_awesome : Icons.eco_rounded,
+              color: accent,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: accent,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  item,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios_rounded, size: 14, color: accent),
+        ],
+      ),
+    );
+  }
+
+  static Widget _buildRoutineProgress(Map<String, dynamic> config, String mode) {
+    final title = config['title'] as String? ?? 'Weekly Routine';
+    final completed = config['completed'] as int? ?? 0;
+    final total = config['total'] as int? ?? 1;
+    final progress = total > 0 ? completed / total : 0.0;
+    const accent = Color(0xFFFF6B6B);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      color: accent.withValues(alpha: 0.06),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  '$completed / $total',
+                  style: const TextStyle(fontSize: 14, color: accent, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: accent.withValues(alpha: 0.15),
+                valueColor: const AlwaysStoppedAnimation<Color>(accent),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '$completed routines completed this week',
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget _buildSkinHairStatus(Map<String, dynamic> config, String mode) {
+    final title = config['title'] as String? ?? 'Current Focus';
+    final metric = config['metric'] as String? ?? '';
+    final value = config['value'] as String? ?? '';
+    const accent = Color(0xFFFF6B6B);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.water_drop_outlined, color: accent, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    metric,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green.shade700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   static Widget _buildHeroBanner(Map<String, dynamic> config, String mode) {
     final title = config['title'] as String? ?? 'Welcome';
@@ -172,18 +388,36 @@ class WidgetFactory {
   }
 
   static Widget _buildQuickActions(Map<String, dynamic> config, String mode) {
-    final actions = config['actions'] as List<dynamic>? ?? [];
+    // DB stores items as List<String>; legacy format uses List<Map> under 'actions'.
+    final items = config['items'] as List<dynamic>?
+        ?? config['actions'] as List<dynamic>?
+        ?? [];
+
+    if (items.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
       height: 80,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: actions.length,
+        itemCount: items.length,
         itemBuilder: (context, index) {
-          final action = actions[index] as Map<String, dynamic>;
-          final label = action['label'] as String? ?? 'Action';
-          final icon = action['icon'] as String? ?? 'star';
+          final item = items[index];
+          final String label;
+          IconData iconData;
+
+          if (item is Map<String, dynamic>) {
+            label = item['label'] as String? ?? 'Action';
+            final iconStr = item['icon'] as String? ?? '';
+            final codePoint = int.tryParse(iconStr);
+            iconData = codePoint != null
+                ? IconData(codePoint, fontFamily: 'MaterialIcons')
+                : Icons.star_outline;
+          } else {
+            // String key from DB e.g. "log_meal", "scan_product"
+            label = _actionLabel(item as String);
+            iconData = _actionIcon(item);
+          }
 
           return Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -194,8 +428,8 @@ class WidgetFactory {
                       ? const Color(0xFFFF6B6B).withValues(alpha: 0.2)
                       : const Color(0xFF4CAF50).withValues(alpha: 0.2),
                   child: Icon(
-                    IconData(int.parse(icon), fontFamily: 'MaterialIcons'),
-                    color: mode == 'beauty' 
+                    iconData,
+                    color: mode == 'beauty'
                         ? const Color(0xFFFF6B6B)
                         : const Color(0xFF4CAF50),
                   ),
@@ -211,6 +445,28 @@ class WidgetFactory {
         },
       ),
     );
+  }
+
+  static String _actionLabel(String key) {
+    const labels = {
+      'log_meal': 'Log Meal',
+      'scan_product': 'Scan',
+      'view_plan': 'My Plan',
+      'log_routine': 'Routine',
+      'remedy_finder': 'Remedies',
+    };
+    return labels[key] ?? key;
+  }
+
+  static IconData _actionIcon(String key) {
+    const icons = {
+      'log_meal': Icons.restaurant,
+      'scan_product': Icons.qr_code_scanner,
+      'view_plan': Icons.calendar_today,
+      'log_routine': Icons.spa,
+      'remedy_finder': Icons.local_florist,
+    };
+    return icons[key] ?? Icons.star_outline;
   }
 
   // ==================== NUTRITION WIDGETS ====================

@@ -35,7 +35,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   void initState() {
     super.initState();
     _logger.provider('DynamicLayoutPage initState | mode: ${widget.mode}');
-    _loadLayout();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLayout());
   }
 
   @override
@@ -43,7 +43,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.mode != widget.mode) {
       _logger.provider('DynamicLayoutPage didUpdateWidget | mode changed: ${oldWidget.mode} → ${widget.mode}');
-      _loadLayout();
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadLayout());
     }
   }
 
@@ -54,6 +54,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   }
 
   Future<void> _loadLayout() async {
+    if (!mounted) return;
     _logger.provider('DynamicLayoutPage → loading | mode: ${widget.mode}');
     setState(() {
       _isLoading = true;
@@ -63,7 +64,6 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
 
     try {
       ref.read(layoutStateProvider.notifier).setLoading(widget.mode);
-
       final cultureTags = ref.read(userCulturePreferencesProvider);
 
       _logger.db('BEFORE | table: layouts | op: SELECT | mode: ${widget.mode}');
@@ -72,6 +72,8 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
         cultureTags: cultureTags.isNotEmpty ? cultureTags : null,
       );
       _logger.db('AFTER | table: layouts | rows: ${layoutData != null ? 1 : 0}');
+
+      if (!mounted) return;
 
       if (layoutData != null) {
         ref.read(layoutDataProvider.notifier).setLayout(widget.mode, layoutData);
@@ -89,6 +91,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
         error: e,
         stackTrace: st,
       );
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -108,48 +111,35 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
     final layoutState = ref.watch(layoutStateProvider)[widget.mode] ?? LayoutLoadingState.notLoaded;
     final layoutData = ref.watch(layoutDataProvider)[widget.mode];
 
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _loadLayout,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              floating: true,
-              title: Text(
-                widget.mode.toUpperCase(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: _isLoading ? null : _retry,
-                  tooltip: 'Refresh layout',
-                ),
-              ],
+    // No nested Scaffold — this page lives inside MainShell's Scaffold body.
+    return RefreshIndicator(
+      onRefresh: _loadLayout,
+      child: CustomScrollView(
+        slivers: [
+          if (layoutState == LayoutLoadingState.loading || _isLoading)
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (layoutState == LayoutLoadingState.error || _hasError)
+            SliverFillRemaining(
+              child: _buildErrorView(),
+            )
+          else if (layoutData != null && layoutState == LayoutLoadingState.loaded)
+            _buildLayoutContent(layoutData)
+          else
+            SliverFillRemaining(
+              child: _buildEmptyView(),
             ),
-            if (layoutState == LayoutLoadingState.loading || _isLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (layoutState == LayoutLoadingState.error || _hasError)
-              SliverFillRemaining(
-                child: _buildErrorView(),
-              )
-            else if (layoutData != null && layoutState == LayoutLoadingState.loaded)
-              _buildLayoutContent(layoutData)
-            else
-              SliverFillRemaining(
-                child: _buildEmptyView(),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildLayoutContent(Map<String, dynamic> layoutData) {
-    final layout = layoutData['layout'] as Map<String, dynamic>?;
-    final components = layout?['components'] as List<dynamic>? ?? [];
+    final rawLayout = layoutData['layout'];
+    final layout = rawLayout is Map ? Map<String, dynamic>.from(rawLayout) : null;
+    final rawComponents = layout?['components'];
+    final components = rawComponents is List ? rawComponents : <dynamic>[];
 
     if (components.isEmpty) {
       return SliverFillRemaining(child: _buildEmptyView());
@@ -158,7 +148,8 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
-          final component = components[index] as Map<String, dynamic>;
+          final raw = components[index];
+          final component = raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
           return WidgetFactory.buildComponent(component, widget.mode);
         },
         childCount: components.length,

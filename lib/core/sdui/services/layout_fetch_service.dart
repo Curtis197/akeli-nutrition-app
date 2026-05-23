@@ -45,13 +45,24 @@ class LayoutFetchService {
 
       _logger.db('AFTER | table: layouts | rows: 1 | mode: $mode');
 
+      // DB stores layout_json as a top-level JSON array; wrap it so
+      // _buildLayoutContent can find layoutData['layout']['components'].
+      final rawJson = response['layout_json'];
+      final Map<String, dynamic> layoutMap;
+      if (rawJson is List) {
+        layoutMap = {'components': rawJson};
+      } else if (rawJson is Map<String, dynamic>) {
+        layoutMap = rawJson;
+      } else {
+        layoutMap = {'components': <dynamic>[]};
+      }
+
       final layoutData = {
         'layout_id': response['id'] as String,
         'mode': response['mode'] as String,
         'version': response['version'] as String?,
-        'layout': response['layout_json'] as Map<String, dynamic>,
+        'layout': layoutMap,
         'culture_tags': response['culture_tags'] as List<dynamic>?,
-        'metadata': response['metadata'] as Map<String, dynamic>?,
       };
 
       await _cache.cacheLayout(
