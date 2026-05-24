@@ -432,3 +432,285 @@ final chatMessagesProvider =
             .toList();
       });
 });
+
+// ─── Actions ────────────────────────────────────────────────────────────────
+
+/// Returns the conversationId if a private DM conversation already exists
+/// between the current user and [otherUserId], otherwise null.
+Future<String?> checkExistingDm(Ref ref, String otherUserId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return null;
+
+  logger.db('BEFORE | checkExistingDm | otherUserId: $otherUserId');
+
+  try {
+    final mine = await client
+        .from('conversation_participant')
+        .select('conversation_id')
+        .eq('user_id', userId) as List<dynamic>;
+
+    if (mine.isEmpty) {
+      logger.db('AFTER | checkExistingDm | no conversations for current user');
+      return null;
+    }
+
+    final myIds = mine
+        .cast<Map<String, dynamic>>()
+        .map((r) => r['conversation_id'] as String)
+        .toList();
+
+    final shared = await client
+        .from('conversation_participant')
+        .select('conversation_id, conversation:conversation_id(type)')
+        .inFilter('conversation_id', myIds)
+        .eq('user_id', otherUserId) as List<dynamic>;
+
+    for (final row in shared.cast<Map<String, dynamic>>()) {
+      final conv = row['conversation'] as Map<String, dynamic>?;
+      if (conv?['type'] == 'private') {
+        final id = row['conversation_id'] as String;
+        logger.db('AFTER | checkExistingDm | found: $id');
+        return id;
+      }
+    }
+
+    logger.db('AFTER | checkExistingDm | not found');
+    return null;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | checkExistingDm | userId: $userId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | checkExistingDm | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
+/// Returns true if a pending DM request from current user to [recipientId] exists.
+Future<bool> checkPendingRequest(Ref ref, String recipientId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return false;
+
+  logger.db('BEFORE | checkPendingRequest | recipientId: $recipientId');
+
+  try {
+    final result = await client
+        .from('conversation_request')
+        .select('id')
+        .eq('requester_id', userId)
+        .eq('recipient_id', recipientId)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+    final exists = result != null;
+    logger.db('AFTER | checkPendingRequest | exists: $exists');
+    return exists;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | checkPendingRequest | userId: $userId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | checkPendingRequest | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
+/// Sends a DM request from the current user to [recipientId].
+Future<void> sendDmRequest(Ref ref, String recipientId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return;
+
+  logger.db(
+      'BEFORE | table: conversation_request | op: INSERT | recipientId: $recipientId');
+  try {
+    await client.from('conversation_request').insert({
+      'requester_id': userId,
+      'recipient_id': recipientId,
+      'status': 'pending',
+    });
+    logger.db(
+        'AFTER | table: conversation_request | op: INSERT | success');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls(
+          'Permission denied | table: conversation_request | INSERT | userId: $userId',
+          error: e,
+          stackTrace: st);
+    } else {
+      logger.db(
+          'ERROR | table: conversation_request | INSERT | code: ${e.code} | ${e.message}',
+          error: e,
+          stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
+/// Accepts a DM request: updates status, creates conversation + participants.
+/// Returns the new conversationId.
+Future<String> acceptDmRequest(
+  Ref ref,
+  String requestId,
+  String requesterId,
+) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)!.id;
+
+  logger.db('BEFORE | acceptDmRequest | requestId: $requestId');
+
+  try {
+    // 1. Mark request accepted
+    logger.db('BEFORE | table: conversation_request | op: UPDATE accepted | requestId: $requestId');
+    await client.from('conversation_request').update({
+      'status': 'accepted',
+      'responded_at': DateTime.now().toIso8601String(),
+    }).eq('id', requestId);
+    logger.db('AFTER | table: conversation_request | op: UPDATE accepted');
+
+    // 2. Create conversation
+    logger.db('BEFORE | table: conversation | op: INSERT | type: private');
+    final convResult = await client
+        .from('conversation')
+        .insert({'type': 'private', 'created_by': userId})
+        .select('id')
+        .single();
+    final conversationId = convResult['id'] as String;
+    logger.db('AFTER | table: conversation | conversationId: $conversationId');
+
+    // 3. Add both participants
+    logger.db('BEFORE | table: conversation_participant | op: INSERT | conversationId: $conversationId');
+    await client.from('conversation_participant').insert([
+      {'conversation_id': conversationId, 'user_id': userId},
+      {'conversation_id': conversationId, 'user_id': requesterId},
+    ]);
+    logger.db('AFTER | table: conversation_participant | inserted: 2');
+
+    ref.invalidate(myPrivateConversationsProvider);
+    ref.invalidate(pendingDmRequestsProvider);
+
+    logger.db('AFTER | acceptDmRequest | conversationId: $conversationId');
+    return conversationId;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | acceptDmRequest | requestId: $requestId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | acceptDmRequest | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
+/// Rejects a DM request.
+Future<void> rejectDmRequest(Ref ref, String requestId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+
+  logger.db(
+      'BEFORE | table: conversation_request | op: UPDATE rejected | requestId: $requestId');
+  try {
+    await client.from('conversation_request').update({
+      'status': 'rejected',
+      'responded_at': DateTime.now().toIso8601String(),
+    }).eq('id', requestId);
+    logger.db(
+        'AFTER | table: conversation_request | op: UPDATE rejected');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls(
+          'Permission denied | table: conversation_request | UPDATE | requestId: $requestId',
+          error: e,
+          stackTrace: st);
+    } else {
+      logger.db(
+          'ERROR | table: conversation_request | UPDATE | code: ${e.code}',
+          error: e,
+          stackTrace: st);
+    }
+    rethrow;
+  }
+
+  ref.invalidate(pendingDmRequestsProvider);
+}
+
+/// Sends a text message in a conversation and updates conversation.updated_at.
+Future<void> sendMessage(Ref ref, String conversationId, String content) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return;
+
+  logger.db(
+      'BEFORE | table: chat_message | op: INSERT | conversationId: $conversationId');
+  try {
+    await client.from('chat_message').insert({
+      'conversation_id': conversationId,
+      'sender_id': userId,
+      'content': content,
+      'message_type': 'text',
+    });
+    logger.db('AFTER | table: chat_message | inserted');
+
+    await client
+        .from('conversation')
+        .update({'updated_at': DateTime.now().toIso8601String()})
+        .eq('id', conversationId);
+    logger.db('AFTER | table: conversation | updated_at bumped');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls(
+          'Permission denied | table: chat_message | INSERT | conversationId: $conversationId',
+          error: e,
+          stackTrace: st);
+    } else {
+      logger.db(
+          'ERROR | table: chat_message | INSERT | code: ${e.code}',
+          error: e,
+          stackTrace: st);
+    }
+    rethrow;
+  }
+
+  ref.invalidate(myPrivateConversationsProvider);
+}
+
+/// Updates last_read_at for the current user in a conversation (clears unread badge).
+Future<void> markConversationRead(Ref ref, String conversationId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return;
+
+  logger.db(
+      'BEFORE | table: conversation_participant | op: UPDATE last_read_at | conversationId: $conversationId');
+  try {
+    await client
+        .from('conversation_participant')
+        .update({'last_read_at': DateTime.now().toIso8601String()})
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId);
+    logger.db(
+        'AFTER | table: conversation_participant | last_read_at updated');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls(
+          'Permission denied | table: conversation_participant | UPDATE last_read_at | conversationId: $conversationId',
+          error: e,
+          stackTrace: st);
+    } else {
+      logger.db(
+          'ERROR | table: conversation_participant | UPDATE last_read_at | code: ${e.code}',
+          error: e,
+          stackTrace: st);
+    }
+    rethrow;
+  }
+
+  ref.invalidate(myPrivateConversationsProvider);
+}
