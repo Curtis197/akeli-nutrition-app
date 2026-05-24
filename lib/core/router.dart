@@ -56,6 +56,8 @@ abstract class AkeliRoutes {
   static const privacyPolicy = "/privacy-policy";
   static const termsOfService = "/terms-of-service";
   static const referral = "/referral";
+  static const dmChat = '/dm/:conversationId';
+  static String dmChatPath(String id) => '/dm/$id';
 
   static String recipeDetailPath(String id) => "/recipe/$id";
   static String mealDetailPath(String id) => "/meal/$id";
@@ -196,6 +198,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.referral,
         builder: (context, state) => const ReferralPage(),
+      ),
+      // DM-6 will add conversationId/title params to GroupChatPage
+      GoRoute(
+        path: AkeliRoutes.dmChat,
+        builder: (context, state) {
+          final conversationId = state.pathParameters['conversationId']!;
+          final title = state.extra as String? ?? 'Message privé';
+          return GroupChatPage(conversationId: conversationId, title: title);
+        },
       ),
       ShellRoute(
         builder: (context, state, child) => MainShell(child: child),
