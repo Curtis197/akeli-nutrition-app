@@ -82,13 +82,14 @@ final unreadNotificationCountProvider =
   _logger.db(
       'BEFORE | table: notification | op: SELECT unread count | userId: ${user.id}');
   try {
-    final data = await client
+    final response = await client
         .from('notification')
         .select()
         .eq('user_id', user.id)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .count(CountOption.exact);
 
-    final count = (data as List).length;
+    final count = response.count;
     _logger.db('AFTER | table: notification | unread count: $count');
     _logger.provider(
         'unreadNotificationCountProvider → data | count: $count');
