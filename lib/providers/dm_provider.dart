@@ -640,7 +640,7 @@ Future<void> rejectDmRequest(Ref ref, String requestId) async {
 }
 
 /// Sends a text message in a conversation and updates conversation.updated_at.
-Future<void> sendMessage(Ref ref, String conversationId, String content) async {
+Future<void> sendMessage(WidgetRef ref, String conversationId, String content) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
@@ -681,7 +681,7 @@ Future<void> sendMessage(Ref ref, String conversationId, String content) async {
 }
 
 /// Updates last_read_at for the current user in a conversation (clears unread badge).
-Future<void> markConversationRead(Ref ref, String conversationId) async {
+Future<void> markConversationRead(WidgetRef ref, String conversationId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
