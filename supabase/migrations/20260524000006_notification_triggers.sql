@@ -8,7 +8,9 @@
 -- 1. DM message → notify recipient -----------------------------------------
 
 CREATE OR REPLACE FUNCTION fn_notify_chat_message()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
   v_sender_name  text;
   v_recipient_id uuid;
@@ -45,6 +47,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_notify_chat_message ON chat_message;
 CREATE TRIGGER trg_notify_chat_message
   AFTER INSERT ON chat_message
   FOR EACH ROW
@@ -53,22 +56,24 @@ CREATE TRIGGER trg_notify_chat_message
 -- 2. Conversation request → notify recipient --------------------------------
 
 CREATE OR REPLACE FUNCTION fn_notify_conversation_request()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
 DECLARE
   v_requester_name text;
 BEGIN
   SELECT display_name INTO v_requester_name
-    FROM user_profile WHERE id = NEW.requester_id;
+    FROM user_profile WHERE id = NEW.from_user_id;
 
   INSERT INTO notification (user_id, type, title, body, data)
   VALUES (
-    NEW.recipient_id,
+    NEW.to_user_id,
     'conversation_request',
     COALESCE(v_requester_name, 'Quelqu''un') || ' veut discuter',
     'Acceptez ou refusez la demande de conversation.',
     jsonb_build_object(
       'request_id',   NEW.id,
-      'requester_id', NEW.requester_id
+      'requester_id', NEW.from_user_id
     )
   );
 
@@ -76,6 +81,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_notify_conversation_request ON conversation_request;
 CREATE TRIGGER trg_notify_conversation_request
   AFTER INSERT ON conversation_request
   FOR EACH ROW
