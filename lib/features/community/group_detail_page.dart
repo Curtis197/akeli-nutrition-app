@@ -90,7 +90,7 @@ class GroupDetailPage extends ConsumerWidget {
                           return _MemberRow(
                             member: member,
                             isMe: isMe,
-                            onDmTap: () => _onDmTap(context, ref as Ref, member),
+                            onDmTap: () => _onDmTap(context, ref, member),
                           );
                         }).toList(),
                       );
@@ -116,38 +116,48 @@ class GroupDetailPage extends ConsumerWidget {
   }
 
   Future<void> _onDmTap(
-      BuildContext context, Ref ref, GroupMember member) async {
+      BuildContext context, WidgetRef ref, GroupMember member) async {
     appLogger.userAction('DM button tapped',
         screen: 'GroupDetailPage',
         metadata: {'targetUserId': member.userId});
-
-    // 1. Already have a conversation?
-    final existingId = await checkExistingDm(ref, member.userId);
-    if (existingId != null) {
-      if (context.mounted) {
-        context.push(AkeliRoutes.dmChatPath(existingId),
-            extra: member.displayName);
+    try {
+      // 1. Already have a conversation?
+      final existingId = await checkExistingDm(ref, member.userId);
+      if (existingId != null) {
+        if (context.mounted) {
+          context.push(AkeliRoutes.dmChatPath(existingId),
+              extra: member.displayName);
+        }
+        return;
       }
-      return;
-    }
 
-    // 2. Already sent a request?
-    final pending = await checkPendingRequest(ref, member.userId);
-    if (pending) {
+      // 2. Already sent a request?
+      final pending = await checkPendingRequest(ref, member.userId);
+      if (pending) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Demande déjà envoyée')),
+          );
+        }
+        return;
+      }
+
+      // 3. Send new request
+      await sendDmRequest(ref, member.userId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Demande déjà envoyée')),
+          SnackBar(content: Text('Demande envoyée à ${member.displayName}')),
         );
       }
-      return;
-    }
-
-    // 3. Send new request
-    await sendDmRequest(ref, member.userId);
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Demande envoyée à ${member.displayName}')),
-      );
+    } catch (e, st) {
+      appLogger.db('ERROR | _onDmTap | ${e.toString()}',
+          error: e, stackTrace: st);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Une erreur est survenue. Veuillez réessayer.')),
+        );
+      }
     }
   }
 }

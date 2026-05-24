@@ -437,7 +437,7 @@ final chatMessagesProvider =
 
 /// Returns the conversationId if a private DM conversation already exists
 /// between the current user and [otherUserId], otherwise null.
-Future<String?> checkExistingDm(Ref ref, String otherUserId) async {
+Future<String?> checkExistingDm(WidgetRef ref, String otherUserId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
@@ -489,7 +489,7 @@ Future<String?> checkExistingDm(Ref ref, String otherUserId) async {
 }
 
 /// Returns true if a pending DM request from current user to [recipientId] exists.
-Future<bool> checkPendingRequest(Ref ref, String recipientId) async {
+Future<bool> checkPendingRequest(WidgetRef ref, String recipientId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
@@ -520,7 +520,7 @@ Future<bool> checkPendingRequest(Ref ref, String recipientId) async {
 }
 
 /// Sends a DM request from the current user to [recipientId].
-Future<void> sendDmRequest(Ref ref, String recipientId) async {
+Future<void> sendDmRequest(WidgetRef ref, String recipientId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
