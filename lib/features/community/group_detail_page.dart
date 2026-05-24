@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:akeli/core/logger.dart';
-import 'package:akeli/core/theme.dart';
-import 'package:akeli/shared/widgets/section_header.dart';
-import 'package:akeli/shared/widgets/avatar.dart';
-import 'package:akeli/shared/widgets/akeli_recipe_card.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../core/logger.dart';
+import '../../core/router.dart';
+import '../../core/theme.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/dm_provider.dart';
+import '../../shared/widgets/avatar.dart';
+import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/section_header.dart';
 
-class GroupDetailPage extends StatelessWidget {
+class GroupDetailPage extends ConsumerWidget {
   final String groupId;
   const GroupDetailPage({super.key, required this.groupId});
 
   @override
-  Widget build(BuildContext context) {
-    appLogger.d('GroupDetailPage build() | groupId: $groupId');
-    const members = ['AB', 'CD', 'EF', 'GH', 'IJ'];
-    const recipes = [
-      ('Salade César', 320, 4.5),
-      ('Poulet Tikka', 450, 4.8),
-      ('Smoothie Vert', 180, 4.2),
-    ];
+  Widget build(BuildContext context, WidgetRef ref) {
+    appLogger.provider('GroupDetailPage build() | groupId: $groupId');
+    final membersAsync = ref.watch(groupMembersProvider(groupId));
+    final currentUserId = ref.watch(currentUserProvider)?.id;
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -38,9 +39,15 @@ class GroupDetailPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('🥗', style: TextStyle(fontSize: 48)),
+                    const Text('👥', style: TextStyle(fontSize: 48)),
                     const SizedBox(height: 8),
-                    Text('Groupe Santé', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                    Text(
+                      'Groupe',
+                      style: Theme.of(context)
+                          .textTheme
+                          .displaySmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
                   ],
                 ),
               ),
@@ -50,54 +57,149 @@ class GroupDetailPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Un groupe dédié à une alimentation saine et équilibrée.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AkeliColors.textSecondary)),
                   const SizedBox(height: AkeliSpacing.lg),
                   AkeliSectionHeader(
                     title: 'Membres',
                     trailingLabel: 'Inviter',
                     onTrailingTap: () {
-                      appLogger.userAction('Invite tapped', screen: 'GroupDetailPage');
+                      appLogger.userAction('Invite tapped',
+                          screen: 'GroupDetailPage');
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Inviter un ami')),
+                        const SnackBar(
+                            content:
+                                Text('Inviter un ami — bientôt disponible')),
                       );
                     },
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    children: members.map((initials) => Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AkeliAvatar(initials: initials, size: AvatarSize.md),
-                        const SizedBox(height: 4),
-                        Text(initials, style: Theme.of(context).textTheme.labelSmall),
-                      ],
-                    )).toList(),
+                  membersAsync.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Center(child: Text('Erreur: $e')),
+                    data: (members) {
+                      if (members.isEmpty) {
+                        return const EmptyState(
+                          icon: Icons.people_outline_rounded,
+                          title: 'Aucun membre',
+                          subtitle: 'Les membres apparaîtront ici.',
+                        );
+                      }
+                      return Column(
+                        children: members.map((member) {
+                          final isMe = member.userId == currentUserId;
+                          return _MemberRow(
+                            member: member,
+                            isMe: isMe,
+                            onDmTap: () => _onDmTap(context, ref as Ref, member),
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                   const SizedBox(height: AkeliSpacing.lg),
                   const AkeliSectionHeader(title: 'Recettes partagées'),
                   const SizedBox(height: 12),
-                  ...recipes.map((r) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: AkeliRecipeCard(
-                      title: r.$1,
-                      calories: r.$2,
-                      rating: r.$3,
-                      likes: 12,
-                      comments: 3,
-                      saves: 5,
-                      tags: const [],
-                      hasImage: false,
-                    ),
-                  )),
+                  const EmptyState(
+                    icon: Icons.restaurant_menu_rounded,
+                    title: 'Aucune recette partagée',
+                    subtitle:
+                        'Les recettes partagées par le groupe apparaîtront ici.',
+                  ),
                   const SizedBox(height: 80),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _onDmTap(
+      BuildContext context, Ref ref, GroupMember member) async {
+    appLogger.userAction('DM button tapped',
+        screen: 'GroupDetailPage',
+        metadata: {'targetUserId': member.userId});
+
+    // 1. Already have a conversation?
+    final existingId = await checkExistingDm(ref, member.userId);
+    if (existingId != null) {
+      if (context.mounted) {
+        context.push(AkeliRoutes.dmChatPath(existingId),
+            extra: member.displayName);
+      }
+      return;
+    }
+
+    // 2. Already sent a request?
+    final pending = await checkPendingRequest(ref, member.userId);
+    if (pending) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Demande déjà envoyée')),
+        );
+      }
+      return;
+    }
+
+    // 3. Send new request
+    await sendDmRequest(ref, member.userId);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Demande envoyée à ${member.displayName}')),
+      );
+    }
+  }
+}
+
+class _MemberRow extends StatelessWidget {
+  final GroupMember member;
+  final bool isMe;
+  final VoidCallback onDmTap;
+
+  const _MemberRow({
+    required this.member,
+    required this.isMe,
+    required this.onDmTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AkeliSpacing.sm),
+      child: Row(
+        children: [
+          AkeliAvatar(
+            imageUrl: member.avatarUrl,
+            initials: member.displayName.isNotEmpty
+                ? member.displayName[0].toUpperCase()
+                : '?',
+            size: AvatarSize.md,
+          ),
+          const SizedBox(width: AkeliSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(member.displayName,
+                    style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  member.role == 'admin' ? 'Admin' : 'Membre',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          if (!isMe)
+            IconButton(
+              icon: const Icon(Icons.mail_outline_rounded),
+              color: AkeliColors.primary,
+              tooltip: 'Message privé',
+              onPressed: onDmTap,
+            ),
+        ],
       ),
     );
   }
