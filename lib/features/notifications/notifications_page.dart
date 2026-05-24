@@ -7,8 +7,6 @@ import 'package:akeli/providers/dm_provider.dart';
 import 'package:akeli/shared/widgets/empty_state.dart';
 import 'package:akeli/shared/widgets/notif_card.dart';
 
-final _logger = appLogger;
-
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
@@ -17,6 +15,8 @@ class NotificationsPage extends ConsumerStatefulWidget {
 }
 
 class _NotificationsPageState extends ConsumerState<NotificationsPage> {
+  final _logger = appLogger;
+
   @override
   void initState() {
     super.initState();
