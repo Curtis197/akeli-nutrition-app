@@ -555,7 +555,7 @@ Future<void> sendDmRequest(WidgetRef ref, String recipientId) async {
 /// Accepts a DM request: updates status, creates conversation + participants.
 /// Returns the new conversationId.
 Future<String> acceptDmRequest(
-  Ref ref,
+  WidgetRef ref,
   String requestId,
   String requesterId,
 ) async {
@@ -608,7 +608,7 @@ Future<String> acceptDmRequest(
 }
 
 /// Rejects a DM request.
-Future<void> rejectDmRequest(Ref ref, String requestId) async {
+Future<void> rejectDmRequest(WidgetRef ref, String requestId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
 
