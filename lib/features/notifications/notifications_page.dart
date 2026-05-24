@@ -45,8 +45,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           _logger.provider('NotificationsPage → error | $e');
           return const EmptyState(
             icon: Icons.notifications_none_rounded,
-            title: 'Aucune notification',
-            subtitle: 'Vous recevrez ici vos rappels de repas et messages.',
+            title: 'Erreur de chargement',
+            subtitle: 'Impossible de charger les notifications. Réessayez.',
           );
         },
         data: (notifications) {
@@ -60,6 +60,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             );
           }
           return ListView.builder(
+            padding: const EdgeInsets.only(bottom: 80),
             itemCount: notifications.length,
             itemBuilder: (context, index) =>
                 _buildCard(notifications[index]),
@@ -100,9 +101,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       screen: 'NotificationsPage',
                       metadata: {'request_id': requestId});
                   acceptDmRequest(ref, requestId, requesterId).then((_) {
-                    ref.invalidate(notificationsProvider);
-                  }).catchError((e) {
-                    _logger.db('ERROR | acceptDmRequest | $e');
+                    if (mounted) ref.invalidate(notificationsProvider);
+                  }).catchError((Object e, StackTrace st) {
+                    _logger.db('ERROR | acceptDmRequest | $e', error: e, stackTrace: st);
                   });
                 },
           onDecline: requestId.isEmpty
@@ -112,9 +113,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                       screen: 'NotificationsPage',
                       metadata: {'request_id': requestId});
                   rejectDmRequest(ref, requestId).then((_) {
-                    ref.invalidate(notificationsProvider);
-                  }).catchError((e) {
-                    _logger.db('ERROR | rejectDmRequest | $e');
+                    if (mounted) ref.invalidate(notificationsProvider);
+                  }).catchError((Object e, StackTrace st) {
+                    _logger.db('ERROR | rejectDmRequest | $e', error: e, stackTrace: st);
                   });
                 },
         );

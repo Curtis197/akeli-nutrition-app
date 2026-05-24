@@ -22,7 +22,6 @@ void main() {
         const NotificationsPage(),
         overrides: [
           notificationsProvider.overrideWith((_) async => []),
-          unreadNotificationCountProvider.overrideWith((_) async => 0),
           currentUserProvider.overrideWith((_) => null),
         ],
       ));
@@ -44,7 +43,6 @@ void main() {
         const NotificationsPage(),
         overrides: [
           notificationsProvider.overrideWith((_) async => [notif]),
-          unreadNotificationCountProvider.overrideWith((_) async => 1),
           currentUserProvider.overrideWith((_) => null),
         ],
       ));
@@ -68,7 +66,6 @@ void main() {
         const NotificationsPage(),
         overrides: [
           notificationsProvider.overrideWith((_) async => [notif]),
-          unreadNotificationCountProvider.overrideWith((_) async => 1),
           currentUserProvider.overrideWith((_) => null),
         ],
       ));
