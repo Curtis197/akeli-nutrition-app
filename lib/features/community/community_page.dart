@@ -293,8 +293,11 @@ class _ToutItem {
         title: Text(g['name'] as String),
         subtitle:
             Text('${(g['member_count'] as int?) ?? 0} membres'),
-        onTap: () => context
-            .push(AkeliRoutes.groupChatPath(g['id'] as String)),
+        onTap: () {
+          appLogger.userAction('Group tile tapped', screen: 'CommunityPage',
+              metadata: {'groupId': g['id']});
+          context.push(AkeliRoutes.groupChatPath(g['id'] as String));
+        },
       ),
     );
   }
@@ -326,10 +329,12 @@ class _ToutItem {
                 ),
               )
             : null,
-        onTap: () => context.push(
-          AkeliRoutes.dmChatPath(dm.conversationId),
-          extra: dm.otherUserName,
-        ),
+        onTap: () {
+          appLogger.userAction('DM tile tapped', screen: 'CommunityPage',
+              metadata: {'conversationId': dm.conversationId});
+          context.push(AkeliRoutes.dmChatPath(dm.conversationId),
+              extra: dm.otherUserName);
+        },
       ),
     );
   }
