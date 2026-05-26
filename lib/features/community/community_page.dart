@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/supabase_client.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -14,9 +16,37 @@ import '../../shared/widgets/empty_state.dart';
 
 final communityGroupsProvider =
     FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  appLogger.provider('communityGroupsProvider build()');
-  ref.onDispose(() => appLogger.provider('communityGroupsProvider disposed'));
-  return [];
+  final logger = appLogger;
+  logger.provider('communityGroupsProvider build()');
+  ref.onDispose(() => logger.provider('communityGroupsProvider disposed'));
+
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return [];
+
+  final client = ref.watch(supabaseClientProvider);
+
+  logger.db('BEFORE | table: group_member | op: SELECT my groups | userId: ${user.id}');
+  final memberships = await client
+      .from('group_member')
+      .select('group_id')
+      .eq('user_id', user.id) as List<dynamic>;
+
+  if (memberships.isEmpty) return [];
+
+  final groupIds = memberships
+      .cast<Map<String, dynamic>>()
+      .map((m) => m['group_id'] as String)
+      .toList();
+
+  logger.db('BEFORE | table: community_group | op: SELECT | inFilter count: ${groupIds.length}');
+  final groups = await client
+      .from('community_group')
+      .select('*')
+      .inFilter('id', groupIds)
+      .order('updated_at', ascending: false) as List<dynamic>;
+
+  logger.db('AFTER | table: community_group | rows: ${groups.length}');
+  return groups.cast<Map<String, dynamic>>();
 });
 
 // ---------------------------------------------------------------------------
@@ -114,10 +144,14 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
             onPressed: () {
               _logger.userAction('Create group FAB tapped',
                   screen: 'CommunityPage');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content:
-                        Text('Création de groupe — bientôt disponible')),
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: AkeliColors.surface,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(AkeliRadius.xl)),
+                ),
+                builder: (ctx) => const _CreateGroupSheet(),
               );
             },
             backgroundColor: AkeliColors.primary,
@@ -128,6 +162,144 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
     );
   }
 }
+
+class _CreateGroupSheet extends ConsumerStatefulWidget {
+  const _CreateGroupSheet();
+
+  @override
+  ConsumerState<_CreateGroupSheet> createState() => _CreateGroupSheetState();
+}
+
+class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _descController = TextEditingController();
+  bool _isPublic = true;
+  bool _isLoading = false;
+  String? _errorMsg;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isLoading = true;
+      _errorMsg = null;
+    });
+
+    try {
+      final groupId = await createGroup(
+        ref,
+        name: _nameController.text.trim(),
+        description: _descController.text.trim(),
+        isPublic: _isPublic,
+      );
+      
+      ref.invalidate(communityGroupsProvider);
+      if (mounted) {
+        Navigator.pop(context);
+        context.push(AkeliRoutes.groupChatPath(groupId));
+      }
+    } catch (e) {
+      setState(() {
+        _errorMsg = 'Erreur lors de la création du groupe.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: AkeliSpacing.lg,
+        right: AkeliSpacing.lg,
+        top: AkeliSpacing.lg,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Nouveau groupe',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AkeliSpacing.lg),
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 50,
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Le nom est requis';
+                return null;
+              },
+            ),
+            const SizedBox(height: AkeliSpacing.md),
+            TextFormField(
+              controller: _descController,
+              decoration: const InputDecoration(
+                labelText: 'Description (Optionnelle)',
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 200,
+              maxLines: 3,
+            ),
+            const SizedBox(height: AkeliSpacing.md),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Groupe public'),
+                Switch(
+                  value: _isPublic,
+                  onChanged: (val) {
+                    setState(() => _isPublic = val);
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: AkeliSpacing.xl),
+            if (_errorMsg != null) ...[
+              Text(
+                _errorMsg!,
+                style: const TextStyle(color: AkeliColors.error),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AkeliSpacing.md),
+            ],
+            FilledButton(
+              onPressed: _isLoading ? null : _submit,
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: _isLoading 
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Text('Créer'),
+            ),
+            const SizedBox(height: AkeliSpacing.xl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 // ---------------------------------------------------------------------------
 // _GroupesTab — existing groups list

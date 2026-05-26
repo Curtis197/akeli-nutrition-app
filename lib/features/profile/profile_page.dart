@@ -7,6 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/dm_provider.dart';
+import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/avatar.dart';
 
@@ -36,11 +39,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    // For now we assume we're viewing the current user if userId is null
-    final isCurrentUser = widget.userId == null; 
-    bool isPrivate = false; // Mocking privacy state for now
-    
+    final isCurrentUser = widget.userId == null;
+    bool isPrivate = false;
+
     final profileAsync = ref.watch(userProfileProvider);
+    final currentUser = ref.watch(currentUserProvider);
+    final targetUserId = widget.userId ?? currentUser?.id ?? '';
+    final userRecipesAsync = ref.watch(userRecipesProvider(targetUserId));
     
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -193,50 +198,160 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                         ),
                         const SizedBox(height: 32),
                         // Action Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [AkeliColors.primary, AkeliColors.primaryContainer],
-                                  ),
-                                  borderRadius: BorderRadius.circular(AkeliRadius.md),
-                                ),
-                                child: FilledButton.icon(
-                                  onPressed: () {
-                                    appLogger.userAction('Ajouter button tapped', screen: 'ProfilePage');
-                                  },
-                                  icon: const Icon(Icons.add, size: 20, color: Colors.white),
-                                  label: Text('Ajouter', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
-                                  style: FilledButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
-                                  ),
+                        if (isCurrentUser)
+                          const SizedBox.shrink()
+                        else
+                          Consumer(builder: (context, ref, _) {
+                            final convStateAsync = ref.watch(conversationStateProvider(widget.userId!));
+                            
+                            return convStateAsync.when(
+                              loading: () => const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8),
+                                  child: CircularProgressIndicator(),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  appLogger.userAction('Ecrire button tapped', screen: 'ProfilePage');
-                                },
-                                icon: const Icon(Icons.edit, size: 20),
-                                label: Text('Ecrire', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AkeliColors.primary,
-                                  backgroundColor: AkeliColors.surfaceContainerLowest,
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
-                                  side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                              error: (err, _) => const SizedBox.shrink(),
+                              data: (convState) {
+                                if (convState.status == ConvState.none) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                                            ),
+                                            borderRadius: BorderRadius.circular(AkeliRadius.md),
+                                          ),
+                                          child: FilledButton.icon(
+                                            onPressed: () async {
+                                              appLogger.userAction('Ajouter button tapped', screen: 'ProfilePage');
+                                              try {
+                                                await sendDmRequest(ref, widget.userId!);
+                                                ref.invalidate(conversationStateProvider(widget.userId!));
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Demande envoyée')),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Erreur lors de l\'envoi de la demande')),
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            icon: const Icon(Icons.person_add_rounded, size: 20, color: Colors.white),
+                                            label: Text('Ajouter', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: Colors.transparent,
+                                              shadowColor: Colors.transparent,
+                                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else if (convState.status == ConvState.pending) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: null,
+                                          icon: const Icon(Icons.access_time_rounded, size: 20),
+                                          label: Text('En attente', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.textSecondary,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            appLogger.userAction('Ecrire button tapped', screen: 'ProfilePage');
+                                            context.push(AkeliRoutes.dmChatPath(convState.conversationId!), extra: profile?.displayName ?? '');
+                                          },
+                                          icon: const Icon(Icons.edit, size: 20),
+                                          label: Text('Ecrire', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.primary,
+                                            backgroundColor: AkeliColors.surfaceContainerLowest,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            appLogger.userAction('Supprimer button tapped', screen: 'ProfilePage');
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('Fermer la conversation ?'),
+                                                content: const Text("Vous quitterez cette conversation. L'autre utilisateur gardera son historique."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(ctx),
+                                                    child: const Text('Annuler'),
+                                                  ),
+                                                  TextButton(
+                                                    style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
+                                                    onPressed: () async {
+                                                      Navigator.pop(ctx);
+                                                      try {
+                                                        await leaveDmConversation(ref, convState.conversationId!);
+                                                        ref.invalidate(conversationStateProvider(widget.userId!));
+                                                        if (context.mounted) {
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(content: Text('Conversation fermée')),
+                                                          );
+                                                        }
+                                                      } catch (e) {
+                                                        if (context.mounted) {
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(content: Text('Erreur lors de la fermeture')),
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                    child: const Text('Fermer'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.close_rounded, size: 20),
+                                          label: Text('Supprimer', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.error,
+                                            backgroundColor: AkeliColors.surfaceContainerLowest,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.error.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
+                            );
+                          }),
                       ],
                     ),
                   ),
@@ -317,23 +432,31 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                           controller: _tabController,
                           children: [
                             // Recettes Tab
-                            ListView.separated(
-                              physics: const NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.zero,
-                              itemCount: 3,
-                              separatorBuilder: (context, index) => const SizedBox(height: 16),
-                              itemBuilder: (context, index) {
-                                final recipes = [
-                                  _RecipeMock('Salade d\'Été aux Agrumes', '15 min • Végétarien', '4.9', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&auto=format&fit=crop'),
-                                  _RecipeMock('Tartine Avocat & Sésame', '10 min • Vegan', '4.7', 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=800&auto=format&fit=crop'),
-                                  _RecipeMock('Bol Énergie Açaí', '5 min • Petit-déjeuner', '5.0', 'https://images.unsplash.com/photo-1494597564530-871f2b93ac55?w=800&auto=format&fit=crop'),
-                                ];
-                                final r = recipes[index];
-                                return _ProfileRecipeCard(
-                                  title: r.title,
-                                  subtitle: r.subtitle,
-                                  rating: r.rating,
-                                  imageUrl: r.img,
+                            userRecipesAsync.when(
+                              loading: () => const Center(child: CircularProgressIndicator()),
+                              error: (_, __) => const Center(
+                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              ),
+                              data: (recipes) {
+                                if (recipes.isEmpty) {
+                                  return const Center(
+                                    child: Text('Aucune recette', style: TextStyle(color: AkeliColors.outline)),
+                                  );
+                                }
+                                return ListView.separated(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: recipes.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                  itemBuilder: (context, index) {
+                                    final r = recipes[index];
+                                    return _ProfileRecipeCard(
+                                      title: r.title,
+                                      subtitle: '${r.totalTimeMin} min • ${r.difficulty}',
+                                      rating: r.averageRating.toStringAsFixed(1),
+                                      imageUrl: r.thumbnailUrl ?? '',
+                                    );
+                                  },
                                 );
                               },
                             ),
@@ -353,14 +476,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
       ),
     );
   }
-}
-
-class _RecipeMock {
-  final String title;
-  final String subtitle;
-  final String rating;
-  final String img;
-  _RecipeMock(this.title, this.subtitle, this.rating, this.img);
 }
 
 class _ProfileRecipeCard extends StatelessWidget {

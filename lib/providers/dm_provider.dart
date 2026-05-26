@@ -149,6 +149,72 @@ class ChatMessage {
 
 // ─── Query providers ────────────────────────────────────────────────────────
 
+enum ConvState { none, pending, active }
+
+class ConversationState {
+  final ConvState status;
+  final String? conversationId;
+
+  const ConversationState(this.status, {this.conversationId});
+}
+
+final conversationStateProvider =
+    FutureProvider.autoDispose.family<ConversationState, String>((ref, otherUserId) async {
+  final logger = appLogger;
+  final client = ref.watch(supabaseClientProvider);
+  final userId = ref.watch(currentUserProvider)?.id;
+
+  logger.provider('conversationStateProvider build() | otherUserId: $otherUserId');
+  ref.onDispose(() => logger.provider('conversationStateProvider disposed'));
+
+  if (userId == null) return const ConversationState(ConvState.none);
+
+  // Check for existing private conversation
+  logger.db('BEFORE | conversationStateProvider | checkExistingDm | otherUserId: $otherUserId');
+  final mine = await client
+      .from('conversation_participant')
+      .select('conversation_id')
+      .eq('user_id', userId) as List<dynamic>;
+
+  if (mine.isNotEmpty) {
+    final myIds = mine.cast<Map<String, dynamic>>().map((r) => r['conversation_id'] as String).toList();
+    final shared = await client
+        .from('conversation_participant')
+        .select('conversation_id, conversation:conversation_id(type)')
+        .inFilter('conversation_id', myIds)
+        .eq('user_id', otherUserId) as List<dynamic>;
+
+    for (final row in shared.cast<Map<String, dynamic>>()) {
+      final conv = row['conversation'] as Map<String, dynamic>?;
+      if (conv?['type'] == 'private') {
+        final id = row['conversation_id'] as String;
+        logger.db('AFTER | conversationStateProvider | found active DM | conversationId: $id');
+        return ConversationState(ConvState.active, conversationId: id);
+      }
+    }
+  }
+
+  // Check for pending outbound request
+  logger.db('BEFORE | conversationStateProvider | checkPendingRequest | otherUserId: $otherUserId');
+  final pending = await client
+      .from('conversation_request')
+      .select('id')
+      .eq('requester_id', userId)
+      .eq('recipient_id', otherUserId)
+      .eq('status', 'pending')
+      .maybeSingle();
+
+  if (pending != null) {
+    logger.db('AFTER | conversationStateProvider | pending request exists');
+    return const ConversationState(ConvState.pending);
+  }
+
+  logger.db('AFTER | conversationStateProvider | no relationship');
+  return const ConversationState(ConvState.none);
+});
+
+
+
 /// All private conversations the current user is a participant in,
 /// sorted by most recently updated.
 final myPrivateConversationsProvider =
@@ -713,4 +779,108 @@ Future<void> markConversationRead(WidgetRef ref, String conversationId) async {
   }
 
   ref.invalidate(myPrivateConversationsProvider);
+}
+
+/// Soft-leaves a DM conversation (deletes the current user's participant row).
+Future<void> leaveDmConversation(WidgetRef ref, String conversationId) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) return;
+
+  logger.db(
+      'BEFORE | table: conversation_participant | op: DELETE | conversationId: $conversationId');
+  try {
+    await client
+        .from('conversation_participant')
+        .delete()
+        .eq('conversation_id', conversationId)
+        .eq('user_id', userId);
+    logger.db('AFTER | table: conversation_participant | deleted for current user');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls(
+          'Permission denied | table: conversation_participant | DELETE | conversationId: $conversationId',
+          error: e,
+          stackTrace: st);
+    } else {
+      logger.db(
+          'ERROR | table: conversation_participant | DELETE | code: ${e.code}',
+          error: e,
+          stackTrace: st);
+    }
+    rethrow;
+  }
+
+  ref.invalidate(myPrivateConversationsProvider);
+}
+
+/// Creates a new community group and returns its ID.
+Future<String> createGroup(
+  WidgetRef ref, {
+  required String name,
+  String? description,
+  bool isPublic = true,
+}) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) throw Exception('User not logged in');
+
+  logger.db('BEFORE | createGroup | name: $name');
+
+  try {
+    // 1. Create group
+    logger.db('BEFORE | table: community_group | op: INSERT');
+    final groupResult = await client
+        .from('community_group')
+        .insert({
+          'name': name,
+          'description': description?.isNotEmpty == true ? description : null,
+          'is_public': isPublic,
+          'creator_id': userId,
+        })
+        .select('id')
+        .single();
+    final groupId = groupResult['id'] as String;
+    logger.db('AFTER | table: community_group | groupId: $groupId');
+
+    // 2. Add creator as admin
+    logger.db('BEFORE | table: group_member | op: INSERT | role: admin');
+    await client.from('group_member').insert({
+      'group_id': groupId,
+      'user_id': userId,
+      'role': 'admin',
+    });
+
+    // 3. Create conversation for the group
+    logger.db('BEFORE | table: conversation | op: INSERT | type: group');
+    final convResult = await client
+        .from('conversation')
+        .insert({
+          'type': 'group',
+          'community_group_id': groupId,
+          'created_by': userId,
+        })
+        .select('id')
+        .single();
+    final conversationId = convResult['id'] as String;
+
+    // 4. Add creator to the conversation
+    logger.db('BEFORE | table: conversation_participant | op: INSERT | conversationId: $conversationId');
+    await client.from('conversation_participant').insert({
+      'conversation_id': conversationId,
+      'user_id': userId,
+    });
+    
+    logger.db('AFTER | createGroup sequence completed | groupId: $groupId');
+    return groupId;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | createGroup', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | createGroup | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
 }
