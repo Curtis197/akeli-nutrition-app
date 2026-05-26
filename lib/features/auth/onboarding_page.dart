@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/router.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
 import '../../core/logger.dart';
+import '../nutrition_plan/nutrition_plan_page.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -18,8 +22,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _pageController = PageController();
+  final GlobalKey<NutritionPlanPageState> _nutritionPlanKey = GlobalKey<NutritionPlanPageState>();
   int _currentStep = 0;
-  static const int _totalSteps = 6;
+  static const int _totalSteps = 7;
+  static const int _nutritionPlanStep = 5;
   bool _isSubmitting = false;
   final _logger = appLogger;
 
@@ -33,7 +39,20 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   void _next() {
     _logger.userAction('Onboarding next tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
-    if (!notifier.canAdvance(_currentStep)) return;
+    if (!notifier.canAdvance(_currentStep)) {
+      const messages = {
+        1: 'Veuillez accepter les deux conditions pour continuer.',
+        2: 'Veuillez entrer votre prénom pour continuer.',
+        3: 'Veuillez entrer votre poids cible pour continuer.',
+      };
+      final msg = messages[_currentStep];
+      if (msg != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg)),
+        );
+      }
+      return;
+    }
     if (_currentStep < _totalSteps - 1) {
       _pageController.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
@@ -43,10 +62,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _back() {
-    _logger.userAction('Onboarding step back', screen: 'OnboardingPage', metadata: {'step': _currentStep});
+    _logger.userAction('Onboarding back tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     if (_currentStep > 0) {
       _pageController.previousPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
+  }
+
+  Future<void> _saveNutritionPlanAndNext() async {
+    final state = _nutritionPlanKey.currentState;
+    if (state != null) {
+      setState(() => _isSubmitting = true);
+      await state.savePlan();
+      if (mounted) setState(() => _isSubmitting = false);
+    } else {
+      _next();
     }
   }
 
@@ -55,15 +85,56 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     setState(() => _isSubmitting = true);
+
+    final d = ref.read(onboardingProvider);
+    final client = ref.read(supabaseClientProvider);
+    final now = DateTime.now().toUtc().toIso8601String();
+
+    // Approximate birth_date from age (Jan 1 of birth year)
+    final birthDate = d.age != null
+        ? '${DateTime.now().year - d.age!}-01-01'
+        : null;
+
+    final restrictions = <String>[
+      if (d.noPork) 'no_pork',
+      if (d.noMeat) 'no_meat',
+      if (d.noGluten) 'no_gluten',
+      if (d.noLactose) 'no_lactose',
+      ...d.allergies,
+    ];
+
+    final body = <String, dynamic>{
+      'first_name': d.name,
+      if (d.sex != null) 'sex': d.sex,
+      if (birthDate != null) 'birth_date': birthDate,
+      if (d.height != null) 'height_cm': d.height,
+      if (d.weight != null) 'weight_kg': d.weight,
+      if (d.targetWeight != null) 'target_weight_kg': d.targetWeight,
+      if (d.activityLevel != null) 'activity_level': d.activityLevel,
+      'dietary_restrictions': restrictions,
+      'cuisine_preferences': d.cuisinePreferences,
+      if (d.consentPrivacy) 'consent_privacy_at': now,
+      if (d.consentCgu) 'consent_cgu_at': now,
+    };
+
     try {
       _logger.edge('complete-onboarding', 'BEFORE | userId: ${LogHelper.maskUuid(user.id)}');
-      // TODO(wave2): persist onboardingProvider state to Supabase user profile
-      await Future.delayed(const Duration(milliseconds: 600));
+      await client.functions.invoke('complete-onboarding', body: body);
       _logger.edge('complete-onboarding', 'AFTER | success');
+      ref.invalidate(userProfileProvider);
       if (mounted) context.go(AkeliRoutes.home);
     } catch (e, st) {
       _logger.edge('complete-onboarding', 'ERROR | $e', error: e, stackTrace: st);
-      rethrow;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Erreur de synchronisation. Vos données peuvent être complétées depuis votre profil.',
+            ),
+          ),
+        );
+        context.go(AkeliRoutes.home);
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -100,6 +171,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   _StepProfile(step: _currentStep),
                   _StepGoals(step: _currentStep),
                   _StepPreferences(step: _currentStep),
+                  NutritionPlanPage(
+                    key: _nutritionPlanKey,
+                    isOnboarding: true,
+                    onCompleted: _next,
+                  ),
                   _StepSummary(step: _currentStep),
                 ],
               ),
@@ -108,7 +184,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               step: _currentStep,
               totalSteps: _totalSteps,
               onBack: _currentStep > 0 ? _back : null,
-              onNext: _next,
+              onNext: _currentStep == _nutritionPlanStep ? _saveNutritionPlanAndNext : _next,
               isLoading: _isSubmitting,
             ),
           ],
@@ -301,7 +377,9 @@ class _OnboardingBottomBar extends StatelessWidget {
 
 class _StepCard extends StatelessWidget {
   final Widget child;
-  const _StepCard({required this.child});
+  final EdgeInsetsGeometry? padding;
+  
+  const _StepCard({required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +395,7 @@ class _StepCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(AkeliSpacing.lg),
+      padding: padding ?? const EdgeInsets.all(AkeliSpacing.lg),
       child: child,
     );
   }
@@ -410,12 +488,39 @@ class _StepLanguage extends ConsumerWidget {
 
 // ── Step 2: Consent ──────────────────────────────────────────────────────────
 
-class _StepConsent extends ConsumerWidget {
+class _StepConsent extends ConsumerStatefulWidget {
   final int step;
   const _StepConsent({required this.step});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_StepConsent> createState() => _StepConsentState();
+}
+
+class _StepConsentState extends ConsumerState<_StepConsent> {
+  final _logger = appLogger;
+  late final TapGestureRecognizer _privacyRecognizer;
+  late final TapGestureRecognizer _cguRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.provider('_StepConsentState initState');
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AkeliRoutes.privacyPolicy);
+    _cguRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AkeliRoutes.termsOfService);
+  }
+
+  @override
+  void dispose() {
+    _logger.provider('_StepConsentState disposed');
+    _privacyRecognizer.dispose();
+    _cguRecognizer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -440,27 +545,33 @@ class _StepConsent extends ConsumerWidget {
           ),
           const SizedBox(height: AkeliSpacing.xl),
           _StepCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
-                const _ConsentSection(
-                  title: 'Données collectées',
-                  items: [
-                    ('Identité et contact :', "Nom, prénom et adresse email pour sécuriser votre compte."),
-                    ("Usage de l'application :", "Statistiques anonymes pour améliorer votre expérience quotidienne."),
-                  ],
-                ),
-                const SizedBox(height: AkeliSpacing.lg),
-                const _ConsentSection(
-                  title: 'Vos droits',
-                  items: [
-                    ('Accès total :', "Consultez, modifiez ou exportez vos données à tout moment depuis les paramètres."),
-                    ("Droit à l'oubli :", "Suppression définitive de votre compte et de vos données sur simple demande."),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.lg, 0),
+                  child: Column(
+                    children: [
+                      _ConsentSection(
+                        title: 'Données collectées',
+                        items: [
+                          ('Identité et contact :', "Nom, prénom et adresse email pour sécuriser votre compte."),
+                          ("Usage de l'application :", "Statistiques anonymes pour améliorer votre expérience quotidienne."),
+                        ],
+                      ),
+                      SizedBox(height: AkeliSpacing.lg),
+                      _ConsentSection(
+                        title: 'Vos droits',
+                        items: [
+                          ('Accès total :', "Consultez, modifiez ou exportez vos données à tout moment depuis les paramètres."),
+                          ("Droit à l'oubli :", "Suppression définitive de votre compte et de vos données sur simple demande."),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AkeliSpacing.lg),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: -AkeliSpacing.lg),
                   padding: const EdgeInsets.all(AkeliSpacing.lg),
                   decoration: const BoxDecoration(
                     color: AkeliColors.surfaceContainerLow,
@@ -475,16 +586,54 @@ class _StepConsent extends ConsumerWidget {
                         value: data.consentPrivacy,
                         onChanged: (v) =>
                             notifier.updateConsent(privacy: v),
-                        label:
-                            "J'accepte la Politique de Confidentialité et confirme avoir lu les informations concernant le traitement de mes données personnelles (RGPD).",
+                        label: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AkeliColors.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                            children: [
+                              const TextSpan(text: "J'accepte la "),
+                              TextSpan(
+                                text: "Politique de Confidentialité",
+                                style: const TextStyle(
+                                  color: AkeliColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: _privacyRecognizer,
+                              ),
+                              const TextSpan(text: " et confirme avoir lu les informations concernant le traitement de mes données personnelles (RGPD)."),
+                            ],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AkeliSpacing.md),
                       _ConsentCheckbox(
                         value: data.consentCgu,
                         onChanged: (v) =>
                             notifier.updateConsent(cgu: v),
-                        label:
-                            "J'accepte les Conditions Générales d'Utilisation (CGU) d'Akeli.",
+                        label: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AkeliColors.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                            children: [
+                              const TextSpan(text: "J'accepte les "),
+                              TextSpan(
+                                text: "Conditions Générales d'Utilisation (CGU)",
+                                style: const TextStyle(
+                                  color: AkeliColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: _cguRecognizer,
+                              ),
+                              const TextSpan(text: " d'Akeli."),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -571,7 +720,7 @@ class _ConsentSection extends StatelessWidget {
 class _ConsentCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
-  final String label;
+  final Widget label;
 
   const _ConsentCheckbox({
     required this.value,
@@ -608,11 +757,7 @@ class _ConsentCheckbox extends StatelessWidget {
           ),
           const SizedBox(width: AkeliSpacing.md),
           Expanded(
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                  fontSize: 13, color: AkeliColors.onSurfaceVariant, height: 1.5),
-            ),
+            child: label,
           ),
         ],
       ),
@@ -1066,6 +1211,36 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
     super.dispose();
   }
 
+  // Clinical thresholds: >2 kg/month = Intense, 1–2 = Modéré, <1 = Durable.
+  String _getPaceLabel(double kgPerMonth) {
+    if (kgPerMonth > 2) return 'Intense';
+    if (kgPerMonth >= 1) return 'Modéré';
+    return 'Durable';
+  }
+
+  Color _getPaceBg(double kgPerMonth) {
+    if (kgPerMonth > 2) return AkeliColors.tertiaryFixed;
+    if (kgPerMonth >= 1) return AkeliColors.secondaryContainer;
+    return AkeliColors.surfaceContainerHighest;
+  }
+
+  Color _getPaceText(double kgPerMonth) {
+    if (kgPerMonth > 2) return AkeliColors.onTertiaryFixed;
+    if (kgPerMonth >= 1) return AkeliColors.onSecondaryContainer;
+    return AkeliColors.onSurfaceVariant;
+  }
+
+  // Returns kg/month loss rate, or null when it can't be computed
+  // (missing weights, or user is not trying to lose weight).
+  double? _kgPerMonth(OnboardingData data) {
+    final current = data.weight;
+    final target = data.targetWeight;
+    if (current == null || target == null) return null;
+    final diff = current - target;
+    if (diff <= 0) return null;
+    return diff / data.timelineMonths;
+  }
+
   @override
   Widget build(BuildContext context) {
     _logger.provider('_StepGoalsState build()');
@@ -1132,20 +1307,21 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                             fontWeight: FontWeight.w600,
                             color: AkeliColors.onSurfaceVariant,
                             letterSpacing: 0.1)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AkeliColors.tertiaryFixed,
-                        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                    if (_kgPerMonth(data) case final rate?)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _getPaceBg(rate),
+                          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                        ),
+                        child: Text(_getPaceLabel(rate),
+                            style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: _getPaceText(rate),
+                                letterSpacing: 0.08)),
                       ),
-                      child: Text('Modéré',
-                          style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AkeliColors.onTertiaryFixed,
-                              letterSpacing: 0.08)),
-                    ),
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.md),
