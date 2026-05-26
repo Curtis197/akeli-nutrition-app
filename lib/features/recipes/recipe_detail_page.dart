@@ -6,7 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/recipe_provider.dart';
+import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/recipe.dart';
+import '../../shared/models/meal_plan.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
@@ -104,9 +106,88 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
               _logger.userAction('Like button tapped', screen: 'RecipeDetailPage', metadata: {'recipeId': recipe.id, 'isLiked': recipe.isLiked});
               ref.read(recipeLikeProvider.notifier).toggle(recipe.id, recipe.isLiked);
             },
+            onAddToPlan: () => _showSwapDialog(context, recipe),
           );
         },
       ),
+    );
+  }
+
+  void _showSwapDialog(BuildContext context, Recipe recipe) {
+    final mealPlan = ref.read(activeMealPlanProvider).valueOrNull;
+    if (mealPlan == null || mealPlan.entries.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Aucun plan de repas actif.'),
+        backgroundColor: AkeliColors.error,
+      ));
+      return;
+    }
+
+    // Group entries by date
+    final groupedEntries = <String, List<MealPlanEntry>>{};
+    for (var entry in mealPlan.entries) {
+      final dateStr = entry.scheduledDate.toIso8601String().split('T').first;
+      groupedEntries.putIfAbsent(dateStr, () => []).add(entry);
+    }
+
+    final sortedDates = groupedEntries.keys.toList()..sort();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AkeliColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Remplacer un repas', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: sortedDates.length,
+                    itemBuilder: (context, index) {
+                      final dateStr = sortedDates[index];
+                      final entries = groupedEntries[dateStr]!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Text(dateStr, style: const TextStyle(fontWeight: FontWeight.bold, color: AkeliColors.primary)),
+                          ),
+                          ...entries.map((entry) => ListTile(
+                            leading: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                            title: Text(entry.mealTypeLabel),
+                            subtitle: Text(entry.recipeTitle ?? 'Sans recette'),
+                            onTap: () {
+                              ref.read(mealPlanSwapProvider.notifier).swapMeal(entry.id, recipe.id);
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                content: Text('Repas remplacé avec succès'),
+                                backgroundColor: AkeliColors.primary,
+                              ));
+                            },
+                          )),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -117,6 +198,7 @@ class _RecipeContent extends StatelessWidget {
   final PageController pageController;
   final ValueChanged<int> onImageChanged;
   final VoidCallback onLike;
+  final VoidCallback onAddToPlan;
 
   const _RecipeContent({
     required this.recipe,
@@ -124,6 +206,7 @@ class _RecipeContent extends StatelessWidget {
     required this.pageController,
     required this.onImageChanged,
     required this.onLike,
+    required this.onAddToPlan,
   });
 
   @override
@@ -302,10 +385,7 @@ class _RecipeContent extends StatelessWidget {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(AkeliRadius.pill),
-                              onTap: () {
-                                appLogger.userAction('Add to calendar tapped', screen: 'RecipeDetailPage');
-                                // TODO: Implement Add to Calendar
-                              },
+                              onTap: onAddToPlan,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                                 child: Row(
@@ -314,7 +394,7 @@ class _RecipeContent extends StatelessWidget {
                                     const Icon(Icons.calendar_today_rounded, color: AkeliColors.onPrimary, size: 20),
                                     const SizedBox(width: 12),
                                     Text(
-                                      'Ajouter au calendrier',
+                                      'Ajouter au plan repas',
                                       style: GoogleFonts.inter(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,

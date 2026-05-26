@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase_client.dart';
@@ -78,11 +79,32 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       try {
-        await client.functions.invoke(
+        final res = await client.functions.invoke(
           'generate-meal-plan',
           body: {'days': days, 'meals_per_day': mealsPerDay},
         );
         _logger.edge('generate-meal-plan', 'AFTER | success');
+
+        // Extract meal_plan_id from the response (array of entries).
+        if (res.data is! List) {
+          _logger.edge('generate-meal-plan', 'ERROR | unexpected response shape: ${res.data.runtimeType}');
+          throw StateError('generate-meal-plan returned unexpected shape: ${res.data.runtimeType}');
+        }
+        final data = res.data as List<dynamic>;
+        if (data.isNotEmpty) {
+          final firstEntry = data.first;
+          if (firstEntry is! Map || !firstEntry.containsKey('meal_plan_id')) {
+            _logger.edge('generate-meal-plan', 'ERROR | missing meal_plan_id in response entry');
+            throw StateError('generate-meal-plan entry missing meal_plan_id');
+          }
+          final mealPlanId = firstEntry['meal_plan_id'] as String;
+          _logger.db('BEFORE | rpc: create_batch_sessions | mealPlanId: $mealPlanId');
+          await client.rpc('create_batch_sessions', params: {
+            'p_meal_plan_id': mealPlanId,
+            'p_user_id': user.id,
+          });
+          _logger.db('AFTER | rpc: create_batch_sessions | success');
+        }
         _logger.provider('MealPlanGeneratorNotifier → data (generate success)');
         return null;
       } catch (e, st) {
@@ -101,6 +123,60 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
 final mealPlanGeneratorProvider =
     AsyncNotifierProvider.autoDispose<MealPlanGeneratorNotifier, MealPlan?>(
         MealPlanGeneratorNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Swap Meal Plan Entry
+// ---------------------------------------------------------------------------
+
+class MealPlanSwapNotifier extends AutoDisposeAsyncNotifier<void> {
+  final _logger = appLogger;
+
+  @override
+  FutureOr<void> build() {
+    _logger.provider('MealPlanSwapNotifier build()');
+    ref.onDispose(() => _logger.provider('MealPlanSwapNotifier disposed'));
+  }
+
+  Future<void> swapMeal(String entryId, String newRecipeId) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('Swap meal plan entry', metadata: {'entryId': entryId, 'newRecipeId': newRecipeId});
+    _logger.db('BEFORE | rpc: swap_meal_plan_entry | userId: ${user.id} | entryId: $entryId | newRecipeId: $newRecipeId');
+    _logger.provider('MealPlanSwapNotifier → loading (swap)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.rpc(
+          'swap_meal_plan_entry',
+          params: {'p_entry_id': entryId, 'p_new_recipe_id': newRecipeId},
+        );
+        _logger.db('AFTER | rpc: swap_meal_plan_entry | success');
+        _logger.provider('MealPlanSwapNotifier → data (swap success)');
+      } on PostgrestException catch (e, st) {
+        _logger.db('ERROR | rpc: swap_meal_plan_entry | code: ${e.code}', error: e, stackTrace: st);
+        _logger.provider('MealPlanSwapNotifier → error | $e');
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | rpc: swap_meal_plan_entry | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('MealPlanSwapNotifier → error | $e');
+        rethrow;
+      }
+    });
+
+    if (state is AsyncData) {
+      _logger.provider('MealPlanSwapNotifier → invalidating activeMealPlanProvider and shoppingListProvider');
+      ref.invalidate(activeMealPlanProvider);
+      ref.invalidate(shoppingListProvider);
+    }
+  }
+}
+
+final mealPlanSwapProvider =
+    AsyncNotifierProvider.autoDispose<MealPlanSwapNotifier, void>(
+        MealPlanSwapNotifier.new);
 
 // ---------------------------------------------------------------------------
 // Shopping list — kept as stub until ingredient data is seeded
@@ -286,7 +362,7 @@ final cookingSessionsProvider =
   try {
     final data = await client
         .from('cooking_session')
-        .select('*, recipe(id, title, cover_image_url)')
+        .select('*, recipe(id, title, cover_image_url), cooking_session_ingredient(*)')
         .eq('meal_plan_id', plan.id)
         .order('planned_date');
 
@@ -370,3 +446,139 @@ class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
 final cookingSessionNotifierProvider =
     AsyncNotifierProvider.autoDispose<CookingSessionNotifier, void>(
         CookingSessionNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Personal Meal Swap
+// ---------------------------------------------------------------------------
+
+@immutable
+class PersonalMealAnalysisResult {
+  final String mealName;
+  final double calories;
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+  final String confidence; // 'high' | 'medium' | 'low'
+
+  const PersonalMealAnalysisResult({
+    required this.mealName,
+    required this.calories,
+    required this.proteinG,
+    required this.carbsG,
+    required this.fatG,
+    required this.confidence,
+  });
+
+  factory PersonalMealAnalysisResult.fromJson(Map<String, dynamic> json) {
+    return PersonalMealAnalysisResult(
+      mealName: json['meal_name'] as String,
+      calories: (json['calories'] as num).toDouble(),
+      proteinG: (json['protein_g'] as num).toDouble(),
+      carbsG: (json['carbs_g'] as num).toDouble(),
+      fatG: (json['fat_g'] as num).toDouble(),
+      confidence: json['confidence'] as String,
+    );
+  }
+}
+
+class PersonalMealSwapNotifier extends AutoDisposeAsyncNotifier<PersonalMealAnalysisResult?> {
+  final _logger = appLogger;
+
+  @override
+  FutureOr<PersonalMealAnalysisResult?> build() {
+    _logger.provider('PersonalMealSwapNotifier build()');
+    ref.onDispose(() => _logger.provider('PersonalMealSwapNotifier disposed'));
+    return null;
+  }
+
+  Future<void> analyze({
+    String? description,
+    String? imageBase64,
+    String? mimeType,
+  }) async {
+    _logger.userAction('Analyze personal meal', metadata: {
+      'hasDescription': description != null,
+      'hasImage': imageBase64 != null,
+    });
+    _logger.edge('analyze-meal-photo', 'BEFORE | hasDescription: ${description != null} | hasImage: ${imageBase64 != null} | mimeType: ${mimeType ?? "none"}');
+    _logger.provider('PersonalMealSwapNotifier → loading (analyze)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final res = await client.functions.invoke(
+          'analyze-meal-photo',
+          body: {
+            if (description != null) 'description': description,
+            if (imageBase64 != null) 'image_base64': imageBase64,
+            if (mimeType != null) 'image_mime_type': mimeType,
+          },
+        );
+        _logger.edge('analyze-meal-photo', 'AFTER | success');
+        final data = res.data as Map<String, dynamic>;
+        _logger.provider('PersonalMealSwapNotifier → data (analyze success)');
+        return PersonalMealAnalysisResult.fromJson(data);
+      } catch (e, st) {
+        _logger.edge('analyze-meal-photo', 'ERROR | $e', error: e, stackTrace: st);
+        _logger.provider('PersonalMealSwapNotifier → error | $e');
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> save({
+    required String entryId,
+    required String mealName,
+    required double calories,
+    required double proteinG,
+    required double carbsG,
+    required double fatG,
+  }) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('Save personal meal swap', metadata: {'entryId': entryId, 'mealName': mealName});
+    _logger.db('BEFORE | rpc: swap_meal_plan_entry_custom | entryId: $entryId');
+    _logger.provider('PersonalMealSwapNotifier → loading (save)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.rpc(
+          'swap_meal_plan_entry_custom',
+          params: {
+            'p_entry_id': entryId,
+            'p_meal_name': mealName,
+            'p_calories': calories,
+            'p_protein_g': proteinG,
+            'p_carbs_g': carbsG,
+            'p_fat_g': fatG,
+          },
+        );
+        _logger.db('AFTER | rpc: swap_meal_plan_entry_custom | success');
+        _logger.provider('PersonalMealSwapNotifier → data (save success)');
+        return null;
+      } on PostgrestException catch (e, st) {
+        _logger.db('ERROR | rpc: swap_meal_plan_entry_custom | code: ${e.code}', error: e, stackTrace: st);
+        _logger.provider('PersonalMealSwapNotifier → error | $e');
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | rpc: swap_meal_plan_entry_custom | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('PersonalMealSwapNotifier → error | $e');
+        rethrow;
+      }
+    });
+
+    if (state is AsyncData) {
+      _logger.provider('PersonalMealSwapNotifier → invalidating activeMealPlanProvider and shoppingListProvider');
+      ref.invalidate(activeMealPlanProvider);
+      ref.invalidate(shoppingListProvider);
+    }
+  }
+}
+
+final personalMealSwapProvider =
+    AsyncNotifierProvider.autoDispose<PersonalMealSwapNotifier, PersonalMealAnalysisResult?>(
+        PersonalMealSwapNotifier.new);

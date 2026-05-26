@@ -40,6 +40,8 @@ serve(async (req) => {
       goals,
       dietary_restrictions,
       cuisine_preferences,
+      consent_privacy_at,
+      consent_cgu_at,
     } = body;
 
     logger.debug("[STEP 2] Validating params", {
@@ -54,6 +56,11 @@ serve(async (req) => {
     if (!sex || !birth_date || !height_cm || !weight_kg || !activity_level) {
       logger.warn("EARLY RETURN | reason: missing required health profile fields");
       return err("Missing required health profile fields");
+    }
+
+    if (!consent_privacy_at || !consent_cgu_at) {
+      logger.warn("EARLY RETURN | reason: missing consent timestamps");
+      return err("User consent timestamps are required");
     }
 
     const admin = serviceClient();
@@ -131,6 +138,8 @@ serve(async (req) => {
         first_name,
         last_name,
         onboarding_done: true,
+        consent_privacy_at,
+        consent_cgu_at,
       })
       .eq("id", user.id);
     logQueryResult(logger, "user_profile", "UPDATE", profileUpdateError ? 0 : 1, profileUpdateError ?? undefined);

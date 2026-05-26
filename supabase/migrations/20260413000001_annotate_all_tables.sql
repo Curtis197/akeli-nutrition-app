@@ -54,14 +54,14 @@ COMMENT ON COLUMN user_vector.vector IS '50-dim pgvector embedding | Computed by
 
 COMMENT ON TABLE creator IS 'ROLE: Public creator profile | PURPOSE: Display creator info, track stats, manage Fan eligibility | USAGE: Creator profile page, search, recommendations, Fan mode';
 COMMENT ON COLUMN creator.specialties IS 'Culinary region codes (FK to food_region) | Displayed on profile';
-COMMENT ON COLUMN creator.language_codes IS 'Spoken language codes | Displayed on profile';
+COMMENT ON COLUMN creator.languages IS 'Spoken language codes | Displayed on profile';
 COMMENT ON COLUMN creator.recipe_count IS 'Denormalized count of published recipes | Updated by trigger';
 COMMENT ON COLUMN creator.fan_count IS 'Denormalized count of active fans | Updated by trigger';
 -- creator.is_fan_eligible is on view, not base table
 
 COMMENT ON TABLE creator_balance IS 'ROLE: Creator current earnings | PURPOSE: Track available balance, lifetime earnings, payouts | USAGE: Creator dashboard, payout processing';
-COMMENT ON COLUMN creator_balance.available_balance IS 'Available (unpaid) balance | Updated by compute-monthly-revenue cron';
-COMMENT ON COLUMN creator_balance.lifetime_earnings IS 'Lifetime earnings | For display only';
+COMMENT ON COLUMN creator_balance.balance IS 'Available (unpaid) balance | Updated by compute-monthly-revenue cron';
+COMMENT ON COLUMN creator_balance.total_earned IS 'Lifetime earnings | For display only';
 -- creator_balance.total_paid_out not in schema
 
 COMMENT ON TABLE creator_revenue_log IS 'ROLE: Monthly revenue history (immutable) | PURPOSE: Record of earnings computation for auditing | USAGE: Creator dashboard, monthly statements';
@@ -113,8 +113,8 @@ COMMENT ON COLUMN recipe_open.session_duration_seconds IS 'Time spent viewing re
 
 COMMENT ON TABLE recipe_vector IS 'ROLE: 50-dim embedding of recipe culinary profile | PURPOSE: Enable cosine similarity for recommendations | USAGE: recommend_recipes RPC, generate_meal_plan RPC | PERF: HNSW index ~3ms';
 
-COMMENT ON TABLE recipe_translation IS 'ROLE: Translated recipe content | PURPOSE: Multi-lingual recipe display | USAGE: Recipe detail locale-aware display';
-COMMENT ON COLUMN recipe_translation.locale IS 'fr/en/es/pt/wo/bm/ln/ar | Target language';
+-- COMMENT ON TABLE recipe_translation IS 'ROLE: Translated recipe content | PURPOSE: Multi-lingual recipe display | USAGE: Recipe detail locale-aware display';
+-- COMMENT ON COLUMN recipe_translation.locale IS 'fr/en/es/pt/wo/bm/ln/ar | Target language';
 
 -- =============================================================================
 -- MEAL PLANNING
@@ -138,7 +138,7 @@ COMMENT ON TABLE meal_reminder IS 'ROLE: Meal reminder settings | PURPOSE: Sched
 -- meal_reminder.days_of_week not in schema (reminder_time used instead)
 
 COMMENT ON TABLE daily_nutrition_log IS 'ROLE: Daily nutrition summary | PURPOSE: Track daily calorie/macro totals against goals | USAGE: Nutrition dashboard, daily progress';
-COMMENT ON COLUMN daily_nutrition_log.date IS 'Date of nutrition data | Unique per user';
+COMMENT ON COLUMN daily_nutrition_log.log_date IS 'Date of nutrition data | Unique per user';
 -- Auto-updated by trigger on meal_consumption insert
 
 -- =============================================================================
@@ -155,7 +155,7 @@ COMMENT ON TABLE fan_subscription_history IS 'ROLE: Immutable Fan subscription h
 COMMENT ON TABLE fan_subscription_history IS 'Insert-only, never updated';
 
 COMMENT ON TABLE fan_external_recipe_counter IS 'ROLE: External recipe consumption counter | PURPOSE: Enforce max 9 external recipes/month in Fan mode | USAGE: log-meal-consumption EF enforcement';
-COMMENT ON COLUMN fan_external_recipe_counter.consumption_count IS 'CHECK <= 9 | Blocks 10th external recipe';
+COMMENT ON COLUMN fan_external_recipe_counter.external_recipe_count IS 'CHECK <= 9 | Blocks 10th external recipe';
 
 -- =============================================================================
 -- COMMUNITY & CHAT
@@ -216,7 +216,7 @@ COMMENT ON TABLE measurement_unit IS 'ROLE: Unit of measurement | PURPOSE: Stand
 
 COMMENT ON TABLE tag IS 'ROLE: Recipe tag catalog | PURPOSE: Categorize recipes by dietary type, occasion, technique | USAGE: Search filters, recipe discovery';
 
-COMMENT ON TABLE specialty IS 'ROLE: Creator specialty | PURPOSE: Define creator culinary specialties | USAGE: Creator profile display';
+-- COMMENT ON TABLE specialty IS 'ROLE: Creator specialty | PURPOSE: Define creator culinary specialties | USAGE: Creator profile display';
 
 -- =============================================================================
 -- SUPPORT & OTHER
@@ -227,7 +227,7 @@ COMMENT ON TABLE support_message IS 'ROLE: User support tickets | PURPOSE: Handl
 COMMENT ON TABLE referral IS 'ROLE: User referral tracking | PURPOSE: Track who referred whom | USAGE: Referral program, user acquisition tracking';
 COMMENT ON TABLE referral IS '⚠️ NOTE: No RLS policy for referred_id to see their referral record';
 
-COMMENT ON TABLE ingredient_submission IS 'ROLE: User-submitted ingredients | PURPOSE: Allow users to suggest new ingredients | USAGE: Ingredient submission flow';
+-- COMMENT ON TABLE ingredient_submission IS 'ROLE: User-submitted ingredients | PURPOSE: Allow users to suggest new ingredients | USAGE: Ingredient submission flow';
 
 COMMENT ON TABLE payout IS 'ROLE: Legacy payout table | PURPOSE: Historical payout records | USAGE: Legacy reporting';
 COMMENT ON TABLE payout IS '⚠️ SUPERSEDED by creator_payout (20260302000001). Keep for historical data only.';

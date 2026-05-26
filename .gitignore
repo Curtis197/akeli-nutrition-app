@@ -1,4 +1,3 @@
-```
 # Logs and temp files
 *.log
 *.tmp
@@ -7,12 +6,36 @@
 # Environment
 .env
 .env.local
-.env.
+.env.*
+token.txt
 
 # Editors
 .vscode/
 .idea/
 
-# Original rules preserved
-*.log
-```
+# Flutter
+build/
+.dart_tool/
+.flutter-plugins-dependencies
+
+# Python
+__pycache__/
+*.pyc
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/gotrue-version
+supabase/.temp/pooler-url
+supabase/.temp/postgres-version
+supabase/.temp/project-ref
+supabase/.temp/rest-version
+supabase/.temp/storage-migration
+supabase/.temp/storage-version
+
+# Utility scripts (may contain embedded credentials)
+*.js
+*.ts
+!*.d.ts
+migration_out.txt
+reset_out.txt
+test_users.sql

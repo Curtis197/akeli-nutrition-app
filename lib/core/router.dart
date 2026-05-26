@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/auth_provider.dart';
+import '../providers/user_profile_provider.dart';
 import '../features/auth/auth_page.dart';
 import '../features/auth/onboarding_page.dart';
 import '../features/recipes/feed_page.dart';
@@ -15,8 +16,10 @@ import '../features/fan_mode/fan_mode_page.dart';
 import '../features/subscription/subscription_page.dart';
 import '../features/ai_assistant/ai_chat_page.dart';
 import '../features/profile/profile_page.dart';
+import '../features/settings/settings_page.dart';
 import '../features/meal_planner/meal_detail_page.dart';
 import '../features/meal_planner/batch_cooking_page.dart';
+import '../features/nutrition_plan/nutrition_plan_page.dart';
 import '../features/diet_plan/diet_plan_page.dart';
 import '../features/notifications/notifications_page.dart';
 import '../features/community/group_chat_page.dart';
@@ -40,6 +43,7 @@ abstract class AkeliRoutes {
   static const recipes = "/recipes";
   static const community = "/community";
   static const profile = "/profile";
+  static const settings = "/settings";
   static const recipeDetail = "/recipe/:id";
   static const shoppingList = "/shopping-list";
   static const nutrition = "/nutrition";
@@ -50,6 +54,7 @@ abstract class AkeliRoutes {
   static const notifications = "/notifications";
   static const mealDetail = "/meal/:id";
   static const batchCooking = "/batch-cooking";
+  static const nutritionPlan = "/nutrition-plan";
   static const groupChat = "/group/:id";
   static const groupDetail = "/group/:id/detail";
   static const support = "/support";
@@ -70,6 +75,7 @@ abstract class AkeliRoutes {
 class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
     ref.listen(isAuthenticatedProvider, (_, __) => notifyListeners());
+    ref.listen(userProfileProvider, (_, __) => notifyListeners());
   }
 }
 
@@ -84,27 +90,46 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final user = ref.read(currentUserProvider);
       final isAuth = user != null;
+      final profileAsync = ref.read(userProfileProvider);
+      final profile = profileAsync.valueOrNull;
+
       final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
       final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
 
       appLogger.navigation(
         state.uri.path,
         '',
-        reason: 'redirect check | isAuth: $isAuth',
+        reason: 'redirect check | isAuth: $isAuth | hasProfile: ${profile != null}',
       );
 
       if (!isAuth && !isOnAuthPage) {
         appLogger.navigation(state.uri.path, AkeliRoutes.auth, reason: 'unauthenticated → redirect to auth');
         return AkeliRoutes.auth;
       }
+      
       if (isAuth && isOnAuthPage) {
+        // If just authenticated, default to home. Once profile loads, we'll redirect to onboarding if needed.
         appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'already authenticated → redirect to home');
         return AkeliRoutes.home;
       }
-      if (isAuth && isOnOnboarding) {
-        appLogger.d('🧭 Router: onboarding allowed | userId: ${user.id}');
-        return null;
+
+      if (isAuth) {
+        if (profile != null) {
+          if (!profile.onboardingDone && !isOnOnboarding) {
+            final path = state.uri.path;
+            if (path == AkeliRoutes.privacyPolicy || path == AkeliRoutes.termsOfService) {
+              return null;
+            }
+            appLogger.navigation(state.uri.path, AkeliRoutes.onboarding, reason: 'onboarding not done → redirect to onboarding');
+            return AkeliRoutes.onboarding;
+          }
+          if (profile.onboardingDone && isOnOnboarding) {
+            appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'onboarding already done → redirect to home');
+            return AkeliRoutes.home;
+          }
+        }
       }
+      
       return null;
     },
     routes: [
@@ -149,6 +174,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfilePage(),
       ),
       GoRoute(
+        path: AkeliRoutes.settings,
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
         path: AkeliRoutes.dietPlan,
         builder: (context, state) => const DietPlanPage(),
       ),
@@ -162,10 +191,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           final id = state.pathParameters["id"]!;
           return MealDetailPage(mealId: id);
         },
+        routes: [
+          GoRoute(
+            path: 'swap-recipe',
+            builder: (context, state) {
+              final id = state.pathParameters["id"]!;
+              return FeedPage(swapEntryId: id);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: AkeliRoutes.batchCooking,
         builder: (context, state) => const BatchCookingPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.nutritionPlan,
+        builder: (context, state) => const NutritionPlanPage(),
       ),
       GoRoute(
         path: AkeliRoutes.groupChat,

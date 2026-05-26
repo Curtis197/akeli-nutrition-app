@@ -46,6 +46,7 @@ dependencies:
 
   # Utils
   timeago: ^3.6.1
+  collection: ^1.18.0
   logger: ^2.3.0
 
   # Icons

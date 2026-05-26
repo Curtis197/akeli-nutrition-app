@@ -59,7 +59,6 @@ class AkeliLogger {
       lineLength: 120,
       colors: true,
       printEmojis: true,
-      printTime: true,
       dateTimeFormat: DateTimeFormat.dateAndTime,
     ),
     level: kDebugMode ? Level.trace : Level.warning,

@@ -123,7 +123,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: AkeliColors.onSurface),
+          icon: const Icon(Icons.arrow_back_ios_new, color: AkeliColors.onSurface),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -136,7 +136,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -144,9 +144,9 @@ class _SupportPageState extends ConsumerState<SupportPage> {
             children: [
               // Header
               Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AkeliColors.primary, AkeliColors.primaryContainer],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -156,12 +156,12 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.support_agent_rounded,
                       size: 48,
                       color: AkeliColors.onPrimary,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       'Comment pouvons-nous vous aider?',
                       style: GoogleFonts.plusJakartaSans(
@@ -170,7 +170,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                         color: AkeliColors.onPrimary,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Notre équipe est là pour répondre à vos questions',
                       style: GoogleFonts.inter(
@@ -181,7 +181,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   ],
                 ),
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               // Name field
               Text(
@@ -192,7 +192,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   color: AkeliColors.onSurface,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
@@ -201,15 +201,15 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   fillColor: AkeliColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.primary, width: 2),
+                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -219,7 +219,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Email field
               Text(
@@ -230,7 +230,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   color: AkeliColors.onSurface,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -240,15 +240,15 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   fillColor: AkeliColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.primary, width: 2),
+                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -261,7 +261,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Message field
               Text(
@@ -272,7 +272,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   color: AkeliColors.onSurface,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _messageController,
                 maxLines: 5,
@@ -282,15 +282,15 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   fillColor: AkeliColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.outline),
+                    borderSide: const BorderSide(color: AkeliColors.outline),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: BorderSide(color: AkeliColors.primary, width: 2),
+                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
                   ),
                 ),
                 validator: (value) {
@@ -303,7 +303,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   return null;
                 },
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               // Screenshot upload button
               OutlinedButton.icon(
@@ -311,7 +311,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   _logger.userAction('Add screenshot tapped', screen: 'SupportPage');
                   // TODO: Implement image picker
                 },
-                icon: Icon(Icons.add_photo_alternate_outlined, color: AkeliColors.primary),
+                icon: const Icon(Icons.add_photo_alternate_outlined, color: AkeliColors.primary),
                 label: Text(
                   'Ajouter une capture d\'écran',
                   style: GoogleFonts.plusJakartaSans(
@@ -320,14 +320,14 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 56),
-                  side: BorderSide(color: AkeliColors.primary),
+                  minimumSize: const Size(double.infinity, 56),
+                  side: const BorderSide(color: AkeliColors.primary),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
                   ),
                 ),
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               // Submit button
               SizedBox(
@@ -335,7 +335,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submitForm,
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 56),
+                    minimumSize: const Size(double.infinity, 56),
                     backgroundColor: _isSubmitting ? AkeliColors.outline : AkeliColors.primary,
                     foregroundColor: AkeliColors.onPrimary,
                     shape: RoundedRectangleBorder(
@@ -343,7 +343,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                     ),
                   ),
                   child: _isSubmitting
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(

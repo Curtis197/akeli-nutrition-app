@@ -1,0 +1,50 @@
+the home page recommanded recipe doesnt support 2 lines title we should either restrict to one line or expend the card to be able to contain 2 lines.
+the navback button in the notification page doesnt work. 
+the padding in the group_demand notification button are not properly set and the police size is not consistent. 
+The avatar container in the notification page dont have size. 
+the recipe card dont have proper proportion th image size is small and have a wide blank space.
+    the food region are set straight from the recipe table without correspondance in the food_region table.
+The community page should allow to filter prvaite conversation, grouped ar all. 
+The recipes page should have filter and ordering buttons. 
+
+
+## 2nd review
+
+the onbording page 2 should have link to policy and confidentiality page
+the page 3 and the health_parameter conatiner in the page 4 are redundant
+the slider is not smooth enough for precise pct let use controlr with +/-
+the button continue on the page 4 is useless and the onboarding cant go further
+
+## 3rd review
+
+# profil page
+
+the profile page page is mocked up data 
+the add and the write button must appear for user_id != current_user_id 
+add must appear only if there is no conversation open between current user and user and inverse for the ecrire button we should add also a delete button to close a conversation between two user. 
+the setting icon in the top bar is useless
+the navback button dont work
+
+# main top bar
+
+the avatar have no placeholder
+the setting icon lead to the profile page instead of the setting page
+
+# home page 
+the data dont return teh user_health parameter nor the stepper nor the graphs
+
+# meal plan 
+ no meal plan have been generated. 
+
+# onbaording 
+
+ C:\Users\DELL LATITUDE 7480\akeli-nutrition-app\stitch3\stitch_modern_dashboard_akeli_victoire\akeli_onboarding_preferences the preference page hasnt been accounted
+
+# recipes 
+ 
+the filtering bottom sheet isnt scrollable
+
+lets check the feed generator sql pgvector function. 
+
+# community
+we need to enable the group creation

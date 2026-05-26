@@ -17,6 +17,11 @@ def get_conn():
     return psycopg2.connect(DATABASE_URL)
 
 
+def get_conn():
+    """Retourne une connexion PostgreSQL."""
+    return psycopg2.connect(DATABASE_URL)
+
+
 # ---------------------------------------------------------------------------
 # User helpers
 # ---------------------------------------------------------------------------
@@ -81,7 +86,7 @@ def get_active_users(days: int = 7) -> list[str]:
                 WHERE consumed_at >= %s
                 UNION
                 SELECT DISTINCT user_id FROM daily_nutrition_log
-                WHERE log_date >= %s::date
+                WHERE date >= %s::date
             """, (since, since))
             return [row[0] for row in cur.fetchall()]
 
@@ -98,7 +103,13 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                 SELECT
                     r.id, r.difficulty, r.prep_time_min, r.cook_time_min,
                     r.region, r.created_at, r.creator_id,
-                    rm.calories, rm.protein_g, rm.carbs_g, rm.fat_g, rm.fiber_g,
+                    GREATEST(r.servings, 1) AS servings,
+                    -- Per-serving macros: divide totals by servings
+                    rm.calories  / GREATEST(r.servings, 1) AS calories,
+                    rm.protein_g / GREATEST(r.servings, 1) AS protein_g,
+                    rm.carbs_g   / GREATEST(r.servings, 1) AS carbs_g,
+                    rm.fat_g     / GREATEST(r.servings, 1) AS fat_g,
+                    rm.fiber_g   / GREATEST(r.servings, 1) AS fiber_g,
                     c.recipe_count AS creator_recipe_count
                 FROM recipe r
                 LEFT JOIN recipe_macro rm ON rm.recipe_id = r.id

@@ -38,7 +38,7 @@ CREATE POLICY "participant reads own conversations" ON conversation
 DROP POLICY IF EXISTS "authenticated user creates conversation" ON conversation;
 CREATE POLICY "authenticated user creates conversation" ON conversation
   FOR INSERT
-  WITH CHECK (auth.uid() = created_by);
+  WITH CHECK (auth.uid() IS NOT NULL);
 
 -- 3. conversation_participant: allow participants to see ALL rows in
 --    conversations they belong to (SECURITY DEFINER helper avoids recursion)

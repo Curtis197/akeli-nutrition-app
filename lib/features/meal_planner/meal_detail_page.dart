@@ -6,6 +6,7 @@ import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
+import 'personal_meal_bottom_sheet.dart';
 
 class MealDetailPage extends ConsumerWidget {
   final String mealId;
@@ -117,9 +118,17 @@ class _MealDetailBody extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                entry.recipeThumbnail != null
-                    ? Image.network(entry.recipeThumbnail!, fit: BoxFit.cover)
-                    : Container(color: AkeliColors.surfaceContainerHigh),
+                if (entry.isCustomMeal)
+                  Container(
+                    color: AkeliColors.surfaceContainerHigh,
+                    child: const Center(
+                      child: Icon(Icons.restaurant, size: 64, color: AkeliColors.outline),
+                    ),
+                  )
+                else if (entry.recipeThumbnail != null)
+                  Image.network(entry.recipeThumbnail!, fit: BoxFit.cover)
+                else
+                  Container(color: AkeliColors.surfaceContainerHigh),
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -172,16 +181,23 @@ class _MealDetailBody extends StatelessWidget {
                           backgroundColor: AkeliColors.secondaryContainer,
                           textColor: AkeliColors.onSecondaryContainer,
                         ),
+                        if (entry.isCustomMeal)
+                          _Badge(
+                            label: 'Repas personnalisé',
+                            backgroundColor: AkeliColors.accentAmber.withValues(alpha: 0.15),
+                            textColor: AkeliColors.accentAmber,
+                          ),
                         _Badge(
                           label: '${entry.calories.toInt()} kcal',
                           backgroundColor: AkeliColors.accentAmber.withValues(alpha: 0.15),
                           textColor: AkeliColors.accentAmber,
                         ),
-                        _Badge(
-                          label: '25 min',
-                          backgroundColor: AkeliColors.surfaceContainerLow,
-                          textColor: AkeliColors.onSurfaceVariant,
-                        ),
+                        if (!entry.isCustomMeal)
+                          const _Badge(
+                            label: '25 min',
+                            backgroundColor: AkeliColors.surfaceContainerLow,
+                            textColor: AkeliColors.onSurfaceVariant,
+                          ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -245,11 +261,11 @@ class _MealDetailBody extends StatelessWidget {
                       color: AkeliColors.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(Icons.schedule, color: AkeliColors.primary),
-                        const SizedBox(width: 12),
-                        const Column(
+                        Icon(Icons.schedule, color: AkeliColors.primary),
+                        SizedBox(width: 12),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('TEMPS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.outline)),
@@ -268,11 +284,11 @@ class _MealDetailBody extends StatelessWidget {
                       color: AkeliColors.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Row(
+                    child: const Row(
                       children: [
-                        const Icon(Icons.restaurant, color: AkeliColors.primary),
-                        const SizedBox(width: 12),
-                        const Column(
+                        Icon(Icons.restaurant, color: AkeliColors.primary),
+                        SizedBox(width: 12),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('DIFFICULTÉ', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.outline)),
@@ -333,7 +349,7 @@ class _MealDetailBody extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 0),
             child: Column(
               children: [
-                if (entry.recipeId != null)
+                if (entry.recipeId != null && !entry.isCustomMeal)
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton(
@@ -347,6 +363,45 @@ class _MealDetailBody extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
                       ),
                       child: const Text('Voir la recette', style: TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                if (!entry.isConsumed)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        appLogger.userAction('Swap recipe tapped', screen: 'MealDetailPage', metadata: {'mealId': entry.id});
+                        context.push('/meal/${entry.id}/swap-recipe');
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AkeliColors.secondary, width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
+                      ),
+                      child: const Text('Changer ce repas', style: TextStyle(color: AkeliColors.secondary, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                if (!entry.isConsumed && !entry.isCustomMeal)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        appLogger.userAction('Personal meal swap tapped', screen: 'MealDetailPage', metadata: {'mealId': entry.id});
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => PersonalMealBottomSheet(entryId: entry.id),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AkeliColors.primary, width: 2),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
+                      ),
+                      child: const Text('Saisir un repas personnel (IA)', style: TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold)),
                     ),
                   ),
                 const SizedBox(height: 12),

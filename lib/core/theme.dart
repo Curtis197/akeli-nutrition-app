@@ -11,6 +11,7 @@ abstract class AkeliColors {
   static const primary = Color(0xFF00504A);            // Deep teal (CTA, Active)
   static const primaryContainer = Color(0xFF006A63);   // Mid teal (gradient end, header)
   static const onPrimary = Colors.white;
+  static const onPrimaryContainer = Colors.white;
   static const secondary = Color(0xFFFF9F43);          // Orange accent
   static const accentAmber = Color(0xFFFF9F1C);        // Vivid amber (CTAs/highlights)
 
@@ -39,6 +40,12 @@ abstract class AkeliColors {
   static const success = Color(0xFF249689);
   static const warning = Color(0xFFF9CF58);
   static const error = Color(0xFFBA1A1A);
+
+  // Material aliases expected by some pages
+  static const onSecondary = Colors.white;
+  static const tertiaryContainer = Color(0xFFFFDCBC);
+  static const onTertiaryContainer = Color(0xFF2C1700);
+  static const shadow = Color(0xFF000000);
 
   // Legacy aliases (kept for transition)
   static const textPrimary = onSurface;

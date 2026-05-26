@@ -6,6 +6,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import 'widgets/meal_planner_day_row.dart';
 
 class MealPlannerPage extends ConsumerWidget {
@@ -14,6 +15,7 @@ class MealPlannerPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final planAsync = ref.watch(activeMealPlanProvider);
+    final profileAsync = ref.watch(userProfileProvider);
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -45,7 +47,11 @@ class MealPlannerPage extends ConsumerWidget {
                 const Icon(Icons.menu, color: AkeliColors.primaryContainer),
                 const SizedBox(width: 16),
                 Text(
-                  'Akeli Victoire',
+                  profileAsync.when(
+                    data: (p) => p?.displayName ?? 'Mon Plan',
+                    loading: () => 'Mon Plan',
+                    error: (_, __) => 'Mon Plan',
+                  ),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
@@ -64,13 +70,13 @@ class MealPlannerPage extends ConsumerWidget {
                       color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
                       shape: BoxShape.circle,
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        'https://lh3.googleusercontent.com/aida-public/AB6AXuBZp-6DEHw83vZ3znlhBFiNEDWo5PLlAfKX5oY6YR2wrBH9HyBeIuzo60H9m4vN9ZE0FruyJjub4iPtcF7l07HzLVePD4kS16e7dpPOclHJNmCKlHt361s6CQbcj823oCzBMNBpCfrwheID2tD2wt6QGydVwPEQDGTANtf5RLSzZDmwbd1aFhJkvZkD7OG1uejkB4Th7qbvgnWJnGW0fFxf0e9WUV8fc-uapul52TVLC2YQv_oKBF0jkoRT9ihI7ZX7LLjrF3el5Zc',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
-                      ),
+                    child: profileAsync.when(
+                      data: (p) => p?.avatarUrl != null
+                          ? Image.network(p!.avatarUrl!, fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 20, color: AkeliColors.outline))
+                          : const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                      loading: () => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
+                      error: (_, __) => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
                     ),
                   ),
                 ),
@@ -168,6 +174,17 @@ class MealPlannerPage extends ConsumerWidget {
             ],
           ),
         ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          appLogger.userAction('Generate plan FAB tapped', screen: 'MealPlannerPage');
+          _generatePlan(context, ref);
+        },
+        backgroundColor: AkeliColors.primary,
+        elevation: 4,
+        child: const Icon(Icons.auto_awesome, color: Colors.white),
       ),
     );
   }
@@ -202,17 +219,6 @@ class MealPlannerPage extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          appLogger.userAction('Generate plan FAB tapped', screen: 'MealPlannerPage');
-          _generatePlan(context, ref);
-        },
-        backgroundColor: AkeliColors.primary,
-        elevation: 4,
-        child: const Icon(Icons.auto_awesome, color: Colors.white),
       ),
     );
   }
@@ -335,19 +341,27 @@ class MealPlannerPage extends ConsumerWidget {
         backgroundColor: AkeliColors.primary,
       ),
     );
-    
-    appLogger.edge('generate-meal-plan', 'BEFORE | simulated');
-    // Simulating generation logic
-    await Future.delayed(const Duration(seconds: 2));
 
-    if (context.mounted) {
-      appLogger.edge('generate-meal-plan', 'AFTER | success (simulated)');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Plan généré avec succès !'),
-          backgroundColor: AkeliColors.primary,
-        ),
-      );
+    try {
+      await ref.read(mealPlanGeneratorProvider.notifier).generate();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Plan généré avec succès !'),
+            backgroundColor: AkeliColors.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      appLogger.edge('generate-meal-plan', 'ERROR | $e', error: e);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la génération : $e'),
+            backgroundColor: AkeliColors.error,
+          ),
+        );
+      }
     }
   }
 }

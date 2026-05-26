@@ -15,6 +15,8 @@ class FeedParams {
   final String? regionId;
   final String? difficulty;
   final int? maxTimeMin;
+  final int? minCal;
+  final int? maxCal;
   final String? orderBy; // 'rating' | 'likes' | 'created_at' | null = personalized
 
   const FeedParams({
@@ -23,11 +25,13 @@ class FeedParams {
     this.regionId,
     this.difficulty,
     this.maxTimeMin,
+    this.minCal,
+    this.maxCal,
     this.orderBy,
   });
 
   bool get hasFilters =>
-      regionId != null || difficulty != null || maxTimeMin != null || orderBy != null;
+      regionId != null || difficulty != null || maxTimeMin != null || minCal != null || maxCal != null || orderBy != null;
 
   @override
   bool operator ==(Object other) =>
@@ -38,11 +42,13 @@ class FeedParams {
           regionId == other.regionId &&
           difficulty == other.difficulty &&
           maxTimeMin == other.maxTimeMin &&
+          minCal == other.minCal &&
+          maxCal == other.maxCal &&
           orderBy == other.orderBy;
 
   @override
   int get hashCode =>
-      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, orderBy);
+      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy);
 }
 
 final feedProvider =
@@ -132,6 +138,8 @@ final feedProvider =
       if (params.regionId != null) query = query.eq('region_id', params.regionId!);
       if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
       if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
+      if (params.minCal != null) query = query.gte('calories', params.minCal!);
+      if (params.maxCal != null) query = query.lte('calories', params.maxCal!);
 
       final orderColumn = switch (params.orderBy) {
         'rating' => 'average_rating',
@@ -226,6 +234,8 @@ class SearchParams {
   final String? regionId;
   final String? difficulty;
   final int? maxTimeMin;
+  final int? minCal;
+  final int? maxCal;
   final String orderBy;
   final int limit;
   final int offset;
@@ -235,6 +245,8 @@ class SearchParams {
     this.regionId,
     this.difficulty,
     this.maxTimeMin,
+    this.minCal,
+    this.maxCal,
     this.orderBy = 'relevance',
     this.limit = 20,
     this.offset = 0,
@@ -248,12 +260,14 @@ class SearchParams {
           regionId == other.regionId &&
           difficulty == other.difficulty &&
           maxTimeMin == other.maxTimeMin &&
+          minCal == other.minCal &&
+          maxCal == other.maxCal &&
           orderBy == other.orderBy &&
           limit == other.limit &&
           offset == other.offset;
 
   @override
-  int get hashCode => Object.hash(query, regionId, difficulty, maxTimeMin, orderBy, limit, offset);
+  int get hashCode => Object.hash(query, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, limit, offset);
 }
 
 final searchRecipesProvider =
@@ -279,6 +293,8 @@ final searchRecipesProvider =
     if (params.regionId != null) query = query.eq('region_id', params.regionId!);
     if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
     if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
+    if (params.minCal != null) query = query.gte('calories', params.minCal!);
+    if (params.maxCal != null) query = query.lte('calories', params.maxCal!);
 
     final orderColumn = switch (params.orderBy) {
       'rating' => 'average_rating',
@@ -312,6 +328,56 @@ final searchRecipesProvider =
       appLogger.db('ERROR | table: recipe | search | code: ${e.code}', error: e, stackTrace: st);
     }
     appLogger.provider('searchRecipesProvider → error | ${e.message}');
+    rethrow;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// User recipes (profile page)
+// ---------------------------------------------------------------------------
+
+final userRecipesProvider =
+    FutureProvider.autoDispose.family<List<Recipe>, String>((ref, userId) async {
+  appLogger.provider('userRecipesProvider build() | userId: $userId');
+  ref.onDispose(() => appLogger.provider('userRecipesProvider disposed | userId: $userId'));
+
+  if (userId.isEmpty) {
+    appLogger.provider('userRecipesProvider EARLY RETURN | reason: empty userId');
+    return [];
+  }
+
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db('BEFORE | table: recipe | op: SELECT | creator_id: $userId');
+
+  try {
+    final data = await client
+        .from('recipe')
+        .select()
+        .eq('creator_id', userId)
+        .order('created_at', ascending: false)
+        .limit(20) as List<dynamic>;
+
+    appLogger.db('AFTER | table: recipe | rows: ${data.length} | creator_id: $userId');
+
+    if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: recipe | creator_id: $userId | possible RLS block or no recipes');
+    }
+
+    final recipes = data.cast<Map<String, dynamic>>().map(Recipe.fromJson).toList();
+    appLogger.provider('userRecipesProvider → data | recipes: ${recipes.length}');
+    return recipes;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: recipe | creator_id: $userId', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: recipe | creator_id: $userId | code: ${e.code} | ${e.message}',
+          error: e, stackTrace: st);
+    }
+    appLogger.provider('userRecipesProvider → error | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: recipe | creator_id: $userId | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('userRecipesProvider → error | $e');
     rethrow;
   }
 });

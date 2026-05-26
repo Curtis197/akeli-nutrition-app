@@ -1,7 +1,7 @@
 project_id = "akeli_landing_page"
 
 [functions.complete-onboarding]
-verify_jwt = true
+verify_jwt = false
 
 [functions.toggle-recipe-like]
 verify_jwt = true

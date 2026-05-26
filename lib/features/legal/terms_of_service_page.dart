@@ -49,15 +49,15 @@ class TermsOfServicePage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Card
             Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AkeliColors.secondary, AkeliColors.tertiary],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -67,8 +67,8 @@ class TermsOfServicePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.description_rounded, size: 48, color: AkeliColors.onSecondary),
-                  SizedBox(height: 16),
+                  const Icon(Icons.description_rounded, size: 48, color: AkeliColors.onSecondary),
+                  const SizedBox(height: 16),
                   Text(
                     'Bienvenue sur Akeli',
                     style: GoogleFonts.plusJakartaSans(
@@ -77,7 +77,7 @@ class TermsOfServicePage extends StatelessWidget {
                       color: AkeliColors.onSecondary,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'En utilisant notre application, vous acceptez ces conditions',
                     style: GoogleFonts.inter(
@@ -88,7 +88,7 @@ class TermsOfServicePage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Article 1
             _buildArticleCard(
@@ -103,7 +103,7 @@ L'accès au service nécessite :
 
 Certaines fonctionnalités premium (Fan Mode, plans personnalisés) sont accessibles via abonnement.''',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Article 2
             _buildArticleCard(
@@ -116,7 +116,7 @@ Certaines fonctionnalités premium (Fan Mode, plans personnalisés) sont accessi
 
 Nous nous réservons le droit de suspendre ou supprimer tout compte en cas de violation des présentes conditions.''',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Article 3
             _buildArticleCard(
@@ -131,7 +131,7 @@ Interdictions :
 
 Les créateurs conservent les droits sur leurs recettes publiées.''',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Article 4
             _buildArticleCard(
@@ -146,7 +146,7 @@ Nous ne pouvons être tenus responsables :
 
 Consultez toujours un professionnel de santé pour des conseils médicaux.''',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Article 5
             _buildArticleCard(
@@ -160,7 +160,7 @@ Consultez toujours un professionnel de santé pour des conseils médicaux.''',
 
 Les créateurs reçoivent 70% des revenus générés par leurs abonnés.''',
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Article 6
             _buildArticleCard(
@@ -174,13 +174,13 @@ Les utilisateurs seront notifiés :
 
 La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Contact Section
             _buildSectionTitle('Contact'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -188,8 +188,8 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
               ),
               child: Row(
                 children: [
-                  Icon(Icons.mail_outline, color: AkeliColors.secondary, size: 24),
-                  SizedBox(width: 12),
+                  const Icon(Icons.mail_outline, color: AkeliColors.secondary, size: 24),
+                  const SizedBox(width: 12),
                   Text(
                     'legal@akeli.app',
                     style: GoogleFonts.inter(
@@ -201,12 +201,12 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Version Badge
             Center(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: AkeliColors.tertiaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(50),
@@ -244,7 +244,7 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
     required String content,
   }) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AkeliColors.surface,
         borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -253,7 +253,7 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
           BoxShadow(
             color: AkeliColors.shadow.withValues(alpha: 0.04),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -266,7 +266,7 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [AkeliColors.secondary, AkeliColors.tertiary],
                   ),
                   borderRadius: BorderRadius.circular(AkeliRadius.md),
@@ -282,7 +282,7 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
                   ),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
@@ -295,7 +295,7 @@ La poursuite de l'utilisation vaut acceptation des nouvelles conditions.''',
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             content,
             style: GoogleFonts.inter(

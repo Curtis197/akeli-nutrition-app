@@ -14,6 +14,8 @@ class UserProfile {
   final bool isCreator;
   final String locale; // fr | en | ...
   final DateTime createdAt;
+  final DateTime? consentPrivacyAt;
+  final DateTime? consentCguAt;
 
   const UserProfile({
     required this.id,
@@ -28,6 +30,8 @@ class UserProfile {
     required this.isCreator,
     this.locale = 'fr',
     required this.createdAt,
+    this.consentPrivacyAt,
+    this.consentCguAt,
   });
 
   String get displayName =>
@@ -46,6 +50,12 @@ class UserProfile {
         isCreator: (json['is_creator'] as bool?) ?? false,
         locale: json['locale'] as String? ?? 'fr',
         createdAt: DateTime.parse(json['created_at'] as String),
+        consentPrivacyAt: json['consent_privacy_at'] != null
+            ? DateTime.parse(json['consent_privacy_at'] as String)
+            : null,
+        consentCguAt: json['consent_cgu_at'] != null
+            ? DateTime.parse(json['consent_cgu_at'] as String)
+            : null,
       );
 
   UserProfile copyWith({

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/logger.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 
 // ---------------------------------------------------------------------------
@@ -29,9 +30,12 @@ class ChatMessage {
 // ---------------------------------------------------------------------------
 
 class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
+  String? _conversationId;
+
   @override
   List<ChatMessage> build() {
     appLogger.provider('AiChatNotifier build()');
+    ref.onDispose(() => appLogger.provider('AiChatNotifier disposed'));
     return [];
   }
 
@@ -57,34 +61,39 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
     appLogger.provider('AiChatNotifier → loading (sending)');
     state = [...state, userMsg, loadingMsg];
 
+    final client = ref.read(supabaseClientProvider);
+    final body = <String, dynamic>{
+      'message': content.trim(),
+      if (_conversationId != null) 'conversation_id': _conversationId,
+    };
+
+    appLogger.edge('ai-assistant-chat', 'BEFORE | conversationId: ${_conversationId ?? "new"} | messageLength: ${content.trim().length}');
+
     try {
-      // Mocking AI response instead of calling Supabase
-      await Future.delayed(const Duration(seconds: 2));
-      
-      String reply = "C'est une excellente question ! ";
-      if (content.toLowerCase().contains('protéine')) {
-        reply += "Pour un apport optimal en protéines dans la cuisine africaine, privilégiez le niébé (haricots), les arachides, ainsi que le poisson frais ou séché. Le fonio est aussi une excellente céréale complète.";
-      } else if (content.toLowerCase().contains('calorique') || content.toLowerCase().contains('poids')) {
-        reply += "Votre apport calorique idéal dépend de votre métabolisme de base. En général, on recommande une approche équilibrée riche en fibres (légumes feuilles comme le Bissap ou le Moringa) et modérée en huiles de palme ou d'arachide.";
-      } else {
-        reply += "En tant qu'assistant Akeli, je vous recommande de suivre votre plan de repas personnalisé dans l'onglet 'Planning' pour atteindre vos objectifs santé tout en savourant nos saveurs locales.";
-      }
- 
-      final assistantMsg = ChatMessage(
-        id: 'assistant_${DateTime.now().millisecondsSinceEpoch}',
-        role: 'assistant',
-        content: reply,
-        createdAt: DateTime.now(),
+      final result = await client.functions.invoke(
+        'ai-assistant-chat',
+        body: body,
       );
- 
-      // Replace loading with actual response
+
+      final data = result.data as Map<String, dynamic>;
+      _conversationId = data['conversation_id'] as String?;
+      final reply = data['response'] as String;
+
+      appLogger.edge('ai-assistant-chat', 'AFTER | conversationId: $_conversationId | pathType: ${data['path_type']} | tokens: ${data['tokens_used']}');
+
       state = [
         ...state.where((m) => !m.isLoading),
-        assistantMsg,
+        ChatMessage(
+          id: 'assistant_${DateTime.now().millisecondsSinceEpoch}',
+          role: 'assistant',
+          content: reply,
+          createdAt: DateTime.now(),
+        ),
       ];
       appLogger.provider('AiChatNotifier → data | messages: ${state.length}');
-    } catch (e) {
-      appLogger.provider('AiChatNotifier → error | send failed | $e', error: e);
+    } catch (e, st) {
+      appLogger.edge('ai-assistant-chat', 'ERROR | $e', error: e, stackTrace: st);
+      appLogger.provider('AiChatNotifier → error | $e');
       state = [
         ...state.where((m) => !m.isLoading),
         ChatMessage(
@@ -99,6 +108,7 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
 
   void clear() {
     appLogger.provider('AiChatNotifier clear()');
+    _conversationId = null;
     state = [];
   }
 }

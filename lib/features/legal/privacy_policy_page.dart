@@ -49,15 +49,15 @@ class PrivacyPolicyPage extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Card
             Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   colors: [AkeliColors.primary, AkeliColors.primaryContainer],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -67,8 +67,8 @@ class PrivacyPolicyPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.security_rounded, size: 48, color: AkeliColors.onPrimary),
-                  SizedBox(height: 16),
+                  const Icon(Icons.security_rounded, size: 48, color: AkeliColors.onPrimary),
+                  const SizedBox(height: 16),
                   Text(
                     'Vos données sont protégées',
                     style: GoogleFonts.plusJakartaSans(
@@ -77,7 +77,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                       color: AkeliColors.onPrimary,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Nous nous engageons à protéger votre vie privée conformément au RGPD',
                     style: GoogleFonts.inter(
@@ -88,33 +88,33 @@ class PrivacyPolicyPage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Summary Highlights
             _buildSectionTitle('En bref'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.data_usage_outlined,
               title: 'Collecte minimale',
               description: 'Seules les données nécessaires au fonctionnement de l\'application',
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.lock_outline,
               title: 'Sécurité maximale',
               description: 'Chiffrement de bout en bout et stockage sécurisé',
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.person_outline,
               title: 'Contrôle total',
               description: 'Vous pouvez accéder, modifier ou supprimer vos données à tout moment',
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Section 1
             _buildSectionTitle('1. Collecte de données'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildContentCard(
               content: '''Nous collectons uniquement les données nécessaires pour vous offrir la meilleure expérience :
 
@@ -123,11 +123,11 @@ class PrivacyPolicyPage extends StatelessWidget {
 • Données de santé que vous choisissez de partager
 • Préférences de contenu et interactions''',
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Section 2
             _buildSectionTitle('2. Utilisation des données'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildContentCard(
               content: '''Vos données nous permettent de :
 
@@ -136,14 +136,14 @@ class PrivacyPolicyPage extends StatelessWidget {
 • Vous envoyer des notifications pertinentes
 • Assurer la sécurité de votre compte''',
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Section 3 - RGPD Rights Grid
             _buildSectionTitle('3. Vos droits RGPD'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             GridView.count(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
@@ -170,11 +170,11 @@ class PrivacyPolicyPage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Section 4
             _buildSectionTitle('4. Partage des données'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildContentCard(
               content: '''Nous ne vendons jamais vos données personnelles.
 
@@ -183,24 +183,24 @@ Elles peuvent être partagées uniquement avec :
 • Les autorités légales si requis par la loi
 • Vos créateurs favoris (uniquement avec votre consentement explicite)''',
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Section 5
             _buildSectionTitle('5. Conservation'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             _buildContentCard(
               content: '''Vos données sont conservées :
 • Tant que votre compte est actif
 • Jusqu'à 3 ans après votre dernière connexion
 • Immédiatement supprimées après demande de suppression de compte''',
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Contact Card
             _buildSectionTitle('Contact DPO'),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -211,8 +211,8 @@ Elles peuvent être partagées uniquement avec :
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.mail_outline, color: AkeliColors.primary, size: 24),
-                      SizedBox(width: 12),
+                      const Icon(Icons.mail_outline, color: AkeliColors.primary, size: 24),
+                      const SizedBox(width: 12),
                       Text(
                         'dpo@akeli.app',
                         style: GoogleFonts.inter(
@@ -223,7 +223,7 @@ Elles peuvent être partagées uniquement avec :
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     'Notre délégué à la protection des données répond sous 48h ouvrées à toute demande concernant vos données personnelles.',
                     style: GoogleFonts.inter(
@@ -234,12 +234,12 @@ Elles peuvent être partagées uniquement avec :
                 ],
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Version Badge
             Center(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(50),
@@ -277,7 +277,7 @@ Elles peuvent être partagées uniquement avec :
     required String description,
   }) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -286,16 +286,16 @@ Elles peuvent être partagées uniquement avec :
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [AkeliColors.primary, AkeliColors.primaryContainer],
               ),
               borderRadius: BorderRadius.circular(AkeliRadius.md),
             ),
             child: Icon(icon, color: AkeliColors.onPrimary, size: 24),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,7 +308,7 @@ Elles peuvent être partagées uniquement avec :
                     color: AkeliColors.onSurface,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   description,
                   style: GoogleFonts.inter(
@@ -326,7 +326,7 @@ Elles peuvent être partagées uniquement avec :
 
   Widget _buildContentCard({required String content}) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AkeliColors.surface,
         borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -349,7 +349,7 @@ Elles peuvent être partagées uniquement avec :
     required String description,
   }) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -366,7 +366,7 @@ Elles peuvent être partagées uniquement avec :
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: AkeliColors.primary, size: 28),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             title,
             style: GoogleFonts.plusJakartaSans(
@@ -375,7 +375,7 @@ Elles peuvent être partagées uniquement avec :
               color: AkeliColors.onSurface,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             description,
             style: GoogleFonts.inter(

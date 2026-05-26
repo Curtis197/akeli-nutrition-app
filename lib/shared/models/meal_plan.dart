@@ -66,7 +66,14 @@ class MealPlanEntry {
   final String mealPlanId;
   final String mealType;
   final DateTime scheduledDate;
+  final double servings;
   final bool isConsumed;
+  final bool isCustomMeal;
+  final String? customMealName;
+  final double? customCalories;
+  final double? customProteinG;
+  final double? customCarbsG;
+  final double? customFatG;
   final List<MealPlanEntryComponent> components;
 
   const MealPlanEntry({
@@ -74,7 +81,14 @@ class MealPlanEntry {
     required this.mealPlanId,
     required this.mealType,
     required this.scheduledDate,
+    required this.servings,
     required this.isConsumed,
+    required this.isCustomMeal,
+    this.customMealName,
+    this.customCalories,
+    this.customProteinG,
+    this.customCarbsG,
+    this.customFatG,
     required this.components,
   });
 
@@ -83,7 +97,14 @@ class MealPlanEntry {
         mealPlanId: json['meal_plan_id'] as String,
         mealType: json['meal_type'] as String,
         scheduledDate: DateTime.parse(json['scheduled_date'] as String),
+        servings: (json['servings'] as num?)?.toDouble() ?? 1.0,
         isConsumed: (json['is_consumed'] as bool?) ?? false,
+        isCustomMeal: (json['is_custom_meal'] as bool?) ?? false,
+        customMealName: json['custom_meal_name'] as String?,
+        customCalories: (json['custom_calories'] as num?)?.toDouble(),
+        customProteinG: (json['custom_protein_g'] as num?)?.toDouble(),
+        customCarbsG: (json['custom_carbs_g'] as num?)?.toDouble(),
+        customFatG: (json['custom_fat_g'] as num?)?.toDouble(),
         components: (json['meal_plan_entry_component'] as List<dynamic>?)
                 ?.map((e) =>
                     MealPlanEntryComponent.fromJson(e as Map<String, dynamic>))
@@ -96,19 +117,26 @@ class MealPlanEntry {
       components.where((c) => c.role == 'base').firstOrNull ??
       components.firstOrNull;
 
-  String? get recipeTitle => _base?.recipeTitle;
+  String? get recipeTitle =>
+      isCustomMeal ? customMealName : (_base?.recipeTitle);
   String? get recipeThumbnail => _base?.recipeThumbnail;
 
   // Total macros across all components.
-  double get calories =>
-      components.fold(0.0, (s, c) => s + (c.calories ?? 0.0));
-  double get proteinG =>
-      components.fold(0.0, (s, c) => s + (c.proteinG ?? 0.0));
-  double get carbsG => components.fold(0.0, (s, c) => s + (c.carbsG ?? 0.0));
-  double get fatG => components.fold(0.0, (s, c) => s + (c.fatG ?? 0.0));
+  double get calories => isCustomMeal
+      ? (customCalories ?? 0.0)
+      : components.fold(0.0, (s, c) => s + (c.calories ?? 0.0));
+  double get proteinG => isCustomMeal
+      ? (customProteinG ?? 0.0)
+      : components.fold(0.0, (s, c) => s + (c.proteinG ?? 0.0));
+  double get carbsG => isCustomMeal
+      ? (customCarbsG ?? 0.0)
+      : components.fold(0.0, (s, c) => s + (c.carbsG ?? 0.0));
+  double get fatG => isCustomMeal
+      ? (customFatG ?? 0.0)
+      : components.fold(0.0, (s, c) => s + (c.fatG ?? 0.0));
 
-  // Convenience accessor — recipe ID of the base component.
-  String? get recipeId => _base?.recipeId;
+  // Convenience accessor — recipe ID of the base component. Null for custom meals.
+  String? get recipeId => isCustomMeal ? null : _base?.recipeId;
 
   bool get isModular => components.length > 1;
 
@@ -200,6 +228,38 @@ class MealPlanEntryComponent {
 // ---------------------------------------------------------------------------
 
 @immutable
+class CookingSessionIngredient {
+  final String id;
+  final String cookingSessionId;
+  final String? ingredientId;
+  final String ingredientName;
+  final double quantityNeeded;
+  final String unit;
+
+  const CookingSessionIngredient({
+    required this.id,
+    required this.cookingSessionId,
+    this.ingredientId,
+    required this.ingredientName,
+    required this.quantityNeeded,
+    required this.unit,
+  });
+
+  factory CookingSessionIngredient.fromJson(Map<String, dynamic> json) {
+    return CookingSessionIngredient(
+      id: json['id'] as String,
+      cookingSessionId: json['cooking_session_id'] as String,
+      ingredientId: json['ingredient_id'] as String?,
+      ingredientName: json['ingredient_name'] as String,
+      quantityNeeded: (json['quantity_needed'] as num).toDouble(),
+      unit: json['unit'] as String,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+
+@immutable
 class CookingSession {
   final String id;
   final String userId;
@@ -210,7 +270,9 @@ class CookingSession {
   final DateTime plannedDate;
   final int totalPortions;
   final int portionsUsed;
+  final double? scaleFactor;
   final String? notes;
+  final List<CookingSessionIngredient>? ingredients;
 
   const CookingSession({
     required this.id,
@@ -222,11 +284,14 @@ class CookingSession {
     required this.plannedDate,
     required this.totalPortions,
     required this.portionsUsed,
+    this.scaleFactor,
     this.notes,
+    this.ingredients,
   });
 
   factory CookingSession.fromJson(Map<String, dynamic> json) {
     final recipe = json['recipe'] as Map<String, dynamic>?;
+    final rawIngredients = json['cooking_session_ingredient'] as List<dynamic>?;
     return CookingSession(
       id: json['id'] as String,
       userId: json['user_id'] as String,
@@ -235,9 +300,15 @@ class CookingSession {
       recipeTitle: recipe?['title'] as String?,
       recipeThumbnail: recipe?['cover_image_url'] as String?,
       plannedDate: DateTime.parse(json['planned_date'] as String),
-      totalPortions: json['total_portions'] as int,
-      portionsUsed: (json['portions_used'] as int?) ?? 0,
+      totalPortions: (json['total_portions'] as num).toInt(),
+      portionsUsed: (json['portions_used'] as num?)?.toInt() ?? 0,
+      scaleFactor: json['scale_factor'] != null
+          ? (json['scale_factor'] as num).toDouble()
+          : null,
       notes: json['notes'] as String?,
+      ingredients: rawIngredients
+          ?.map((e) => CookingSessionIngredient.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
