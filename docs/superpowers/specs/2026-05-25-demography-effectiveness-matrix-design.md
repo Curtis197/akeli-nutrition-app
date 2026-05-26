@@ -236,7 +236,7 @@ CREATE TABLE recipe_demography_score (
 
 ## Vectors
 
-Three new columns on existing tables. Not merged into the 50D nutrition property vectors.
+Four new columns on existing tables. Not merged into the 50D nutrition property vectors.
 
 ```sql
 -- On recipe_vector table
@@ -246,7 +246,8 @@ ALTER TABLE recipe_vector
 
 -- On user_vector table
 ALTER TABLE user_vector
-  ADD COLUMN demographic_vector vector(200);
+  ADD COLUMN demographic_vector   vector(200),
+  ADD COLUMN ideal_recipe_vector  vector(50);   -- same space as recipe_vector
 ```
 
 ### `user_demographic_vector(200)`
@@ -271,9 +272,22 @@ Each position holds the trust-weighted score for that axis bucket:
 vector[bucket.vector_idx] = trust(n, t) × score_shifted
 ```
 
-Zero for buckets with no data yet (natural cold start — recipe ranks on 50D property match until demographic data accumulates).
+Zero for buckets with no data yet — cold start handled by similar-recipe inference (see below).
 
 Not L2-normalised. The dot product at query time returns the raw sum of matched axis scores.
+
+### `ideal_recipe_vector(50)`
+
+Lives in the same 50D space as `recipe_vector`. Represents the weighted centroid of recipes that worked for users most similar to this user. Computed weekly per user by the pool batch.
+
+```
+ideal_recipe_vector(u) = L2_normalise(
+  Σ pool_effectiveness_score(Rᵢ) × recipe_vector(Rᵢ)
+  for all Rᵢ consumed by the pool with pool_effectiveness_score > 0
+)
+```
+
+At query time a single cosine operation scores any recipe against this ideal — including recipes the pool has never tried (cold start safe).
 
 ---
 
@@ -372,21 +386,110 @@ Recipe B — Grilled Tilapia (lean protein, newer recipe):
 
 ---
 
-## Recommendation RPC Integration
+## Cold Start — Recipe Inference
+
+A new recipe with zero rows in `recipe_demography_score` would score zero on all axis buckets, appearing only through the 50D property match. Instead, at vector rebuild time, its demographic vectors are **inferred from similar recipes**:
+
+```python
+def infer_demographic_vectors(recipe_id, top_k=10):
+    # find top-K similar recipes with real demographic data
+    neighbours = find_similar_recipes(recipe_id, top_k=top_k)
+
+    for bucket_id, vector_idx in all_buckets():
+        scores = [
+            (sim, r.effectiveness_raw, r.effectiveness_sample)
+            for sim, r in neighbours
+            if r has data for bucket_id
+        ]
+        if not scores:
+            continue
+
+        # distance-weighted average
+        raw = sum(sim * eff for sim, eff, _ in scores) / sum(sim for sim, _, _ in scores)
+        n   = sum(sample for _, _, sample in scores) / len(scores)
+
+        # cold_start_trust dampens inferred scores vs observed
+        trust = cold_start_trust(0.4) * sample_trust(n) * recency_trust(t)
+        effectiveness_vector[vector_idx] = trust * shift(raw)
+```
+
+`cold_start_trust = 0.4` — inferred scores carry 40% of the weight of observed scores at equivalent sample size.
+
+As real observations accumulate the recipe's own scores replace the inferred ones naturally: at `n=10` real observations `sample_trust = 0.86`, which at `cold_start_trust=1.0` exceeds the inferred score's ceiling of `0.4 × 0.86 = 0.34`.
+
+---
+
+## User Pool — Ideal Recipe Vector
+
+A second recommendation signal computed per user from collaborative filtering over the 50D user vector space.
+
+### Weekly batch per user
+
+```python
+def compute_ideal_recipe_vector(user_id):
+    # 1. find top-50 most similar users (HNSW on user_vector)
+    pool = find_similar_users(user_id, top_k=50)
+
+    # 2. collect all recipes consumed by the pool
+    #    score = avg(consumption_pct × goal_aligned_diff) within pool
+    #    only where consumption_pct > 0
+    recipe_scores = compute_pool_effectiveness(pool)  # {recipe_id: score}
+
+    if not recipe_scores:
+        return None  # no data yet — ideal_recipe_vector stays NULL
+
+    # 3. weighted centroid in 50D recipe vector space
+    vectors = fetch_recipe_vectors(recipe_scores.keys())
+    centroid = sum(score * vec for recipe_id, vec in vectors
+                               for score in [recipe_scores[recipe_id]])
+    return l2_normalise(centroid)
+```
+
+### At query time
 
 ```sql
--- In generate_feed_personalized (post 50D cosine retrieval):
+-- cosine similarity between any recipe and the user's ideal
+pool_score := 1 - (rv.vector <=> v_ideal_recipe);
+```
+
+Works for any recipe including ones the pool has never tried — the ideal vector encodes which properties correlated with outcomes, not which specific recipes were consumed.
+
+---
+
+## Recommendation RPC Integration
+
+Three independent signals combined in a single re-rank step after the 50D candidate retrieval:
+
+```sql
+-- Recipe-centric: how this recipe performs for this demographic
 effectiveness_bonus := (rv.effectiveness_vector <#> v_demographic) * -1 / 5.0;
 retention_bonus     := (rv.retention_vector     <#> v_demographic) * -1 / 5.0;
 
+-- User-centric: how similar this recipe is to what worked for similar users
+pool_bonus := CASE
+  WHEN v_ideal_recipe IS NOT NULL
+  THEN 1 - (rv.vector <=> v_ideal_recipe)
+  ELSE 0
+END;
+
 final_score := base_cosine_score
              + 0.10 * effectiveness_bonus
-             + 0.05 * retention_bonus;
+             + 0.05 * retention_bonus
+             + 0.15 * pool_bonus;
 ```
 
-Division by 5.0 normalises the multi-hot sum back to [0, 1] regardless of how many axes are active. If a 6th axis is added later, the divisor updates to 6.0.
+Division by 5.0 normalises the multi-hot sum to [0, 1]. If a 6th axis is added later the divisor updates to 6.0.
 
-Weights (0.10 / 0.05) are conservative at launch to avoid overfitting sparse early data. Adjust once buckets mature.
+Weights are conservative at launch. `pool_bonus` carries slightly more weight (0.15) as it uses the full 50D signal. Adjust once data matures.
+
+**Cold start behaviour summary:**
+
+| Situation | base_cosine | demographic | pool |
+|---|---|---|---|
+| New recipe, new user | ✓ | inferred (0.4×) | NULL → 0 |
+| New recipe, established user | ✓ | inferred (0.4×) | ✓ full |
+| Established recipe, new user | ✓ | ✓ observed | NULL → 0 |
+| Established recipe, established user | ✓ | ✓ observed | ✓ full |
 
 ---
 
@@ -415,13 +518,26 @@ ORDER BY rds.effectiveness_raw DESC;
 
 ```
 Sunday 03:00 UTC
-  1. For each (recipe, bucket) pair with new activity this week:
-     a. compute_recipe_effectiveness(recipe_id, bucket_id)
-     b. compute_recipe_retention(recipe_id, bucket_id)
-     c. upsert into recipe_demography_score
-  2. Rebuild effectiveness_vector and retention_vector for updated recipes
-  3. Rebuild demographic_vector for users whose profile changed
-     (age boundary crossed, goal updated, weight changed BMI tier)
+
+  Phase 1 — Recipe-centric (demographic axis scores)
+    1. For each (recipe, bucket) pair with new activity this week:
+       a. compute_recipe_effectiveness(recipe_id, bucket_id)
+       b. compute_recipe_retention(recipe_id, bucket_id)
+       c. upsert into recipe_demography_score
+    2. Rebuild effectiveness_vector and retention_vector for updated recipes
+    3. For new recipes with no observed data: infer demographic vectors
+       from top-10 similar recipes (cold start inference)
+
+  Phase 2 — User-centric (ideal recipe vector)
+    4. For each user with new pool activity this week:
+       a. find top-50 similar users via HNSW on user_vector
+       b. compute pool effectiveness scores per recipe
+       c. compute weighted centroid → ideal_recipe_vector
+       d. upsert into user_vector.ideal_recipe_vector
+
+  Phase 3 — Profile drift
+    5. Rebuild demographic_vector for users whose profile changed
+       (age boundary crossed, goal updated, weight changed BMI tier)
 ```
 
 V1: recompute from full history each week.  
@@ -446,15 +562,25 @@ V2: switch to rolling EMA (α ≈ 0.3) once dataset grows.
 
 ## Implementation Order
 
+**Recipe-centric layer:**
 1. Migration: `demography_bucket` table + seed all 85 V1 rows
 2. Migration: `recipe_demography_score` table
-3. Migration: `ALTER TABLE recipe_vector ADD COLUMN effectiveness_vector(200) / retention_vector(200)`
-4. Migration: `ALTER TABLE user_vector ADD COLUMN demographic_vector(200)`
+3. Migration: `ALTER TABLE recipe_vector ADD COLUMN effectiveness_vector vector(200), retention_vector vector(200)`
+4. Migration: `ALTER TABLE user_vector ADD COLUMN demographic_vector vector(200)`
 5. Python: `resolve_user_buckets(user_id)` → returns 5 (bucket_id, vector_idx) tuples
 6. Python: `compute_recipe_effectiveness(recipe_id, bucket_id)`
 7. Python: `compute_recipe_retention(recipe_id, bucket_id)`
-8. Python: `rebuild_demographic_vectors(recipe_ids)` and `rebuild_user_demographic_vector(user_id)`
-9. Python: weekly batch scheduler entry
+8. Python: `infer_demographic_vectors(recipe_id)` — cold start from similar recipes
+9. Python: `rebuild_user_demographic_vector(user_id)`
 10. Edge function: `complete-onboarding` — set `demographic_vector` on signup
-11. RPC: update `generate_feed_personalized` with effectiveness + retention re-rank step
-12. Creator API: recipe score endpoint (filter `sample >= 5`)
+
+**User-centric layer:**
+11. Migration: `ALTER TABLE user_vector ADD COLUMN ideal_recipe_vector vector(50)`
+12. Python: `find_similar_users(user_id, top_k=50)` — HNSW on user_vector
+13. Python: `compute_pool_effectiveness(pool)` → `{recipe_id: score}`
+14. Python: `compute_ideal_recipe_vector(user_id)` — weighted centroid + L2 normalise
+
+**Batch & RPC:**
+15. Python: weekly batch scheduler (3 phases)
+16. RPC: update `generate_feed_personalized` — add effectiveness, retention, pool re-rank
+17. Creator API: recipe score endpoint (filter `sample >= 5`)
