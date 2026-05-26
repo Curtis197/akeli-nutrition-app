@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:akeli/core/logger.dart';
+import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/notifications_provider.dart';
 import 'package:akeli/providers/dm_provider.dart';
@@ -36,7 +38,16 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
       appBar: AppBar(
         backgroundColor: AkeliColors.background,
         elevation: 0,
-        leading: const BackButton(),
+        leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go(AkeliRoutes.home);
+          }
+        },
+      ),
         title: const Text('Notifications'),
       ),
       body: notifAsync.when(

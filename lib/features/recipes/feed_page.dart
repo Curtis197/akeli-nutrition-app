@@ -8,12 +8,15 @@ import '../../core/theme.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/meal_plan_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
-  const FeedPage({super.key});
+  final String? swapEntryId;
+
+  const FeedPage({super.key, this.swapEntryId});
 
   @override
   ConsumerState<FeedPage> createState() => _FeedPageState();
@@ -26,10 +29,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   String? _regionId;
   String? _difficulty;
   int? _maxTimeMin;
+  int? _minCal;
+  int? _maxCal;
   String? _orderBy;
 
   bool get _hasActiveFilter =>
-      _regionId != null || _difficulty != null || _maxTimeMin != null || _orderBy != null;
+      _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
 
   static const _pageSize = 20;
 
@@ -73,69 +78,169 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         _ => 'Trier ▾',
       };
 
-  void _showRegionSheet(BuildContext context) {
-    _logger.userAction('Region filter sheet opened', screen: 'FeedPage');
+  void _showCombinedFilterSheet(BuildContext context) {
+    _logger.userAction('Combined filter sheet opened', screen: 'FeedPage');
     final regionNames = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
-    final options = [
-      const MapEntry<String?, String>(null, 'Toutes les régions'),
-      ...regionNames.entries.map((e) => MapEntry<String?, String>(e.key, e.value)),
-    ];
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => _FilterSheet<String>(
-        title: 'Région',
-        options: options,
-        selectedKey: _regionId,
-        onSelect: (key) {
-          _logger.userAction('Region filter selected', screen: 'FeedPage',
-              metadata: {'regionId': key});
-          setState(() => _regionId = key);
-        },
-      ),
-    );
-  }
+    
+    String? tempRegion = _regionId;
+    String? tempDiff = _difficulty;
+    int? tempTime = _maxTimeMin;
+    int? tempMinCal = _minCal;
+    int? tempMaxCal = _maxCal;
 
-  void _showDifficultySheet(BuildContext context) {
-    _logger.userAction('Difficulty filter sheet opened', screen: 'FeedPage');
     showModalBottomSheet(
       context: context,
-      builder: (_) => _FilterSheet<String>(
-        title: 'Difficulté',
-        options: const [
-          MapEntry(null, 'Tous'),
-          MapEntry('easy', 'Facile'),
-          MapEntry('medium', 'Moyen'),
-          MapEntry('hard', 'Difficile'),
-        ],
-        selectedKey: _difficulty,
-        onSelect: (key) {
-          _logger.userAction('Difficulty filter selected', screen: 'FeedPage',
-              metadata: {'difficulty': key});
-          setState(() => _difficulty = key);
-        },
-      ),
-    );
-  }
-
-  void _showTimeSheet(BuildContext context) {
-    _logger.userAction('Time filter sheet opened', screen: 'FeedPage');
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => _FilterSheet<int>(
-        title: 'Temps de préparation',
-        options: const [
-          MapEntry(null, 'Tous'),
-          MapEntry(30, 'Moins de 30 min'),
-          MapEntry(60, 'Moins de 60 min'),
-          MapEntry(90, 'Moins de 90 min'),
-        ],
-        selectedKey: _maxTimeMin,
-        onSelect: (key) {
-          _logger.userAction('Time filter selected', screen: 'FeedPage',
-              metadata: {'maxTimeMin': key});
-          setState(() => _maxTimeMin = key);
-        },
-      ),
+      isScrollControlled: true,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AkeliSpacing.md),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Filtres', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Région', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Toutes'),
+                          selected: tempRegion == null,
+                          onSelected: (v) => setModalState(() => tempRegion = null),
+                        ),
+                        ...regionNames.entries.map((e) => ChoiceChip(
+                          label: Text(e.value),
+                          selected: tempRegion == e.key,
+                          onSelected: (v) => setModalState(() => tempRegion = e.key),
+                        )),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Difficulté', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Toutes'),
+                          selected: tempDiff == null,
+                          onSelected: (v) => setModalState(() => tempDiff = null),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Facile'),
+                          selected: tempDiff == 'easy',
+                          onSelected: (v) => setModalState(() => tempDiff = 'easy'),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Moyen'),
+                          selected: tempDiff == 'medium',
+                          onSelected: (v) => setModalState(() => tempDiff = 'medium'),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Difficile'),
+                          selected: tempDiff == 'hard',
+                          onSelected: (v) => setModalState(() => tempDiff = 'hard'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Temps maximum', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Tous'),
+                          selected: tempTime == null,
+                          onSelected: (v) => setModalState(() => tempTime = null),
+                        ),
+                        ChoiceChip(
+                          label: const Text('< 30 min'),
+                          selected: tempTime == 30,
+                          onSelected: (v) => setModalState(() => tempTime = 30),
+                        ),
+                        ChoiceChip(
+                          label: const Text('< 60 min'),
+                          selected: tempTime == 60,
+                          onSelected: (v) => setModalState(() => tempTime = 60),
+                        ),
+                        ChoiceChip(
+                          label: const Text('< 90 min'),
+                          selected: tempTime == 90,
+                          onSelected: (v) => setModalState(() => tempTime = 90),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Calories (kcal)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    RangeSlider(
+                      values: RangeValues(
+                        (tempMinCal ?? 0).toDouble(),
+                        (tempMaxCal ?? 2000).toDouble(),
+                      ),
+                      min: 0,
+                      max: 2000,
+                      divisions: 40,
+                      labels: RangeLabels(
+                        '${tempMinCal ?? 0} kcal',
+                        '${tempMaxCal ?? '2000+'} kcal',
+                      ),
+                      activeColor: AkeliColors.primary,
+                      onChanged: (RangeValues values) {
+                        setModalState(() {
+                          tempMinCal = values.start.toInt();
+                          tempMaxCal = values.end.toInt();
+                          if (tempMinCal == 0) tempMinCal = null;
+                          if (tempMaxCal == 2000) tempMaxCal = null;
+                        });
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${tempMinCal ?? 0} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                        Text(tempMaxCal == null ? '2000+ kcal' : '${tempMaxCal} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {
+                          setState(() {
+                            _regionId = tempRegion;
+                            _difficulty = tempDiff;
+                            _maxTimeMin = tempTime;
+                            _minCal = tempMinCal;
+                            _maxCal = tempMaxCal;
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Appliquer les filtres'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        );
+      }
     );
   }
 
@@ -170,6 +275,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             regionId: _regionId,
             difficulty: _difficulty,
             maxTimeMin: _maxTimeMin,
+            minCal: _minCal,
+            maxCal: _maxCal,
             orderBy: _orderBy ?? 'relevance',
             limit: _pageSize,
           )))
@@ -178,6 +285,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             regionId: _regionId,
             difficulty: _difficulty,
             maxTimeMin: _maxTimeMin,
+            minCal: _minCal,
+            maxCal: _maxCal,
             orderBy: _orderBy,
           )));
 
@@ -193,152 +302,167 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           floating: true,
           snap: true,
           backgroundColor: AkeliColors.background,
-          title: Row(
-            children: [
-              profileAsync.when(
-                data: (profile) => CircleAvatar(
-                  radius: 18,
-                  backgroundImage: profile?.avatarUrl != null
-                      ? NetworkImage(profile!.avatarUrl!)
-                      : null,
-                  backgroundColor: AkeliColors.primary,
-                  child: profile?.avatarUrl == null
-                      ? Text(
-                          (profile?.displayName.isNotEmpty == true
-                                  ? profile!.displayName[0]
-                                  : 'A')
-                              .toUpperCase(),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold),
-                        )
-                      : null,
-                ),
-                loading: () => const CircleAvatar(
-                    radius: 18, backgroundColor: AkeliColors.primary),
-                error: (_, __) => const CircleAvatar(
-                    radius: 18, backgroundColor: AkeliColors.primary),
-              ),
-              const SizedBox(width: AkeliSpacing.sm),
-              Expanded(
-                child: Text(
-                  profileAsync.when(
-                    data: (p) => p?.displayName != null
-                        ? 'Bonjour, ${p!.displayName} 👋'
-                        : 'Bienvenue sur Akeli',
-                    loading: () => 'Bienvenue sur Akeli',
-                    error: (_, __) => 'Bienvenue sur Akeli',
-                  ),
+          leading: widget.swapEntryId != null
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => context.pop(),
+                )
+              : null,
+          title: widget.swapEntryId != null
+              ? const Text('Sélectionner une recette', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+              : Text(
+                  'Recettes',
                   style: GoogleFonts.plusJakartaSans(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
                     color: AkeliColors.onSurface,
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.chat_bubble_outline_rounded),
-              onPressed: () {
-                _logger.userAction('AI Chat button tapped', screen: 'FeedPage');
-                context.push(AkeliRoutes.aiChat);
-              },
-              tooltip: 'Assistant IA',
-            ),
-          ],
+          actions: const [],
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(104),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      AkeliSpacing.md, 0, AkeliSpacing.md, AkeliSpacing.xs),
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      searchBarTheme: const SearchBarThemeData(
-                        backgroundColor:
-                            WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
+                  padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            searchBarTheme: const SearchBarThemeData(
+                              backgroundColor: WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
+                            ),
+                          ),
+                          child: SearchBar(
+                            controller: _searchCtrl,
+                            hintText: 'Rechercher...',
+                            leading: const Icon(Icons.search_rounded),
+                            trailing: _searchQuery.isNotEmpty
+                                ? [
+                                    IconButton(
+                                      icon: const Icon(Icons.clear_rounded),
+                                      onPressed: () {
+                                        _logger.userAction('Search cleared', screen: 'FeedPage');
+                                        _searchCtrl.clear();
+                                        setState(() => _searchQuery = '');
+                                      },
+                                    )
+                                  ]
+                                : null,
+                            onChanged: (v) {
+                              setState(() => _searchQuery = v);
+                            },
+                            elevation: const WidgetStatePropertyAll(0),
+                            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+                            constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: SearchBar(
-                      controller: _searchCtrl,
-                      hintText: 'Rechercher une recette...',
-                      leading: const Icon(Icons.search_rounded),
-                      trailing: _searchQuery.isNotEmpty
-                          ? [
-                              IconButton(
-                                icon: const Icon(Icons.clear_rounded),
-                                onPressed: () {
-                                  _logger.userAction('Search cleared', screen: 'FeedPage');
-                                  _searchCtrl.clear();
-                                  setState(() => _searchQuery = '');
-                                },
-                              )
-                            ]
-                          : null,
-                      onChanged: (v) {
-                        _logger.userAction('Search query changed',
-                            screen: 'FeedPage',
-                            metadata: {'length': v.length, 'triggerSearch': v.length >= 2});
-                        setState(() => _searchQuery = v);
-                      },
-                      elevation: const WidgetStatePropertyAll(1),
-                    ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
+                              ? AkeliColors.primaryContainer
+                              : AkeliColors.surfaceContainerLow,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.tune_rounded),
+                          color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
+                              ? AkeliColors.onPrimaryContainer
+                              : AkeliColors.onSurfaceVariant,
+                          onPressed: () => _showCombinedFilterSheet(context),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: _orderBy != null
+                              ? AkeliColors.primaryContainer
+                              : AkeliColors.surfaceContainerLow,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.sort_rounded),
+                          color: _orderBy != null
+                              ? AkeliColors.onPrimaryContainer
+                              : AkeliColors.onSurfaceVariant,
+                          onPressed: () => _showSortSheet(context),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 12),
                 SizedBox(
-                  height: 40,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
-                    children: [
-                      _FeedFilterChip(
-                        label: _regionLabel(),
-                        active: _regionId != null,
-                        onTap: () => _showRegionSheet(context),
-                      ),
-                      const SizedBox(width: AkeliSpacing.xs),
-                      _FeedFilterChip(
-                        label: _difficultyLabel(),
-                        active: _difficulty != null,
-                        onTap: () => _showDifficultySheet(context),
-                      ),
-                      const SizedBox(width: AkeliSpacing.xs),
-                      _FeedFilterChip(
-                        label: _timeLabel(),
-                        active: _maxTimeMin != null,
-                        onTap: () => _showTimeSheet(context),
-                      ),
-                      const SizedBox(width: AkeliSpacing.xs),
-                      _FeedFilterChip(
-                        label: _sortLabel(),
-                        active: _orderBy != null,
-                        onTap: () => _showSortSheet(context),
-                      ),
-                      if (_hasActiveFilter) ...[
-                        const SizedBox(width: AkeliSpacing.xs),
-                        _FeedFilterChip(
-                          label: '× Effacer',
-                          active: false,
-                          onTap: () {
-                            _logger.userAction('Feed filters cleared', screen: 'FeedPage');
+                  height: 36,
+                  child: !_hasActiveFilter 
+                    ? const SizedBox.shrink()
+                    : ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+                      children: [
+                        if (_regionId != null) ...[
+                          _ActiveFilterChip(
+                            label: _regionLabel(),
+                            onDeleted: () => setState(() => _regionId = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_difficulty != null) ...[
+                          _ActiveFilterChip(
+                            label: _difficultyLabel(),
+                            onDeleted: () => setState(() => _difficulty = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_maxTimeMin != null) ...[
+                          _ActiveFilterChip(
+                            label: _timeLabel(),
+                            onDeleted: () => setState(() => _maxTimeMin = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_minCal != null || _maxCal != null) ...[
+                          _ActiveFilterChip(
+                            label: '${_minCal ?? 0} - ${_maxCal ?? '2000+'} kcal',
+                            onDeleted: () => setState(() {
+                              _minCal = null;
+                              _maxCal = null;
+                            }),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_orderBy != null) ...[
+                          _ActiveFilterChip(
+                            label: _sortLabel(),
+                            onDeleted: () => setState(() => _orderBy = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        TextButton(
+                          onPressed: () {
                             setState(() {
                               _regionId = null;
                               _difficulty = null;
                               _maxTimeMin = null;
+                              _minCal = null;
+                              _maxCal = null;
                               _orderBy = null;
                             });
                           },
-                        ),
+                          child: const Text('Tout effacer', style: TextStyle(fontSize: 13)),
+                        )
                       ],
-                    ],
-                  ),
+                    ),
                 ),
-                const SizedBox(height: AkeliSpacing.xs),
+                const SizedBox(height: 8),
               ],
             ),
           ),
@@ -398,10 +522,20 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     tags: recipe.tagIds.take(2).toList(),
                     onTap: () {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
-                      context.push(
-                        AkeliRoutes.recipeDetailPath(recipe.id),
-                        extra: TrackingSource.feed,
-                      );
+                      
+                      if (widget.swapEntryId != null) {
+                        ref.read(mealPlanSwapProvider.notifier).swapMeal(widget.swapEntryId!, recipe.id);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Repas remplacé avec succès'),
+                          backgroundColor: AkeliColors.primary,
+                        ));
+                        context.pop();
+                      } else {
+                        context.push(
+                          AkeliRoutes.recipeDetailPath(recipe.id),
+                          extra: TrackingSource.feed,
+                        );
+                      }
                     },
                   );
                 },
@@ -418,40 +552,29 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 // Private widgets
 // ---------------------------------------------------------------------------
 
-class _FeedFilterChip extends StatelessWidget {
+class _ActiveFilterChip extends StatelessWidget {
   final String label;
-  final bool active;
-  final VoidCallback onTap;
+  final VoidCallback onDeleted;
 
-  const _FeedFilterChip({
+  const _ActiveFilterChip({
     required this.label,
-    required this.active,
-    required this.onTap,
+    required this.onDeleted,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-            horizontal: AkeliSpacing.sm, vertical: AkeliSpacing.xs),
-        decoration: BoxDecoration(
-          color: active ? AkeliColors.primary : AkeliColors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: active ? AkeliColors.primary : AkeliColors.outlineVariant,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: active ? AkeliColors.onPrimary : AkeliColors.onSurfaceVariant,
-          ),
-        ),
+    return InputChip(
+      label: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+      onDeleted: onDeleted,
+      deleteIcon: const Icon(Icons.close_rounded, size: 16),
+      backgroundColor: AkeliColors.primaryContainer.withValues(alpha: 0.5),
+      deleteIconColor: AkeliColors.onPrimaryContainer,
+      labelStyle: const TextStyle(color: AkeliColors.onPrimaryContainer),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: Colors.transparent),
       ),
+      padding: EdgeInsets.zero,
     );
   }
 }

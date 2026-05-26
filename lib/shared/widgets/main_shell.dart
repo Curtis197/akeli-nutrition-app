@@ -5,6 +5,7 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/notifications_provider.dart';
+import '../../shared/widgets/avatar.dart';
 
 class MainShell extends ConsumerWidget {
   final Widget child;
@@ -59,26 +60,24 @@ class MainShell extends ConsumerWidget {
           child: profileAsync.when(
             data: (profile) => GestureDetector(
               onTap: () => context.go(AkeliRoutes.profile),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: AkeliColors.surfaceContainerHigh,
-                backgroundImage: profile?.avatarUrl != null
-                    ? NetworkImage(profile!.avatarUrl!)
-                    : null,
-                child: profile?.avatarUrl == null
-                    ? const Icon(Icons.person_outline,
-                        color: AkeliColors.outline, size: 18)
-                    : null,
+              child: AkeliAvatar(
+                imageUrl: profile?.avatarUrl,
+                initials: profile?.displayName.isNotEmpty == true
+                    ? profile!.displayName[0].toUpperCase()
+                    : 'A',
+                size: AvatarSize.sm,
               ),
             ),
-            loading: () => const CircleAvatar(
-                radius: 18,
-                backgroundColor: AkeliColors.surfaceContainerHigh),
+            loading: () => const AkeliAvatar(
+              size: AvatarSize.sm,
+              initials: 'A',
+            ),
             error: (_, __) => GestureDetector(
               onTap: () => context.go(AkeliRoutes.profile),
-              child: const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: AkeliColors.surfaceContainerHigh),
+              child: const AkeliAvatar(
+                size: AvatarSize.sm,
+                initials: 'A',
+              ),
             ),
           ),
         ),
@@ -89,7 +88,7 @@ class MainShell extends ConsumerWidget {
             child: IconButton(
               icon: const Icon(Icons.settings_outlined,
                   color: AkeliColors.secondary),
-              onPressed: () => context.go(AkeliRoutes.profile),
+              onPressed: () => context.go(AkeliRoutes.settings),
               tooltip: 'Paramètres',
             ),
           ),

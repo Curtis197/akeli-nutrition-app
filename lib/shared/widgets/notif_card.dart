@@ -190,15 +190,16 @@ class _RequestVariant extends StatelessWidget {
                       backgroundColor: AkeliColors.success,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AkeliSpacing.sm,
-                          vertical: AkeliSpacing.xs),
+                          horizontal: AkeliSpacing.md,
+                          vertical: AkeliSpacing.sm),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(AkeliRadius.pill)),
                     ),
-                    child: const Text('Accept'),
+                    child: const Text('Accepter'),
                   ),
                   const SizedBox(width: AkeliSpacing.sm),
                   OutlinedButton(
@@ -207,15 +208,16 @@ class _RequestVariant extends StatelessWidget {
                       foregroundColor: AkeliColors.textSecondary,
                       side: const BorderSide(color: AkeliColors.textSecondary),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: AkeliSpacing.sm,
-                          vertical: AkeliSpacing.xs),
+                          horizontal: AkeliSpacing.md,
+                          vertical: AkeliSpacing.sm),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(AkeliRadius.pill)),
                     ),
-                    child: const Text('Decline'),
+                    child: const Text('Refuser'),
                   ),
                 ],
               ),

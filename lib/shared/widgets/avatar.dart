@@ -48,15 +48,17 @@ class AkeliAvatar extends StatelessWidget {
       backgroundColor: AkeliColors.primary,
       backgroundImage:
           imageUrl != null ? NetworkImage(imageUrl!) : null,
-      child: imageUrl == null && initials != null
-          ? Text(
-              initials!,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            )
+      child: imageUrl == null
+          ? initials != null
+              ? Text(
+                  initials!,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                )
+              : Icon(Icons.person_rounded, color: Colors.white, size: diameter * 0.55)
           : null,
     );
 

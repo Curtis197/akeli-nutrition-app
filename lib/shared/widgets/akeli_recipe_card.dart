@@ -83,7 +83,7 @@ class _ImageVariant extends StatelessWidget {
           child: Stack(
             children: [
               Container(
-                height: card.isMinimalist ? 140 : 120,
+                height: card.isMinimalist ? 140 : 160,
                 width: double.infinity,
                 color: AkeliColors.surfaceContainerHigh,
                 child: card.imageUrl != null
