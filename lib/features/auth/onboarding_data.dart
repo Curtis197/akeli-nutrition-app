@@ -136,6 +136,13 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
           allergies: allergies,
           cuisinePreferences: cuisinePreferences);
 
+  void updateCuisineRegion(String code) {
+    final current = state.cuisinePreferences;
+    state = state.copyWith(
+      cuisinePreferences: current.length == 1 && current[0] == code ? [] : [code],
+    );
+  }
+
   // copyWith uses ?? so it can't clear nullable fields to null.
   // Use these explicit reset methods when the user removes a previously set value.
   void clearProfile() => state = OnboardingData(
@@ -185,7 +192,9 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         return state.targetWeight != null;
       case 4: // Preferences — no hard requirement
         return true;
-      case 5: // Summary — always valid
+      case 5: // NutritionPlanPage — already validated via savePlan
+        return true;
+      case 6: // Summary — always valid
         return true;
       default:
         return false;
