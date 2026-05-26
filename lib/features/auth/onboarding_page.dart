@@ -1437,6 +1437,16 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
   final _logger = appLogger;
   final _allergyCtrl = TextEditingController();
 
+  static const _kRegions = [
+    ('west_africa',    'Afrique de l\'Ouest'),
+    ('east_africa',    'Afrique de l\'Est'),
+    ('north_africa',   'Afrique du Nord'),
+    ('central_africa', 'Afrique Centrale'),
+    ('south_africa',   'Afrique Australe'),
+    ('caribbean',      'Caraïbes'),
+    ('occidental',     'Occident'),
+  ];
+
   @override
   void dispose() {
     _allergyCtrl.dispose();
@@ -1598,6 +1608,42 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                     }).toList(),
                   ),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(height: AkeliSpacing.xl),
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Inspirations Régionales',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface),
+                ),
+                const SizedBox(height: AkeliSpacing.xs),
+                Text(
+                  'Sélectionnez votre région de prédilection pour des recommandations ciblées.',
+                  style: GoogleFonts.inter(
+                      fontSize: 13, color: AkeliColors.onSurfaceVariant),
+                ),
+                const SizedBox(height: AkeliSpacing.md),
+                ..._kRegions.map((r) => Padding(
+                      padding: const EdgeInsets.only(bottom: AkeliSpacing.xs),
+                      child: _RegionTile(
+                        label: r.$2,
+                        selected: data.cuisinePreferences.isNotEmpty &&
+                            data.cuisinePreferences[0] == r.$1,
+                        onTap: () {
+                          _logger.userAction('Region selected',
+                              screen: 'OnboardingPage',
+                              metadata: {'region': r.$1});
+                          notifier.updateCuisineRegion(r.$1);
+                        },
+                      ),
+                    )),
               ],
             ),
           ),
@@ -1927,6 +1973,75 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: 12,
                   color: AkeliColors.onSurfaceVariant)),
         ],
+      ),
+    );
+  }
+}
+
+// ── Region tile ──────────────────────────────────────────────────────────────
+
+class _RegionTile extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _RegionTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AkeliSpacing.md, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected
+              ? AkeliColors.secondaryContainer.withValues(alpha: 0.4)
+              : AkeliColors.surface,
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          border: Border.all(
+            color: selected
+                ? AkeliColors.secondaryContainer
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.public_rounded,
+              color: selected
+                  ? AkeliColors.primary
+                  : AkeliColors.onSurfaceVariant,
+              size: 22,
+            ),
+            const SizedBox(width: AkeliSpacing.md),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AkeliColors.onSurface,
+                ),
+              ),
+            ),
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off_rounded,
+              color: selected
+                  ? AkeliColors.primary
+                  : AkeliColors.outlineVariant,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
