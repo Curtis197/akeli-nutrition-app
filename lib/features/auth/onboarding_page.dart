@@ -1325,59 +1325,67 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.md),
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${data.timelineMonths} ',
-                          style: GoogleFonts.plusJakartaSans(
-                              fontSize: 56,
-                              fontWeight: FontWeight.w800,
-                              color: AkeliColors.primary,
-                              height: 1),
-                        ),
-                        TextSpan(
-                          text: 'mois',
-                          style: GoogleFonts.inter(
-                              fontSize: 20,
-                              color: AkeliColors.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: AkeliColors.secondaryContainer,
-                    inactiveTrackColor: AkeliColors.surfaceContainerHighest,
-                    thumbColor: AkeliColors.surfaceContainerLowest,
-                    overlayColor: AkeliColors.primary.withValues(alpha: 0.1),
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
-                    trackHeight: 10,
-                  ),
-                  child: Slider(
-                    value: data.timelineMonths.toDouble(),
-                    min: 1,
-                    max: 12,
-                    divisions: 11,
-                    onChanged: (v) =>
-                        notifier.updateGoals(timelineMonths: v.round()),
-                  ),
-                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('1 mois',
-                        style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: AkeliColors.onSurfaceVariant,
-                            letterSpacing: 0.1)),
-                    Text('12 mois',
-                        style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: AkeliColors.onSurfaceVariant,
-                            letterSpacing: 0.1)),
+                    IconButton(
+                      icon: Icon(
+                        Icons.remove_circle_outline_rounded,
+                        color: data.timelineMonths <= 1
+                            ? AkeliColors.outlineVariant
+                            : AkeliColors.primary,
+                        size: 36,
+                      ),
+                      onPressed: data.timelineMonths <= 1
+                          ? null
+                          : () {
+                              _logger.userAction('Timeline months decreased',
+                                  screen: 'OnboardingPage',
+                                  metadata: {'months': data.timelineMonths - 1});
+                              notifier.updateGoals(
+                                  timelineMonths: data.timelineMonths - 1);
+                            },
+                    ),
+                    const SizedBox(width: AkeliSpacing.lg),
+                    RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${data.timelineMonths} ',
+                            style: GoogleFonts.plusJakartaSans(
+                                fontSize: 56,
+                                fontWeight: FontWeight.w800,
+                                color: AkeliColors.primary,
+                                height: 1),
+                          ),
+                          TextSpan(
+                            text: 'mois',
+                            style: GoogleFonts.inter(
+                                fontSize: 20,
+                                color: AkeliColors.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AkeliSpacing.lg),
+                    IconButton(
+                      icon: Icon(
+                        Icons.add_circle_rounded,
+                        color: data.timelineMonths >= 12
+                            ? AkeliColors.outlineVariant
+                            : AkeliColors.primary,
+                        size: 36,
+                      ),
+                      onPressed: data.timelineMonths >= 12
+                          ? null
+                          : () {
+                              _logger.userAction('Timeline months increased',
+                                  screen: 'OnboardingPage',
+                                  metadata: {'months': data.timelineMonths + 1});
+                              notifier.updateGoals(
+                                  timelineMonths: data.timelineMonths + 1);
+                            },
+                    ),
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
