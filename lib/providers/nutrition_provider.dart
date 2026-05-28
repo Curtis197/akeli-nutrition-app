@@ -174,10 +174,16 @@ final weightLogProvider =
         .order('logged_at', ascending: false);
     appLogger.db('AFTER | table: weight_log | rows: ${data.length} | userId: ${user.id}');
     if (data.isEmpty) {
-      appLogger.rls('Zero rows | table: weight_log | userId: ${user.id} | possible RLS block or no entries');
+      // PostgREST returns [] for both empty table AND RLS-blocked rows.
+      // To distinguish: check weight_log directly in Supabase dashboard or via service-role SQL.
+      appLogger.db('weight_log | 0 rows returned — table is empty OR RLS block (both look identical from client)');
     }
-    appLogger.provider('weightLogProvider → data | entries: ${data.length}');
-    return data.map(WeightEntry.fromJson).toList();
+    for (var i = 0; i < data.length; i++) {
+      appLogger.db('weight_log raw row[$i] | ${data[i]}');
+    }
+    final entries = data.map(WeightEntry.fromJson).toList();
+    appLogger.provider('weightLogProvider → data | entries: ${entries.length}');
+    return entries;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       appLogger.rls('Permission denied | table: weight_log | userId: ${user.id}', error: e, stackTrace: st);

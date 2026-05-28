@@ -33,6 +33,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   final _logger = appLogger;
 
   @override
+  void initState() {
+    super.initState();
+    _logger.provider('_HomePageState initState | _currentWeight default: $_currentWeight kg (hardcoded)');
+  }
+
+  @override
   void dispose() {
     _logger.provider('_HomePageState disposed');
     super.dispose();
@@ -51,11 +57,19 @@ class _HomePageState extends ConsumerState<HomePage> {
     final regionNames = ref.watch(foodRegionNamesProvider).valueOrNull ?? {};
 
     ref.listen(weightLogProvider, (_, next) {
-      next.whenData((entries) {
-        if (entries.isNotEmpty) {
-          setState(() => _currentWeight = entries.first.weightKg);
-        }
-      });
+      next.when(
+        data: (entries) {
+          _logger.provider('weightLogProvider listener | entries: ${entries.length}');
+          if (entries.isNotEmpty) {
+            _logger.provider('weightLogProvider listener | updating stepper: $_currentWeight → ${entries.first.weightKg} kg (from DB row[0])');
+            setState(() => _currentWeight = entries.first.weightKg);
+          } else {
+            _logger.provider('weightLogProvider listener | 0 entries → stepper stays at hardcoded default: $_currentWeight kg');
+          }
+        },
+        loading: () => _logger.provider('weightLogProvider listener | loading'),
+        error: (e, st) => _logger.provider('weightLogProvider listener | error: $e'),
+      );
     });
 
     _logger.provider(
@@ -134,6 +148,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     child: weightAsync.maybeWhen(
                                       data: (entries) {
                                         final health = healthAsync.valueOrNull;
+                                        _logger.provider('Weight graph data: | entries: ${entries.length} | healthProfile: ${health == null ? "null" : "loaded"} | targetWeightKg: ${health?.targetWeightKg}');
+                                        for (var i = 0; i < entries.length; i++) {
+                                          _logger.provider('  graph entry[$i] | date: ${entries[i].date} | weightKg: ${entries[i].weightKg}');
+                                        }
 
                                         if (entries.isEmpty) {
                                           _logger.provider('Weight graph → data (no entries)');
