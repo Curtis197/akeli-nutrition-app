@@ -61,15 +61,34 @@ class _HomePageState extends ConsumerState<HomePage> {
         data: (entries) {
           _logger.provider('weightLogProvider listener | entries: ${entries.length}');
           if (entries.isNotEmpty) {
-            _logger.provider('weightLogProvider listener | updating stepper: $_currentWeight → ${entries.first.weightKg} kg (from DB row[0])');
+            _logger.provider('weightLogProvider listener | updating stepper: $_currentWeight → ${entries.first.weightKg} kg (from weight_log row[0])');
             setState(() => _currentWeight = entries.first.weightKg);
           } else {
-            _logger.provider('weightLogProvider listener | 0 entries → stepper stays at hardcoded default: $_currentWeight kg');
+            final healthWeight = ref.read(healthProfileProvider).valueOrNull?.weightKg;
+            if (healthWeight != null) {
+              _logger.provider('weightLogProvider listener | 0 entries → falling back to health profile weightKg: $healthWeight kg');
+              setState(() => _currentWeight = healthWeight);
+            } else {
+              _logger.provider('weightLogProvider listener | 0 entries, no health profile weight → keeping default: $_currentWeight kg');
+            }
           }
         },
         loading: () => _logger.provider('weightLogProvider listener | loading'),
         error: (e, st) => _logger.provider('weightLogProvider listener | error: $e'),
       );
+    });
+
+    // When health profile loads after weight_log (or weight_log has no entries),
+    // seed the stepper from onboarding weight.
+    ref.listen(healthProfileProvider, (_, next) {
+      next.whenData((health) {
+        final weightLogEntries = ref.read(weightLogProvider).valueOrNull;
+        final hasLogEntries = weightLogEntries != null && weightLogEntries.isNotEmpty;
+        if (!hasLogEntries && health?.weightKg != null) {
+          _logger.provider('healthProfileProvider listener | no weight_log entries → seeding stepper from health profile: ${health!.weightKg} kg');
+          setState(() => _currentWeight = health.weightKg!);
+        }
+      });
     });
 
     _logger.provider(
@@ -154,14 +173,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         }
 
                                         if (entries.isEmpty) {
-                                          _logger.provider('Weight graph → data (no entries)');
-                                          return const AkeliModernMetric(
+                                          final profileWeight = health?.weightKg;
+                                          final profileTarget = health?.targetWeightKg;
+                                          _logger.provider('Weight graph → data (no entries) | health.weightKg: $profileWeight | health.targetWeightKg: $profileTarget');
+                                          return AkeliModernMetric(
                                             label: 'Poids actuel',
-                                            subtitle: '--kg → --kg',
+                                            subtitle: profileWeight != null
+                                                ? '${profileWeight.toStringAsFixed(1)}kg → ${profileTarget?.toStringAsFixed(1) ?? '--'}kg'
+                                                : '--kg → --kg',
                                             value: '0',
                                             unit: '%',
                                             progress: 0,
-                                            gradientColors: [
+                                            gradientColors: const [
                                               AkeliColors.primary,
                                               AkeliColors.primaryContainer
                                             ],
