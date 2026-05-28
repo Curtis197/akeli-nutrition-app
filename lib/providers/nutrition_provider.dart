@@ -172,7 +172,7 @@ final weightLogProvider =
         .select()
         .eq('user_id', user.id)
         .order('logged_at', ascending: false)
-        .limit(30);
+        .limit(1);
     appLogger.db('AFTER | table: weight_log | rows: ${data.length} | userId: ${user.id}');
     if (data.isEmpty) {
       // PostgREST returns [] for both empty table AND RLS-blocked rows.
