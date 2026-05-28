@@ -171,7 +171,7 @@ final weightLogProvider =
         .from('weight_log')
         .select()
         .eq('user_id', user.id)
-        .order('logged_at', ascending: false)
+        .order('created_at', ascending: false)
         .limit(1);
     appLogger.db('AFTER | table: weight_log | rows: ${data.length} | userId: ${user.id}');
     if (data.isEmpty) {
