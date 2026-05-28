@@ -138,8 +138,6 @@ class MealPlanEntry {
   // Convenience accessor — recipe ID of the base component. Null for custom meals.
   String? get recipeId => isCustomMeal ? null : _base?.recipeId;
 
-  bool get isModular => components.length > 1;
-
   String get mealTypeLabel {
     switch (mealType) {
       case 'breakfast':
