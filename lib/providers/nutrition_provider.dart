@@ -217,7 +217,6 @@ class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
     _logger.provider('WeightLogNotifier → loading (addEntry)');
 
     final client = ref.read(supabaseClientProvider);
-    state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       try {
         await client.from('weight_log').insert({
