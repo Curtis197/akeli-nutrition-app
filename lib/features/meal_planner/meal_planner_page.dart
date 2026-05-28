@@ -139,13 +139,6 @@ class MealPlannerPage extends ConsumerWidget {
             ),
           ),
 
-          // ── SNACK BLOCK ───────────────────────────────────────────
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
-            sliver: SliverToBoxAdapter(
-              child: _buildSnackSection(context),
-            ),
-          ),
         ],
         body: SafeArea(
           top: false,
@@ -262,73 +255,6 @@ class MealPlannerPage extends ConsumerWidget {
             const Icon(Icons.chevron_right, color: AkeliColors.outline),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSnackSection(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AkeliColors.secondaryContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: AkeliColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.cookie, color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Ajouter une collation',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: AkeliColors.onSurface,
-                    ),
-                  ),
-                  Text(
-                    'Personnalisez votre plan',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () {
-              appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage');
-              HapticFeedback.lightImpact();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AkeliColors.primary,
-              foregroundColor: Colors.white,
-              elevation: 2,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AkeliRadius.pill),
-              ),
-            ),
-            child: const Text(
-              'Ajouter',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-            ),
-          ),
-        ],
       ),
     );
   }
