@@ -327,23 +327,6 @@ class _MealDetailBody extends StatelessWidget {
             ),
           ),
 
-          // ── INGREDIENTS / COMPONENTS ──────────────────
-          if (entry.components.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 32, 16, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Ingrédients',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  ...entry.components.map((c) => _ComponentRow(component: c)),
-                ],
-              ),
-            ),
-
           // ── BOTTOM CTAs ───────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 48, 16, 0),
@@ -477,59 +460,6 @@ class _MacroBox extends StatelessWidget {
           Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.outline)),
           const SizedBox(height: 4),
           Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AkeliColors.primary)),
-        ],
-      ),
-    );
-  }
-}
-
-class _ComponentRow extends StatelessWidget {
-  final MealPlanEntryComponent component;
-
-  const _ComponentRow({required this.component});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AkeliColors.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  component.role == 'starch' ? Icons.grain : Icons.eco,
-                  color: AkeliColors.outline,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                component.recipeTitle ?? component.role,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-            ],
-          ),
-          if (component.isBatch)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: AkeliColors.secondary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Text('BATCH', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.secondary)),
-            ),
         ],
       ),
     );
