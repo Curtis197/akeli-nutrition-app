@@ -145,6 +145,8 @@ class MockData {
         mealType: 'lunch',
         scheduledDate: DateTime.now(),
         isConsumed: true,
+        isCustomMeal: false,
+        servings: 1.0,
         components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-1',
@@ -167,6 +169,8 @@ class MockData {
         mealType: 'dinner',
         scheduledDate: DateTime.now(),
         isConsumed: false,
+        isCustomMeal: false,
+        servings: 1.0,
         components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-2',
