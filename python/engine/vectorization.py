@@ -100,6 +100,23 @@ def _normalize_l2(v: np.ndarray) -> np.ndarray:
 # USER VECTOR
 # ---------------------------------------------------------------------------
 
+def _infer_goals_from_profile(profile: dict) -> set:
+    """Derive goal types from health metrics when explicit goals are absent."""
+    goals = set()
+    weight = profile.get("weight_kg")
+    target = profile.get("target_weight_kg")
+    if weight is not None and target is not None:
+        delta = float(target) - float(weight)
+        if delta < -2:
+            goals.add("weight_loss")
+        elif delta > 2:
+            goals.add("muscle_gain")
+        else:
+            goals.add("maintenance")
+    goals.add("health")
+    return goals
+
+
 def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
     profile = get_user_health_profile(user_id)
     if not profile:
@@ -107,7 +124,8 @@ def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
 
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
 
-    goals = set(profile.get("goals") or [])
+    explicit_goals = set(g for g in (profile.get("goals") or []) if g)
+    goals = explicit_goals if explicit_goals else _infer_goals_from_profile(profile)
     activity = ACTIVITY_MAP.get(profile.get("activity_level", "moderate"), 0.5)
 
     # ---- Nutritional preferences derived from goals ----

@@ -103,6 +103,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       ...d.allergies,
     ];
 
+    // Infer goal_type from weight delta so the recommendation engine has signal.
+    // "health" is always included as a baseline; weight_loss/muscle_gain/maintenance
+    // are derived from the gap between current and target weight.
+    final inferredGoals = <String>['health'];
+    if (d.weight != null && d.targetWeight != null) {
+      final delta = d.targetWeight! - d.weight!;
+      if (delta < -2) {
+        inferredGoals.add('weight_loss');
+      } else if (delta > 2) {
+        inferredGoals.add('muscle_gain');
+      } else {
+        inferredGoals.add('maintenance');
+      }
+    }
+
     final body = <String, dynamic>{
       'first_name': d.name,
       if (d.sex != null) 'sex': d.sex,
@@ -111,6 +126,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       if (d.weight != null) 'weight_kg': d.weight,
       if (d.targetWeight != null) 'target_weight_kg': d.targetWeight,
       if (d.activityLevel != null) 'activity_level': d.activityLevel,
+      'goals': inferredGoals,
       'dietary_restrictions': restrictions,
       'cuisine_preferences': d.cuisinePreferences,
       if (d.consentPrivacy) 'consent_privacy_at': now,

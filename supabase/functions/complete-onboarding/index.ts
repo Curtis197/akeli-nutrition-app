@@ -82,11 +82,17 @@ serve(async (req) => {
     logQueryResult(logger, "user_health_profile", "UPSERT", healthError ? 0 : 1, healthError ?? undefined);
     if (healthError) throw healthError;
 
-    // 4. Remplacer les goals (uniquement si fournis — la page NutritionPlan gère user_goal via calorie_goal/macro_goal)
-    logger.debug("[STEP 4] Replace user_goal");
+    // 4. Remplacer les goal_type rows (uniquement si fournis).
+    // NutritionPlanPage écrit une row séparée avec goal_type=NULL et les macros numériques —
+    // on ne supprime QUE les rows où goal_type IS NOT NULL pour ne pas perdre les macros.
+    logger.debug("[STEP 4] Replace user_goal (goal_type rows only)");
     if (goals?.length) {
       logRLSCheck(logger, "user_goal", "DELETE", user.id);
-      const { error: goalDeleteError } = await admin.from("user_goal").delete().eq("user_id", user.id);
+      const { error: goalDeleteError } = await admin
+        .from("user_goal")
+        .delete()
+        .eq("user_id", user.id)
+        .not("goal_type", "is", null);
       logQueryResult(logger, "user_goal", "DELETE", 0, goalDeleteError ?? undefined);
 
       logRLSCheck(logger, "user_goal", "INSERT", user.id);
@@ -95,7 +101,7 @@ serve(async (req) => {
       );
       logQueryResult(logger, "user_goal", "INSERT", goalInsertError ? 0 : goals.length, goalInsertError ?? undefined);
     } else {
-      logger.debug("[STEP 4] Skipping user_goal replace — no goals in body (NutritionPlanPage handles macro goals separately)");
+      logger.debug("[STEP 4] Skipping user_goal replace — no goals in body");
     }
 
     // 5. Remplacer les restrictions alimentaires
