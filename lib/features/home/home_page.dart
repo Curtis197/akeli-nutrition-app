@@ -192,7 +192,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         }
 
                                         final currentWeight = entries.first.weightKg;
-                                        final startingWeight = entries.last.weightKg;
+                                        // Use onboarding weight as origin; entries.last is unreliable
+                                        // (multiple same-day taps skew it vs. the real starting point).
+                                        final startingWeight = health?.weightKg ?? entries.last.weightKg;
                                         final targetWeight = health?.targetWeightKg;
 
                                         double progress = 0.0;
@@ -202,7 +204,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         progress = progress.clamp(0.0, 1.0);
 
                                         _logger.provider(
-                                          'Weight graph → data | current: ${currentWeight}kg | target: ${targetWeight?.toStringAsFixed(1) ?? "--"}kg | progress: ${(progress * 100).toInt()}%');
+                                          'Weight graph → data | current: ${currentWeight}kg | starting: ${startingWeight.toStringAsFixed(1)}kg (health profile) | target: ${targetWeight?.toStringAsFixed(1) ?? "--"}kg | progress: ${(progress * 100).toInt()}%');
 
                                         return AkeliModernMetric(
                                           label: 'Poids',
