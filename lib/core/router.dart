@@ -75,7 +75,12 @@ abstract class AkeliRoutes {
 class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
     ref.listen(isAuthenticatedProvider, (_, __) => notifyListeners());
-    ref.listen(userProfileProvider, (_, __) => notifyListeners());
+    // Only refresh the router once the profile has settled (data or error),
+    // not when it enters the loading state — that prevents the redirect loop
+    // where hasProfile=false fires repeatedly while the fetch is in-flight.
+    ref.listen(userProfileProvider, (_, next) {
+      if (!next.isLoading) notifyListeners();
+    });
   }
 }
 

@@ -134,8 +134,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     child: weightAsync.maybeWhen(
                                       data: (entries) {
                                         final health = healthAsync.valueOrNull;
-                                        
+
                                         if (entries.isEmpty) {
+                                          _logger.provider('Weight graph → data (no entries)');
                                           return const AkeliModernMetric(
                                             label: 'Poids actuel',
                                             subtitle: '--kg → --kg',
@@ -148,16 +149,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             ],
                                           );
                                         }
-                                        
+
                                         final currentWeight = entries.first.weightKg;
                                         final startingWeight = entries.last.weightKg;
                                         final targetWeight = health?.targetWeightKg;
-                                        
+
                                         double progress = 0.0;
                                         if (targetWeight != null && startingWeight != targetWeight) {
                                           progress = (startingWeight - currentWeight) / (startingWeight - targetWeight);
                                         }
                                         progress = progress.clamp(0.0, 1.0);
+
+                                        _logger.provider(
+                                          'Weight graph → data | current: ${currentWeight}kg | target: ${targetWeight?.toStringAsFixed(1) ?? "--"}kg | progress: ${(progress * 100).toInt()}%');
 
                                         return AkeliModernMetric(
                                           label: 'Poids',
@@ -197,7 +201,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         final target = (nutritionPlanAsync.valueOrNull?.calorieGoal ?? 2000).toDouble();
                                         final double rawProgress = consumed / target;
                                         final progress = rawProgress.clamp(0.0, 1.0);
-                                        
+
+                                        _logger.provider(
+                                          'Calories graph → data | consumed: $consumed kcal | target: ${target.toInt()} kcal | progress: ${(progress * 100).toInt()}%');
+
                                         return AkeliModernMetric(
                                           label: 'Calories',
                                           subtitle: '$consumed → ${target.toInt()} kcal',

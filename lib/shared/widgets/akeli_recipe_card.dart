@@ -75,26 +75,26 @@ class _ImageVariant extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Image area with tags overlay
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AkeliRadius.xl),
-          ),
-          child: Stack(
-            children: [
-              Container(
-                height: card.isMinimalist ? 140 : 160,
-                width: double.infinity,
-                color: AkeliColors.surfaceContainerHigh,
-                child: card.imageUrl != null
-                    ? Image.network(card.imageUrl!, fit: BoxFit.cover)
-                    : Center(
-                        child: Text(
-                          card.emoji ?? '🥘',
-                          style: const TextStyle(fontSize: 40),
+        // Image area — expands to fill whatever height remains after the body
+        Expanded(
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AkeliRadius.xl),
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  color: AkeliColors.surfaceContainerHigh,
+                  child: card.imageUrl != null
+                      ? Image.network(card.imageUrl!, fit: BoxFit.cover)
+                      : Center(
+                          child: Text(
+                            card.emoji ?? '🥘',
+                            style: const TextStyle(fontSize: 40),
+                          ),
                         ),
-                      ),
-              ),
+                ),
               // Floating Sparkle Button (Premium only)
               if (card.isMinimalist)
                 Positioned(
@@ -127,6 +127,7 @@ class _ImageVariant extends StatelessWidget {
                 ),
             ],
           ),
+        ),
         ),
         // Body
         Padding(
