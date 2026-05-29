@@ -31,6 +31,7 @@ import '../features/legal/terms_of_service_page.dart';
 import '../features/referral/referral_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
+import '../features/recipes/creator_detail_page.dart';
 import 'logger.dart';
 
 // Routes
@@ -63,6 +64,8 @@ abstract class AkeliRoutes {
   static const referral = "/referral";
   static const dmChat = '/dm/:conversationId';
   static String dmChatPath(String id) => '/dm/$id';
+  static const creatorDetail = '/creators/:creatorId';
+  static String creatorDetailPath(String id) => '/creators/$id';
 
   static String recipeDetailPath(String id) => "/recipe/$id";
   static String mealDetailPath(String id) => "/meal/$id";
@@ -245,6 +248,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.referral,
         builder: (context, state) => const ReferralPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.creatorDetail,
+        builder: (context, state) {
+          final creatorId = state.pathParameters['creatorId']!;
+          return CreatorDetailPage(creatorId: creatorId);
+        },
       ),
       // DM-6 will add conversationId/title params to GroupChatPage
       GoRoute(
