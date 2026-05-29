@@ -5,12 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
+import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/tab_bar.dart';
 import 'domain/entities/recipe_tracking.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
@@ -32,6 +35,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   int? _minCal;
   int? _maxCal;
   String? _orderBy;
+
+  int _tabIndex = 0;
 
   bool get _hasActiveFilter =>
       _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
@@ -320,156 +325,171 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 ),
           actions: const [],
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(104),
+            preferredSize: Size.fromHeight(_tabIndex == 0 ? 148 : 44),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            searchBarTheme: const SearchBarThemeData(
-                              backgroundColor: WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
-                            ),
-                          ),
-                          child: SearchBar(
-                            controller: _searchCtrl,
-                            hintText: 'Rechercher...',
-                            leading: const Icon(Icons.search_rounded),
-                            trailing: _searchQuery.isNotEmpty
-                                ? [
-                                    IconButton(
-                                      icon: const Icon(Icons.clear_rounded),
-                                      onPressed: () {
-                                        _logger.userAction('Search cleared', screen: 'FeedPage');
-                                        _searchCtrl.clear();
-                                        setState(() => _searchQuery = '');
-                                      },
-                                    )
-                                  ]
-                                : null,
-                            onChanged: (v) {
-                              setState(() => _searchQuery = v);
-                            },
-                            elevation: const WidgetStatePropertyAll(0),
-                            padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
-                            constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
-                              ? AkeliColors.primaryContainer
-                              : AkeliColors.surfaceContainerLow,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.tune_rounded),
-                          color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
-                              ? AkeliColors.onPrimaryContainer
-                              : AkeliColors.onSurfaceVariant,
-                          onPressed: () => _showCombinedFilterSheet(context),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: _orderBy != null
-                              ? AkeliColors.primaryContainer
-                              : AkeliColors.surfaceContainerLow,
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.sort_rounded),
-                          color: _orderBy != null
-                              ? AkeliColors.onPrimaryContainer
-                              : AkeliColors.onSurfaceVariant,
-                          onPressed: () => _showSortSheet(context),
-                        ),
-                      ),
-                    ],
+                  child: AkeliTabBar(
+                    tabs: const ['Recettes', 'Créateurs'],
+                    selectedIndex: _tabIndex,
+                    onTabSelected: (i) {
+                      _logger.userAction('Feed tab selected', screen: 'FeedPage',
+                          metadata: {'tabIndex': i.toString()});
+                      setState(() => _tabIndex = i);
+                    },
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 36,
-                  child: !_hasActiveFilter 
-                    ? const SizedBox.shrink()
-                    : ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+                if (_tabIndex == 0) ...[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+                    child: Row(
                       children: [
-                        if (_regionId != null) ...[
-                          _ActiveFilterChip(
-                            label: _regionLabel(),
-                            onDeleted: () => setState(() => _regionId = null),
+                        Expanded(
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              searchBarTheme: const SearchBarThemeData(
+                                backgroundColor: WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
+                              ),
+                            ),
+                            child: SearchBar(
+                              controller: _searchCtrl,
+                              hintText: 'Rechercher...',
+                              leading: const Icon(Icons.search_rounded),
+                              trailing: _searchQuery.isNotEmpty
+                                  ? [
+                                      IconButton(
+                                        icon: const Icon(Icons.clear_rounded),
+                                        onPressed: () {
+                                          _logger.userAction('Search cleared', screen: 'FeedPage');
+                                          _searchCtrl.clear();
+                                          setState(() => _searchQuery = '');
+                                        },
+                                      )
+                                    ]
+                                  : null,
+                              onChanged: (v) {
+                                setState(() => _searchQuery = v);
+                              },
+                              elevation: const WidgetStatePropertyAll(0),
+                              padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+                              constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (_difficulty != null) ...[
-                          _ActiveFilterChip(
-                            label: _difficultyLabel(),
-                            onDeleted: () => setState(() => _difficulty = null),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
+                                ? AkeliColors.primaryContainer
+                                : AkeliColors.surfaceContainerLow,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (_maxTimeMin != null) ...[
-                          _ActiveFilterChip(
-                            label: _timeLabel(),
-                            onDeleted: () => setState(() => _maxTimeMin = null),
+                          child: IconButton(
+                            icon: const Icon(Icons.tune_rounded),
+                            color: _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null
+                                ? AkeliColors.onPrimaryContainer
+                                : AkeliColors.onSurfaceVariant,
+                            onPressed: () => _showCombinedFilterSheet(context),
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (_minCal != null || _maxCal != null) ...[
-                          _ActiveFilterChip(
-                            label: '${_minCal ?? 0} - ${_maxCal ?? '2000+'} kcal',
-                            onDeleted: () => setState(() {
-                              _minCal = null;
-                              _maxCal = null;
-                            }),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: _orderBy != null
+                                ? AkeliColors.primaryContainer
+                                : AkeliColors.surfaceContainerLow,
+                            shape: BoxShape.circle,
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        if (_orderBy != null) ...[
-                          _ActiveFilterChip(
-                            label: _sortLabel(),
-                            onDeleted: () => setState(() => _orderBy = null),
+                          child: IconButton(
+                            icon: const Icon(Icons.sort_rounded),
+                            color: _orderBy != null
+                                ? AkeliColors.onPrimaryContainer
+                                : AkeliColors.onSurfaceVariant,
+                            onPressed: () => _showSortSheet(context),
                           ),
-                          const SizedBox(width: 8),
-                        ],
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _regionId = null;
-                              _difficulty = null;
-                              _maxTimeMin = null;
-                              _minCal = null;
-                              _maxCal = null;
-                              _orderBy = null;
-                            });
-                          },
-                          child: const Text('Tout effacer', style: TextStyle(fontSize: 13)),
-                        )
+                        ),
                       ],
                     ),
-                ),
-                const SizedBox(height: 8),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 36,
+                    child: !_hasActiveFilter
+                      ? const SizedBox.shrink()
+                      : ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+                        children: [
+                          if (_regionId != null) ...[
+                            _ActiveFilterChip(
+                              label: _regionLabel(),
+                              onDeleted: () => setState(() => _regionId = null),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_difficulty != null) ...[
+                            _ActiveFilterChip(
+                              label: _difficultyLabel(),
+                              onDeleted: () => setState(() => _difficulty = null),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_maxTimeMin != null) ...[
+                            _ActiveFilterChip(
+                              label: _timeLabel(),
+                              onDeleted: () => setState(() => _maxTimeMin = null),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_minCal != null || _maxCal != null) ...[
+                            _ActiveFilterChip(
+                              label: '${_minCal ?? 0} - ${_maxCal ?? '2000+'} kcal',
+                              onDeleted: () => setState(() {
+                                _minCal = null;
+                                _maxCal = null;
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_orderBy != null) ...[
+                            _ActiveFilterChip(
+                              label: _sortLabel(),
+                              onDeleted: () => setState(() => _orderBy = null),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _regionId = null;
+                                _difficulty = null;
+                                _maxTimeMin = null;
+                                _minCal = null;
+                                _maxCal = null;
+                                _orderBy = null;
+                              });
+                            },
+                            child: const Text('Tout effacer', style: TextStyle(fontSize: 13)),
+                          )
+                        ],
+                      ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ],
             ),
           ),
         ),
 
         // Content
-        feedAsync.when(
+        if (_tabIndex == 0)
+          feedAsync.when(
           loading: () => const SliverFillRemaining(
             child: Center(child: CircularProgressIndicator()),
           ),
@@ -542,8 +562,60 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             );
           },
-        ),
+          )
+        else
+          _buildCreateursSliver(regionNames),
       ],
+    );
+  }
+
+  Widget _buildCreateursSliver(Map<String, String> regionNames) {
+    final creatorsAsync = ref.watch(creatorsListProvider);
+    _logger.provider('_buildCreateursSliver | creatorsAsync.isLoading: ${creatorsAsync.isLoading}');
+
+    return creatorsAsync.when(
+      loading: () => const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, _) => SliverFillRemaining(
+        child: ErrorState(
+          message: err.toString(),
+          onRetry: () => ref.invalidate(creatorsListProvider),
+        ),
+      ),
+      data: (creators) {
+        if (creators.isEmpty) {
+          return const SliverFillRemaining(
+            child: EmptyState(
+              icon: Icons.person_rounded,
+              title: 'Aucun créateur disponible',
+              subtitle: 'Les créateurs apparaîtront ici.',
+            ),
+          );
+        }
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(vertical: AkeliSpacing.sm),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final creator = creators[index];
+                return CreatorCard(
+                  creator: creator,
+                  regionName: creator.regionId != null
+                      ? regionNames[creator.regionId!] ?? creator.regionId
+                      : null,
+                  onTap: () {
+                    _logger.userAction('Creator card tapped', screen: 'FeedPage',
+                        metadata: {'creatorId': creator.id});
+                    context.push(AkeliRoutes.creatorDetailPath(creator.id));
+                  },
+                );
+              },
+              childCount: creators.length,
+            ),
+          ),
+        );
+      },
     );
   }
 }
