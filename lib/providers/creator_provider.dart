@@ -34,15 +34,18 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
       _logger.rls('Zero rows | table: creator | possible RLS block');
     }
 
-    return rows
+    final list = rows
         .map((e) => Creator.fromJson(e as Map<String, dynamic>))
         .toList();
+    _logger.provider('creatorsListProvider → data | count: ${list.length}');
+    return list;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       _logger.rls('Permission denied | table: creator', error: e, stackTrace: st);
     } else {
       _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
+    _logger.provider('creatorsListProvider → error | ${e.message}');
     rethrow;
   }
 });
@@ -70,9 +73,11 @@ final creatorByIdProvider =
 
     if (row == null) {
       _logger.rls('Zero rows | table: creator | creatorId: $creatorId | possible RLS block');
+      _logger.provider('creatorByIdProvider → data | found: false');
       return null;
     }
 
+    _logger.provider('creatorByIdProvider → data | found: true');
     return Creator.fromJson(row);
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
@@ -80,6 +85,7 @@ final creatorByIdProvider =
     } else {
       _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
+    _logger.provider('creatorByIdProvider → error | ${e.message}');
     rethrow;
   }
 });
@@ -110,15 +116,18 @@ final creatorRecipesProvider =
       _logger.rls('Zero rows | table: recipe | creatorId: $creatorId | possible RLS block');
     }
 
-    return rows
+    final list = rows
         .map((e) => Recipe.fromJson(e as Map<String, dynamic>))
         .toList();
+    _logger.provider('creatorRecipesProvider → data | count: ${list.length}');
+    return list;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       _logger.rls('Permission denied | table: recipe | creatorId: $creatorId', error: e, stackTrace: st);
     } else {
       _logger.db('ERROR | table: recipe | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
+    _logger.provider('creatorRecipesProvider → error | ${e.message}');
     rethrow;
   }
 });
@@ -142,38 +151,53 @@ final creatorDetailProvider =
 
   _logger.db('[STEP 1] Fetching creator + recipes + fan status in parallel | creatorId: $creatorId');
 
-  final results = await Future.wait(<Future<dynamic>>[
-    // creator row
-    client
-        .from('creator')
-        .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
-        .eq('id', creatorId)
-        .single(),
-    // creator's published recipes (for totalLikes + recipeIds)
-    client
-        .from('recipe')
-        .select('id, like_count, creator_id, title, cover_image_url, region, calories, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
-        .eq('creator_id', creatorId)
-        .eq('is_published', true),
-    // active fan subscription
-    client
-        .from('fan_subscription')
-        .select('id, status')
-        .eq('creator_id', creatorId)
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1),
-  ]);
+  late final Creator creator;
+  late final List<Recipe> recipes;
+  late final bool isFan;
 
-  final creatorRow = results[0] as Map<String, dynamic>;
-  final recipeRows = results[1] as List<dynamic>;
-  final fanRows = results[2] as List<dynamic>;
+  try {
+    final results = await Future.wait(<Future<dynamic>>[
+      // creator row
+      client
+          .from('creator')
+          .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+          .eq('id', creatorId)
+          .single(),
+      // creator's published recipes (for totalLikes + recipeIds)
+      client
+          .from('recipe')
+          .select('id, like_count, creator_id, title, cover_image_url, region, calories, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
+          .eq('creator_id', creatorId)
+          .eq('is_published', true),
+      // active fan subscription
+      client
+          .from('fan_subscription')
+          .select('id, status')
+          .eq('creator_id', creatorId)
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1),
+    ]);
 
-  _logger.db('[STEP 1] Done | recipes: ${recipeRows.length} | isFan: ${fanRows.isNotEmpty}');
+    final creatorRow = results[0] as Map<String, dynamic>;
+    final recipeRows = results[1] as List<dynamic>;
+    final fanRows = results[2] as List<dynamic>;
 
-  final creator = Creator.fromJson(creatorRow);
-  final recipes = recipeRows.map((e) => Recipe.fromJson(e as Map<String, dynamic>)).toList();
-  final isFan = fanRows.isNotEmpty;
+    _logger.db('[STEP 1] Done | recipes: ${recipeRows.length} | isFan: ${fanRows.isNotEmpty}');
+
+    creator = Creator.fromJson(creatorRow);
+    recipes = recipeRows.map((e) => Recipe.fromJson(e as Map<String, dynamic>)).toList();
+    isFan = fanRows.isNotEmpty;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      _logger.rls('Permission denied | parallel fetch | creatorId: $creatorId', error: e, stackTrace: st);
+    } else {
+      _logger.db('ERROR | parallel fetch | creatorId: $creatorId | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+    }
+    _logger.provider('creatorDetailProvider → error | ${e.message}');
+    rethrow;
+  }
+
   final totalLikes = recipes.fold<int>(0, (sum, r) => sum + r.likeCount);
   final recipeIds = recipes.map((r) => r.id).toList();
 
@@ -199,6 +223,7 @@ final creatorDetailProvider =
     }
   }
 
+  _logger.provider('creatorDetailProvider → data | creatorId: $creatorId');
   return CreatorDetail(
     creator: creator,
     totalLikes: totalLikes,
