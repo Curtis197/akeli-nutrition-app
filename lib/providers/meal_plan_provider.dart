@@ -25,7 +25,7 @@ final activeMealPlanProvider =
     final data = await client
         .from('meal_plan')
         .select(
-          '*, meal_plan_entry(*, meal_plan_entry_component(*, recipe(id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
+          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
         )
         .eq('user_id', user.id)
         .eq('is_active', true)
@@ -83,29 +83,27 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
           'generate-meal-plan',
           body: {'days': days, 'meals_per_day': mealsPerDay},
         );
-        _logger.edge('generate-meal-plan', 'AFTER | success');
+        _logger.edge('generate-meal-plan', 'AFTER | success | responseType: ${res.data.runtimeType}');
 
-        // Extract meal_plan_id from the response (array of entries).
-        if (res.data is! List) {
-          _logger.edge('generate-meal-plan', 'ERROR | unexpected response shape: ${res.data.runtimeType}');
-          throw StateError('generate-meal-plan returned unexpected shape: ${res.data.runtimeType}');
-        }
-        final data = res.data as List<dynamic>;
-        if (data.isNotEmpty) {
-          final firstEntry = data.first;
-          if (firstEntry is! Map || !firstEntry.containsKey('meal_plan_id')) {
-            _logger.edge('generate-meal-plan', 'ERROR | missing meal_plan_id in response entry');
-            throw StateError('generate-meal-plan entry missing meal_plan_id');
+        // Edge function returns Map { meal_plan_id, start_date, days, meals_per_day }.
+        String? mealPlanId;
+        final responseData = res.data;
+        if (responseData is Map<String, dynamic>) {
+          mealPlanId = responseData['meal_plan_id'] as String?;
+        } else if (responseData is List && responseData.isNotEmpty) {
+          // Legacy shape fallback
+          final first = responseData.first;
+          if (first is Map && first.containsKey('meal_plan_id')) {
+            mealPlanId = first['meal_plan_id'] as String?;
           }
-          final mealPlanId = firstEntry['meal_plan_id'] as String;
-          _logger.db('BEFORE | rpc: create_batch_sessions | mealPlanId: $mealPlanId');
-          await client.rpc('create_batch_sessions', params: {
-            'p_meal_plan_id': mealPlanId,
-            'p_user_id': user.id,
-          });
-          _logger.db('AFTER | rpc: create_batch_sessions | success');
         }
-        _logger.provider('MealPlanGeneratorNotifier → data (generate success)');
+
+        if (mealPlanId == null) {
+          _logger.edge('generate-meal-plan', 'ERROR | missing meal_plan_id in response');
+          throw StateError('generate-meal-plan: missing meal_plan_id in response');
+        }
+
+        _logger.provider('MealPlanGeneratorNotifier → data (generate success) | mealPlanId: $mealPlanId');
         return null;
       } catch (e, st) {
         _logger.edge('generate-meal-plan', 'ERROR | $e', error: e, stackTrace: st);
