@@ -147,6 +147,7 @@ class MockData {
         isConsumed: true,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-1',
@@ -171,6 +172,7 @@ class MockData {
         isConsumed: false,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-2',

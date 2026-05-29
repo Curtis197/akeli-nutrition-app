@@ -91,6 +91,7 @@ class MockMealPlan {
         isConsumed: day < 1,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: [component(breakfastId, recipes[0])],
       ));
 
@@ -103,6 +104,7 @@ class MockMealPlan {
         isConsumed: day < 1,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: [component(lunchId, recipes[1])],
       ));
 
@@ -115,6 +117,7 @@ class MockMealPlan {
         isConsumed: false,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: [component(snackId, recipes[3])],
       ));
 
@@ -127,6 +130,7 @@ class MockMealPlan {
         isConsumed: false,
         isCustomMeal: false,
         servings: 1.0,
+        ingredients: const [],
         components: [component(dinnerId, recipes[2])],
       ));
     }

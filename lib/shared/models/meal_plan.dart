@@ -74,6 +74,11 @@ class MealPlanEntry {
   final double? customProteinG;
   final double? customCarbsG;
   final double? customFatG;
+  final double? caloriesComputed;
+  final double? proteinGComputed;
+  final double? carbsGComputed;
+  final double? fatGComputed;
+  final List<MealIngredient> ingredients;
   final List<MealPlanEntryComponent> components;
 
   const MealPlanEntry({
@@ -89,6 +94,11 @@ class MealPlanEntry {
     this.customProteinG,
     this.customCarbsG,
     this.customFatG,
+    this.caloriesComputed,
+    this.proteinGComputed,
+    this.carbsGComputed,
+    this.fatGComputed,
+    required this.ingredients,
     required this.components,
   });
 
@@ -105,6 +115,14 @@ class MealPlanEntry {
         customProteinG: (json['custom_protein_g'] as num?)?.toDouble(),
         customCarbsG: (json['custom_carbs_g'] as num?)?.toDouble(),
         customFatG: (json['custom_fat_g'] as num?)?.toDouble(),
+        caloriesComputed: (json['calories_computed'] as num?)?.toDouble(),
+        proteinGComputed: (json['protein_g_computed'] as num?)?.toDouble(),
+        carbsGComputed: (json['carbs_g_computed'] as num?)?.toDouble(),
+        fatGComputed: (json['fat_g_computed'] as num?)?.toDouble(),
+        ingredients: (json['meal_ingredient'] as List<dynamic>?)
+                ?.map((e) => MealIngredient.fromJson(e as Map<String, dynamic>))
+                .toList() ??
+            [],
         components: (json['meal_plan_entry_component'] as List<dynamic>?)
                 ?.map((e) =>
                     MealPlanEntryComponent.fromJson(e as Map<String, dynamic>))
@@ -121,19 +139,31 @@ class MealPlanEntry {
       isCustomMeal ? customMealName : (_base?.recipeTitle);
   String? get recipeThumbnail => _base?.recipeThumbnail;
 
-  // Total macros across all components.
-  double get calories => isCustomMeal
-      ? (customCalories ?? 0.0)
-      : components.fold(0.0, (s, c) => s + (c.calories ?? 0.0));
-  double get proteinG => isCustomMeal
-      ? (customProteinG ?? 0.0)
-      : components.fold(0.0, (s, c) => s + (c.proteinG ?? 0.0));
-  double get carbsG => isCustomMeal
-      ? (customCarbsG ?? 0.0)
-      : components.fold(0.0, (s, c) => s + (c.carbsG ?? 0.0));
-  double get fatG => isCustomMeal
-      ? (customFatG ?? 0.0)
-      : components.fold(0.0, (s, c) => s + (c.fatG ?? 0.0));
+  // Macros — pre-computed backend values when available; fall through to
+  // component sum × servings (legacy entries before migration) or custom values.
+  double get calories {
+    if (isCustomMeal) return customCalories ?? 0.0;
+    if (caloriesComputed != null) return caloriesComputed!;
+    return components.fold(0.0, (s, c) => s + (c.calories ?? 0.0)) * servings;
+  }
+
+  double get proteinG {
+    if (isCustomMeal) return customProteinG ?? 0.0;
+    if (proteinGComputed != null) return proteinGComputed!;
+    return components.fold(0.0, (s, c) => s + (c.proteinG ?? 0.0)) * servings;
+  }
+
+  double get carbsG {
+    if (isCustomMeal) return customCarbsG ?? 0.0;
+    if (carbsGComputed != null) return carbsGComputed!;
+    return components.fold(0.0, (s, c) => s + (c.carbsG ?? 0.0)) * servings;
+  }
+
+  double get fatG {
+    if (isCustomMeal) return customFatG ?? 0.0;
+    if (fatGComputed != null) return fatGComputed!;
+    return components.fold(0.0, (s, c) => s + (c.fatG ?? 0.0)) * servings;
+  }
 
   // Convenience accessor — recipe ID of the base component. Null for custom meals.
   String? get recipeId => isCustomMeal ? null : _base?.recipeId;
@@ -356,4 +386,40 @@ class ShoppingItem {
         category: category,
         isChecked: isChecked ?? this.isChecked,
       );
+}
+
+// ---------------------------------------------------------------------------
+// MealIngredient
+// Pre-computed ingredient quantity for a meal entry (scaled to user portion).
+// ---------------------------------------------------------------------------
+
+@immutable
+class MealIngredient {
+  final String id;
+  final String mealPlanEntryId;
+  final String? ingredientId;
+  final String ingredientName;
+  final double quantity;
+  final String unit;
+
+  const MealIngredient({
+    required this.id,
+    required this.mealPlanEntryId,
+    this.ingredientId,
+    required this.ingredientName,
+    required this.quantity,
+    required this.unit,
+  });
+
+  factory MealIngredient.fromJson(Map<String, dynamic> json) => MealIngredient(
+        id: json['id'] as String,
+        mealPlanEntryId: json['meal_plan_entry_id'] as String,
+        ingredientId: json['ingredient_id'] as String?,
+        ingredientName: json['ingredient_name'] as String,
+        quantity: (json['quantity'] as num).toDouble(),
+        unit: json['unit'] as String,
+      );
+
+  String get quantityDisplay =>
+      '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : 1)} $unit';
 }
