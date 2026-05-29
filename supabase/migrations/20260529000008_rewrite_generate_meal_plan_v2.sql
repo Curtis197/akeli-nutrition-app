@@ -24,6 +24,7 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
 DECLARE
   v_user_vector            vector(50);
@@ -49,6 +50,10 @@ DECLARE
   v_total_slots            int;
   v_max_other_slots        int;
 BEGIN
+  IF p_user_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
   v_total_slots     := p_days * p_meals_per_day;
   v_max_other_slots := FLOOR(v_total_slots * 0.10);
 
@@ -244,6 +249,7 @@ BEGIN
         END IF;
       END IF;
 
+      -- score is a relative ranking value, not normalized to 0-1 (fan bonus can push >1)
       RETURN QUERY SELECT
         v_plan_id,
         v_entry_id,
@@ -261,3 +267,6 @@ BEGIN
   END LOOP;
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.generate_meal_plan(uuid, int, int, date) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.generate_meal_plan(uuid, int, int, date) TO authenticated;
