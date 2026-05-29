@@ -7,6 +7,7 @@ import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
 import 'personal_meal_bottom_sheet.dart';
+import 'rating_bottom_sheet.dart';
 
 class MealDetailPage extends ConsumerWidget {
   final String mealId;
@@ -25,6 +26,15 @@ class MealDetailPage extends ConsumerWidget {
           content: Text(next.error.toString()),
           backgroundColor: AkeliColors.error,
         ));
+      } else if (next.valueOrNull == true) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: false,
+          enableDrag: false,
+          backgroundColor: Colors.transparent,
+          builder: (_) => RatingBottomSheet(mealPlanEntryId: mealId),
+        );
       }
     });
 
