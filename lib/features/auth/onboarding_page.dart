@@ -103,20 +103,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       ...d.allergies,
     ];
 
-    // Infer goal_type from weight delta so the recommendation engine has signal.
-    // "health" is always included as a baseline; weight_loss/muscle_gain/maintenance
-    // are derived from the gap between current and target weight.
-    final inferredGoals = <String>['health'];
-    if (d.weight != null && d.targetWeight != null) {
-      final delta = d.targetWeight! - d.weight!;
-      if (delta < -2) {
-        inferredGoals.add('weight_loss');
-      } else if (delta > 2) {
-        inferredGoals.add('muscle_gain');
-      } else {
-        inferredGoals.add('maintenance');
-      }
-    }
+    // Build goal_type set from the user's explicit onboarding selections.
+    // "health" is always included as a baseline.
+    final goalSet = <String>{'health'};
+    if (d.weightGoal == 'loss') goalSet.add('weight_loss');
+    if (d.weightGoal == 'gain') goalSet.add('muscle_gain');
+    if (d.weightGoal == 'maintenance') goalSet.add('maintenance');
+    if (d.muscleGoal == 'gain') goalSet.add('muscle_gain');
+    if (d.muscleGoal == 'loss') goalSet.add('weight_loss');
+    if (d.muscleGoal == 'maintenance') goalSet.add('maintenance');
+    final inferredGoals = goalSet.toList();
 
     final body = <String, dynamic>{
       'first_name': d.name,
@@ -127,6 +123,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       if (d.targetWeight != null) 'target_weight_kg': d.targetWeight,
       if (d.activityLevel != null) 'activity_level': d.activityLevel,
       'goals': inferredGoals,
+      if (d.weightGoal != null) 'weight_goal': d.weightGoal,
+      if (d.muscleGoal != null) 'muscle_goal': d.muscleGoal,
+      if (d.cookingTime != null) 'cooking_time': d.cookingTime,
+      'batch_cooking_enabled': d.batchCookingEnabled,
+      'batch_cooking_max_portions': d.batchMaxPortions,
       'dietary_restrictions': restrictions,
       'cuisine_preferences': d.cuisinePreferences,
       if (d.consentPrivacy) 'consent_privacy_at': now,
@@ -1199,67 +1200,13 @@ class _SexOption extends StatelessWidget {
 
 // ── Step 4: Goals ────────────────────────────────────────────────────────────
 
-class _StepGoals extends ConsumerStatefulWidget {
+class _StepGoals extends ConsumerWidget {
   final int step;
   const _StepGoals({required this.step});
-  @override
-  ConsumerState<_StepGoals> createState() => _StepGoalsState();
-}
-
-class _StepGoalsState extends ConsumerState<_StepGoals> {
-  final _logger = appLogger;
-  late final TextEditingController _targetWeightCtrl;
-  late final TextEditingController _motivationsCtrl;
 
   @override
-  void initState() {
-    super.initState();
-    final d = ref.read(onboardingProvider);
-    _targetWeightCtrl =
-        TextEditingController(text: d.targetWeight?.toString() ?? '');
-    _motivationsCtrl = TextEditingController(text: d.motivations);
-  }
-
-  @override
-  void dispose() {
-    _targetWeightCtrl.dispose();
-    _motivationsCtrl.dispose();
-    super.dispose();
-  }
-
-  // Clinical thresholds: >2 kg/month = Intense, 1–2 = Modéré, <1 = Durable.
-  String _getPaceLabel(double kgPerMonth) {
-    if (kgPerMonth > 2) return 'Intense';
-    if (kgPerMonth >= 1) return 'Modéré';
-    return 'Durable';
-  }
-
-  Color _getPaceBg(double kgPerMonth) {
-    if (kgPerMonth > 2) return AkeliColors.tertiaryFixed;
-    if (kgPerMonth >= 1) return AkeliColors.secondaryContainer;
-    return AkeliColors.surfaceContainerHighest;
-  }
-
-  Color _getPaceText(double kgPerMonth) {
-    if (kgPerMonth > 2) return AkeliColors.onTertiaryFixed;
-    if (kgPerMonth >= 1) return AkeliColors.onSecondaryContainer;
-    return AkeliColors.onSurfaceVariant;
-  }
-
-  // Returns kg/month loss rate, or null when it can't be computed
-  // (missing weights, or user is not trying to lose weight).
-  double? _kgPerMonth(OnboardingData data) {
-    final current = data.weight;
-    final target = data.targetWeight;
-    if (current == null || target == null) return null;
-    final diff = current - target;
-    if (diff <= 0) return null;
-    return diff / data.timelineMonths;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _logger.provider('_StepGoalsState build()');
+  Widget build(BuildContext context, WidgetRef ref) {
+    appLogger.provider('_StepGoals build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1279,162 +1226,318 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
               'Définissons ensemble ce que vous souhaitez accomplir.',
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AkeliSpacing.xl),
+
+          // ── Weight goal ──────────────────────────────────────────────────
           _StepCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('POIDS CIBLE (KG)',
+                Text('OBJECTIF POIDS',
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AkeliColors.onSurfaceVariant,
                         letterSpacing: 0.1)),
-                const SizedBox(height: AkeliSpacing.sm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                  ),
-                  child: TextField(
-                    controller: _targetWeightCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (v) => notifier.updateGoals(
-                        targetWeight: double.tryParse(v)),
-                    style: GoogleFonts.inter(
-                        fontSize: 18, color: AkeliColors.onSurface),
-                    decoration: InputDecoration(
-                      hintText: 'Ex: 65',
-                      filled: false,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(AkeliSpacing.md),
-                      suffixText: 'kg',
-                      suffixStyle: GoogleFonts.inter(
-                          fontSize: 13, color: AkeliColors.onSurfaceVariant),
-                    ),
-                  ),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'loss',
+                  groupValue: data.weightGoal,
+                  label: 'Perdre du poids',
+                  icon: Icons.trending_down_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
                 ),
-                const SizedBox(height: AkeliSpacing.xl),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                _GoalRadioOption(
+                  value: 'maintenance',
+                  groupValue: data.weightGoal,
+                  label: 'Maintenir mon poids',
+                  icon: Icons.balance_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'gain',
+                  groupValue: data.weightGoal,
+                  label: 'Prendre de la masse',
+                  icon: Icons.trending_up_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Muscle goal ──────────────────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('OBJECTIF MUSCULAIRE',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'loss',
+                  groupValue: data.muscleGoal,
+                  label: 'Réduire la masse musculaire',
+                  icon: Icons.remove_circle_outline_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'maintenance',
+                  groupValue: data.muscleGoal,
+                  label: 'Maintenir mes muscles',
+                  icon: Icons.fitness_center_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'gain',
+                  groupValue: data.muscleGoal,
+                  label: 'Développer mes muscles',
+                  icon: Icons.add_circle_outline_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Cooking time ─────────────────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('TEMPS DE CUISINE',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'quick',
+                  groupValue: data.cookingTime,
+                  label: 'Rapide (< 30 min)',
+                  icon: Icons.bolt_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'medium',
+                  groupValue: data.cookingTime,
+                  label: 'Moyen (30–60 min)',
+                  icon: Icons.timer_outlined,
+                  onChanged: (v) {
+                    appLogger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'any',
+                  groupValue: data.cookingTime,
+                  label: 'Peu importe',
+                  icon: Icons.all_inclusive_rounded,
+                  onChanged: (v) {
+                    appLogger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Batch cooking ─────────────────────────────────────────────
+          _StepCard(
+            child: Consumer(
+              builder: (context, ref, _) {
+                final data = ref.watch(onboardingProvider);
+                final notifier = ref.read(onboardingProvider.notifier);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('DÉLAI ESTIMÉ',
+                    Text('CUISSON EN BATCH',
                         style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: AkeliColors.onSurfaceVariant,
                             letterSpacing: 0.1)),
-                    if (_kgPerMonth(data) case final rate?)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _getPaceBg(rate),
-                          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                    const SizedBox(height: AkeliSpacing.sm),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Préparer plusieurs repas à la fois',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: AkeliColors.onSurface)),
+                              const SizedBox(height: 2),
+                              Text('Cuire en grande quantité pour la semaine',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: AkeliColors.onSurfaceVariant)),
+                            ],
+                          ),
                         ),
-                        child: Text(_getPaceLabel(rate),
-                            style: GoogleFonts.inter(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: _getPaceText(rate),
-                                letterSpacing: 0.08)),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: AkeliSpacing.md),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.remove_circle_outline_rounded,
-                        color: data.timelineMonths <= 1
-                            ? AkeliColors.outlineVariant
-                            : AkeliColors.primary,
-                        size: 36,
-                      ),
-                      onPressed: data.timelineMonths <= 1
-                          ? null
-                          : () {
-                              _logger.userAction('Timeline months decreased',
-                                  screen: 'OnboardingPage',
-                                  metadata: {'months': data.timelineMonths - 1});
-                              notifier.updateGoals(
-                                  timelineMonths: data.timelineMonths - 1);
-                            },
+                        Switch(
+                          value: data.batchCookingEnabled,
+                          activeThumbColor: AkeliColors.primary,
+                          onChanged: (v) {
+                            appLogger.userAction('Batch cooking toggled',
+                                screen: 'OnboardingPage',
+                                metadata: {'enabled': v});
+                            notifier.updateGoals(batchCookingEnabled: v);
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: AkeliSpacing.lg),
-                    RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${data.timelineMonths} ',
-                            style: GoogleFonts.plusJakartaSans(
-                                fontSize: 56,
-                                fontWeight: FontWeight.w800,
-                                color: AkeliColors.primary,
-                                height: 1),
-                          ),
-                          TextSpan(
-                            text: 'mois',
-                            style: GoogleFonts.inter(
-                                fontSize: 20,
-                                color: AkeliColors.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: AkeliSpacing.lg),
-                    IconButton(
-                      icon: Icon(
-                        Icons.add_circle_rounded,
-                        color: data.timelineMonths >= 12
-                            ? AkeliColors.outlineVariant
-                            : AkeliColors.primary,
-                        size: 36,
-                      ),
-                      onPressed: data.timelineMonths >= 12
-                          ? null
-                          : () {
-                              _logger.userAction('Timeline months increased',
-                                  screen: 'OnboardingPage',
-                                  metadata: {'months': data.timelineMonths + 1});
-                              notifier.updateGoals(
-                                  timelineMonths: data.timelineMonths + 1);
-                            },
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: data.batchCookingEnabled
+                          ? Padding(
+                              key: const ValueKey('portions'),
+                              padding: const EdgeInsets.only(top: AkeliSpacing.md),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Portions max par session',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 15,
+                                          color: AkeliColors.onSurface)),
+                                  DropdownButton<int>(
+                                    value: data.batchMaxPortions,
+                                    underline: const SizedBox.shrink(),
+                                    style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: AkeliColors.primary),
+                                    items: List.generate(6, (i) => i + 2)
+                                        .map((n) => DropdownMenuItem(
+                                              value: n,
+                                              child: Text('$n'),
+                                            ))
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v == null) return;
+                                      appLogger.userAction(
+                                          'Batch max portions selected',
+                                          screen: 'OnboardingPage',
+                                          metadata: {'portions': v});
+                                      notifier.updateGoals(batchMaxPortions: v);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('hidden')),
                     ),
                   ],
-                ),
-                const SizedBox(height: AkeliSpacing.xl),
-                Text('VOS MOTIVATIONS',
-                    style: GoogleFonts.inter(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: AkeliColors.onSurfaceVariant,
-                        letterSpacing: 0.1)),
-                const SizedBox(height: AkeliSpacing.sm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                  ),
-                  child: TextField(
-                    controller: _motivationsCtrl,
-                    maxLines: 4,
-                    onChanged: (v) => notifier.updateGoals(motivations: v),
-                    style: GoogleFonts.inter(
-                        fontSize: 15, color: AkeliColors.onSurface),
-                    decoration: const InputDecoration(
-                      hintText: 'Pourquoi souhaitez-vous atteindre cet objectif ?',
-                      filled: false,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(AkeliSpacing.md),
-                    ),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// Reusable radio row used inside _StepGoals sections.
+class _GoalRadioOption extends StatelessWidget {
+  final String value;
+  final String? groupValue;
+  final String label;
+  final IconData icon;
+  final ValueChanged<String> onChanged;
+
+  const _GoalRadioOption({
+    required this.value,
+    required this.groupValue,
+    required this.label,
+    required this.icon,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = groupValue == value;
+    return GestureDetector(
+      onTap: () => onChanged(value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.only(bottom: AkeliSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AkeliSpacing.md, vertical: AkeliSpacing.sm + 2),
+        decoration: BoxDecoration(
+          color: selected
+              ? AkeliColors.primaryContainer
+              : AkeliColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AkeliRadius.sm),
+          border: Border.all(
+            color: selected ? AkeliColors.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 20,
+                color: selected
+                    ? AkeliColors.primary
+                    : AkeliColors.onSurfaceVariant),
+            const SizedBox(width: AkeliSpacing.md),
+            Expanded(
+              child: Text(label,
+                  style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight:
+                          selected ? FontWeight.w600 : FontWeight.w400,
+                      color: selected
+                          ? AkeliColors.onPrimaryContainer
+                          : AkeliColors.onSurface)),
+            ),
+            if (selected)
+              const Icon(Icons.check_circle_rounded,
+                  size: 20, color: AkeliColors.primary),
+          ],
+        ),
       ),
     );
   }
