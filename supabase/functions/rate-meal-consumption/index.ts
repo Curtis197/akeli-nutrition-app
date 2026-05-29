@@ -72,7 +72,8 @@ serve(async (req) => {
         rating_ease: rating_ease ?? null,
         rating_satiety: rating_satiety ?? null,
       })
-      .eq("meal_plan_entry_id", meal_plan_entry_id);
+      .eq("meal_plan_entry_id", meal_plan_entry_id)
+      .eq("user_id", user.id);
     logQueryResult(logger, "meal_consumption", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
     if (updateError) throw updateError;
