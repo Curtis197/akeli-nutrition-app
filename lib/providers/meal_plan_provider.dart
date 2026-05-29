@@ -298,15 +298,17 @@ final shoppingListProvider =
 // ---------------------------------------------------------------------------
 // Log meal consumption — Edge Function
 // Logs all components of a meal entry in one call.
+// Returns true on success so MealDetailPage can trigger the rating sheet.
 // ---------------------------------------------------------------------------
 
-class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<void> {
+class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<bool> {
   final _logger = appLogger;
 
   @override
-  FutureOr<void> build() {
+  FutureOr<bool> build() {
     _logger.provider('MealConsumptionNotifier build()');
     ref.onDispose(() => _logger.provider('MealConsumptionNotifier disposed'));
+    return false;
   }
 
   Future<void> logConsumption(String mealPlanEntryId) async {
@@ -323,7 +325,8 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<void> {
           body: {'meal_plan_entry_id': mealPlanEntryId},
         );
         _logger.edge('log-meal-consumption', 'AFTER | success');
-        _logger.provider('MealConsumptionNotifier → data (logConsumption success)');
+        _logger.provider('MealConsumptionNotifier → data (true)');
+        return true;
       } catch (e, st) {
         _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
         _logger.provider('MealConsumptionNotifier → error | $e');
@@ -335,7 +338,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<void> {
 }
 
 final mealConsumptionProvider =
-    AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, void>(
+    AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, bool>(
         MealConsumptionNotifier.new);
 
 // ---------------------------------------------------------------------------
@@ -580,3 +583,63 @@ class PersonalMealSwapNotifier extends AutoDisposeAsyncNotifier<PersonalMealAnal
 final personalMealSwapProvider =
     AsyncNotifierProvider.autoDispose<PersonalMealSwapNotifier, PersonalMealAnalysisResult?>(
         PersonalMealSwapNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Rate meal consumption — Edge Function
+// Writes overall + optional sub-dimension ratings to meal_consumption rows.
+// Only callable after the meal has been marked consumed.
+// ---------------------------------------------------------------------------
+
+class RatingNotifier extends AutoDisposeAsyncNotifier<void> {
+  final _logger = appLogger;
+
+  @override
+  FutureOr<void> build() {
+    _logger.provider('RatingNotifier build()');
+    ref.onDispose(() => _logger.provider('RatingNotifier disposed'));
+  }
+
+  Future<void> submitRating(
+    String mealPlanEntryId, {
+    required int rating,
+    int? ratingTaste,
+    int? ratingEase,
+    int? ratingSatiety,
+  }) async {
+    _logger.userAction('Submit meal rating', metadata: {
+      'mealPlanEntryId': mealPlanEntryId,
+      'rating': rating,
+      'ratingTaste': ratingTaste,
+      'ratingEase': ratingEase,
+      'ratingSatiety': ratingSatiety,
+    });
+    _logger.edge('rate-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId | rating: $rating');
+    _logger.provider('RatingNotifier → loading');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.functions.invoke(
+          'rate-meal-consumption',
+          body: {
+            'meal_plan_entry_id': mealPlanEntryId,
+            'rating': rating,
+            if (ratingTaste != null) 'rating_taste': ratingTaste,
+            if (ratingEase != null) 'rating_ease': ratingEase,
+            if (ratingSatiety != null) 'rating_satiety': ratingSatiety,
+          },
+        );
+        _logger.edge('rate-meal-consumption', 'AFTER | success');
+        _logger.provider('RatingNotifier → data (submitRating success)');
+      } catch (e, st) {
+        _logger.edge('rate-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
+        _logger.provider('RatingNotifier → error | $e');
+        rethrow;
+      }
+    });
+  }
+}
+
+final ratingProvider =
+    AsyncNotifierProvider.autoDispose<RatingNotifier, void>(RatingNotifier.new);
