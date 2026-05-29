@@ -2,7 +2,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/logger.dart';
+import 'package:akeli/core/logger.dart';
 import '../core/supabase_client.dart';
 import '../shared/models/user_preferences.dart';
 import 'auth_provider.dart';
@@ -114,7 +114,7 @@ class UserPreferencesNotifier
       _logger.db('BEFORE | table: user_health_profile | op: UPSERT | userId: ${user.id}');
       await client.from('user_health_profile').upsert({
         'user_id': user.id,
-        if (updated.cookingTime != null) 'cooking_time': updated.cookingTime,
+        'cooking_time': updated.cookingTime,
       });
       _logger.db('AFTER | table: user_health_profile | op: UPSERT | rows: 1');
 
@@ -159,6 +159,7 @@ class UserPreferencesNotifier
       }
 
       _logger.provider('UserPreferencesNotifier → save success');
+      state = AsyncData(updated);
       ref.invalidateSelf();
     } on PostgrestException catch (e, st) {
       if (e.code == '42501') {
