@@ -2,13 +2,18 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../providers/creator_provider.dart';
+import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/recipe.dart';
 import '../../shared/models/meal_plan.dart';
+import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
@@ -590,56 +595,7 @@ class _RecipeContent extends StatelessWidget {
                 ),
 
               // CREATOR CARD
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [AkeliShadows.sm],
-                          image: DecorationImage(
-                            image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBZoZmH1Y5a-Pc2GzIrFGmGCXlHreRhu1Z6JxT9Tc54fo417lFxPztaj8LHhnjfsKKuweQ7x2Sock9uBCk7-Mpelfn9yk-kq3cyJTZQHk8AHBjpmB4wiG-1nIt3SfGk7lpQ0anmR-m7zgit9sN0-OUMsgmx6DKQYVYYCO4zH1_AtzeaSbWnW3Yy5P3ax9SVNe5Cl1cmCc5TqlCt_uLfwIsnetSu5K9v5LG-GtLx19sLzk6rtkSnRQx9XDcIfxkvN3pSgEix_8t1c1Q'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'RECETTE CRÉÉE PAR',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AkeliColors.onSurfaceVariant,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Chef Amina', 
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: AkeliColors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _CreatorCardSection(creatorId: recipe.creatorId),
             ],
           ),
         ),
@@ -808,6 +764,63 @@ class _FrostedIconButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CreatorCardSection extends ConsumerWidget {
+  final String creatorId;
+
+  const _CreatorCardSection({required this.creatorId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final creatorAsync = ref.watch(creatorByIdProvider(creatorId));
+    final regionNames = ref.watch(foodRegionNamesProvider).valueOrNull ?? {};
+
+    appLogger.provider('_CreatorCardSection build() | creatorId: $creatorId');
+
+    return creatorAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 32),
+        child: SizedBox(height: 80, child: Center(child: CircularProgressIndicator())),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (creator) {
+        if (creator == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  'RECETTE CRÉÉE PAR',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurfaceVariant,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              CreatorCard(
+                creator: creator,
+                regionName: creator.regionId != null
+                    ? regionNames[creator.regionId!] ?? creator.regionId
+                    : null,
+                onTap: () {
+                  appLogger.userAction('Creator card tapped from recipe detail',
+                      screen: 'RecipeDetailPage',
+                      metadata: {'creatorId': creatorId});
+                  context.push(AkeliRoutes.creatorDetailPath(creatorId));
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
