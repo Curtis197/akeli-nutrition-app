@@ -70,6 +70,8 @@ class CreatorCard extends StatelessWidget {
                           ),
                           child: Text(
                             regionName!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
