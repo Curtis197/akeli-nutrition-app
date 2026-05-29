@@ -194,8 +194,8 @@ BEGIN
             v_target_meal_cal IS NULL
             OR (v_target_meal_cal / rm.calories) <= 4.0
           )
-        GROUP BY r.id, rm.calories, rm.protein_g, rm.carbs_g, rm.fat_g,
-                 r.creator_id, r.preferred_meal_type
+        GROUP BY r.id, r.title, r.cover_image_url, r.creator_id, r.preferred_meal_type,
+                 rm.calories, rm.protein_g, rm.carbs_g, rm.fat_g
         ORDER BY score DESC, COUNT(rl.recipe_id) DESC
         LIMIT 1;
       END IF;
