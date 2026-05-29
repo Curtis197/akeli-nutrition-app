@@ -8,16 +8,18 @@ import '../shared/models/creator_detail.dart';
 import '../shared/models/recipe.dart';
 import 'auth_provider.dart';
 
+final _logger = appLogger;
+
 // ---------------------------------------------------------------------------
 // Creators list — for the Créateurs tab on the feed page
 // ---------------------------------------------------------------------------
 
 final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) async {
-  appLogger.provider('creatorsListProvider build()');
-  ref.onDispose(() => appLogger.provider('creatorsListProvider disposed'));
+  _logger.provider('creatorsListProvider build()');
+  ref.onDispose(() => _logger.provider('creatorsListProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: creator | op: SELECT | order: recipe_count DESC | limit: 50');
+  _logger.db('BEFORE | table: creator | op: SELECT | order: recipe_count DESC | limit: 50');
 
   try {
     final rows = await client
@@ -26,10 +28,10 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
         .order('recipe_count', ascending: false)
         .limit(50) as List<dynamic>;
 
-    appLogger.db('AFTER | table: creator | rows: ${rows.length}');
+    _logger.db('AFTER | table: creator | rows: ${rows.length}');
 
     if (rows.isEmpty) {
-      appLogger.rls('Zero rows | table: creator | possible RLS block');
+      _logger.rls('Zero rows | table: creator | possible RLS block');
     }
 
     return rows
@@ -37,9 +39,9 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
         .toList();
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      appLogger.rls('Permission denied | table: creator', error: e, stackTrace: st);
+      _logger.rls('Permission denied | table: creator', error: e, stackTrace: st);
     } else {
-      appLogger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     rethrow;
   }
@@ -51,11 +53,11 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
 
 final creatorByIdProvider =
     FutureProvider.autoDispose.family<Creator?, String>((ref, creatorId) async {
-  appLogger.provider('creatorByIdProvider build() | creatorId: $creatorId');
-  ref.onDispose(() => appLogger.provider('creatorByIdProvider disposed'));
+  _logger.provider('creatorByIdProvider build() | creatorId: $creatorId');
+  ref.onDispose(() => _logger.provider('creatorByIdProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: creator | op: SELECT | creatorId: $creatorId');
+  _logger.db('BEFORE | table: creator | op: SELECT | creatorId: $creatorId');
 
   try {
     final row = await client
@@ -64,19 +66,19 @@ final creatorByIdProvider =
         .eq('id', creatorId)
         .maybeSingle();
 
-    appLogger.db('AFTER | table: creator | rows: ${row == null ? 0 : 1}');
+    _logger.db('AFTER | table: creator | rows: ${row == null ? 0 : 1}');
 
     if (row == null) {
-      appLogger.rls('Zero rows | table: creator | creatorId: $creatorId | possible RLS block');
+      _logger.rls('Zero rows | table: creator | creatorId: $creatorId | possible RLS block');
       return null;
     }
 
     return Creator.fromJson(row);
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      appLogger.rls('Permission denied | table: creator | creatorId: $creatorId', error: e, stackTrace: st);
+      _logger.rls('Permission denied | table: creator | creatorId: $creatorId', error: e, stackTrace: st);
     } else {
-      appLogger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     rethrow;
   }
@@ -88,11 +90,11 @@ final creatorByIdProvider =
 
 final creatorRecipesProvider =
     FutureProvider.autoDispose.family<List<Recipe>, String>((ref, creatorId) async {
-  appLogger.provider('creatorRecipesProvider build() | creatorId: $creatorId');
-  ref.onDispose(() => appLogger.provider('creatorRecipesProvider disposed'));
+  _logger.provider('creatorRecipesProvider build() | creatorId: $creatorId');
+  ref.onDispose(() => _logger.provider('creatorRecipesProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: recipe | op: SELECT | creatorId: $creatorId');
+  _logger.db('BEFORE | table: recipe | op: SELECT | creatorId: $creatorId');
 
   try {
     final rows = await client
@@ -102,10 +104,10 @@ final creatorRecipesProvider =
         .eq('is_published', true)
         .order('created_at', ascending: false) as List<dynamic>;
 
-    appLogger.db('AFTER | table: recipe | rows: ${rows.length}');
+    _logger.db('AFTER | table: recipe | rows: ${rows.length}');
 
     if (rows.isEmpty) {
-      appLogger.rls('Zero rows | table: recipe | creatorId: $creatorId | possible RLS block');
+      _logger.rls('Zero rows | table: recipe | creatorId: $creatorId | possible RLS block');
     }
 
     return rows
@@ -113,9 +115,9 @@ final creatorRecipesProvider =
         .toList();
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      appLogger.rls('Permission denied | table: recipe | creatorId: $creatorId', error: e, stackTrace: st);
+      _logger.rls('Permission denied | table: recipe | creatorId: $creatorId', error: e, stackTrace: st);
     } else {
-      appLogger.db('ERROR | table: recipe | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | table: recipe | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     rethrow;
   }
@@ -127,43 +129,47 @@ final creatorRecipesProvider =
 
 final creatorDetailProvider =
     FutureProvider.autoDispose.family<CreatorDetail, String>((ref, creatorId) async {
-  appLogger.provider('creatorDetailProvider build() | creatorId: $creatorId');
-  ref.onDispose(() => appLogger.provider('creatorDetailProvider disposed'));
+  _logger.provider('creatorDetailProvider build() | creatorId: $creatorId');
+  ref.onDispose(() => _logger.provider('creatorDetailProvider disposed'));
 
   final user = ref.watch(currentUserProvider);
   if (user == null) {
-    appLogger.provider('creatorDetailProvider EARLY RETURN | reason: no authenticated user');
+    _logger.provider('creatorDetailProvider EARLY RETURN | reason: no authenticated user');
     throw Exception('Not authenticated');
   }
 
   final client = ref.watch(supabaseClientProvider);
 
-  appLogger.db('[STEP 1] Fetching creator + recipes + fan status in parallel | creatorId: $creatorId');
+  _logger.db('[STEP 1] Fetching creator + recipes + fan status in parallel | creatorId: $creatorId');
 
-  // Run three queries in parallel — typed separately to avoid Future.wait inference issues
-  final creatorFuture = client
-      .from('creator')
-      .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
-      .eq('id', creatorId)
-      .single();
-  final recipesFuture = client
-      .from('recipe')
-      .select('id, like_count, creator_id, title, cover_image_url, region, calories, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
-      .eq('creator_id', creatorId)
-      .eq('is_published', true);
-  final fanFuture = client
-      .from('fan_subscription')
-      .select('id, status')
-      .eq('creator_id', creatorId)
-      .eq('user_id', user.id)
-      .eq('status', 'active')
-      .limit(1);
+  final results = await Future.wait(<Future<dynamic>>[
+    // creator row
+    client
+        .from('creator')
+        .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+        .eq('id', creatorId)
+        .single(),
+    // creator's published recipes (for totalLikes + recipeIds)
+    client
+        .from('recipe')
+        .select('id, like_count, creator_id, title, cover_image_url, region, calories, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
+        .eq('creator_id', creatorId)
+        .eq('is_published', true),
+    // active fan subscription
+    client
+        .from('fan_subscription')
+        .select('id, status')
+        .eq('creator_id', creatorId)
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1),
+  ]);
 
-  final creatorRow = await creatorFuture;
-  final recipeRows = await recipesFuture as List<dynamic>;
-  final fanRows = await fanFuture as List<dynamic>;
+  final creatorRow = results[0] as Map<String, dynamic>;
+  final recipeRows = results[1] as List<dynamic>;
+  final fanRows = results[2] as List<dynamic>;
 
-  appLogger.db('[STEP 1] Done | recipes: ${recipeRows.length} | isFan: ${fanRows.isNotEmpty}');
+  _logger.db('[STEP 1] Done | recipes: ${recipeRows.length} | isFan: ${fanRows.isNotEmpty}');
 
   final creator = Creator.fromJson(creatorRow);
   final recipes = recipeRows.map((e) => Recipe.fromJson(e as Map<String, dynamic>)).toList();
@@ -173,7 +179,7 @@ final creatorDetailProvider =
 
   int userConsumptionCount = 0;
   if (recipeIds.isNotEmpty) {
-    appLogger.db('[STEP 2] Querying meal_plan_entry_component | recipeIds: ${recipeIds.length}');
+    _logger.db('[STEP 2] Querying meal_plan_entry_component | recipeIds: ${recipeIds.length}');
     try {
       final consumptionRows = await client
           .from('meal_plan_entry_component')
@@ -186,9 +192,9 @@ final creatorDetailProvider =
           .toSet()
           .length;
 
-      appLogger.db('[STEP 2] Done | distinct consumed recipes: $userConsumptionCount');
+      _logger.db('[STEP 2] Done | distinct consumed recipes: $userConsumptionCount');
     } on PostgrestException catch (e, st) {
-      appLogger.db('ERROR | table: meal_plan_entry_component | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | table: meal_plan_entry_component | ${e.message}', error: e, stackTrace: st);
       // Non-fatal — proceed with 0
     }
   }
@@ -206,7 +212,7 @@ final creatorDetailProvider =
 // ---------------------------------------------------------------------------
 
 Future<void> becomeFan(SupabaseClient client, String creatorId, String userId) async {
-  appLogger.db('BEFORE | table: fan_subscription | op: INSERT | creatorId: $creatorId | userId: $userId');
+  _logger.db('BEFORE | table: fan_subscription | op: INSERT | creatorId: $creatorId | userId: $userId');
   try {
     await client.from('fan_subscription').insert({
       'creator_id': creatorId,
@@ -214,12 +220,12 @@ Future<void> becomeFan(SupabaseClient client, String creatorId, String userId) a
       'status': 'active',
       'effective_from': DateTime.now().toIso8601String(),
     });
-    appLogger.db('AFTER | table: fan_subscription | op: INSERT | success');
+    _logger.db('AFTER | table: fan_subscription | op: INSERT | success');
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      appLogger.rls('Permission denied | table: fan_subscription | creatorId: $creatorId', error: e, stackTrace: st);
+      _logger.rls('Permission denied | table: fan_subscription | creatorId: $creatorId', error: e, stackTrace: st);
     } else {
-      appLogger.db('ERROR | table: fan_subscription | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | table: fan_subscription | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     rethrow;
   }
