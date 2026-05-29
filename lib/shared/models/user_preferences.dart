@@ -1,5 +1,8 @@
 // lib/shared/models/user_preferences.dart
 
+// ignore: unused_import
+import 'package:akeli/core/logger.dart';
+
 class UserPreferencesModel {
   final String? cookingTime;       // 'quick' | 'medium' | 'any' | null
   final bool batchCookingEnabled;
