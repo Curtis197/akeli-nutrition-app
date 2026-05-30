@@ -485,8 +485,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     _logger.provider('FeedPage build() | isSearching: $isSearching | feedAsync.isLoading: ${feedAsync.isLoading}');
 
-    return CustomScrollView(
-      slivers: [
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scrollInfo) {
+        if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500) {
+          if (_tabIndex == 0) {
+            isSearching ? _loadMoreSearch() : _loadMoreRecipes();
+          } else {
+            _loadMoreCreators();
+          }
+        }
+        return false;
+      },
+      child: CustomScrollView(
+        slivers: [
         // AppBar
         SliverAppBar(
           floating: true,
@@ -799,11 +810,37 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             );
           },
-          )
-        else
+          ),
+        if (_tabIndex == 0 && (isSearching ? _searchResults.isNotEmpty : _recipes.isNotEmpty))
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Center(
+                child: (isSearching ? _loadingMoreSearch : _loadingMoreRecipes)
+                    ? const CircularProgressIndicator()
+                    : (!(isSearching ? _hasMoreSearch : _hasMoreRecipes)
+                        ? const Text('Fin des résultats', style: TextStyle(color: Colors.grey))
+                        : const SizedBox.shrink()),
+              ),
+            ),
+          ),
+        if (_tabIndex != 0)
           _buildCreateursSliver(regionNames),
+        if (_tabIndex != 0 && _creators.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32.0),
+              child: Center(
+                child: _loadingMoreCreators
+                    ? const CircularProgressIndicator()
+                    : (!_hasMoreCreators
+                        ? const Text('Fin des résultats', style: TextStyle(color: Colors.grey))
+                        : const SizedBox.shrink()),
+              ),
+            ),
+          ),
       ],
-    );
+    ));
   }
 
   Widget _buildCreateursSliver(Map<String, String> regionNames) {
