@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/core/supabase_client.dart';
+import 'package:akeli/features/community/community_page.dart';
 import 'package:akeli/providers/notifications_provider.dart';
 import 'package:akeli/providers/dm_provider.dart';
 import 'package:akeli/shared/widgets/empty_state.dart';
@@ -128,6 +130,67 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   }).catchError((Object e, StackTrace st) {
                     _logger.db('ERROR | rejectDmRequest | $e', error: e, stackTrace: st);
                   });
+                },
+        );
+
+      case 'group_invite':
+        final inviteId = data['invite_id'] as String? ?? '';
+        return AkeliNotifCard(
+          type: NotifType.request,
+          title: title,
+          subtitle: body,
+          time: _relativeTime(createdAt),
+          onAccept: inviteId.isEmpty
+              ? null
+              : () async {
+                  _logger.userAction('Accept group invite tapped',
+                      screen: 'NotificationsPage',
+                      metadata: {'invite_id': inviteId});
+                  try {
+                    final client = ref.read(supabaseClientProvider);
+                    final result = await client.rpc('accept_group_invite', params: {'p_invite_id': inviteId});
+                    if (mounted) {
+                      ref.invalidate(notificationsProvider);
+                      ref.invalidate(communityGroupsProvider);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Vous avez rejoint le groupe'),
+                          action: SnackBarAction(
+                            label: 'Ouvrir',
+                            onPressed: () {
+                              context.go(AkeliRoutes.groupDetailPath(result.toString()));
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e, st) {
+                    _logger.db('ERROR | accept_group_invite | $e', error: e, stackTrace: st);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Erreur: Invitation introuvable ou déjà traitée')),
+                      );
+                    }
+                  }
+                },
+          onDecline: inviteId.isEmpty
+              ? null
+              : () async {
+                  _logger.userAction('Decline group invite tapped',
+                      screen: 'NotificationsPage',
+                      metadata: {'invite_id': inviteId});
+                  try {
+                    final client = ref.read(supabaseClientProvider);
+                    await client.from('group_invite').update({'status': 'declined'}).eq('id', inviteId);
+                    if (mounted) {
+                      ref.invalidate(notificationsProvider);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Invitation déclinée')),
+                      );
+                    }
+                  } catch (e, st) {
+                    _logger.db('ERROR | decline group invite | $e', error: e, stackTrace: st);
+                  }
                 },
         );
 
