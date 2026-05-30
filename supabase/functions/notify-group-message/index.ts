@@ -59,20 +59,22 @@ serve(async (req) => {
 
     logger.debug("[STEP 4] Fetch sender display_name");
     logRLSCheck(logger, "user_profile", "SELECT", user.id);
-    const { data: senderProfile } = await admin
+    const { data: senderProfile, error: senderError } = await admin
       .from("user_profile")
       .select("display_name")
       .eq("id", user.id)
       .maybeSingle();
+    logQueryResult(logger, "user_profile", "SELECT", senderProfile ? 1 : 0, senderError ?? undefined);
     const senderName = senderProfile?.display_name ?? "Quelqu'un";
 
     logger.debug("[STEP 5] Fetch group name");
     logRLSCheck(logger, "community_group", "SELECT", "all");
-    const { data: group } = await admin
+    const { data: group, error: groupError } = await admin
       .from("community_group")
       .select("name")
       .eq("id", group_id)
       .maybeSingle();
+    logQueryResult(logger, "community_group", "SELECT", group ? 1 : 0, groupError ?? undefined);
     const groupName = group?.name ?? "Groupe";
 
     logger.debug("[STEP 6] Fetch group members excluding sender");
