@@ -139,6 +139,17 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       await client.functions.invoke('complete-onboarding', body: body);
       _logger.edge('complete-onboarding', 'AFTER | success');
       ref.invalidate(userProfileProvider);
+      // Fire-and-forget: generate first meal plan in background while navigating home.
+      // The meal planner page handles loading/empty state while generation completes.
+      _logger.edge('generate-meal-plan', 'BEFORE (post-onboarding) | non-blocking');
+      client.functions.invoke('generate-meal-plan', body: {
+        'days': 7,
+        'meals_per_day': 3,
+      }).then((_) {
+        _logger.edge('generate-meal-plan', 'AFTER (post-onboarding) | success');
+      }).catchError((Object e) {
+        _logger.edge('generate-meal-plan', 'ERROR (post-onboarding) | $e');
+      });
       if (mounted) context.go(AkeliRoutes.home);
     } catch (e, st) {
       _logger.edge('complete-onboarding', 'ERROR | $e', error: e, stackTrace: st);
