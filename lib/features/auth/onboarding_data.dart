@@ -1,3 +1,4 @@
+import 'package:akeli/core/logger.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OnboardingData {
@@ -104,15 +105,23 @@ class OnboardingData {
 }
 
 class OnboardingNotifier extends Notifier<OnboardingData> {
+  final _logger = appLogger;
+
   @override
-  OnboardingData build() => const OnboardingData();
+  OnboardingData build() {
+    _logger.provider('OnboardingNotifier build()');
+    return const OnboardingData();
+  }
 
-  void updateLanguage(String v) =>
-      state = state.copyWith(language: v);
+  void updateLanguage(String v) {
+    _logger.provider('OnboardingNotifier → updateLanguage | $v');
+    state = state.copyWith(language: v);
+  }
 
-  void updateConsent({bool? privacy, bool? cgu}) =>
-      state = state.copyWith(
-          consentPrivacy: privacy, consentCgu: cgu);
+  void updateConsent({bool? privacy, bool? cgu}) {
+    _logger.provider('OnboardingNotifier → updateConsent | privacy: $privacy | cgu: $cgu');
+    state = state.copyWith(consentPrivacy: privacy, consentCgu: cgu);
+  }
 
   void updateProfile({
     String? name,
@@ -121,14 +130,16 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
     double? weight,
     double? height,
     String? activityLevel,
-  }) =>
-      state = state.copyWith(
-          name: name,
-          age: age,
-          sex: sex,
-          weight: weight,
-          height: height,
-          activityLevel: activityLevel);
+  }) {
+    _logger.provider('OnboardingNotifier → updateProfile | name: $name | sex: $sex');
+    state = state.copyWith(
+        name: name,
+        age: age,
+        sex: sex,
+        weight: weight,
+        height: height,
+        activityLevel: activityLevel);
+  }
 
   void updateGoals({
     double? targetWeight,
@@ -139,16 +150,18 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
     String? cookingTime,
     bool? batchCookingEnabled,
     int? batchMaxPortions,
-  }) =>
-      state = state.copyWith(
-          targetWeight: targetWeight,
-          timelineMonths: timelineMonths,
-          motivations: motivations,
-          weightGoal: weightGoal,
-          muscleGoal: muscleGoal,
-          cookingTime: cookingTime,
-          batchCookingEnabled: batchCookingEnabled,
-          batchMaxPortions: batchMaxPortions);
+  }) {
+    _logger.provider('OnboardingNotifier → updateGoals | cookingTime: $cookingTime | batchEnabled: $batchCookingEnabled | batchMax: $batchMaxPortions');
+    state = state.copyWith(
+        targetWeight: targetWeight,
+        timelineMonths: timelineMonths,
+        motivations: motivations,
+        weightGoal: weightGoal,
+        muscleGoal: muscleGoal,
+        cookingTime: cookingTime,
+        batchCookingEnabled: batchCookingEnabled,
+        batchMaxPortions: batchMaxPortions);
+  }
 
   void updatePreferences({
     bool? noPork,
@@ -157,17 +170,20 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
     bool? noLactose,
     List<String>? allergies,
     List<String>? cuisinePreferences,
-  }) =>
-      state = state.copyWith(
-          noPork: noPork,
-          noMeat: noMeat,
-          noGluten: noGluten,
-          noLactose: noLactose,
-          allergies: allergies,
-          cuisinePreferences: cuisinePreferences);
+  }) {
+    _logger.provider('OnboardingNotifier → updatePreferences | noPork: $noPork | noMeat: $noMeat | noGluten: $noGluten | noLactose: $noLactose');
+    state = state.copyWith(
+        noPork: noPork,
+        noMeat: noMeat,
+        noGluten: noGluten,
+        noLactose: noLactose,
+        allergies: allergies,
+        cuisinePreferences: cuisinePreferences);
+  }
 
   void updateCuisineRegion(String code) {
     final current = state.cuisinePreferences;
+    _logger.provider('OnboardingNotifier → updateCuisineRegion | code: $code');
     state = state.copyWith(
       cuisinePreferences: current.length == 1 && current[0] == code ? [] : [code],
     );
