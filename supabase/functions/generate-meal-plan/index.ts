@@ -61,15 +61,35 @@ serve(async (req) => {
     logger.debug("[STEP 3] Plan created | meal_plan_id: " + mealPlanId + " | entries: " + (data?.length ?? 0));
 
     if (mealPlanId) {
-      logger.debug("[STEP 4] RPC call | fn: create_batch_sessions");
-      logRLSCheck(logger, "create_batch_sessions", "RPC", user.id);
-      const { error: batchError } = await client.rpc("create_batch_sessions", {
-        p_meal_plan_id: mealPlanId,
-        p_user_id: user.id,
-      });
-      logQueryResult(logger, "create_batch_sessions", "RPC", 0, batchError ?? undefined);
-      if (batchError) {
-        logger.warn("create_batch_sessions failed (non-fatal) | " + batchError.message);
+      logger.debug("[STEP 3.5] Fetch batch cooking preference");
+      const { data: profileData, error: profileError } = await client
+        .from("user_profile")
+        .select("batch_cooking_enabled, batch_cooking_max_portions")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) {
+        logger.warn("[STEP 3.5] Failed to fetch batch preference (non-fatal) | " + profileError.message);
+      }
+
+      const batchEnabled = profileData?.batch_cooking_enabled ?? false;
+      const maxPortions = profileData?.batch_cooking_max_portions ?? 7;
+      logger.debug("[STEP 3.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions);
+
+      if (batchEnabled) {
+        logger.debug("[STEP 4] RPC call | fn: create_batch_sessions | maxPortions: " + maxPortions);
+        logRLSCheck(logger, "create_batch_sessions", "RPC", user.id);
+        const { error: batchError } = await client.rpc("create_batch_sessions", {
+          p_meal_plan_id: mealPlanId,
+          p_user_id: user.id,
+          p_max_portions: maxPortions,
+        });
+        logQueryResult(logger, "create_batch_sessions", "RPC", 0, batchError ?? undefined);
+        if (batchError) {
+          logger.warn("create_batch_sessions failed (non-fatal) | " + batchError.message);
+        }
+      } else {
+        logger.debug("[STEP 4] Skipping create_batch_sessions | batch cooking disabled for user");
       }
     }
 
