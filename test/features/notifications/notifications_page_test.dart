@@ -71,8 +71,8 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(find.text('Jean Martin veut discuter'), findsOneWidget);
-      expect(find.text('Accept'), findsOneWidget);
-      expect(find.text('Decline'), findsOneWidget);
+      expect(find.text('Accepter'), findsOneWidget);
+      expect(find.text('Refuser'), findsOneWidget);
     });
   });
 }
