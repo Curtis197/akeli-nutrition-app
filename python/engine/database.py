@@ -34,6 +34,7 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                 SELECT
                     uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
                     uhp.target_weight_kg, uhp.activity_level,
+                    uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time,
                     ARRAY_AGG(DISTINCT ug.goal_type) FILTER (WHERE ug.goal_type IS NOT NULL) AS goals,
                     ARRAY_AGG(DISTINCT udr.restriction) FILTER (WHERE udr.restriction IS NOT NULL) AS restrictions,
                     ARRAY_AGG(DISTINCT ucp.region) FILTER (WHERE ucp.region IS NOT NULL) AS cuisine_regions
@@ -43,7 +44,8 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                 LEFT JOIN user_cuisine_preference ucp ON ucp.user_id = uhp.user_id
                 WHERE uhp.user_id = %s
                 GROUP BY uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
-                         uhp.target_weight_kg, uhp.activity_level
+                         uhp.target_weight_kg, uhp.activity_level,
+                         uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time
             """, (user_id,))
             row = cur.fetchone()
             return dict(row) if row else None
@@ -183,4 +185,67 @@ def upsert_recipe_vector(recipe_id: str, vector: np.ndarray):
                     vector = EXCLUDED.vector,
                     last_computed = NOW()
             """, (recipe_id, str(vector_list)))
+        conn.commit()
+
+
+# ---------------------------------------------------------------------------
+# Creator helpers
+# ---------------------------------------------------------------------------
+
+def get_all_creators() -> list[str]:
+    """Retourne les creator_ids ayant au moins une recette publiée."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT c.id
+                FROM creator c
+                WHERE c.recipe_count >= 1
+            """)
+            return [row[0] for row in cur.fetchall()]
+
+
+def get_creator_recipe_vectors(creator_id: str) -> list[np.ndarray]:
+    """
+    Retourne les vecteurs de toutes les recettes publiées d'un créateur.
+    Retourne une liste vide si aucun recipe_vector n'existe encore pour ce créateur.
+    """
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT rv.vector
+                FROM recipe_vector rv
+                JOIN recipe r ON r.id = rv.recipe_id
+                WHERE r.creator_id = %s
+                  AND r.is_published = true
+            """, (creator_id,))
+            rows = cur.fetchall()
+            if not rows:
+                return []
+            # psycopg2 returns pgvector as a string like '[0.1,0.2,...]'
+            # Convert each to a float32 numpy array
+            result = []
+            for row in rows:
+                raw = row[0]
+                if isinstance(raw, str):
+                    nums = [float(x) for x in raw.strip('[]').split(',')]
+                    result.append(np.array(nums, dtype=np.float32))
+                else:
+                    result.append(np.array(raw, dtype=np.float32))
+            return result
+
+
+def upsert_creator_vector(creator_id: str, vector: np.ndarray, recipe_count_sampled: int):
+    """Stocke ou met à jour le creator_vector dans PostgreSQL."""
+    vector_list = vector.tolist()
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO creator_vector
+                    (creator_id, vector, last_computed, recipe_count_sampled)
+                VALUES (%s, %s::vector, NOW(), %s)
+                ON CONFLICT (creator_id) DO UPDATE SET
+                    vector               = EXCLUDED.vector,
+                    last_computed        = NOW(),
+                    recipe_count_sampled = EXCLUDED.recipe_count_sampled
+            """, (creator_id, str(vector_list), recipe_count_sampled))
         conn.commit()

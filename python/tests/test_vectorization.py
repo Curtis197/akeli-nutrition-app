@@ -94,3 +94,12 @@ def test_compute_recipe_vector_not_found(mock_get_data):
 
     # Assert
     assert vector is None
+
+
+def test_upsert_creator_vector_signature():
+    """upsert_creator_vector must accept (creator_id, vector, recipe_count_sampled)."""
+    from engine.database import upsert_creator_vector
+    import inspect
+    sig = inspect.signature(upsert_creator_vector)
+    params = list(sig.parameters.keys())
+    assert params == ['creator_id', 'vector', 'recipe_count_sampled']
