@@ -44,22 +44,22 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   int _tabIndex = 0;
 
   // ---- Recipe feed pagination (personalized) ----
-  List<Recipe> _recipes = [];
+  final List<Recipe> _recipes = [];
   bool _hasMoreRecipes = true;
   bool _loadingMoreRecipes = false;
-  Set<String> _seenRecipeIds = {};
+  final Set<String> _seenRecipeIds = {};
 
   // ---- Recipe feed pagination (search) ----
-  List<Recipe> _searchResults = [];
+  final List<Recipe> _searchResults = [];
   bool _hasMoreSearch = true;
   bool _loadingMoreSearch = false;
   int _searchOffset = 0;
 
   // ---- Creator feed pagination ----
-  List<Creator> _creators = [];
+  final List<Creator> _creators = [];
   bool _hasMoreCreators = true;
   bool _loadingMoreCreators = false;
-  Set<String> _seenCreatorIds = {};
+  final Set<String> _seenCreatorIds = {};
 
   bool get _hasActiveFilter =>
       _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
