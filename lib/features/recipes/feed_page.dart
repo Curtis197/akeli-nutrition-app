@@ -96,6 +96,147 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     _loadingMoreCreators = false;
   }
 
+  Future<void> _loadMoreRecipes() async {
+    if (_loadingMoreRecipes || !_hasMoreRecipes) return;
+    _logger.userAction('Load more recipes triggered', screen: 'FeedPage',
+        metadata: {'seenCount': _seenRecipeIds.length.toString()});
+    setState(() => _loadingMoreRecipes = true);
+
+    final params = FeedParams(
+      limit: _pageSize,
+      excludeIds: _seenRecipeIds.toList(),
+      regionId: _regionId,
+      difficulty: _difficulty,
+      maxTimeMin: _maxTimeMin,
+      minCal: _minCal,
+      maxCal: _maxCal,
+      orderBy: _orderBy,
+    );
+
+    try {
+      final page = await ref.read(feedProvider(params).future);
+      _logger.db('AFTER rpc | fn: generate_feed_personalized | page rows: ${page.length}');
+      if (mounted) {
+        setState(() {
+          if (page.isEmpty || page.length < _pageSize) {
+            _hasMoreRecipes = false;
+          }
+          _recipes.addAll(page);
+          _seenRecipeIds.addAll(page.map((r) => r.id));
+        });
+      }
+    } catch (e, st) {
+      _logger.db('ERROR | _loadMoreRecipes | $e', error: e, stackTrace: st);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingMoreRecipes = false);
+      }
+    }
+  }
+
+  Future<void> _loadMoreSearch() async {
+    if (_loadingMoreSearch || !_hasMoreSearch) return;
+    _logger.userAction('Load more search triggered', screen: 'FeedPage',
+        metadata: {'offset': _searchOffset.toString(), 'query': _searchQuery});
+    setState(() => _loadingMoreSearch = true);
+
+    final params = SearchParams(
+      query: _searchQuery,
+      regionId: _regionId,
+      difficulty: _difficulty,
+      maxTimeMin: _maxTimeMin,
+      minCal: _minCal,
+      maxCal: _maxCal,
+      orderBy: _orderBy ?? 'relevance',
+      limit: _pageSize,
+      offset: _searchOffset,
+    );
+
+    try {
+      final page = await ref.read(searchRecipesProvider(params).future);
+      _logger.db('AFTER | searchRecipesProvider | page rows: ${page.length} | offset: $_searchOffset');
+      if (mounted) {
+        setState(() {
+          if (page.isEmpty || page.length < _pageSize) {
+            _hasMoreSearch = false;
+          }
+          _searchResults.addAll(page);
+          _searchOffset += page.length;
+        });
+      }
+    } catch (e, st) {
+      _logger.db('ERROR | _loadMoreSearch | $e', error: e, stackTrace: st);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingMoreSearch = false);
+      }
+    }
+  }
+
+  Future<void> _loadMoreCreators() async {
+    if (_loadingMoreCreators || !_hasMoreCreators) return;
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('Load more creators triggered', screen: 'FeedPage',
+        metadata: {'seenCount': _seenCreatorIds.length.toString()});
+    setState(() => _loadingMoreCreators = true);
+
+    final client = ref.read(supabaseClientProvider);
+    try {
+      _logger.db('BEFORE rpc | fn: generate_creators_personalized | p_exclude: ${_seenCreatorIds.length}');
+      final rpcRows = await client.rpc('generate_creators_personalized', params: {
+        'p_user_id': user.id,
+        'p_limit': _pageSize,
+        'p_exclude': _seenCreatorIds.toList(),
+      }) as List<dynamic>;
+      _logger.db('AFTER rpc | fn: generate_creators_personalized | rows: ${rpcRows.length}');
+
+      if (rpcRows.isEmpty) {
+        if (mounted) {
+          setState(() => _hasMoreCreators = false);
+        }
+        return;
+      }
+
+      final orderedIds = rpcRows
+          .map((r) => (r as Map<String, dynamic>)['creator_id'] as String)
+          .toList();
+
+      _logger.db('BEFORE | table: creator | op: SELECT IN | ids: ${orderedIds.length}');
+      final rows = await client
+          .from('creator')
+          .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+          .inFilter('id', orderedIds) as List<dynamic>;
+      _logger.db('AFTER | table: creator | rows: ${rows.length}');
+
+      final creatorMap = {
+        for (final r in rows)
+          (r as Map<String, dynamic>)['id'] as String: Creator.fromJson(r)
+      };
+      final page = orderedIds
+          .where((id) => creatorMap.containsKey(id))
+          .map((id) => creatorMap[id]!)
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          if (page.isEmpty || page.length < _pageSize) {
+            _hasMoreCreators = false;
+          }
+          _creators.addAll(page);
+          _seenCreatorIds.addAll(page.map((c) => c.id));
+        });
+      }
+    } catch (e, st) {
+      _logger.db('ERROR | _loadMoreCreators | $e', error: e, stackTrace: st);
+    } finally {
+      if (mounted) {
+        setState(() => _loadingMoreCreators = false);
+      }
+    }
+  }
+
   String _regionLabel() {
     if (_regionId == null) return 'Région ▾';
     final names = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
