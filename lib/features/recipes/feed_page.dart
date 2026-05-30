@@ -15,6 +15,10 @@ import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/tab_bar.dart';
 import 'domain/entities/recipe_tracking.dart';
+import '../../core/supabase_client.dart';
+import '../../providers/auth_provider.dart';
+import '../../shared/models/creator.dart';
+import '../../shared/models/recipe.dart';
 
 class FeedPage extends ConsumerStatefulWidget {
   final String? swapEntryId;
@@ -38,6 +42,24 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   int _tabIndex = 0;
 
+  // ---- Recipe feed pagination (personalized) ----
+  List<Recipe> _recipes = [];
+  bool _hasMoreRecipes = true;
+  bool _loadingMoreRecipes = false;
+  Set<String> _seenRecipeIds = {};
+
+  // ---- Recipe feed pagination (search) ----
+  List<Recipe> _searchResults = [];
+  bool _hasMoreSearch = true;
+  bool _loadingMoreSearch = false;
+  int _searchOffset = 0;
+
+  // ---- Creator feed pagination ----
+  List<Creator> _creators = [];
+  bool _hasMoreCreators = true;
+  bool _loadingMoreCreators = false;
+  Set<String> _seenCreatorIds = {};
+
   bool get _hasActiveFilter =>
       _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
 
@@ -54,6 +76,24 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     _searchCtrl.dispose();
     _logger.provider('FeedPage disposed');
     super.dispose();
+  }
+
+  void _resetRecipes() {
+    _recipes.clear();
+    _seenRecipeIds.clear();
+    _hasMoreRecipes = true;
+    _loadingMoreRecipes = false;
+    _searchResults.clear();
+    _searchOffset = 0;
+    _hasMoreSearch = true;
+    _loadingMoreSearch = false;
+  }
+
+  void _resetCreators() {
+    _creators.clear();
+    _seenCreatorIds.clear();
+    _hasMoreCreators = true;
+    _loadingMoreCreators = false;
   }
 
   String _regionLabel() {
