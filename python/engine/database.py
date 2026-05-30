@@ -17,11 +17,6 @@ def get_conn():
     return psycopg2.connect(DATABASE_URL)
 
 
-def get_conn():
-    """Retourne une connexion PostgreSQL."""
-    return psycopg2.connect(DATABASE_URL)
-
-
 # ---------------------------------------------------------------------------
 # User helpers
 # ---------------------------------------------------------------------------
