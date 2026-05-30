@@ -18,32 +18,61 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
   _logger.provider('creatorsListProvider build()');
   ref.onDispose(() => _logger.provider('creatorsListProvider disposed'));
 
+  final user = ref.watch(currentUserProvider);
+  if (user == null) {
+    _logger.provider('creatorsListProvider EARLY RETURN | reason: no authenticated user');
+    return [];
+  }
+
   final client = ref.watch(supabaseClientProvider);
-  _logger.db('BEFORE | table: creator | op: SELECT | order: recipe_count DESC | limit: 50');
 
   try {
+    // Step 1: get personalized ordering from RPC (cold start falls back to fan_count)
+    _logger.db('BEFORE rpc | fn: generate_creators_personalized | userId: ${user.id}');
+    final rpcRows = await client.rpc('generate_creators_personalized', params: {
+      'p_user_id': user.id,
+      'p_limit': 20,
+    }) as List<dynamic>;
+    _logger.db('AFTER rpc | fn: generate_creators_personalized | rows: ${rpcRows.length}');
+
+    if (rpcRows.isEmpty) {
+      _logger.provider('creatorsListProvider → data | count: 0');
+      return [];
+    }
+
+    final orderedIds = rpcRows
+        .map((r) => (r as Map<String, dynamic>)['creator_id'] as String)
+        .toList();
+
+    // Step 2: fetch full creator data for those IDs
+    _logger.db('BEFORE | table: creator | op: SELECT IN | ids: ${orderedIds.length}');
     final rows = await client
         .from('creator')
         .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
-        .order('recipe_count', ascending: false)
-        .limit(50) as List<dynamic>;
-
+        .inFilter('id', orderedIds) as List<dynamic>;
     _logger.db('AFTER | table: creator | rows: ${rows.length}');
 
-    if (rows.isEmpty) {
+    // Step 3: re-apply RPC order (IN clause doesn't preserve order)
+    final creatorMap = {
+      for (final r in rows)
+        (r as Map<String, dynamic>)['id'] as String: Creator.fromJson(r)
+    };
+
+    final list = orderedIds
+        .where((id) => creatorMap.containsKey(id))
+        .map((id) => creatorMap[id]!)
+        .toList();
+
+    if (list.isEmpty) {
       _logger.rls('Zero rows | table: creator | possible RLS block');
     }
-
-    final list = rows
-        .map((e) => Creator.fromJson(e as Map<String, dynamic>))
-        .toList();
     _logger.provider('creatorsListProvider → data | count: ${list.length}');
     return list;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      _logger.rls('Permission denied | table: creator', error: e, stackTrace: st);
+      _logger.rls('Permission denied | rpc: generate_creators_personalized', error: e, stackTrace: st);
     } else {
-      _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      _logger.db('ERROR | rpc: generate_creators_personalized | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     _logger.provider('creatorsListProvider → error | ${e.message}');
     rethrow;
