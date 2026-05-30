@@ -73,7 +73,7 @@ serve(async (req) => {
       }
 
       const batchEnabled = profileData?.batch_cooking_enabled ?? false;
-      const maxPortions = profileData?.batch_cooking_max_portions ?? 7;
+      const maxPortions = profileData?.batch_cooking_max_portions ?? 4;
       logger.debug("[STEP 3.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions);
 
       if (batchEnabled) {

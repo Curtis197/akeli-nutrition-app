@@ -1,6 +1,5 @@
 // lib/shared/models/user_preferences.dart
 
-// ignore: unused_import
 import 'package:akeli/core/logger.dart';
 
 class UserPreferencesModel {
@@ -38,8 +37,9 @@ class UserPreferencesModel {
     List<String>? allergies,
     bool clearCookingTime = false,
     bool clearCuisineRegion = false,
-  }) =>
-      UserPreferencesModel(
+  }) {
+    appLogger.d('UserPreferencesModel.copyWith | batchEnabled: ${batchCookingEnabled ?? this.batchCookingEnabled}');
+    return UserPreferencesModel(
         cookingTime: clearCookingTime ? null : (cookingTime ?? this.cookingTime),
         batchCookingEnabled: batchCookingEnabled ?? this.batchCookingEnabled,
         batchMaxPortions: batchMaxPortions ?? this.batchMaxPortions,
@@ -50,4 +50,5 @@ class UserPreferencesModel {
         noLactose: noLactose ?? this.noLactose,
         allergies: allergies ?? this.allergies,
       );
+  }
 }
