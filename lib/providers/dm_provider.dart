@@ -70,7 +70,7 @@ class DmRequest {
     return DmRequest(
       requestId: json['id'] as String,
       requesterId: json['requester_id'] as String,
-      requesterName: profile?['display_name'] as String? ?? 'Utilisateur',
+      requesterName: profile?['first_name'] as String? ?? 'Utilisateur',
       requesterAvatar: profile?['avatar_url'] as String?,
       message: json['message'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -98,7 +98,7 @@ class GroupMember {
     final profile = json['user_profile'] as Map<String, dynamic>?;
     return GroupMember(
       userId: json['user_id'] as String,
-      displayName: profile?['display_name'] as String? ?? 'Utilisateur',
+      displayName: profile?['first_name'] as String? ?? 'Utilisateur',
       avatarUrl: profile?['avatar_url'] as String?,
       role: json['role'] as String? ?? 'member',
       joinedAt: DateTime.parse(json['joined_at'] as String),
@@ -138,7 +138,7 @@ class ChatMessage {
       id: json['id'] as String,
       conversationId: json['conversation_id'] as String,
       senderId: senderId,
-      senderName: profile?['display_name'] as String? ?? 'Utilisateur',
+      senderName: profile?['first_name'] as String? ?? 'Utilisateur',
       senderAvatar: profile?['avatar_url'] as String?,
       content: json['content'] as String,
       sentAt: DateTime.parse(json['sent_at'] as String),
@@ -268,7 +268,7 @@ final myPrivateConversationsProvider =
   logger.db('BEFORE | table: conversation_participant | op: SELECT others batch | convs: ${convIds.length}');
   final allOthers = await client
       .from('conversation_participant')
-      .select('conversation_id, user_id, user_profile:user_id(display_name, avatar_url)')
+      .select('conversation_id, user_id, user_profile:user_id(first_name, avatar_url)')
       .inFilter('conversation_id', convIds)
       .neq('user_id', user.id) as List<dynamic>;
   logger.db('AFTER | table: conversation_participant | others rows: ${allOthers.length}');
@@ -317,7 +317,7 @@ final myPrivateConversationsProvider =
         return DmConversation.fromParts(
           conversationId: convId,
           otherUserId: otherRow?['user_id'] as String? ?? '',
-          otherUserName: otherProfile?['display_name'] as String? ?? 'Utilisateur',
+          otherUserName: otherProfile?['first_name'] as String? ?? 'Utilisateur',
           otherUserAvatar: otherProfile?['avatar_url'] as String?,
           lastMessage: lastMessageMap[convId],
           updatedAt: DateTime.parse(conv['updated_at'] as String),
@@ -348,7 +348,7 @@ final pendingDmRequestsProvider =
     final rows = await client
         .from('conversation_request')
         .select(
-            'id, requester_id, message, created_at, user_profile:requester_id(display_name, avatar_url)')
+            'id, requester_id, message, created_at, user_profile:requester_id(first_name, avatar_url)')
         .eq('recipient_id', user.id)
         .eq('status', 'pending')
         .order('created_at', ascending: false) as List<dynamic>;
@@ -397,7 +397,7 @@ final groupMembersProvider =
     final rows = await client
         .from('group_member')
         .select(
-            'user_id, role, joined_at, user_profile:user_id(display_name, avatar_url)')
+            'user_id, role, joined_at, user_profile:user_id(first_name, avatar_url)')
         .eq('group_id', groupId)
         .order('joined_at', ascending: true) as List<dynamic>;
 
@@ -854,11 +854,11 @@ Future<String> createGroup(
     });
 
     // 3. Create conversation for the group
-    logger.db('BEFORE | table: conversation | op: INSERT | type: group');
+    logger.db('BEFORE | table: conversation | op: INSERT | type: creator_group');
     final convResult = await client
         .from('conversation')
         .insert({
-          'type': 'group',
+          'type': 'creator_group',
           'community_group_id': groupId,
           'created_by': userId,
         })
@@ -884,3 +884,102 @@ Future<String> createGroup(
     rethrow;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Group details — for the edit sheet and admin check
+// ---------------------------------------------------------------------------
+
+final groupDetailsProvider =
+    FutureProvider.autoDispose.family<Map<String, dynamic>?, String>((ref, groupId) async {
+  appLogger.provider('groupDetailsProvider build() | groupId: $groupId');
+  ref.onDispose(() => appLogger.provider('groupDetailsProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db('BEFORE | table: community_group | op: SELECT | groupId: $groupId');
+
+  try {
+    final data = await client
+        .from('community_group')
+        .select('id, name, description, is_public, creator_id')
+        .eq('id', groupId)
+        .maybeSingle();
+    appLogger.db('AFTER | table: community_group | rows: ${data == null ? 0 : 1}');
+    if (data == null) appLogger.rls('Zero rows | table: community_group | groupId: $groupId | possible RLS block');
+    return data;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: community_group | groupId: $groupId', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: community_group | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
+
+Future<void> updateGroup(
+  WidgetRef ref, {
+  required String groupId,
+  required String name,
+  String? description,
+  required bool isPublic,
+}) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) throw Exception('User not logged in');
+
+  logger.userAction('Update group', metadata: {'groupId': groupId, 'name': name});
+  logger.db('BEFORE | table: community_group | op: UPDATE | groupId: $groupId');
+
+  try {
+    await client.from('community_group').update({
+      'name': name,
+      'description': description?.isNotEmpty == true ? description : null,
+      'is_public': isPublic,
+    }).eq('id', groupId).eq('creator_id', userId);
+    logger.db('AFTER | table: community_group | op: UPDATE | groupId: $groupId');
+    ref.invalidate(groupDetailsProvider(groupId));
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | table: community_group | UPDATE | groupId: $groupId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | table: community_group | UPDATE | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Group Invitations
+// ---------------------------------------------------------------------------
+
+/// Pending invites sent for a group (admin view)
+final pendingGroupInvitesProvider =
+    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
+  final logger = appLogger;
+  logger.provider('pendingGroupInvitesProvider build() | groupId: $groupId');
+  ref.onDispose(() => logger.provider('pendingGroupInvitesProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  logger.db('BEFORE | table: group_invite | op: SELECT | groupId: $groupId');
+
+  try {
+    final rows = await client
+        .from('group_invite')
+        .select('invitee_id')
+        .eq('group_id', groupId)
+        .eq('status', 'pending') as List<dynamic>;
+
+    logger.db('AFTER | table: group_invite | rows: ${rows.length}');
+    
+    final invites = rows.map((row) => row['invitee_id'] as String).toList();
+    return invites;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | table: group_invite | SELECT | groupId: $groupId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | table: group_invite | SELECT | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
