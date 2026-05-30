@@ -51,3 +51,6 @@ verify_jwt = false
 
 [functions.notify-group-message]
 verify_jwt = true
+
+[functions.invite-to-group]
+verify_jwt = true
