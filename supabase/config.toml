@@ -48,3 +48,6 @@ verify_jwt = false
 
 [functions.translate-content]
 verify_jwt = false
+
+[functions.notify-group-message]
+verify_jwt = true
