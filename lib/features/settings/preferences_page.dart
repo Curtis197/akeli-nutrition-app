@@ -415,8 +415,8 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
         );
         context.pop();
       }
-    } catch (e) {
-      _logger.provider('PreferencesPage save error | $e');
+    } catch (e, st) {
+      _logger.provider('PreferencesPage save error | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur: $e')),
