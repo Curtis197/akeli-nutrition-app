@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -193,6 +194,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       _logger.db('AFTER rpc | fn: generate_creators_personalized | rows: ${rpcRows.length}');
 
       if (rpcRows.isEmpty) {
+        _logger.rls('Zero rows | table: generate_creators_personalized | userId: ${user.id} | possible RLS block');
         if (mounted) {
           setState(() => _hasMoreCreators = false);
         }
@@ -209,6 +211,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
           .inFilter('id', orderedIds) as List<dynamic>;
       _logger.db('AFTER | table: creator | rows: ${rows.length}');
+
+      if (rows.isEmpty) {
+        _logger.rls('Zero rows | table: creator | userId: ${user.id} | possible RLS block');
+      }
 
       final creatorMap = {
         for (final r in rows)
@@ -227,6 +233,12 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           _creators.addAll(page);
           _seenCreatorIds.addAll(page.map((c) => c.id));
         });
+      }
+    } on PostgrestException catch (e, st) {
+      if (e.code == '42501') {
+        _logger.rls('Permission denied | table: creator | userId: ${user.id}', error: e, stackTrace: st);
+      } else {
+        _logger.db('ERROR | table: creator | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
       }
     } catch (e, st) {
       _logger.db('ERROR | _loadMoreCreators | $e', error: e, stackTrace: st);
