@@ -708,8 +708,36 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               onRetry: () => ref.invalidate(feedProvider),
             ),
           ),
-          data: (recipes) {
-            if (recipes.isEmpty) {
+          data: (initialPage) {
+            if (isSearching) {
+              if (_searchResults.isEmpty && initialPage.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && _searchResults.isEmpty) {
+                    setState(() {
+                      _searchResults.addAll(initialPage);
+                      _searchOffset = initialPage.length;
+                      _hasMoreSearch = initialPage.length == _pageSize;
+                    });
+                  }
+                });
+              }
+            } else {
+              if (_recipes.isEmpty && initialPage.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && _recipes.isEmpty) {
+                    setState(() {
+                      _recipes.addAll(initialPage);
+                      _seenRecipeIds.addAll(initialPage.map((r) => r.id));
+                      _hasMoreRecipes = initialPage.length == _pageSize;
+                    });
+                  }
+                });
+              }
+            }
+
+            final displayList = isSearching ? _searchResults : _recipes;
+
+            if (displayList.isEmpty) {
               return SliverFillRemaining(
                 child: EmptyState(
                   icon: Icons.restaurant_menu_rounded,
@@ -733,9 +761,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   mainAxisSpacing: AkeliSpacing.md,
                   childAspectRatio: 0.68,
                 ),
-                itemCount: recipes.length,
+                itemCount: displayList.length,
                 itemBuilder: (context, index) {
-                  final recipe = recipes[index];
+                  final recipe = displayList[index];
                   return AkeliRecipeCard(
                     hasImage: true,
                     title: recipe.title,
@@ -792,8 +820,22 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           onRetry: () => ref.invalidate(creatorsListProvider),
         ),
       ),
-      data: (creators) {
-        if (creators.isEmpty) {
+      data: (initialPage) {
+        if (_creators.isEmpty && initialPage.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && _creators.isEmpty) {
+              setState(() {
+                _creators.addAll(initialPage);
+                _seenCreatorIds.addAll(initialPage.map((c) => c.id));
+                _hasMoreCreators = initialPage.length == _pageSize;
+              });
+            }
+          });
+        }
+
+        final displayList = _creators;
+
+        if (displayList.isEmpty) {
           return const SliverFillRemaining(
             child: EmptyState(
               icon: Icons.person_rounded,
@@ -807,7 +849,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final creator = creators[index];
+                final creator = displayList[index];
                 return CreatorCard(
                   creator: creator,
                   regionName: creator.regionId != null
@@ -820,7 +862,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   },
                 );
               },
-              childCount: creators.length,
+              childCount: displayList.length,
             ),
           ),
         );
