@@ -38,6 +38,11 @@ serve(async (req) => {
       target_weight_kg,
       activity_level,
       goals,
+      weight_goal,
+      muscle_goal,
+      cooking_time,
+      batch_cooking_enabled,
+      batch_cooking_max_portions,
       dietary_restrictions,
       cuisine_preferences,
       consent_privacy_at,
@@ -78,6 +83,9 @@ serve(async (req) => {
         weight_kg,
         target_weight_kg,
         activity_level,
+        ...(weight_goal !== undefined && { weight_goal }),
+        ...(muscle_goal !== undefined && { muscle_goal }),
+        ...(cooking_time !== undefined && { cooking_time }),
       });
     logQueryResult(logger, "user_health_profile", "UPSERT", healthError ? 0 : 1, healthError ?? undefined);
     if (healthError) throw healthError;
@@ -148,6 +156,8 @@ serve(async (req) => {
         onboarding_done: true,
         consent_privacy_at,
         consent_cgu_at,
+        ...(batch_cooking_enabled !== undefined && { batch_cooking_enabled }),
+        ...(batch_cooking_max_portions !== undefined && { batch_cooking_max_portions }),
       })
       .eq("id", user.id);
     logQueryResult(logger, "user_profile", "UPDATE", profileUpdateError ? 0 : 1, profileUpdateError ?? undefined);
