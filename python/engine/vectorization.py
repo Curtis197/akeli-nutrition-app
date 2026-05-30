@@ -35,6 +35,7 @@ from .database import (
     get_user_health_profile,
     get_recipe_data,
     get_recipe_consumption_stats,
+    get_creator_recipe_vectors,   # new
 )
 
 VECTOR_DIM = 50
@@ -103,16 +104,32 @@ def _normalize_l2(v: np.ndarray) -> np.ndarray:
 def _infer_goals_from_profile(profile: dict) -> set:
     """Derive goal types from health metrics when explicit goals are absent."""
     goals = set()
-    weight = profile.get("weight_kg")
-    target = profile.get("target_weight_kg")
-    if weight is not None and target is not None:
-        delta = float(target) - float(weight)
-        if delta < -2:
-            goals.add("weight_loss")
-        elif delta > 2:
-            goals.add("muscle_gain")
-        else:
-            goals.add("maintenance")
+    weight_goal = profile.get("weight_goal")
+    muscle_goal = profile.get("muscle_goal")
+    if weight_goal == "loss":
+        goals.add("weight_loss")
+    elif weight_goal == "gain":
+        goals.add("muscle_gain")
+    elif weight_goal == "maintenance":
+        goals.add("maintenance")
+    if muscle_goal == "gain":
+        goals.add("muscle_gain")
+    elif muscle_goal == "loss":
+        goals.add("weight_loss")
+    elif muscle_goal == "maintenance":
+        goals.add("maintenance")
+    # Fall back to weight delta when new fields are absent (legacy profiles)
+    if not goals:
+        weight = profile.get("weight_kg")
+        target = profile.get("target_weight_kg")
+        if weight is not None and target is not None:
+            delta = float(target) - float(weight)
+            if delta < -2:
+                goals.add("weight_loss")
+            elif delta > 2:
+                goals.add("muscle_gain")
+            else:
+                goals.add("maintenance")
     goals.add("health")
     return goals
 
@@ -149,8 +166,16 @@ def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
         vector[DIM_CARB]        = max(vector[DIM_CARB], 0.7)
 
     # ---- Time/difficulty preference ----
-    # Less active users want quicker, easier recipes
-    vector[DIM_QUICK_MEAL]  = 1.0 - activity
+    cooking_time = profile.get("cooking_time")
+    if cooking_time == "quick":
+        vector[DIM_QUICK_MEAL] = 0.9
+    elif cooking_time == "medium":
+        vector[DIM_QUICK_MEAL] = 0.5
+    elif cooking_time == "any":
+        vector[DIM_QUICK_MEAL] = 0.3
+    else:
+        # Legacy profiles without cooking_time: derive from activity level
+        vector[DIM_QUICK_MEAL] = 1.0 - activity
     vector[DIM_DIFFICULTY]  = activity
 
     # ---- Neutral signals (user has no strong preference) ----
@@ -254,3 +279,35 @@ def compute_recipe_vector(recipe_id: str) -> Optional[np.ndarray]:
     vector[DIM_FAN_ELIGIBLE] = 1.0 if creator_count >= 30 else 0.0
 
     return _normalize_l2(vector)
+
+
+# ---------------------------------------------------------------------------
+# CREATOR VECTOR
+# ---------------------------------------------------------------------------
+
+def compute_creator_vector(creator_id: str) -> Optional[np.ndarray]:
+    """
+    Compute the creator vector as the L2-normalized average of all
+    published recipe vectors for this creator.
+
+    Lives in the same 50D semantic space as user_vector and recipe_vector,
+    so cosine similarity with user_vector is directly interpretable as
+    creator-user alignment.
+
+    Returns None if:
+    - no published recipe vectors exist yet for this creator
+    - the centroid has zero norm (degenerate case — all recipes all-zero)
+    """
+    recipe_vectors = get_creator_recipe_vectors(creator_id)
+    if not recipe_vectors:
+        return None
+
+    # Stack into matrix and compute unweighted mean — shape (50,)
+    matrix = np.stack(recipe_vectors, axis=0)                  # (N, 50)
+    centroid = np.mean(matrix, axis=0).astype(np.float32)      # (50,)
+
+    norm = np.linalg.norm(centroid)
+    if norm <= 1e-10:
+        return None
+
+    return centroid / norm
