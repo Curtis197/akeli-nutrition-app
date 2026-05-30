@@ -1,8 +1,10 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/dm_provider.dart';
 import '../../shared/widgets/chat_bubble.dart';
@@ -61,16 +63,35 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
     if (text.isEmpty || _resolvedConversationId == null) return;
     _logger.userAction('Message sent', screen: 'GroupChatPage', metadata: {
       'conversationId': _resolvedConversationId,
+      'groupId': widget.groupId,
       'length': text.length,
     });
     _controller.clear();
-    sendMessage(ref, _resolvedConversationId!, text).catchError((e) {
+    sendMessage(ref, _resolvedConversationId!, text).then((_) {
+      if (widget.groupId != null) {
+        _notifyGroupMembers(widget.groupId!, text);
+      }
+    }).catchError((e) {
       _logger.db('ERROR | sendMessage | $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Erreur lors de l'envoi")),
         );
       }
+    });
+  }
+
+  void _notifyGroupMembers(String groupId, String text) {
+    final preview = text.substring(0, min(100, text.length));
+    _logger.edge('notify-group-message', 'BEFORE | groupId: $groupId');
+    final client = ref.read(supabaseClientProvider);
+    client.functions.invoke(
+      'notify-group-message',
+      body: {'group_id': groupId, 'message_preview': preview},
+    ).then((_) {
+      _logger.edge('notify-group-message', 'AFTER | success');
+    }).catchError((Object e, StackTrace st) {
+      _logger.edge('notify-group-message', 'ERROR | $e', error: e, stackTrace: st);
     });
   }
 
