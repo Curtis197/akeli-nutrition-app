@@ -29,6 +29,7 @@ import '../features/support/support_page.dart';
 import '../features/legal/privacy_policy_page.dart';
 import '../features/legal/terms_of_service_page.dart';
 import '../features/referral/referral_page.dart';
+import '../features/settings/preferences_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import '../features/recipes/creator_detail_page.dart';
@@ -62,6 +63,7 @@ abstract class AkeliRoutes {
   static const privacyPolicy = "/privacy-policy";
   static const termsOfService = "/terms-of-service";
   static const referral = "/referral";
+  static const preferences = "/preferences";
   static const dmChat = '/dm/:conversationId';
   static String dmChatPath(String id) => '/dm/$id';
   static const creatorDetail = '/creators/:creatorId';
@@ -248,6 +250,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.referral,
         builder: (context, state) => const ReferralPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.preferences,
+        builder: (context, state) => const PreferencesPage(),
       ),
       GoRoute(
         path: AkeliRoutes.creatorDetail,

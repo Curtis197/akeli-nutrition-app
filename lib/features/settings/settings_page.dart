@@ -266,6 +266,14 @@ class SettingsPage extends ConsumerWidget {
                             context.push(AkeliRoutes.fanMode);
                           },
                         ),
+                        _MenuItem(
+                          icon: Icons.tune_rounded,
+                          label: 'Préférences',
+                          onTap: () {
+                            appLogger.userAction('Preferences menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.preferences);
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
