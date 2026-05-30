@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 import numpy as np
 
-from engine.vectorization import compute_user_vector, compute_recipe_vector, VECTOR_DIM
+from engine.vectorization import compute_user_vector, compute_recipe_vector, compute_creator_vector, VECTOR_DIM
 
 @patch("engine.vectorization.get_user_behavior")
 @patch("engine.vectorization.get_user_health_profile")
@@ -110,7 +110,6 @@ def test_upsert_creator_vector_signature():
 @patch("engine.vectorization.get_creator_recipe_vectors")
 def test_compute_creator_vector_success(mock_get_vectors):
     """Returns L2-normalized 50D centroid of recipe vectors."""
-    from engine.vectorization import compute_creator_vector
     # Two recipe vectors with known values
     v1 = np.zeros(50, dtype=np.float32)
     v1[0] = 1.0
@@ -133,7 +132,6 @@ def test_compute_creator_vector_success(mock_get_vectors):
 @patch("engine.vectorization.get_creator_recipe_vectors")
 def test_compute_creator_vector_no_recipes(mock_get_vectors):
     """Returns None when creator has no recipe vectors."""
-    from engine.vectorization import compute_creator_vector
     mock_get_vectors.return_value = []
 
     result = compute_creator_vector("creator_no_recipes")
@@ -144,7 +142,6 @@ def test_compute_creator_vector_no_recipes(mock_get_vectors):
 @patch("engine.vectorization.get_creator_recipe_vectors")
 def test_compute_creator_vector_single_recipe(mock_get_vectors):
     """Single recipe vector — centroid equals that recipe vector (normalized)."""
-    from engine.vectorization import compute_creator_vector
     v = np.zeros(50, dtype=np.float32)
     v[10] = 1.0  # only region dim — already normalized (norm=1)
     mock_get_vectors.return_value = [v]
@@ -159,7 +156,6 @@ def test_compute_creator_vector_single_recipe(mock_get_vectors):
 @patch("engine.vectorization.get_creator_recipe_vectors")
 def test_compute_creator_vector_zero_norm(mock_get_vectors):
     """Returns None if centroid is all-zeros (degenerate case)."""
-    from engine.vectorization import compute_creator_vector
     v = np.zeros(50, dtype=np.float32)
     mock_get_vectors.return_value = [v]
 

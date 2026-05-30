@@ -310,4 +310,4 @@ def compute_creator_vector(creator_id: str) -> Optional[np.ndarray]:
     if norm <= 1e-10:
         return None
 
-    return centroid / norm
+    return (centroid / norm).astype(np.float32)
