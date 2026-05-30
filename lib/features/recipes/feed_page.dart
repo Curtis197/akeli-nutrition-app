@@ -414,6 +414,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                             _maxTimeMin = tempTime;
                             _minCal = tempMinCal;
                             _maxCal = tempMaxCal;
+                            _resetRecipes();
                           });
                           Navigator.pop(context);
                         },
@@ -446,7 +447,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         onSelect: (key) {
           _logger.userAction('Sort selected', screen: 'FeedPage',
               metadata: {'orderBy': key});
-          setState(() => _orderBy = key);
+          setState(() {
+            _orderBy = key;
+            _resetRecipes();
+          });
         },
       ),
     );
@@ -518,7 +522,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     onTabSelected: (i) {
                       _logger.userAction('Feed tab selected', screen: 'FeedPage',
                           metadata: {'tabIndex': i.toString()});
-                      setState(() => _tabIndex = i);
+                      setState(() {
+                        _tabIndex = i;
+                        _resetRecipes();
+                        _resetCreators();
+                      });
                     },
                   ),
                 ),
@@ -545,13 +553,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                         onPressed: () {
                                           _logger.userAction('Search cleared', screen: 'FeedPage');
                                           _searchCtrl.clear();
-                                          setState(() => _searchQuery = '');
+                                          setState(() {
+                                            _searchQuery = '';
+                                            _resetRecipes();
+                                          });
                                         },
                                       )
                                     ]
                                   : null,
                               onChanged: (v) {
-                                setState(() => _searchQuery = v);
+                                setState(() {
+                                  _searchQuery = v;
+                                  _resetRecipes();
+                                });
                               },
                               elevation: const WidgetStatePropertyAll(0),
                               padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
@@ -610,21 +624,30 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           if (_regionId != null) ...[
                             _ActiveFilterChip(
                               label: _regionLabel(),
-                              onDeleted: () => setState(() => _regionId = null),
+                              onDeleted: () => setState(() {
+                                _regionId = null;
+                                _resetRecipes();
+                              }),
                             ),
                             const SizedBox(width: 8),
                           ],
                           if (_difficulty != null) ...[
                             _ActiveFilterChip(
                               label: _difficultyLabel(),
-                              onDeleted: () => setState(() => _difficulty = null),
+                              onDeleted: () => setState(() {
+                                _difficulty = null;
+                                _resetRecipes();
+                              }),
                             ),
                             const SizedBox(width: 8),
                           ],
                           if (_maxTimeMin != null) ...[
                             _ActiveFilterChip(
                               label: _timeLabel(),
-                              onDeleted: () => setState(() => _maxTimeMin = null),
+                              onDeleted: () => setState(() {
+                                _maxTimeMin = null;
+                                _resetRecipes();
+                              }),
                             ),
                             const SizedBox(width: 8),
                           ],
@@ -634,6 +657,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                               onDeleted: () => setState(() {
                                 _minCal = null;
                                 _maxCal = null;
+                                _resetRecipes();
                               }),
                             ),
                             const SizedBox(width: 8),
@@ -641,7 +665,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           if (_orderBy != null) ...[
                             _ActiveFilterChip(
                               label: _sortLabel(),
-                              onDeleted: () => setState(() => _orderBy = null),
+                              onDeleted: () => setState(() {
+                                _orderBy = null;
+                                _resetRecipes();
+                              }),
                             ),
                             const SizedBox(width: 8),
                           ],
@@ -654,6 +681,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                                 _minCal = null;
                                 _maxCal = null;
                                 _orderBy = null;
+                                _resetRecipes();
                               });
                             },
                             child: const Text('Tout effacer', style: TextStyle(fontSize: 13)),
