@@ -6,6 +6,7 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
@@ -19,6 +20,12 @@ class GroupDetailPage extends ConsumerWidget {
     appLogger.provider('GroupDetailPage build() | groupId: $groupId');
     final membersAsync = ref.watch(groupMembersProvider(groupId));
     final currentUserId = ref.watch(currentUserProvider)?.id;
+
+    bool isAdmin = false;
+    membersAsync.whenData((members) {
+      final me = members.where((m) => m.userId == currentUserId).firstOrNull;
+      if (me?.role == 'admin') isAdmin = true;
+    });
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -60,16 +67,14 @@ class GroupDetailPage extends ConsumerWidget {
                   const SizedBox(height: AkeliSpacing.lg),
                   AkeliSectionHeader(
                     title: 'Membres',
-                    trailingLabel: 'Inviter',
-                    onTrailingTap: () {
-                      appLogger.userAction('Invite tapped',
-                          screen: 'GroupDetailPage');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('Inviter un ami — bientôt disponible')),
-                      );
-                    },
+                    trailingLabel: isAdmin ? 'Inviter' : null,
+                    onTrailingTap: isAdmin
+                        ? () {
+                            appLogger.userAction('Invite tapped',
+                                screen: 'GroupDetailPage');
+                            _showInviteSheet(context, ref, groupId);
+                          }
+                        : null,
                   ),
                   const SizedBox(height: 12),
                   membersAsync.when(
@@ -159,6 +164,164 @@ class GroupDetailPage extends ConsumerWidget {
         );
       }
     }
+  }
+}
+
+void _showInviteSheet(BuildContext context, WidgetRef ref, String groupId) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) => _InviteSheet(groupId: groupId),
+  );
+}
+
+class _InviteSheet extends ConsumerStatefulWidget {
+  final String groupId;
+  const _InviteSheet({required this.groupId});
+
+  @override
+  ConsumerState<_InviteSheet> createState() => _InviteSheetState();
+}
+
+class _InviteSheetState extends ConsumerState<_InviteSheet> {
+  final Set<String> _selectedUserIds = {};
+  bool _isSubmitting = false;
+
+  Future<void> _submit() async {
+    if (_selectedUserIds.isEmpty) return;
+    setState(() => _isSubmitting = true);
+
+    appLogger.userAction('Submit group invites',
+        screen: 'GroupDetailPage',
+        metadata: {
+          'count': _selectedUserIds.length.toString(),
+          'groupId': widget.groupId,
+        });
+
+    try {
+      final client = ref.read(supabaseClientProvider);
+      await client.functions.invoke(
+        'invite-to-group',
+        body: {
+          'group_id': widget.groupId,
+          'user_ids': _selectedUserIds.toList(),
+        },
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Invitations envoyées')),
+        );
+      }
+    } catch (e, st) {
+      appLogger.db('ERROR | invoke invite-to-group | $e',
+          error: e, stackTrace: st);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: $e')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dmsAsync = ref.watch(myPrivateConversationsProvider);
+    final membersAsync = ref.watch(groupMembersProvider(widget.groupId));
+    final pendingInvitesAsync =
+        ref.watch(pendingGroupInvitesProvider(widget.groupId));
+
+    return Container(
+      padding: const EdgeInsets.all(AkeliSpacing.md),
+      height: MediaQuery.of(context).size.height * 0.75,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Inviter des membres',
+                  style: Theme.of(context).textTheme.titleLarge),
+              IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context)),
+            ],
+          ),
+          const SizedBox(height: AkeliSpacing.md),
+          Expanded(
+            child: dmsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text('Erreur: $e')),
+              data: (dms) {
+                final members = membersAsync.valueOrNull ?? [];
+                final memberIds = members.map((m) => m.userId).toSet();
+
+                final pendingInvites = pendingInvitesAsync.valueOrNull ?? [];
+                final pendingIds = pendingInvites.toSet();
+
+                final eligibleDms = dms.where((dm) {
+                  return !memberIds.contains(dm.otherUserId) &&
+                      !pendingIds.contains(dm.otherUserId);
+                }).toList();
+
+                if (eligibleDms.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.person_search,
+                    title: 'Aucun contact éligible',
+                    subtitle:
+                        "Vous n'avez pas encore de conversations privées avec des utilisateurs à inviter.",
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: eligibleDms.length,
+                  itemBuilder: (context, index) {
+                    final dm = eligibleDms[index];
+                    final isSelected =
+                        _selectedUserIds.contains(dm.otherUserId);
+                    return CheckboxListTile(
+                      value: isSelected,
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            _selectedUserIds.add(dm.otherUserId);
+                          } else {
+                            _selectedUserIds.remove(dm.otherUserId);
+                          }
+                        });
+                      },
+                      title: Text(dm.otherUserName),
+                      secondary: AkeliAvatar(
+                        imageUrl: dm.otherUserAvatar,
+                        initials: dm.otherUserName.isNotEmpty
+                            ? dm.otherUserName[0].toUpperCase()
+                            : '?',
+                        size: AvatarSize.sm,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          FilledButton(
+            onPressed:
+                _selectedUserIds.isEmpty || _isSubmitting ? null : _submit,
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white))
+                : Text('Inviter (${_selectedUserIds.length})'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
