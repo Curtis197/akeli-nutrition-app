@@ -1,7 +1,16 @@
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { createLogger } from '../_shared/logger.ts'
+import { createLogger, logRLSCheck, logQueryResult } from '../_shared/logger.ts'
 
-const BATCH_SIZE = 500;
+const BATCH_SIZE = 100;
+
+function timingSafeEqual(a: string, b: string): boolean {
+  const aBytes = new TextEncoder().encode(a);
+  const bBytes = new TextEncoder().encode(b);
+  if (aBytes.length !== bBytes.length) return false;
+  let diff = 0;
+  for (let i = 0; i < aBytes.length; i++) diff |= aBytes[i] ^ bBytes[i];
+  return diff === 0;
+}
 
 Deno.serve(async (req: Request): Promise<Response> => {
   const logger = createLogger('batch-generate-meal-plans');
@@ -12,7 +21,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   const secret = Deno.env.get('INTERNAL_SECRET');
   const authHeader = req.headers.get('Authorization');
-  if (!secret || authHeader !== `Bearer ${secret}`) {
+  if (!secret || !authHeader || !timingSafeEqual(authHeader, `Bearer ${secret}`)) {
     logger.warn('EARLY RETURN | reason: unauthorized');
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -33,10 +42,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
-    const { data: users, error: usersError } = await supabase
+    logRLSCheck(logger, 'user_profile', 'SELECT', 'service_role');
+    const { data, error: usersError } = await supabase
       .from('user_profile')
       .select('id')
       .range(offset, offset + BATCH_SIZE - 1);
+    logQueryResult(logger, 'user_profile', 'SELECT', data?.length ?? 0, usersError ?? undefined);
 
     if (usersError) {
       logger.error('💥 Failed to fetch users', { message: usersError.message });
@@ -45,6 +56,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
         headers: { 'Content-Type': 'application/json' },
       });
     }
+
+    const users = data ?? [];
 
     logger.info('[STEP 3] Processing ' + users.length + ' users | start_date: ' + nextMonday);
 
@@ -58,9 +71,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const { error } = await supabase.rpc('generate_meal_plan_internal', {
         p_user_id: user.id,
         p_start_date: nextMonday,
+        p_days: 7,
+        p_meals_per_day: 3,
       });
       if (error) {
-        if (error.message.includes('insufficient_recipes')) {
+        if (error.code === 'P0001' && error.message.includes('insufficient_recipes')) {
           skipped++;
           logger.warn('Skipped | userId: ' + user.id + ' | reason: insufficient_recipes');
         } else {
@@ -82,7 +97,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (users.length === BATCH_SIZE) {
       const nextOffset = offset + BATCH_SIZE;
       logger.info('[STEP 5] Self-chaining | next offset: ' + nextOffset);
-      fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/batch-generate-meal-plans`, {
+      fetch(`${Deno.env.get('SUPABASE_URL')!.replace(/\/$/, '')}/functions/v1/batch-generate-meal-plans`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,8 +125,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
 function getNextMonday(): string {
   const today = new Date();
-  const dayOfWeek = today.getUTCDay(); // 0 = Sunday
-  const daysUntilMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
+  const dayOfWeek = today.getUTCDay(); // 0=Sunday, 1=Monday
+  // If Sunday → tomorrow (1); if Monday → today (0); otherwise → coming Monday
+  const daysUntilMonday = dayOfWeek === 0 ? 1 : dayOfWeek === 1 ? 0 : 8 - dayOfWeek;
   const nextMonday = new Date(today);
   nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
   return nextMonday.toISOString().split('T')[0];
