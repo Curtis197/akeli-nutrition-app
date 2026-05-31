@@ -1,0 +1,26 @@
+-- Register weekly batch meal plan generation cron job.
+-- Fires every Sunday at 23:00 UTC and calls the batch-generate-meal-plans edge function.
+--
+-- The INTERNAL_SECRET must be stored in the Supabase Vault under the name 'INTERNAL_SECRET'
+-- before this migration is applied. Set it via:
+--   supabase secrets set INTERNAL_SECRET=<value> --project-ref <project-ref>
+-- Then insert into vault:
+--   SELECT vault.create_secret('<value>', 'INTERNAL_SECRET', 'Internal secret for cron auth');
+--
+-- The cron job uses vault.decrypted_secrets to read the secret at runtime so the
+-- plaintext value is never stored in pg_cron.job.command.
+
+SELECT cron.schedule(
+  'batch-generate-meal-plans-weekly',
+  '0 23 * * 0',
+  $$
+  SELECT net.http_post(
+    url     := 'https://njzqcftjzskwcpforwzf.supabase.co/functions/v1/batch-generate-meal-plans',
+    headers := jsonb_build_object(
+      'Content-Type',  'application/json',
+      'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'INTERNAL_SECRET' LIMIT 1)
+    ),
+    body    := '{}'::jsonb
+  ) AS request_id;
+  $$
+);
