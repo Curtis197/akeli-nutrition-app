@@ -17,11 +17,18 @@ class RatingBottomSheet extends ConsumerStatefulWidget {
 
 class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
   final _logger = appLogger;
+  final _commentController = TextEditingController();
 
   int? _rating;
   int? _ratingTaste;
   int? _ratingEase;
   int? _ratingSatiety;
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
 
   Future<void> _submit() async {
     if (_rating == null) return;
@@ -35,6 +42,7 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
           ratingTaste: _ratingTaste,
           ratingEase: _ratingEase,
           ratingSatiety: _ratingSatiety,
+          comment: _commentController.text.trim().isNotEmpty ? _commentController.text.trim() : null,
         );
     if (mounted && ref.read(ratingProvider).hasValue && !ref.read(ratingProvider).hasError) {
       Navigator.of(context).pop();
@@ -113,6 +121,30 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
             label: 'Satiété',
             value: _ratingSatiety,
             onChanged: (v) => setState(() => _ratingSatiety = v),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _commentController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Laisser un commentaire (optionnel)',
+              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AkeliColors.textSecondary,
+                  ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AkeliColors.outline),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AkeliColors.outline),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: const BorderSide(color: AkeliColors.primary),
+              ),
+              contentPadding: const EdgeInsets.all(16),
+            ),
           ),
           const SizedBox(height: 32),
           Row(

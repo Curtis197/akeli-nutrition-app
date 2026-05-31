@@ -743,6 +743,7 @@ Future<void> sendMessage(WidgetRef ref, String conversationId, String content) a
     rethrow;
   }
 
+  ref.invalidate(chatMessagesProvider(conversationId));
   ref.invalidate(myPrivateConversationsProvider);
 }
 
@@ -821,6 +822,8 @@ Future<String> createGroup(
   required String name,
   String? description,
   bool isPublic = true,
+  Uint8List? coverImageBytes,
+  String? coverImageExtension,
 }) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
@@ -832,6 +835,25 @@ Future<String> createGroup(
   try {
     // 1. Create group
     logger.db('BEFORE | table: community_group | op: INSERT');
+    
+    // Upload image if provided
+    String? coverUrl;
+    if (coverImageBytes != null && coverImageExtension != null) {
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_$userId.$coverImageExtension';
+      final imagePath = 'covers/$fileName';
+      logger.db('BEFORE | storage: group_covers | op: UPLOAD | path: $imagePath');
+      await client.storage.from('group_covers').uploadBinary(
+        imagePath,
+        coverImageBytes,
+        fileOptions: FileOptions(
+          upsert: true,
+          contentType: 'image/$coverImageExtension',
+        ),
+      );
+      coverUrl = client.storage.from('group_covers').getPublicUrl(imagePath);
+      logger.db('AFTER | storage: group_covers | op: UPLOAD | url: $coverUrl');
+    }
+
     final groupResult = await client
         .from('community_group')
         .insert({
@@ -839,6 +861,7 @@ Future<String> createGroup(
           'description': description?.isNotEmpty == true ? description : null,
           'is_public': isPublic,
           'creator_id': userId,
+          if (coverUrl != null) 'cover_url': coverUrl,
         })
         .select('id')
         .single();
@@ -885,6 +908,52 @@ Future<String> createGroup(
   }
 }
 
+/// Updates the cover image of a community group.
+Future<void> updateGroupCover(
+  WidgetRef ref,
+  String groupId,
+  Uint8List imageBytes,
+  String extension,
+) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) throw Exception('User not logged in');
+
+  logger.db('BEFORE | updateGroupCover | groupId: $groupId');
+
+  try {
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}_$userId.$extension';
+    final imagePath = 'covers/$fileName';
+    
+    logger.db('BEFORE | storage: group_covers | op: UPLOAD | path: $imagePath');
+    await client.storage.from('group_covers').uploadBinary(
+      imagePath,
+      imageBytes,
+      fileOptions: FileOptions(
+        upsert: true,
+        contentType: 'image/$extension',
+      ),
+    );
+    final coverUrl = client.storage.from('group_covers').getPublicUrl(imagePath);
+    logger.db('AFTER | storage: group_covers | op: UPLOAD | url: $coverUrl');
+
+    logger.db('BEFORE | table: community_group | op: UPDATE | cover_url');
+    await client
+        .from('community_group')
+        .update({'cover_url': coverUrl})
+        .eq('id', groupId);
+    logger.db('AFTER | table: community_group | op: UPDATE | cover_url');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | updateGroupCover', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | updateGroupCover | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Group details — for the edit sheet and admin check
 // ---------------------------------------------------------------------------
@@ -900,7 +969,7 @@ final groupDetailsProvider =
   try {
     final data = await client
         .from('community_group')
-        .select('id, name, description, is_public, creator_id')
+        .select('id, name, description, is_public, creator_id, region_code, language, topic, max_members, member_count, cover_url')
         .eq('id', groupId)
         .maybeSingle();
     appLogger.db('AFTER | table: community_group | rows: ${data == null ? 0 : 1}');
@@ -922,22 +991,39 @@ Future<void> updateGroup(
   required String name,
   String? description,
   required bool isPublic,
+  String? regionId,
+  String? language,
+  String? topic,
+  int? maxMembers,
 }) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
   if (userId == null) throw Exception('User not logged in');
 
-  logger.userAction('Update group', metadata: {'groupId': groupId, 'name': name});
+  final updateData = {
+    'name': name,
+    'description': description?.isNotEmpty == true ? description : null,
+    'is_public': isPublic,
+    'region_code': regionId,
+    'language': language,
+    'topic': topic,
+    'max_members': maxMembers,
+  };
+
+  logger.userAction('Update group', metadata: {'groupId': groupId, 'input': updateData});
   logger.db('BEFORE | table: community_group | op: UPDATE | groupId: $groupId');
 
   try {
-    await client.from('community_group').update({
-      'name': name,
-      'description': description?.isNotEmpty == true ? description : null,
-      'is_public': isPublic,
-    }).eq('id', groupId).eq('creator_id', userId);
-    logger.db('AFTER | table: community_group | op: UPDATE | groupId: $groupId');
+    final response = await client
+        .from('community_group')
+        .update(updateData)
+        .eq('id', groupId)
+        .eq('creator_id', userId)
+        .select()
+        .single();
+        
+    logger.db('AFTER | table: community_group | op: UPDATE | row: $response');
     ref.invalidate(groupDetailsProvider(groupId));
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
@@ -948,6 +1034,106 @@ Future<void> updateGroup(
     rethrow;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Group Browsing
+// ---------------------------------------------------------------------------
+
+class BrowseGroupsParams {
+  final String? userId;
+  final String? regionId;
+  final String? language;
+  final String? topic;
+
+  const BrowseGroupsParams({this.userId, this.regionId, this.language, this.topic});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BrowseGroupsParams &&
+          runtimeType == other.runtimeType &&
+          userId == other.userId &&
+          regionId == other.regionId &&
+          language == other.language &&
+          topic == other.topic;
+
+  @override
+  int get hashCode => userId.hashCode ^ regionId.hashCode ^ language.hashCode ^ topic.hashCode;
+}
+
+final browseGroupsProvider = FutureProvider.autoDispose
+    .family<List<Map<String, dynamic>>, BrowseGroupsParams>((ref, params) async {
+  final logger = appLogger;
+  logger.provider('browseGroupsProvider build()');
+  ref.onDispose(() => logger.provider('browseGroupsProvider disposed'));
+
+  final client = ref.watch(supabaseClientProvider);
+  
+  final hasFilters = params.regionId != null || params.language != null || params.topic != null;
+
+  try {
+    if (!hasFilters && params.userId != null) {
+      // Path 1: Personalized RPC
+      logger.db('BEFORE | RPC: generate_groups_personalized');
+      try {
+        final rpcResult = await client
+            .rpc('generate_groups_personalized', params: {
+              'p_user_id': params.userId,
+              'p_limit': 50,
+            }) as List<dynamic>;
+
+        logger.db('AFTER | RPC: generate_groups_personalized | rows: ${rpcResult.length}');
+        
+        if (rpcResult.isNotEmpty) {
+          final groupIds = rpcResult
+              .cast<Map<String, dynamic>>()
+              .map((r) => r['group_id'] as String)
+              .toList();
+          
+          logger.db('BEFORE | table: community_group | op: SELECT public IN');
+          final groupsData = await client
+              .from('community_group')
+              .select('id, name, description, member_count, max_members, region_code, language, topic, creator_id, cover_url')
+              .inFilter('id', groupIds);
+
+          final groupsMap = {
+            for (final g in groupsData.cast<Map<String, dynamic>>())
+              g['id'] as String: g
+          };
+
+          final orderedGroups = groupIds
+              .map((id) => groupsMap[id])
+              .whereType<Map<String, dynamic>>()
+              .toList();
+
+          if (orderedGroups.isNotEmpty) return orderedGroups;
+          // RPC returned IDs but none had group_vector rows yet — fall through to direct query
+        }
+      } catch (rpcError, st) {
+        logger.db('ERROR | RPC: generate_groups_personalized | fallback to direct query', error: rpcError, stackTrace: st);
+      }
+    }
+
+    // Path 2 or Fallback: Direct query
+    logger.db('BEFORE | table: community_group | op: SELECT public (direct)');
+    var query = client
+        .from('community_group')
+        .select('id, name, description, member_count, max_members, region_code, language, topic, creator_id, cover_url')
+        .eq('is_public', true);
+
+    if (params.regionId != null) query = query.eq('region_code', params.regionId!);
+    if (params.language != null) query = query.eq('language', params.language!);
+    if (params.topic != null) query = query.eq('topic', params.topic!);
+
+    final rows = await query.order('member_count', ascending: false).limit(50);
+
+    logger.db('AFTER | table: community_group | rows: ${rows.length}');
+    return List<Map<String, dynamic>>.from(rows);
+  } on PostgrestException catch (e, st) {
+    logger.db('ERROR | table: community_group | SELECT public | code: ${e.code}', error: e, stackTrace: st);
+    rethrow;
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Group Invitations

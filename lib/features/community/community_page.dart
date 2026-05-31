@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -62,8 +64,19 @@ class CommunityPage extends ConsumerStatefulWidget {
 
 class _CommunityPageState extends ConsumerState<CommunityPage>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+  late TabController _tabController;
   final _logger = appLogger;
+
+  static const _languages = {
+    'fr': 'Français', 'en': 'English', 'es': 'Español',
+    'pt': 'Português', 'wo': 'Wolof', 'bm': 'Bambara', 'ln': 'Lingala'
+  };
+
+  static const _topics = {
+    'cuisine_africaine': 'Cuisine Africaine', 'batch_cooking': 'Batch Cooking',
+    'nutrition': 'Nutrition', 'sport_forme': 'Sport & Forme',
+    'perte_de_poids': 'Perte de poids', 'vegetarien': 'Végétarien', 'autre': 'Autre'
+  };
 
   @override
   void initState() {
@@ -92,6 +105,15 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
         backgroundColor: AkeliColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search_rounded),
+            onPressed: () {
+              _logger.userAction('Browse groups tapped', screen: 'CommunityPage');
+              context.push(AkeliRoutes.browseGroups);
+            },
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: [
@@ -177,6 +199,29 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
   bool _isPublic = true;
   bool _isLoading = false;
   String? _errorMsg;
+  Uint8List? _coverImageBytes;
+  String? _coverImageExtension;
+
+  Future<void> _pickImage() async {
+    try {
+      final picker = ImagePicker();
+      final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        final ext = file.name.split('.').last.toLowerCase();
+        setState(() {
+          _coverImageBytes = bytes;
+          _coverImageExtension = ext.isNotEmpty ? ext : 'jpg';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de la sélection de l\'image')),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -198,6 +243,8 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
         name: _nameController.text.trim(),
         description: _descController.text.trim(),
         isPublic: _isPublic,
+        coverImageBytes: _coverImageBytes,
+        coverImageExtension: _coverImageExtension,
       );
       
       ref.invalidate(communityGroupsProvider);
@@ -229,7 +276,8 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
       ),
       child: Form(
         key: _formKey,
-        child: Column(
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -237,6 +285,39 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
               'Nouveau groupe',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AkeliSpacing.lg),
+            Center(
+              child: GestureDetector(
+                onTap: _pickImage,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: AkeliColors.surfaceContainer,
+                      backgroundImage: _coverImageBytes != null
+                          ? MemoryImage(_coverImageBytes!)
+                          : null,
+                      child: _coverImageBytes == null
+                          ? const Icon(Icons.camera_alt, size: 32, color: AkeliColors.textSecondary)
+                          : null,
+                    ),
+                    if (_coverImageBytes != null)
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AkeliColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: AkeliSpacing.lg),
             TextFormField(
@@ -294,6 +375,7 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
             ),
             const SizedBox(height: AkeliSpacing.xl),
           ],
+        ),
         ),
       ),
     );
@@ -364,7 +446,7 @@ class _GroupesTab extends ConsumerWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .titleSmall),
-                          if (group['description'] != null)
+                          if (group['description'] != null && (group['description'] as String).isNotEmpty)
                             Text(
                               group['description'] as String,
                               maxLines: 1,
@@ -373,6 +455,45 @@ class _GroupesTab extends ConsumerWidget {
                                   .textTheme
                                   .bodySmall,
                             ),
+                          const SizedBox(height: 4),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: [
+                              if (group['language'] != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AkeliColors.background,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.language, size: 10, color: AkeliColors.textSecondary),
+                                      const SizedBox(width: 4),
+                                      Text(_CommunityPageState._languages[group['language']] ?? group['language'] as String, style: const TextStyle(fontSize: 10, color: AkeliColors.textSecondary)),
+                                    ],
+                                  ),
+                                ),
+                              if (group['topic'] != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AkeliColors.background,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.tag, size: 10, color: AkeliColors.textSecondary),
+                                      const SizedBox(width: 4),
+                                      Text(_CommunityPageState._topics[group['topic']] ?? group['topic'] as String, style: const TextStyle(fontSize: 10, color: AkeliColors.textSecondary)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -459,10 +580,15 @@ class _ToutItem {
         : DateTime(2000);
     return _ToutItem._(
       updatedAt: updatedAt,
-      buildTile: (context) => ListTile(
-        leading: const Icon(Icons.people_outline_rounded,
-            color: AkeliColors.primary),
-        title: Text(g['name'] as String),
+      buildTile: (context) {
+        final name = g['name'] as String;
+        return ListTile(
+          leading: AkeliAvatar(
+            imageUrl: g['cover_url'] as String?,
+            initials: name.isNotEmpty ? name.substring(0, name.length >= 2 ? 2 : 1).toUpperCase() : '?',
+            size: AvatarSize.sm,
+          ),
+          title: Text(name),
         subtitle:
             Text('${(g['member_count'] as int?) ?? 0} membres'),
         onTap: () {
@@ -470,7 +596,8 @@ class _ToutItem {
               metadata: {'groupId': g['id']});
           context.push(AkeliRoutes.groupChatPath(g['id'] as String));
         },
-      ),
+        );
+      },
     );
   }
 

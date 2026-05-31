@@ -5,12 +5,12 @@ import 'package:akeli/shared/models/creator_detail.dart';
 
 void main() {
   group('CreatorDetail', () {
-    final creator = Creator(
+    const creator = Creator(
       id: 'c1',
       userId: 'u1',
       displayName: 'Chef Amina',
-      specialties: [],
       recipeCount: 5,
+      specialties: [],
       fanCount: 10,
       isFanEligible: false,
       isMyFanCreator: false,
@@ -18,7 +18,7 @@ void main() {
     );
 
     test('totalLikes and userConsumptionCount are stored correctly', () {
-      final detail = CreatorDetail(
+      const detail = CreatorDetail(
         creator: creator,
         totalLikes: 42,
         userConsumptionCount: 3,
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('copyWith isFan updates fan status', () {
-      final detail = CreatorDetail(
+      const detail = CreatorDetail(
         creator: creator,
         totalLikes: 42,
         userConsumptionCount: 3,

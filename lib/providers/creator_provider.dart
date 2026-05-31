@@ -48,7 +48,7 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
     _logger.db('BEFORE | table: creator | op: SELECT IN | ids: ${orderedIds.length}');
     final rows = await client
         .from('creator')
-        .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+        .select('id, user_id, display_name, profile_image_url, bio, specialties, recipe_count, fan_count, average_rating, heritage_region')
         .inFilter('id', orderedIds) as List<dynamic>;
     _logger.db('AFTER | table: creator | rows: ${rows.length}');
 
@@ -94,7 +94,7 @@ final creatorByIdProvider =
   try {
     final row = await client
         .from('creator')
-        .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+        .select('id, user_id, display_name, profile_image_url, bio, specialties, recipe_count, fan_count, average_rating, heritage_region')
         .eq('id', creatorId)
         .maybeSingle();
 
@@ -134,7 +134,7 @@ final creatorRecipesProvider =
   try {
     final rows = await client
         .from('recipe')
-        .select('id, creator_id, title, cover_image_url, region, calories, average_rating, like_count, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
+        .select('id, creator_id, title, cover_image_url, region, average_rating, like_count, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
         .eq('creator_id', creatorId)
         .eq('is_published', true)
         .order('created_at', ascending: false) as List<dynamic>;
@@ -189,13 +189,13 @@ final creatorDetailProvider =
       // creator row
       client
           .from('creator')
-          .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+          .select('id, user_id, display_name, profile_image_url, bio, specialties, recipe_count, fan_count, average_rating, heritage_region')
           .eq('id', creatorId)
           .single(),
       // creator's published recipes (for totalLikes + recipeIds)
       client
           .from('recipe')
-          .select('id, like_count, creator_id, title, cover_image_url, region, calories, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at')
+          .select('id, like_count, creator_id, title, cover_image_url, region, average_rating, difficulty, prep_time_min, cook_time_min, servings, is_published, rating_count, created_at, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g)')
           .eq('creator_id', creatorId)
           .eq('is_published', true),
       // active fan subscription
@@ -272,7 +272,6 @@ Future<void> becomeFan(SupabaseClient client, String creatorId, String userId) a
       'creator_id': creatorId,
       'user_id': userId,
       'status': 'active',
-      'effective_from': DateTime.now().toIso8601String(),
     });
     _logger.db('AFTER | table: fan_subscription | op: INSERT | success');
   } on PostgrestException catch (e, st) {

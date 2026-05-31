@@ -94,7 +94,7 @@ final feedProvider =
       appLogger.db('BEFORE | table: recipe | op: SELECT in | ids: ${recipeIds.length}');
       final recipeData = await client
           .from('recipe')
-          .select()
+          .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
           .inFilter('id', recipeIds) as List<dynamic>;
       appLogger.db('AFTER | table: recipe | rows: ${recipeData.length}');
 
@@ -133,13 +133,13 @@ final feedProvider =
         'BEFORE | table: recipe | op: SELECT filtered | region: ${params.regionId} | difficulty: ${params.difficulty} | maxTime: ${params.maxTimeMin} | orderBy: ${params.orderBy}');
 
     try {
-      var query = client.from('recipe').select().eq('is_published', true);
+      var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').eq('is_published', true);
 
-      if (params.regionId != null) query = query.eq('region_id', params.regionId!);
+      if (params.regionId != null) query = query.eq('region', params.regionId!);
       if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
       if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
-      if (params.minCal != null) query = query.gte('calories', params.minCal!);
-      if (params.maxCal != null) query = query.lte('calories', params.maxCal!);
+      if (params.minCal != null) query = query.filter('recipe_macro.calories', 'gte', params.minCal!);
+      if (params.maxCal != null) query = query.filter('recipe_macro.calories', 'lte', params.maxCal!);
 
       final orderColumn = switch (params.orderBy) {
         'rating' => 'average_rating',
@@ -195,7 +195,7 @@ final recipeDetailProvider =
   try {
     final data = await client
         .from('recipe')
-        .select()
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
         .maybeSingle();
 
@@ -288,7 +288,7 @@ final searchRecipesProvider =
       'BEFORE | table: recipe | op: SELECT ilike+filters | query: "${params.query}" | limit: ${params.limit}');
 
   try {
-    var query = client.from('recipe').select().ilike('title', '%${params.query}%');
+    var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').ilike('title', '%${params.query}%');
 
     if (params.regionId != null) query = query.eq('region_id', params.regionId!);
     if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
@@ -347,20 +347,37 @@ final userRecipesProvider =
   }
 
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: recipe | op: SELECT | creator_id: $userId');
+
+  // recipe.creator_id references creator.id, not the auth user UUID.
+  appLogger.db('BEFORE | table: creator | op: SELECT | user_id: $userId');
+  final creatorRow = await client
+      .from('creator')
+      .select('id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+  if (creatorRow == null) {
+    appLogger.rls('Zero rows | table: creator | user_id: $userId | not a creator or RLS block');
+    appLogger.provider('userRecipesProvider → data (empty) | no creator profile');
+    return [];
+  }
+  final creatorId = creatorRow['id'] as String;
+  appLogger.db('AFTER | table: creator | creatorId: $creatorId');
+
+  appLogger.db('BEFORE | table: recipe | op: SELECT | creator_id: $creatorId');
 
   try {
     final data = await client
         .from('recipe')
-        .select()
-        .eq('creator_id', userId)
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .eq('creator_id', creatorId)
         .order('created_at', ascending: false)
         .limit(20) as List<dynamic>;
 
-    appLogger.db('AFTER | table: recipe | rows: ${data.length} | creator_id: $userId');
+    appLogger.db('AFTER | table: recipe | rows: ${data.length} | creator_id: $creatorId');
 
     if (data.isEmpty) {
-      appLogger.rls('Zero rows | table: recipe | creator_id: $userId | possible RLS block or no recipes');
+      appLogger.rls('Zero rows | table: recipe | creator_id: $creatorId | possible RLS block or no recipes');
     }
 
     final recipes = data.cast<Map<String, dynamic>>().map(Recipe.fromJson).toList();
@@ -386,6 +403,62 @@ final userRecipesProvider =
 // Toggle like — Edge Function
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Save (bookmark) — any user, writes to recipe_save
+// ---------------------------------------------------------------------------
+
+class RecipeSaveNotifier extends AutoDisposeAsyncNotifier<bool> {
+  final _logger = appLogger;
+
+  @override
+  Future<bool> build() async {
+    _logger.provider('RecipeSaveNotifier build()');
+    ref.onDispose(() => _logger.provider('RecipeSaveNotifier disposed'));
+    return false;
+  }
+
+  Future<bool> toggle(String recipeId, bool currentlySaved) async {
+    _logger.userAction('Recipe save toggle', metadata: {'recipeId': recipeId, 'currentlySaved': currentlySaved});
+    _logger.provider('RecipeSaveNotifier → loading (toggle)');
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    final newSaved = !currentlySaved;
+
+    _logger.edge('toggle-recipe-save', 'BEFORE | recipeId: $recipeId | newSaved: $newSaved');
+
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.functions.invoke(
+          'toggle-recipe-save',
+          body: {'recipe_id': recipeId},
+        );
+        _logger.edge('toggle-recipe-save', 'AFTER | success | recipeId: $recipeId | saved: $newSaved');
+        _logger.provider('RecipeSaveNotifier → data | saved: $newSaved');
+
+        // Invalidate recipes
+        ref.invalidate(recipeDetailProvider(recipeId));
+        ref.invalidate(feedProvider);
+
+        return newSaved;
+      } catch (e, st) {
+
+        _logger.edge('toggle-recipe-save', 'ERROR | recipeId: $recipeId | $e', error: e, stackTrace: st);
+        _logger.provider('RecipeSaveNotifier → error | $e');
+        rethrow;
+      }
+    });
+    return state.valueOrNull ?? currentlySaved;
+  }
+}
+
+final recipeSaveProvider =
+    AsyncNotifierProvider.autoDispose<RecipeSaveNotifier, bool>(
+        RecipeSaveNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Like — only users who have the recipe in their meal plan, writes to recipe_like
+// ---------------------------------------------------------------------------
+
 class RecipeLikeNotifier extends AutoDisposeAsyncNotifier<bool> {
   final _logger = appLogger;
 
@@ -409,10 +482,15 @@ class RecipeLikeNotifier extends AutoDisposeAsyncNotifier<bool> {
       try {
         await client.functions.invoke(
           'toggle-recipe-like',
-          body: {'recipe_id': recipeId, 'liked': newLiked},
+          body: {'recipe_id': recipeId},
         );
         _logger.edge('toggle-recipe-like', 'AFTER | success | recipeId: $recipeId | liked: $newLiked');
         _logger.provider('RecipeLikeNotifier → data | liked: $newLiked');
+
+        // Invalidate recipes
+        ref.invalidate(recipeDetailProvider(recipeId));
+        ref.invalidate(feedProvider);
+
         return newLiked;
       } catch (e, st) {
         _logger.edge('toggle-recipe-like', 'ERROR | recipeId: $recipeId | $e', error: e, stackTrace: st);

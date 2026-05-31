@@ -167,6 +167,7 @@ class MealPlanEntry {
 
   // Convenience accessor — recipe ID of the base component. Null for custom meals.
   String? get recipeId => isCustomMeal ? null : _base?.recipeId;
+  int? get totalTimeMin => _base?.totalTimeMin;
 
   String get mealTypeLabel {
     switch (mealType) {
@@ -203,6 +204,7 @@ class MealPlanEntryComponent {
   final double? proteinG;
   final double? carbsG;
   final double? fatG;
+  final int? totalTimeMin;
 
   const MealPlanEntryComponent({
     required this.id,
@@ -217,6 +219,7 @@ class MealPlanEntryComponent {
     this.proteinG,
     this.carbsG,
     this.fatG,
+    this.totalTimeMin,
   });
 
   factory MealPlanEntryComponent.fromJson(Map<String, dynamic> json) {
@@ -244,6 +247,10 @@ class MealPlanEntryComponent {
       proteinG: (macro?['protein_g'] as num?)?.toDouble(),
       carbsG: (macro?['carbs_g'] as num?)?.toDouble(),
       fatG: (macro?['fat_g'] as num?)?.toDouble(),
+      totalTimeMin: recipe != null
+          ? ((recipe['prep_time_min'] as int?) ?? 0) +
+            ((recipe['cook_time_min'] as int?) ?? 0)
+          : null,
     );
   }
 
@@ -298,6 +305,7 @@ class CookingSession {
   final DateTime plannedDate;
   final int totalPortions;
   final int portionsUsed;
+  final bool isCooked;
   final double? scaleFactor;
   final String? notes;
   final List<CookingSessionIngredient>? ingredients;
@@ -312,6 +320,7 @@ class CookingSession {
     required this.plannedDate,
     required this.totalPortions,
     required this.portionsUsed,
+    required this.isCooked,
     this.scaleFactor,
     this.notes,
     this.ingredients,
@@ -330,6 +339,7 @@ class CookingSession {
       plannedDate: DateTime.parse(json['planned_date'] as String),
       totalPortions: (json['total_portions'] as num).toInt(),
       portionsUsed: (json['portions_used'] as num?)?.toInt() ?? 0,
+      isCooked: (json['is_cooked'] as bool?) ?? false,
       scaleFactor: json['scale_factor'] != null
           ? (json['scale_factor'] as num).toDouble()
           : null,
@@ -350,7 +360,8 @@ class CookingSession {
 
 @immutable
 class ShoppingItem {
-  final String ingredientId;
+  final String id;
+  final String? ingredientId;
   final String name;
   final double quantity;
   final String unit;
@@ -358,7 +369,8 @@ class ShoppingItem {
   final bool isChecked;
 
   const ShoppingItem({
-    required this.ingredientId,
+    required this.id,
+    this.ingredientId,
     required this.name,
     required this.quantity,
     required this.unit,
@@ -370,15 +382,17 @@ class ShoppingItem {
       '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : 1)} $unit';
 
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
-        ingredientId: json['ingredient_id'] as String,
-        name: json['ingredient_name'] as String,
-        quantity: (json['total_quantity'] as num).toDouble(),
-        unit: json['unit'] as String,
+        id: json['id'] as String? ?? '', // Fallback if missing
+        ingredientId: json['ingredient_id'] as String?,
+        name: json['ingredient_name'] as String? ?? 'Unknown',
+        quantity: (json['total_quantity'] as num?)?.toDouble() ?? 0.0,
+        unit: json['unit'] as String? ?? '',
         category: json['category'] as String?,
         isChecked: (json['is_checked'] as bool?) ?? false,
       );
 
   ShoppingItem copyWith({bool? isChecked}) => ShoppingItem(
+        id: id,
         ingredientId: ingredientId,
         name: name,
         quantity: quantity,

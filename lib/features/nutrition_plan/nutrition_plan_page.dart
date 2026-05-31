@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:collection/collection.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/nutrition_calculator.dart';
 import '../../providers/auth_provider.dart';
@@ -243,7 +245,11 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Plan nutritionnel enregistré avec succès')));
-        Navigator.of(context).pop();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go(AkeliRoutes.home);
+        }
       }
       return true;
     } catch (e, st) {

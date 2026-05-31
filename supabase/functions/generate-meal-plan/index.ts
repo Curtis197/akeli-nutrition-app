@@ -57,8 +57,13 @@ serve(async (req) => {
       throw error;
     }
 
-    const mealPlanId = data?.[0]?.meal_plan_id ?? null;
-    logger.debug("[STEP 3] Plan created | meal_plan_id: " + mealPlanId + " | entries: " + (data?.length ?? 0));
+    if (!data || data.length === 0) {
+      logger.warn("EARLY RETURN | reason: generate_meal_plan returned no entries (insufficient recipes)");
+      return err("Pas assez de recettes disponibles pour générer un plan", 422);
+    }
+
+    const mealPlanId = data[0].meal_plan_id ?? null;
+    logger.debug("[STEP 3] Plan created | meal_plan_id: " + mealPlanId + " | entries: " + data.length);
 
     if (mealPlanId) {
       logger.debug("[STEP 3.5] Fetch batch cooking preference");

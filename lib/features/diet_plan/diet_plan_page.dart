@@ -5,6 +5,10 @@ import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
+import 'package:akeli/providers/user_profile_provider.dart';
+import 'package:akeli/providers/nutrition_plan_provider.dart';
+import 'package:akeli/providers/nutrition_provider.dart';
+import 'package:akeli/shared/models/user_profile.dart';
 import 'package:intl/intl.dart';
 
 /// [Akeli] DietPlanPage - High-Fidelity Editorial Redesign
@@ -23,6 +27,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
   @override
   Widget build(BuildContext context) {
     final planAsync = ref.watch(activeMealPlanProvider);
+    final healthAsync = ref.watch(healthProfileProvider);
+    final nutritionAsync = ref.watch(activeNutritionPlanProvider);
+    final weightLogAsync = ref.watch(weightLogProvider);
     _logger.provider('DietPlanPage build() | planAsync.isLoading: ${planAsync.isLoading}');
 
     return Scaffold(
@@ -98,7 +105,12 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
           return ListView(
             padding: const EdgeInsets.all(24),
             children: [
-              _buildSummaryCard(context),
+              _buildSummaryCard(
+                context,
+                health: healthAsync.valueOrNull,
+                calorieGoal: nutritionAsync.valueOrNull?.calorieGoal,
+                weightLog: weightLogAsync.valueOrNull,
+              ),
               const SizedBox(height: 32),
               
               // Daily Recaps
@@ -121,7 +133,30 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     );
   }
 
-  Widget _buildSummaryCard(BuildContext context) {
+  Widget _buildSummaryCard(
+    BuildContext context, {
+    required HealthProfile? health,
+    required int? calorieGoal,
+    required List<WeightEntry>? weightLog,
+  }) {
+    final startingWeight = health?.startingWeightKg ?? health?.weightKg;
+    final currentWeight = weightLog?.isNotEmpty == true ? weightLog!.first.weightKg : startingWeight;
+    final targetWeight = health?.targetWeightKg;
+    final targetTimeWeeks = health?.targetTimeWeeks;
+    
+    double? weeklyLoss;
+    if (startingWeight != null && targetWeight != null && targetTimeWeeks != null && targetTimeWeeks > 0) {
+      weeklyLoss = (startingWeight - targetWeight) / targetTimeWeeks;
+    }
+
+    double progress = 0.0;
+    if (startingWeight != null && targetWeight != null && startingWeight != targetWeight && currentWeight != null) {
+      progress = (startingWeight - currentWeight) / (startingWeight - targetWeight);
+    }
+    progress = progress.clamp(0.0, 1.0);
+
+    final restrictions = health?.dietaryRestrictions ?? [];
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -138,72 +173,96 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AkeliColors.primaryContainer.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AkeliColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'ÉVOLUTION DU POIDS',
+                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AkeliColors.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        weeklyLoss != null 
+                            ? '${weeklyLoss > 0 ? "-" : "+"}${weeklyLoss.abs().toStringAsFixed(1)} kg / semaine'
+                            : '-- kg / semaine',
+                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.primary),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          startingWeight != null ? '${startingWeight.toStringAsFixed(1)} kg' : '--',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
                         ),
-                        child: const Icon(Icons.track_changes, color: AkeliColors.primary),
+                        const Text('Départ', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          targetWeight != null ? '${targetWeight.toStringAsFixed(1)} kg' : '--',
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
+                        ),
+                        const Text('Objectif', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Stack(
+                  children: [
+                    Container(
+                      height: 12,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AkeliColors.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        '5 kg',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.primary, letterSpacing: -0.5),
+                    ),
+                    FractionallySizedBox(
+                      widthFactor: progress,
+                      child: Container(
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: AkeliColors.primary,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
                       ),
-                      const Text(
-                        'À PERDRE',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: Text(
+                    currentWeight != null ? '${currentWeight.toStringAsFixed(1)} kg actuel' : '-- actuel',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AkeliColors.primary),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AkeliColors.tertiary.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.restaurant_menu, color: AkeliColors.tertiary),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        '3 mois',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.tertiary, letterSpacing: -0.5),
-                      ),
-                      const Text(
-                        'OBJECTIF',
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           Container(
@@ -226,14 +285,14 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                   child: const Icon(Icons.local_fire_department, color: AkeliColors.secondary),
                 ),
                 const SizedBox(width: 16),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '1800 kcal/jour',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AkeliColors.onSecondaryContainer),
+                      calorieGoal != null ? '$calorieGoal kcal/jour' : '-- kcal/jour',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AkeliColors.onSecondaryContainer),
                     ),
-                    Text(
+                    const Text(
                       'Objectif calorique',
                       style: TextStyle(fontSize: 14, color: AkeliColors.onSecondaryContainer),
                     ),
@@ -242,47 +301,27 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            'RESTRICTIONS',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
+          if (restrictions.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            const Text(
+              'RESTRICTIONS',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: restrictions.map((r) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: AkeliColors.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.4)),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.eco, size: 18, color: AkeliColors.primary),
-                    SizedBox(width: 8),
-                    Text('Végétarien', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AkeliColors.error.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AkeliColors.error.withValues(alpha: 0.2)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.block, size: 18, color: AkeliColors.error),
-                    SizedBox(width: 8),
-                    Text('Gluten', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AkeliColors.error)),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                child: Text(r, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              )).toList(),
+            ),
+          ],
         ],
       ),
     );

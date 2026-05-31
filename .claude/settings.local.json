@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Skill(superpowers:brainstorming)",
-      "Skill(superpowers:brainstorming:*)"
+      "Skill(superpowers:brainstorming:*)",
+      "Bash(railway status *)",
+      "Bash(railway login *)"
     ]
   }
 }

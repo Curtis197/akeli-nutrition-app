@@ -1,0 +1,88 @@
+<h2>Dashboard Audit — What's There vs. What's Missing</h2>
+<p class="subtitle">Does the current home page give users enough to understand their progress?</p>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0;">
+
+  <div>
+    <h3 style="color: #22c55e; margin-bottom: 12px;">✅ What the dashboard shows</h3>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+        <strong>Current weight</strong> vs. target weight (progress circle)
+      </div>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+        <strong>Today's calories</strong> consumed (vs. hardcoded 2000 kcal target)
+      </div>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+        <strong>Today's planned meals</strong> (horizontal scroll)
+      </div>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+        <strong>Shopping list preview</strong> (top 4 items, filterable)
+      </div>
+      <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px;">
+        <strong>Recommended recipes</strong> (personalised feed)
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3 style="color: #ef4444; margin-bottom: 12px;">❌ What's missing for progress insight</h3>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+        <strong>No macro breakdown</strong> — protein, carbs, fat are tracked in DB but never shown
+      </div>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+        <strong>No trend data</strong> — everything is today-only; no 7-day calorie or weight curve
+      </div>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+        <strong>Hardcoded calorie target</strong> (2000 kcal) — not pulled from the user's nutrition plan
+      </div>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+        <strong>No streak / adherence</strong> — user can't tell if they're consistent week-to-week
+      </div>
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px;">
+        <strong>Weight stepper is UI-only</strong> — not persisted to Supabase
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px; margin-top: 8px;">
+  <strong>Verdict:</strong> The dashboard is a good <em>daily snapshot</em> but gives <strong>zero trend visibility</strong>.
+  A user can't answer <em>"Am I improving over time?"</em> from the home page alone.
+  The graph/progress page will fill exactly that gap.
+</div>
+
+<h3 style="margin-top: 32px;">Which area is highest priority for the progress page?</h3>
+<p class="subtitle">Click to select your focus (you can pick multiple)</p>
+
+<div class="options" data-multiselect>
+  <div class="option" data-choice="weight" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Weight trend</h3>
+      <p>7 or 30-day weight curve, showing progress toward goal weight</p>
+    </div>
+  </div>
+  <div class="option" data-choice="calories" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Calorie & macro history</h3>
+      <p>Daily calorie bar chart + protein/carbs/fat breakdown over time</p>
+    </div>
+  </div>
+  <div class="option" data-choice="adherence" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Meal plan adherence</h3>
+      <p>Did the user follow their plan this week? Streak, consistency score</p>
+    </div>
+  </div>
+  <div class="option" data-choice="all" onclick="toggleSelect(this)">
+    <div class="letter">D</div>
+    <div class="content">
+      <h3>All of the above</h3>
+      <p>Full progress dashboard with sections for each metric</p>
+    </div>
+  </div>
+</div>

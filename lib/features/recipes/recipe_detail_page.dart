@@ -17,6 +17,7 @@ import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
+import 'widgets/recipe_comments_sheet.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final String recipeId;
@@ -40,31 +41,35 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   // Tracking state
   RecipeOpen? _currentOpen;
 
+  bool? _optimisticIsSaved;
+
   @override
   void initState() {
     super.initState();
-    _logger.provider('RecipeDetailPage initState() | recipeId: ${widget.recipeId} | source: ${widget.source}');
+    _logger.provider(
+        'RecipeDetailPage initState() | recipeId: ${widget.recipeId} | source: ${widget.source}');
     _trackOpen();
   }
 
   Future<void> _trackOpen() async {
     try {
-      _logger.db('BEFORE | op: trackOpen | recipeId: ${widget.recipeId} | source: ${widget.source}');
-      _currentOpen = await ref
-          .read(recipeTrackingRepositoryProvider)
-          .trackOpen(
+      _logger.db(
+          'BEFORE | op: trackOpen | recipeId: ${widget.recipeId} | source: ${widget.source}');
+      _currentOpen = await ref.read(recipeTrackingRepositoryProvider).trackOpen(
             recipeId: widget.recipeId,
             source: widget.source,
           );
       _logger.db('AFTER | op: trackOpen | openId: ${_currentOpen?.id}');
     } catch (e, st) {
-      _logger.db('ERROR | op: trackOpen | recipeId: ${widget.recipeId}', error: e, stackTrace: st);
+      _logger.db('ERROR | op: trackOpen | recipeId: ${widget.recipeId}',
+          error: e, stackTrace: st);
     }
   }
 
   @override
   void dispose() {
-    _logger.provider('RecipeDetailPage disposed | recipeId: ${widget.recipeId}');
+    _logger
+        .provider('RecipeDetailPage disposed | recipeId: ${widget.recipeId}');
     _trackClose();
     _pageController.dispose();
     super.dispose();
@@ -73,53 +78,79 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   void _trackClose() {
     final open = _currentOpen;
     if (open == null) return;
-    _logger.db('FIRE | op: trackClose | openId: ${open.id} | fire-and-forget from dispose');
+    _logger.db(
+        'FIRE | op: trackClose | openId: ${open.id} | fire-and-forget from dispose');
     ref.read(recipeTrackingRepositoryProvider).trackClose(
-      openId: open.id,
-      openedAt: open.openedAt,
-    );
+          openId: open.id,
+          openedAt: open.openedAt,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     final recipeAsync = ref.watch(recipeDetailProvider(widget.recipeId));
 
-    _logger.provider('RecipeDetailPage build() | recipeId: ${widget.recipeId} | recipeAsync.isLoading: ${recipeAsync.isLoading}');
+    _logger.provider(
+        'RecipeDetailPage build() | recipeId: ${widget.recipeId} | recipeAsync.isLoading: ${recipeAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
       body: recipeAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AkeliColors.primary)),
+        loading: () => const Center(
+            child: CircularProgressIndicator(color: AkeliColors.primary)),
         error: (err, _) => ErrorState(
           message: err.toString(),
-          onRetry: () =>
-              ref.invalidate(recipeDetailProvider(widget.recipeId)),
+          onRetry: () => ref.invalidate(recipeDetailProvider(widget.recipeId)),
         ),
         data: (recipe) {
           if (recipe == null) {
             return const ErrorState(message: 'Recette introuvable.');
           }
+
+          final bool currentIsSaved = _optimisticIsSaved ?? recipe.isSaved;
+
           return _RecipeContent(
             recipe: recipe,
+            isSaved: currentIsSaved,
             currentImageIndex: _currentImageIndex,
             pageController: _pageController,
             onImageChanged: (i) {
-              _logger.userAction('Recipe image swiped', screen: 'RecipeDetailPage', metadata: {'imageIndex': i});
+              _logger.userAction('Recipe image swiped',
+                  screen: 'RecipeDetailPage', metadata: {'imageIndex': i});
               setState(() => _currentImageIndex = i);
             },
-            onLike: () {
-              _logger.userAction('Like button tapped', screen: 'RecipeDetailPage', metadata: {'recipeId': recipe.id, 'isLiked': recipe.isLiked});
-              ref.read(recipeLikeProvider.notifier).toggle(recipe.id, recipe.isLiked);
+            onLike: () async {
+              _logger.userAction('Save button tapped',
+                  screen: 'RecipeDetailPage',
+                  metadata: {'recipeId': recipe.id, 'isSaved': currentIsSaved});
+
+              setState(() {
+                _optimisticIsSaved = !currentIsSaved;
+              });
+
+              try {
+                await ref
+                    .read(recipeSaveProvider.notifier)
+                    .toggle(recipe.id, currentIsSaved);
+                ref.invalidate(recipeDetailProvider(widget.recipeId));
+              } catch (e) {
+                if (mounted) {
+                  setState(() {
+                    _optimisticIsSaved = currentIsSaved;
+                  });
+                }
+              }
             },
-            onAddToPlan: () => _showSwapDialog(context, recipe),
+            onAddToPlan: () => _showSwapDialog(recipe),
           );
         },
       ),
     );
   }
 
-  void _showSwapDialog(BuildContext context, Recipe recipe) {
-    final mealPlan = ref.read(activeMealPlanProvider).valueOrNull;
+  Future<void> _showSwapDialog(Recipe recipe) async {
+    final mealPlan = await ref.read(activeMealPlanProvider.future);
+    if (!mounted) return;
     if (mealPlan == null || mealPlan.entries.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Aucun plan de repas actif.'),
@@ -154,7 +185,9 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Text('Remplacer un repas', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold)),
+                  child: Text('Remplacer un repas',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -167,22 +200,31 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: Text(dateStr, style: const TextStyle(fontWeight: FontWeight.bold, color: AkeliColors.primary)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: Text(dateStr,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AkeliColors.primary)),
                           ),
                           ...entries.map((entry) => ListTile(
-                            leading: const Icon(Icons.restaurant, color: AkeliColors.outline),
-                            title: Text(entry.mealTypeLabel),
-                            subtitle: Text(entry.recipeTitle ?? 'Sans recette'),
-                            onTap: () {
-                              ref.read(mealPlanSwapProvider.notifier).swapMeal(entry.id, recipe.id);
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                                content: Text('Repas remplacé avec succès'),
-                                backgroundColor: AkeliColors.primary,
-                              ));
-                            },
-                          )),
+                                leading: const Icon(Icons.restaurant,
+                                    color: AkeliColors.outline),
+                                title: Text(entry.mealTypeLabel),
+                                subtitle:
+                                    Text(entry.recipeTitle ?? 'Sans recette'),
+                                onTap: () {
+                                  ref
+                                      .read(mealPlanSwapProvider.notifier)
+                                      .swapMeal(entry.id, recipe.id);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text('Repas remplacé avec succès'),
+                                    backgroundColor: AkeliColors.primary,
+                                  ));
+                                },
+                              )),
                         ],
                       );
                     },
@@ -199,6 +241,7 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
 
 class _RecipeContent extends StatelessWidget {
   final Recipe recipe;
+  final bool isSaved;
   final int currentImageIndex;
   final PageController pageController;
   final ValueChanged<int> onImageChanged;
@@ -207,6 +250,7 @@ class _RecipeContent extends StatelessWidget {
 
   const _RecipeContent({
     required this.recipe,
+    required this.isSaved,
     required this.currentImageIndex,
     required this.pageController,
     required this.onImageChanged,
@@ -239,7 +283,8 @@ class _RecipeContent extends StatelessWidget {
                       Container(
                         color: AkeliColors.background,
                         child: const Center(
-                          child: Icon(Icons.restaurant_rounded, size: 80, color: AkeliColors.primary),
+                          child: Icon(Icons.restaurant_rounded,
+                              size: 80, color: AkeliColors.primary),
                         ),
                       )
                     else
@@ -253,12 +298,13 @@ class _RecipeContent extends StatelessWidget {
                           errorWidget: (_, __, ___) => Container(
                             color: AkeliColors.background,
                             child: const Center(
-                              child: Icon(Icons.restaurant_rounded, size: 60, color: AkeliColors.primary),
+                              child: Icon(Icons.restaurant_rounded,
+                                  size: 60, color: AkeliColors.primary),
                             ),
                           ),
                         ),
                       ),
-                    
+
                     // Gradient Overlay
                     Positioned.fill(
                       child: DecoratedBox(
@@ -289,7 +335,8 @@ class _RecipeContent extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AkeliColors.onPrimary.withValues(alpha: 0.8),
+                              color:
+                                  AkeliColors.onPrimary.withValues(alpha: 0.8),
                               letterSpacing: 1.5,
                             ),
                           ),
@@ -321,7 +368,10 @@ class _RecipeContent extends StatelessWidget {
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
                       boxShadow: const [
-                        BoxShadow(color: Color(0x0A1B1C16), blurRadius: 24, offset: Offset(0, 12)),
+                        BoxShadow(
+                            color: Color(0x0A1B1C16),
+                            blurRadius: 24,
+                            offset: Offset(0, 12)),
                       ],
                     ),
                     child: Column(
@@ -350,17 +400,28 @@ class _RecipeContent extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Divider(color: AkeliColors.surfaceContainerHighest, height: 1),
+                        const Divider(
+                            color: AkeliColors.surfaceContainerHighest,
+                            height: 1),
                         const SizedBox(height: 24),
 
                         // Macros
                         Row(
                           children: [
-                            Expanded(child: _MacroBox(label: 'PROTÉINES', value: '${recipe.proteinG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'PROTÉINES',
+                                    value: '${recipe.proteinG ?? 0}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'GLUCIDES', value: '${recipe.carbsG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'GLUCIDES',
+                                    value: '${recipe.carbsG ?? 0}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'LIPIDES', value: '${recipe.fatG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'LIPIDES',
+                                    value: '${recipe.fatG ?? 0}g')),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -382,21 +443,28 @@ class _RecipeContent extends StatelessWidget {
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                              colors: [
+                                AkeliColors.primary,
+                                AkeliColors.primaryContainer
+                              ],
                             ),
-                            borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                            borderRadius:
+                                BorderRadius.circular(AkeliRadius.pill),
                           ),
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                              borderRadius:
+                                  BorderRadius.circular(AkeliRadius.pill),
                               onTap: onAddToPlan,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16, horizontal: 24),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.calendar_today_rounded, color: AkeliColors.onPrimary, size: 20),
+                                    const Icon(Icons.calendar_today_rounded,
+                                        color: AkeliColors.onPrimary, size: 20),
                                     const SizedBox(width: 12),
                                     Text(
                                       'Ajouter au plan repas',
@@ -427,7 +495,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,7 +536,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -495,15 +573,17 @@ class _RecipeContent extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                              color: Colors.transparent, 
+                              borderRadius:
+                                  BorderRadius.circular(AkeliRadius.md),
+                              color: Colors.transparent,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Text(
-                                    ing.name + (ing.isOptional ? ' (opt.)' : ''),
+                                    ing.name +
+                                        (ing.isOptional ? ' (opt.)' : ''),
                                     style: GoogleFonts.inter(
                                       fontSize: 15,
                                       color: AkeliColors.onSurface,
@@ -537,7 +617,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -594,6 +679,10 @@ class _RecipeContent extends StatelessWidget {
                   ),
                 ),
 
+              // RATINGS & COMMENTS SECTION
+              _RatingsAndCommentsSection(recipe: recipe),
+              const SizedBox(height: 24),
+
               // CREATOR CARD
               _CreatorCardSection(creatorId: recipe.creatorId),
             ],
@@ -610,11 +699,18 @@ class _RecipeContent extends StatelessWidget {
             children: [
               _FrostedIconButton(
                 icon: Icons.arrow_back,
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    context.go(AkeliRoutes.recipes);
+                  }
+                },
               ),
               _FrostedIconButton(
-                icon: recipe.isLiked ? Icons.bookmark : Icons.bookmark_border,
-                iconColor: recipe.isLiked ? AkeliColors.primary : AkeliColors.onSurface,
+                icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
+                iconColor:
+                    isSaved ? AkeliColors.primary : AkeliColors.onSurface,
                 onPressed: onLike,
               ),
             ],
@@ -783,7 +879,8 @@ class _CreatorCardSection extends ConsumerWidget {
     return creatorAsync.when(
       loading: () => const Padding(
         padding: EdgeInsets.fromLTRB(16, 0, 16, 32),
-        child: SizedBox(height: 80, child: Center(child: CircularProgressIndicator())),
+        child: SizedBox(
+            height: 80, child: Center(child: CircularProgressIndicator())),
       ),
       error: (_, __) => const SizedBox.shrink(),
       data: (creator) {
@@ -821,6 +918,163 @@ class _CreatorCardSection extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _RatingsAndCommentsSection extends StatelessWidget {
+  final Recipe recipe;
+
+  const _RatingsAndCommentsSection({required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Avis de la communauté',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        color: AkeliColors.accentAmber, size: 24),
+                    const SizedBox(width: 4),
+                    Text(
+                      recipe.averageRating.toStringAsFixed(1),
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AkeliColors.onSurface,
+                      ),
+                    ),
+                    Text(
+                      ' (${recipe.ratingCount})',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Goût', rating: recipe.averageRatingTaste)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Facilité', rating: recipe.averageRatingEase)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Satiété', rating: recipe.averageRatingSatiety)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + 40),
+                    child: RecipeCommentsSheet(recipeId: recipe.id),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: AkeliColors.surfaceContainer,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AkeliRadius.md)),
+              ),
+              child: const Text(
+                'Voir les commentaires',
+                style: TextStyle(
+                  color: AkeliColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailedRatingBar extends StatelessWidget {
+  final String label;
+  final double rating;
+
+  const _DetailedRatingBar({required this.label, required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AkeliColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: rating / 5.0,
+                  backgroundColor: AkeliColors.surfaceContainerHigh,
+                  color: AkeliColors.primary,
+                  minHeight: 6,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              rating.toStringAsFixed(1),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AkeliColors.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -153,8 +153,8 @@ class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
                         calories: recipe.calories?.toInt() ?? 0,
                         rating: recipe.averageRating,
                         likes: recipe.likeCount,
-                        comments: 0,
-                        saves: 0,
+                        comments: recipe.commentCount,
+                        saves: recipe.saveCount,
                         imageUrl: recipe.thumbnailUrl,
                         region: recipe.regionId != null
                             ? regionNames[recipe.regionId!] ?? recipe.regionId

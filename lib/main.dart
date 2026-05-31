@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme.dart';
@@ -9,6 +10,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   appLogger.i('🚀 Akeli app starting | initializing Supabase');
 
+  await initializeDateFormatting('fr_FR', null);
   await initializeSupabase();
   appLogger.i('✅ Supabase initialized | launching ProviderScope');
 

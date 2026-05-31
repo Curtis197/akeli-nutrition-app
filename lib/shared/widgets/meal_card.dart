@@ -12,9 +12,6 @@ class AkeliMealCard extends StatelessWidget {
   final String title;
   final String mealType;
   final double calories;
-  final double? protein;
-  final double? carbs;
-  final double? fat;
   final int? duration; // in minutes
   final String? imageUrl;
   final bool isPlanner;
@@ -27,9 +24,6 @@ class AkeliMealCard extends StatelessWidget {
     required this.title,
     required this.mealType,
     required this.calories,
-    this.protein,
-    this.carbs,
-    this.fat,
     this.duration,
     this.imageUrl,
     this.isPlanner = false,
@@ -294,14 +288,19 @@ class AkeliMealCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _MacroItem(label: 'Prot', value: protein),
-                      _MacroItem(label: 'Gluc', value: carbs),
-                      _MacroItem(label: 'Lip', value: fat),
-                      _MacroItem(label: 'Kcal', value: calories, isKcal: true),
+                      const Icon(Icons.local_fire_department, size: 14, color: Color(0xFFEBA14D)),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${calories.toInt()} kcal',
+                        style: const TextStyle(
+                          color: AkeliColors.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -314,35 +313,3 @@ class AkeliMealCard extends StatelessWidget {
   }
 }
 
-class _MacroItem extends StatelessWidget {
-  final String label;
-  final double? value;
-  final bool isKcal;
-
-  const _MacroItem({required this.label, this.value, this.isKcal = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: AkeliColors.outline,
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          value != null ? (isKcal ? value!.toInt().toString() : '${value!.toInt()}g') : '-',
-          style: const TextStyle(
-            color: AkeliColors.onSurface,
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
-          ),
-        ),
-      ],
-    );
-  }
-}

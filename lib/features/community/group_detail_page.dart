@@ -19,6 +19,7 @@ class GroupDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     appLogger.provider('GroupDetailPage build() | groupId: $groupId');
     final membersAsync = ref.watch(groupMembersProvider(groupId));
+    final groupAsync = ref.watch(groupDetailsProvider(groupId));
     final currentUserId = ref.watch(currentUserProvider)?.id;
 
     bool isAdmin = false;
@@ -32,31 +33,91 @@ class GroupDetailPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AkeliColors.background,
         elevation: 0,
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AkeliRoutes.groupChatPath(groupId));
+            }
+          },
+        ),
         title: const Text('Détail du groupe'),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 160,
-              color: AkeliColors.primary.withValues(alpha: 0.1),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('👥', style: TextStyle(fontSize: 48)),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Groupe',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displaySmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+            groupAsync.when(
+              data: (group) {
+                final name = group?['name'] as String? ?? 'Groupe inconnu';
+                final description = group?['description'] as String?;
+                final coverUrl = group?['cover_url'] as String?;
+
+                return Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AkeliColors.primary.withValues(alpha: 0.1),
+                    image: coverUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(coverUrl),
+                            fit: BoxFit.cover,
+                            colorFilter: ColorFilter.mode(
+                              Colors.black.withValues(alpha: 0.4),
+                              BlendMode.darken,
+                            ),
+                          )
+                        : null,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (coverUrl == null)
+                          const Text('👥', style: TextStyle(fontSize: 48)),
+                        const SizedBox(height: 8),
+                        Text(
+                          name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .displaySmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: coverUrl != null ? Colors.white : null,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
+                        if (description != null && description.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Text(
+                              description,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: coverUrl != null ? Colors.white70 : AkeliColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                );
+              },
+              loading: () => Container(
+                height: 200,
+                color: AkeliColors.primary.withValues(alpha: 0.1),
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              error: (_, __) => Container(
+                height: 200,
+                color: AkeliColors.error.withValues(alpha: 0.1),
+                child: const Center(child: Text('Erreur de chargement')),
               ),
             ),
             Padding(

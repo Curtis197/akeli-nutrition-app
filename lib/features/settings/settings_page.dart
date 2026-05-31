@@ -285,6 +285,7 @@ class SettingsPage extends ConsumerWidget {
                           label: 'Notifications',
                           onTap: () {
                             appLogger.userAction('Notifications menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.notifications);
                           },
                         ),
                         _MenuItem(
@@ -397,11 +398,7 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  void _showSettings(BuildContext context, WidgetRef ref) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Paramètres bientôt disponibles.')),
-    );
-  }
+
 }
 
 class _Section extends StatelessWidget {

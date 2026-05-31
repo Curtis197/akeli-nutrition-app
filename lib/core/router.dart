@@ -24,6 +24,7 @@ import '../features/diet_plan/diet_plan_page.dart';
 import '../features/notifications/notifications_page.dart';
 import '../features/community/group_chat_page.dart';
 import '../features/community/group_detail_page.dart';
+import '../features/community/browse_groups_page.dart';
 import '../features/home/home_page.dart';
 import '../features/support/support_page.dart';
 import '../features/legal/privacy_policy_page.dart';
@@ -59,6 +60,7 @@ abstract class AkeliRoutes {
   static const nutritionPlan = "/nutrition-plan";
   static const groupChat = "/group/:id";
   static const groupDetail = "/group/:id/detail";
+  static const browseGroups = "/groups/browse";
   static const support = "/support";
   static const privacyPolicy = "/privacy-policy";
   static const termsOfService = "/terms-of-service";
@@ -234,6 +236,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: AkeliRoutes.browseGroups,
+        builder: (context, state) => const BrowseGroupsPage(),
       ),
       GoRoute(
         path: AkeliRoutes.support,

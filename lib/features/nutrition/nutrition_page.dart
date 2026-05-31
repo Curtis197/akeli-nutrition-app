@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -56,7 +58,13 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go(AkeliRoutes.home);
+                }
+              },
             style: IconButton.styleFrom(backgroundColor: Colors.transparent),
           ),
         ),

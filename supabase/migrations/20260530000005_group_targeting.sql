@@ -1,6 +1,6 @@
 -- Migration: add targeting columns to community_group
 ALTER TABLE community_group
-  ADD COLUMN region_id   uuid REFERENCES food_region(id),
+  ADD COLUMN region_code text REFERENCES food_region(code),
   ADD COLUMN language    text,
   ADD COLUMN topic       text CHECK (topic IN (
                            'cuisine_africaine', 'batch_cooking', 'nutrition',
@@ -25,10 +25,12 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_group_member_count_inc ON group_member;
 CREATE TRIGGER trg_group_member_count_inc
   AFTER INSERT ON group_member
   FOR EACH ROW EXECUTE FUNCTION _increment_group_member_count();
 
+DROP TRIGGER IF EXISTS trg_group_member_count_dec ON group_member;
 CREATE TRIGGER trg_group_member_count_dec
   AFTER DELETE ON group_member
   FOR EACH ROW EXECUTE FUNCTION _decrement_group_member_count();

@@ -17,7 +17,10 @@ class _MockRatingNotifier extends RatingNotifier {
     int? ratingTaste,
     int? ratingEase,
     int? ratingSatiety,
-  }) async {}
+    String? comment,
+  }) async {
+    return;
+  }
 }
 
 Widget _buildSheet() => ProviderScope(

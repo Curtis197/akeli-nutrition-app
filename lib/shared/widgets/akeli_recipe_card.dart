@@ -95,21 +95,6 @@ class _ImageVariant extends StatelessWidget {
                           ),
                         ),
                 ),
-              // Floating Sparkle Button (Premium only)
-              if (card.isMinimalist)
-                Positioned(
-                  top: AkeliSpacing.md,
-                  right: AkeliSpacing.md,
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: AkeliColors.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
-                  ),
-                ),
               if (!card.isMinimalist && card.tags.isNotEmpty)
                 Positioned(
                   top: AkeliSpacing.sm,

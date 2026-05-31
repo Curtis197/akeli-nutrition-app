@@ -6,7 +6,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
-import '../../providers/user_profile_provider.dart';
+import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';
 
 class MealPlannerPage extends ConsumerWidget {
@@ -14,8 +14,25 @@ class MealPlannerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(mealConsumptionProvider, (_, next) {
+      if (next.hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(next.error.toString()),
+          backgroundColor: AkeliColors.error,
+        ));
+      } else if (next.valueOrNull != null) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: false,
+          enableDrag: false,
+          backgroundColor: Colors.transparent,
+          builder: (_) => RatingBottomSheet(mealPlanEntryId: next.valueOrNull!),
+        );
+      }
+    });
+
     final planAsync = ref.watch(activeMealPlanProvider);
-    final profileAsync = ref.watch(userProfileProvider);
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -33,57 +50,6 @@ class MealPlannerPage extends ConsumerWidget {
 
           return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          // ── TOP NAVIGATION BAR ───────────────────────────────────────
-          SliverAppBar(
-            pinned: true,
-            floating: true,
-            expandedHeight: 0,
-            toolbarHeight: 64,
-            elevation: 0,
-            backgroundColor: AkeliColors.surface,
-            automaticallyImplyLeading: false,
-            title: Row(
-              children: [
-                const Icon(Icons.menu, color: AkeliColors.primaryContainer),
-                const SizedBox(width: 16),
-                Text(
-                  profileAsync.when(
-                    data: (p) => p?.displayName ?? 'Mon Plan',
-                    loading: () => 'Mon Plan',
-                    error: (_, __) => 'Mon Plan',
-                  ),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 24),
-                child: Center(
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: profileAsync.when(
-                      data: (p) => p?.avatarUrl != null
-                          ? Image.network(p!.avatarUrl!, fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(Icons.person, size: 20, color: AkeliColors.outline))
-                          : const Icon(Icons.person, size: 20, color: AkeliColors.outline),
-                      loading: () => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
-                      error: (_, __) => const Icon(Icons.person, size: 20, color: AkeliColors.outline),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          
           // ── HEADER ────────────────────────────────────────
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -154,9 +120,13 @@ class MealPlannerPage extends ConsumerWidget {
                     return MealPlannerDayRow(
                       date: date,
                       entries: entries,
-                      onRecipeTap: (recipeId) {
-                        appLogger.userAction('Meal plan recipe tapped', screen: 'MealPlannerPage', metadata: {'recipeId': recipeId});
-                        context.push(AkeliRoutes.recipeDetailPath(recipeId));
+                      onRecipeTap: (entryId) {
+                        appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
+                        context.push(AkeliRoutes.mealDetailPath(entryId));
+                      },
+                      onConsumedToggle: (entryId) {
+                        appLogger.userAction('Meal consumed toggle', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
+                        ref.read(mealConsumptionProvider.notifier).logConsumption(entryId);
                       },
                     );
                   },

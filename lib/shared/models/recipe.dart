@@ -19,8 +19,14 @@ class Recipe {
   final double? fatG;
   final double? fiberG;
   final double averageRating;
+  final double averageRatingTaste;
+  final double averageRatingEase;
+  final double averageRatingSatiety;
   final int ratingCount;
+  final int commentCount;
   final int likeCount;
+  final int saveCount;
+  final bool isSaved;
   final bool isLiked;
   final bool isPublished;
   final List<RecipeIngredient> ingredients;
@@ -46,8 +52,14 @@ class Recipe {
     this.fatG,
     this.fiberG,
     required this.averageRating,
+    required this.averageRatingTaste,
+    required this.averageRatingEase,
+    required this.averageRatingSatiety,
     required this.ratingCount,
+    required this.commentCount,
     required this.likeCount,
+    required this.saveCount,
+    required this.isSaved,
     required this.isLiked,
     required this.isPublished,
     required this.ingredients,
@@ -58,7 +70,9 @@ class Recipe {
 
   int get totalTimeMin => prepTimeMin + cookTimeMin;
 
-  factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    final macro = json['recipe_macro'] as Map<String, dynamic>?;
+    return Recipe(
         id: json['id'] as String,
         creatorId: json['creator_id'] as String,
         title: json['title'] as String,
@@ -73,15 +87,21 @@ class Recipe {
         servings: (json['servings'] as int?) ?? 1,
         difficulty: (json['difficulty'] as String?) ?? 'medium',
         regionId: json['region'] as String?,
-        calories: (json['calories'] as num?)?.toDouble(),
-        proteinG: (json['protein_g'] as num?)?.toDouble(),
-        carbsG: (json['carbs_g'] as num?)?.toDouble(),
-        fatG: (json['fat_g'] as num?)?.toDouble(),
-        fiberG: (json['fiber_g'] as num?)?.toDouble(),
+        calories: (json['calories'] as num?)?.toDouble() ?? (macro?['calories'] as num?)?.toDouble(),
+        proteinG: (json['protein_g'] as num?)?.toDouble() ?? (macro?['protein_g'] as num?)?.toDouble(),
+        carbsG: (json['carbs_g'] as num?)?.toDouble() ?? (macro?['carbs_g'] as num?)?.toDouble(),
+        fatG: (json['fat_g'] as num?)?.toDouble() ?? (macro?['fat_g'] as num?)?.toDouble(),
+        fiberG: (json['fiber_g'] as num?)?.toDouble() ?? (macro?['fiber_g'] as num?)?.toDouble(),
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0.0,
+        averageRatingTaste: (json['average_rating_taste'] as num?)?.toDouble() ?? 0.0,
+        averageRatingEase: (json['average_rating_ease'] as num?)?.toDouble() ?? 0.0,
+        averageRatingSatiety: (json['average_rating_satiety'] as num?)?.toDouble() ?? 0.0,
         ratingCount: (json['rating_count'] as int?) ?? 0,
+        commentCount: (json['comment_count'] as int?) ?? 0,
         likeCount: (json['like_count'] as int?) ?? 0,
-        isLiked: (json['is_liked'] as bool?) ?? false,
+        saveCount: (json['save_count'] as int?) ?? 0,
+        isSaved: (json['is_saved'] as bool?) ?? ((json['recipe_save'] as List<dynamic>?)?.isNotEmpty ?? false),
+        isLiked: (json['is_liked'] as bool?) ?? ((json['recipe_like'] as List<dynamic>?)?.isNotEmpty ?? false),
         isPublished: (json['is_published'] as bool?) ?? true,
         ingredients: (json['ingredients'] as List<dynamic>?)
                 ?.map((e) =>
@@ -95,6 +115,7 @@ class Recipe {
         tagIds: (json['tag_ids'] as List<dynamic>?)?.cast<String>() ?? [],
         createdAt: DateTime.parse(json['created_at'] as String),
       );
+  }
 }
 
 @immutable
@@ -113,14 +134,20 @@ class RecipeIngredient {
     required this.isOptional,
   });
 
-  factory RecipeIngredient.fromJson(Map<String, dynamic> json) =>
-      RecipeIngredient(
-        ingredientId: json['ingredient_id'] as String,
-        name: json['ingredient_name'] as String? ?? json['name'] as String,
-        quantity: (json['quantity'] as num).toDouble(),
-        unit: json['unit'] as String,
-        isOptional: (json['is_optional'] as bool?) ?? false,
-      );
+  factory RecipeIngredient.fromJson(Map<String, dynamic> json) {
+    final nested = json['ingredient'] as Map<String, dynamic>?;
+    final name = json['ingredient_name'] as String?
+        ?? nested?['name_fr'] as String?
+        ?? nested?['name'] as String?
+        ?? '';
+    return RecipeIngredient(
+      ingredientId: json['ingredient_id'] as String? ?? '',
+      name: name,
+      quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] as String? ?? '',
+      isOptional: (json['is_optional'] as bool?) ?? false,
+    );
+  }
 }
 
 @immutable
@@ -139,8 +166,12 @@ class RecipeStep {
 
   factory RecipeStep.fromJson(Map<String, dynamic> json) => RecipeStep(
         stepNumber: json['step_number'] as int,
-        instruction: json['instruction'] as String,
-        durationMin: json['duration_min'] as int?,
+        instruction: json['instruction'] as String?
+            ?? json['content'] as String? ?? '',
+        durationMin: json['duration_min'] as int?
+            ?? ((json['timer_seconds'] as int?) != null
+                ? ((json['timer_seconds'] as int) / 60).round()
+                : null),
         imageUrl: json['image_url'] as String?,
       );
 }

@@ -6,6 +6,7 @@ import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/meal_plan.dart';
 import 'auth_provider.dart';
+import 'recipe_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Active meal plan — joins entry components with recipe + macro data
@@ -25,7 +26,7 @@ final activeMealPlanProvider =
     final data = await client
         .from('meal_plan')
         .select(
-          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
+          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, prep_time_min, cook_time_min, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
         )
         .eq('user_id', user.id)
         .eq('is_active', true)
@@ -67,12 +68,16 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
     return null;
   }
 
-  Future<void> generate({int days = 7, int mealsPerDay = 3}) async {
+  Future<void> generate({int? days, int mealsPerDay = 3}) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    _logger.userAction('Generate meal plan', metadata: {'days': days, 'mealsPerDay': mealsPerDay});
-    _logger.edge('generate-meal-plan', 'BEFORE | days: $days | mealsPerDay: $mealsPerDay | userId: ${user.id}');
+    // Default: today through Sunday of the current week (batch runs Sunday night).
+    // weekday: 1=Mon … 7=Sun → days remaining inclusive = 8 - weekday.
+    final effectiveDays = days ?? (8 - DateTime.now().weekday);
+
+    _logger.userAction('Generate meal plan', metadata: {'days': effectiveDays, 'mealsPerDay': mealsPerDay});
+    _logger.edge('generate-meal-plan', 'BEFORE | days: $effectiveDays | mealsPerDay: $mealsPerDay | userId: ${user.id}');
     _logger.provider('MealPlanGeneratorNotifier → loading (generate)');
 
     final client = ref.read(supabaseClientProvider);
@@ -81,7 +86,7 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
       try {
         final res = await client.functions.invoke(
           'generate-meal-plan',
-          body: {'days': days, 'meals_per_day': mealsPerDay},
+          body: {'days': effectiveDays, 'meals_per_day': mealsPerDay},
         );
         _logger.edge('generate-meal-plan', 'AFTER | success | responseType: ${res.data.runtimeType}');
 
@@ -139,35 +144,43 @@ class MealPlanSwapNotifier extends AutoDisposeAsyncNotifier<void> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
+    // Keep provider alive for the full RPC round-trip even if the calling
+    // widget pops and drops the only listener before the response arrives.
+    final keepAlive = ref.keepAlive();
+
     _logger.userAction('Swap meal plan entry', metadata: {'entryId': entryId, 'newRecipeId': newRecipeId});
     _logger.db('BEFORE | rpc: swap_meal_plan_entry | userId: ${user.id} | entryId: $entryId | newRecipeId: $newRecipeId');
     _logger.provider('MealPlanSwapNotifier → loading (swap)');
 
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      try {
-        await client.rpc(
-          'swap_meal_plan_entry',
-          params: {'p_entry_id': entryId, 'p_new_recipe_id': newRecipeId},
-        );
-        _logger.db('AFTER | rpc: swap_meal_plan_entry | success');
-        _logger.provider('MealPlanSwapNotifier → data (swap success)');
-      } on PostgrestException catch (e, st) {
-        _logger.db('ERROR | rpc: swap_meal_plan_entry | code: ${e.code}', error: e, stackTrace: st);
-        _logger.provider('MealPlanSwapNotifier → error | $e');
-        rethrow;
-      } catch (e, st) {
-        _logger.db('ERROR | rpc: swap_meal_plan_entry | unexpected: $e', error: e, stackTrace: st);
-        _logger.provider('MealPlanSwapNotifier → error | $e');
-        rethrow;
-      }
-    });
+    try {
+      state = await AsyncValue.guard(() async {
+        try {
+          await client.rpc(
+            'swap_meal_plan_entry',
+            params: {'p_entry_id': entryId, 'p_new_recipe_id': newRecipeId},
+          );
+          _logger.db('AFTER | rpc: swap_meal_plan_entry | success');
+          _logger.provider('MealPlanSwapNotifier → data (swap success)');
+        } on PostgrestException catch (e, st) {
+          _logger.db('ERROR | rpc: swap_meal_plan_entry | code: ${e.code}', error: e, stackTrace: st);
+          _logger.provider('MealPlanSwapNotifier → error | $e');
+          rethrow;
+        } catch (e, st) {
+          _logger.db('ERROR | rpc: swap_meal_plan_entry | unexpected: $e', error: e, stackTrace: st);
+          _logger.provider('MealPlanSwapNotifier → error | $e');
+          rethrow;
+        }
+      });
 
-    if (state is AsyncData) {
-      _logger.provider('MealPlanSwapNotifier → invalidating activeMealPlanProvider and shoppingListProvider');
-      ref.invalidate(activeMealPlanProvider);
-      ref.invalidate(shoppingListProvider);
+      if (state is AsyncData) {
+        _logger.provider('MealPlanSwapNotifier → invalidating activeMealPlanProvider and shoppingListProvider');
+        ref.invalidate(activeMealPlanProvider);
+        ref.invalidate(shoppingListProvider);
+      }
+    } finally {
+      keepAlive.close();
     }
   }
 }
@@ -228,8 +241,9 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
       final items = itemsData.map((e) {
          final ingredient = e['ingredient'] as Map<String, dynamic>?;
          return ShoppingItem(
-            ingredientId: e['ingredient_id'] as String,
-            name: (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? 'Unknown',
+            id: e['id'] as String,
+            ingredientId: e['ingredient_id'] as String?,
+            name: (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown',
             quantity: (e['quantity'] as num).toDouble(),
             unit: e['unit'] as String,
             category: ingredient?['category'] as String?,
@@ -252,18 +266,18 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
     }
   }
 
-  Future<void> toggleItem(String ingredientId, bool isChecked) async {
+  Future<void> toggleItem(String id, bool isChecked) async {
     final client = ref.read(supabaseClientProvider);
     final plan = await ref.read(activeMealPlanProvider.future);
     if (plan == null) return;
 
-    _logger.userAction('Toggle shopping item', metadata: {'ingredientId': ingredientId, 'isChecked': isChecked});
+    _logger.userAction('Toggle shopping item', metadata: {'id': id, 'isChecked': isChecked});
     
     final previousState = state.valueOrNull;
     if (previousState != null) {
       state = AsyncData([
         for (final item in previousState)
-          if (item.ingredientId == ingredientId)
+          if (item.id == id)
             item.copyWith(isChecked: isChecked)
           else
             item
@@ -278,9 +292,11 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
           .from('shopping_list_item')
           .update({'is_checked': isChecked})
           .eq('shopping_list_id', listData['id'])
-          .eq('ingredient_id', ingredientId);
+          .eq('id', id)
+          .select()
+          .single();
           
-      _logger.db('AFTER | table: shopping_list_item | op: UPDATE is_checked=$isChecked');
+      _logger.db('AFTER | table: shopping_list_item | op: UPDATE is_checked=$isChecked | id: $id');
     } catch (e, st) {
       _logger.db('ERROR | table: shopping_list_item | op: UPDATE | $e', error: e, stackTrace: st);
       if (previousState != null) {
@@ -301,17 +317,19 @@ final shoppingListProvider =
 // Returns true on success so MealDetailPage can trigger the rating sheet.
 // ---------------------------------------------------------------------------
 
-class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<bool> {
+class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
   final _logger = appLogger;
 
   @override
-  FutureOr<bool> build() {
+  FutureOr<String?> build() {
     _logger.provider('MealConsumptionNotifier build()');
     ref.onDispose(() => _logger.provider('MealConsumptionNotifier disposed'));
-    return false;
+    return null;
   }
 
   Future<void> logConsumption(String mealPlanEntryId) async {
+    if (state.isLoading) return;
+
     _logger.userAction('Log meal consumption', metadata: {'mealPlanEntryId': mealPlanEntryId});
     _logger.edge('log-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
     _logger.provider('MealConsumptionNotifier → loading');
@@ -325,8 +343,17 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<bool> {
           body: {'meal_plan_entry_id': mealPlanEntryId},
         );
         _logger.edge('log-meal-consumption', 'AFTER | success');
-        _logger.provider('MealConsumptionNotifier → data (true)');
-        return true;
+        _logger.provider('MealConsumptionNotifier → data ($mealPlanEntryId)');
+        return mealPlanEntryId;
+      } on FunctionException catch (e) {
+        final details = e.details;
+        if (details is Map && details['error'] == 'Meal already consumed') {
+          _logger.edge('log-meal-consumption', 'WARNING | Already consumed. Treating as success.');
+          return mealPlanEntryId;
+        }
+        _logger.edge('log-meal-consumption', 'ERROR | $e');
+        _logger.provider('MealConsumptionNotifier → error | $e');
+        rethrow;
       } catch (e, st) {
         _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
         _logger.provider('MealConsumptionNotifier → error | $e');
@@ -338,7 +365,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<bool> {
 }
 
 final mealConsumptionProvider =
-    AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, bool>(
+    AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, String?>(
         MealConsumptionNotifier.new);
 
 // ---------------------------------------------------------------------------
@@ -437,6 +464,38 @@ class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
       } catch (e, st) {
         _logger.db('ERROR | table: cooking_session | INSERT | unexpected: $e', error: e, stackTrace: st);
         _logger.provider('CookingSessionNotifier → error (create unexpected)');
+        rethrow;
+      }
+    });
+    if (state is AsyncData) ref.invalidate(cookingSessionsProvider);
+  }
+
+  Future<void> markCooked(String sessionId, {required bool isCooked}) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('Mark cooking session cooked', metadata: {'sessionId': sessionId, 'isCooked': isCooked});
+    _logger.db('BEFORE | table: cooking_session | op: UPDATE is_cooked=$isCooked | sessionId: $sessionId');
+    _logger.provider('CookingSessionNotifier → loading (markCooked)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        await client
+            .from('cooking_session')
+            .update({'is_cooked': isCooked})
+            .eq('id', sessionId)
+            .eq('user_id', user.id);
+        _logger.db('AFTER | table: cooking_session | op: UPDATE is_cooked=$isCooked | success');
+        _logger.provider('CookingSessionNotifier → data (markCooked success)');
+      } on PostgrestException catch (e, st) {
+        if (e.code == '42501') {
+          _logger.rls('Permission denied | table: cooking_session | UPDATE | userId: ${user.id}', error: e, stackTrace: st);
+        } else {
+          _logger.db('ERROR | table: cooking_session | UPDATE | code: ${e.code}', error: e, stackTrace: st);
+        }
+        _logger.provider('CookingSessionNotifier → error (markCooked)');
         rethrow;
       }
     });
@@ -605,13 +664,15 @@ class RatingNotifier extends AutoDisposeAsyncNotifier<void> {
     int? ratingTaste,
     int? ratingEase,
     int? ratingSatiety,
+    String? comment,
   }) async {
-    _logger.userAction('Submit meal rating', metadata: {
+    _logger.userAction('Submitting rating (Taste: $ratingTaste, Ease: $ratingEase, Satiety: $ratingSatiety, Comment: ${comment != null})', metadata: {
       'mealPlanEntryId': mealPlanEntryId,
       'rating': rating,
       'ratingTaste': ratingTaste,
       'ratingEase': ratingEase,
       'ratingSatiety': ratingSatiety,
+      'hasComment': comment != null,
     });
     _logger.edge('rate-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId | rating: $rating');
     _logger.provider('RatingNotifier → loading');
@@ -628,16 +689,22 @@ class RatingNotifier extends AutoDisposeAsyncNotifier<void> {
             if (ratingTaste != null) 'rating_taste': ratingTaste,
             if (ratingEase != null) 'rating_ease': ratingEase,
             if (ratingSatiety != null) 'rating_satiety': ratingSatiety,
+            if (comment != null) 'comment': comment,
           },
         );
         _logger.edge('rate-meal-consumption', 'AFTER | success');
         _logger.provider('RatingNotifier → data (submitRating success)');
+
+        // Invalidate recipes
+        ref.invalidate(feedProvider);
+
       } catch (e, st) {
         _logger.edge('rate-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
         _logger.provider('RatingNotifier → error | $e');
         rethrow;
       }
     });
+
   }
 }
 

@@ -9,7 +9,7 @@ import '../../core/theme.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
-import '../../providers/user_profile_provider.dart';
+
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
 import '../../shared/widgets/creator_card.dart';
@@ -208,7 +208,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       _logger.db('BEFORE | table: creator | op: SELECT IN | ids: ${orderedIds.length}');
       final rows = await client
           .from('creator')
-          .select('id, user_id, display_name, avatar_url, bio, specialties, recipe_count, fan_count, average_rating, food_region_id')
+          .select('id, user_id, display_name, profile_image_url, bio, specialties, recipe_count, fan_count, average_rating, heritage_region')
           .inFilter('id', orderedIds) as List<dynamic>;
       _logger.db('AFTER | table: creator | rows: ${rows.length}');
 
@@ -412,7 +412,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('${tempMinCal ?? 0} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
-                        Text(tempMaxCal == null ? '2000+ kcal' : '${tempMaxCal} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                        Text(tempMaxCal == null ? '2000+ kcal' : '$tempMaxCal kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
                       ],
                     ),
                     const SizedBox(height: 32),
@@ -492,7 +492,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             orderBy: _orderBy,
           )));
 
-    final profileAsync = ref.watch(userProfileProvider);
+
     final regionNames = ref.watch(foodRegionNamesProvider).valueOrNull ?? {};
 
     _logger.provider('FeedPage build() | isSearching: $isSearching | feedAsync.isLoading: ${feedAsync.isLoading}');
@@ -793,23 +793,32 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     calories: recipe.calories?.toInt() ?? 0,
                     rating: recipe.averageRating,
                     likes: recipe.likeCount,
-                    comments: 0,
-                    saves: 0,
+                    comments: recipe.commentCount,
+                    saves: recipe.saveCount,
                     emoji: null,
                     region: recipe.regionId != null
                         ? regionNames[recipe.regionId!] ?? recipe.regionId
                         : null,
                     tags: recipe.tagIds.take(2).toList(),
-                    onTap: () {
+                    onTap: () async {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
-                      
+
                       if (widget.swapEntryId != null) {
-                        ref.read(mealPlanSwapProvider.notifier).swapMeal(widget.swapEntryId!, recipe.id);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text('Repas remplacé avec succès'),
-                          backgroundColor: AkeliColors.primary,
-                        ));
-                        context.pop();
+                        try {
+                          await ref.read(mealPlanSwapProvider.notifier).swapMeal(widget.swapEntryId!, recipe.id);
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text('Repas remplacé avec succès'),
+                            backgroundColor: AkeliColors.primary,
+                          ));
+                          context.pop();
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                            content: Text('Erreur lors du remplacement du repas'),
+                            backgroundColor: Colors.red,
+                          ));
+                        }
                       } else {
                         context.push(
                           AkeliRoutes.recipeDetailPath(recipe.id),

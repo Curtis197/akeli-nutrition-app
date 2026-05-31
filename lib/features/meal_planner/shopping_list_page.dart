@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
-import '../../shared/models/meal_plan.dart';
+
 import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/shopping_row.dart';
 
 enum _ShoppingFilter { all, bought, remaining }
 
@@ -36,7 +39,13 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go(AkeliRoutes.mealPlanner);
+                }
+              },
             style: IconButton.styleFrom(
               backgroundColor: Colors.transparent,
             ),
@@ -50,20 +59,6 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
             fontSize: 18,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              icon: const Icon(Icons.more_vert, color: AkeliColors.primary),
-              onPressed: () {
-                _logger.userAction('More options tapped', screen: 'ShoppingListPage');
-              },
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.transparent,
-              ),
-            ),
-          ),
-        ],
       ),
       body: listAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -179,11 +174,11 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                       final item = filteredItems[index];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
-                        child: _ShoppingItemRow(
+                        child: AkeliShoppingRow(
                           item: item,
                           isChecked: item.isChecked,
                           onToggle: () {
-                            ref.read(shoppingListProvider.notifier).toggleItem(item.ingredientId, !item.isChecked);
+                            ref.read(shoppingListProvider.notifier).toggleItem(item.id, !item.isChecked);
                           },
                         ),
                       );
@@ -246,94 +241,4 @@ class _FilterButton extends StatelessWidget {
   }
 }
 
-class _ShoppingItemRow extends StatelessWidget {
-  final ShoppingItem item;
-  final bool isChecked;
-  final VoidCallback onToggle;
-
-  const _ShoppingItemRow({
-    required this.item,
-    required this.isChecked,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final qtyText = '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1)} ${item.unit}';
-
-    return GestureDetector(
-      onTap: onToggle,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isChecked ? AkeliColors.surfaceContainerLow : AkeliColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isChecked
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  )
-                ],
-        ),
-        child: Opacity(
-          opacity: isChecked ? 0.6 : 1.0,
-          child: Row(
-            children: [
-              // Checkbox circle
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isChecked ? AkeliColors.primary : Colors.transparent,
-                  border: isChecked ? null : Border.all(color: AkeliColors.outlineVariant, width: 2),
-                ),
-                child: isChecked
-                    ? const Icon(Icons.check, size: 16, color: Colors.white)
-                    : null,
-              ),
-              const SizedBox(width: 16),
-              
-              // Ingredient name
-              Expanded(
-                child: Text(
-                  item.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isChecked ? AkeliColors.onSurfaceVariant : AkeliColors.onSurface,
-                    decoration: isChecked ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              
-              // Quantity badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isChecked ? AkeliColors.surfaceContainerHighest : AkeliColors.surfaceContainer,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  qtyText,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: AkeliColors.onSurfaceVariant,
-                    decoration: isChecked ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 

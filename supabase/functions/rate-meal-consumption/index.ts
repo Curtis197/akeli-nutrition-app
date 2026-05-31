@@ -25,8 +25,8 @@ serve(async (req) => {
 
     logger.debug("[STEP 1] Parsing request body");
     const body = await req.json();
-    const { meal_plan_entry_id, rating, rating_taste, rating_ease, rating_satiety } = body;
-    logger.debug("[STEP 1] Body parsed", { meal_plan_entry_id, rating });
+    const { meal_plan_entry_id, rating, rating_taste, rating_ease, rating_satiety, comment } = body;
+    logger.debug("[STEP 1] Body parsed", { meal_plan_entry_id, rating, has_comment: !!comment });
 
     if (!meal_plan_entry_id) {
       logger.warn("EARLY RETURN | reason: meal_plan_entry_id missing");
@@ -42,12 +42,16 @@ serve(async (req) => {
         return err(key + " must be an integer between 1 and 5 if provided");
       }
     }
+    if (comment != null && typeof comment !== "string") {
+      logger.warn("EARLY RETURN | reason: invalid comment type");
+      return err("comment must be a string");
+    }
 
     logger.debug("[STEP 2] Verify meal_plan_entry ownership and consumed state");
     logRLSCheck(logger, "meal_plan_entry", "SELECT", user.id);
     const { data: entry, error: entryError } = await client
       .from("meal_plan_entry")
-      .select("id, is_consumed")
+      .select("id, is_consumed, recipe_id")
       .eq("id", meal_plan_entry_id)
       .maybeSingle();
     logQueryResult(logger, "meal_plan_entry", "SELECT", entry ? 1 : 0, entryError ?? undefined);
@@ -77,6 +81,21 @@ serve(async (req) => {
     logQueryResult(logger, "meal_consumption", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
     if (updateError) throw updateError;
+
+    if (comment && comment.trim().length > 0) {
+      logger.debug("[STEP 4] Insert comment into recipe_comment");
+      logRLSCheck(logger, "recipe_comment", "INSERT", user.id);
+      const { error: commentError } = await admin
+        .from("recipe_comment")
+        .insert({
+          recipe_id: entry.recipe_id,
+          user_id: user.id,
+          content: comment.trim(),
+        });
+      logQueryResult(logger, "recipe_comment", "INSERT", commentError ? 0 : 1, commentError ?? undefined);
+      
+      if (commentError) throw commentError;
+    }
 
     logger.info("✅ EXIT | status: 200 | duration: " + (Date.now() - start) + "ms");
     return ok({ rated: true });

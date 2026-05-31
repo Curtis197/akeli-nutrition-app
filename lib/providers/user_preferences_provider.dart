@@ -115,7 +115,7 @@ class UserPreferencesNotifier
       await client.from('user_health_profile').upsert({
         'user_id': user.id,
         'cooking_time': updated.cookingTime,
-      });
+      }, onConflict: 'user_id');
       _logger.db('AFTER | table: user_health_profile | op: UPSERT | rows: 1');
 
       _logger.db('BEFORE | table: user_profile | op: UPDATE | userId: ${user.id}');

@@ -89,8 +89,10 @@ class HealthProfile {
   final DateTime? birthDate;
   final String? sex;
   final double? weightKg;
+  final double? startingWeightKg;
   final double? heightCm;
   final double? targetWeightKg;
+  final int? targetTimeWeeks;
   final String? activityLevel;
   final String? primaryGoal;
   final List<String> dietaryRestrictions;
@@ -101,8 +103,10 @@ class HealthProfile {
     this.birthDate,
     this.sex,
     this.weightKg,
+    this.startingWeightKg,
     this.heightCm,
     this.targetWeightKg,
+    this.targetTimeWeeks,
     this.activityLevel,
     this.primaryGoal,
     required this.dietaryRestrictions,
@@ -116,8 +120,10 @@ class HealthProfile {
             : null,
         sex: json['sex'] as String?,
         weightKg: (json['weight_kg'] as num?)?.toDouble(),
+        startingWeightKg: (json['starting_weight_kg'] as num?)?.toDouble(),
         heightCm: (json['height_cm'] as num?)?.toDouble(),
         targetWeightKg: (json['target_weight_kg'] as num?)?.toDouble(),
+        targetTimeWeeks: json['target_time_weeks'] as int?,
         activityLevel: json['activity_level'] as String?,
         primaryGoal: json['primary_goal'] as String?,
         dietaryRestrictions:

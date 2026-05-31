@@ -3,6 +3,7 @@
 // send-push-notification already inserts a notification row for each call,
 // so we do NOT also write to the notification table here.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { handleCors } from "../_shared/cors.ts";
 import { ok, err, unauthorized, serverError } from "../_shared/response.ts";
 import { getAuthUser, serviceClient } from "../_shared/supabase.ts";
 import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
@@ -11,6 +12,9 @@ const SELF_URL = Deno.env.get("SUPABASE_URL")!;
 const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET")!;
 
 serve(async (req) => {
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
+
   const logger = createLogger("notify-group-message");
   const requestId = crypto.randomUUID();
   logger.setRequestId(requestId);
@@ -61,11 +65,11 @@ serve(async (req) => {
     logRLSCheck(logger, "user_profile", "SELECT", user.id);
     const { data: senderProfile, error: senderError } = await admin
       .from("user_profile")
-      .select("display_name")
+      .select("first_name")
       .eq("id", user.id)
       .maybeSingle();
     logQueryResult(logger, "user_profile", "SELECT", senderProfile ? 1 : 0, senderError ?? undefined);
-    const senderName = senderProfile?.display_name ?? "Quelqu'un";
+    const senderName = senderProfile?.first_name ?? "Quelqu'un";
 
     logger.debug("[STEP 5] Fetch group name");
     logRLSCheck(logger, "community_group", "SELECT", "all");

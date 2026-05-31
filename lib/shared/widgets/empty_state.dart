@@ -21,50 +21,60 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Center(
-      child: Padding(
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
         padding: const EdgeInsets.all(AkeliSpacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: AkeliColors.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 40, color: AkeliColors.primary),
-            ),
-            const SizedBox(height: AkeliSpacing.lg),
-            Text(
-              title,
-              style: textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: AkeliSpacing.sm),
-              Text(
-                subtitle!,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: AkeliColors.textSecondary,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minHeight: constraints.maxHeight.isInfinite 
+                ? 0.0 
+                : (constraints.maxHeight - 2 * AkeliSpacing.xl).clamp(0.0, double.infinity),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AkeliColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 40, color: AkeliColors.primary),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-            if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: AkeliSpacing.xl),
-              FilledButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
-              ),
-            ],
-          ],
+                const SizedBox(height: AkeliSpacing.lg),
+                Text(
+                  title,
+                  style: textTheme.headlineSmall,
+                  textAlign: TextAlign.center,
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: AkeliSpacing.sm),
+                  Text(
+                    subtitle!,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AkeliColors.textSecondary,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                if (actionLabel != null && onAction != null) ...[
+                  const SizedBox(height: AkeliSpacing.xl),
+                  FilledButton(
+                    onPressed: onAction,
+                    child: Text(actionLabel!),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
+
 
 class ErrorState extends StatelessWidget {
   final String message;

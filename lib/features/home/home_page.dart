@@ -27,9 +27,8 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  double _currentWeight = 68.5;
+  double _currentWeight = 0.0;
   String _activeFilter = 'tout';
-  final Set<String> _checkedShoppingIds = {};
   final _logger = appLogger;
 
   @override
@@ -347,9 +346,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                           title: entry.recipeTitle ?? 'Repas',
                           mealType: entry.mealTypeLabel,
                           calories: entry.calories,
-                          protein: entry.proteinG,
-                          carbs: entry.carbsG,
-                          fat: entry.fatG,
                           imageUrl: entry.recipeThumbnail,
                           onTap: () {
                             _logger.userAction('Meal card tapped',
@@ -466,28 +462,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: Column(
                         children: List.generate(filtered.length, (index) {
                           final item = filtered[index];
-                          final isChecked =
-                              _checkedShoppingIds.contains(item.ingredientId);
+                          final isChecked = item.isChecked;
                           return AkeliShoppingRow(
-                            quantity: item.quantityDisplay,
-                            ingredient: item.name,
-                            checked: isChecked,
+                            item: item,
+                            isChecked: isChecked,
                             onToggle: () {
                               HapticFeedback.mediumImpact();
                               _logger.userAction('Shopping item toggled',
                                   screen: 'HomePage',
                                   metadata: {
-                                    'itemId': item.ingredientId,
+                                    'itemId': item.id,
                                     'checked': !isChecked
                                   });
-                              setState(() {
-                                if (isChecked) {
-                                  _checkedShoppingIds
-                                      .remove(item.ingredientId);
-                                } else {
-                                  _checkedShoppingIds.add(item.ingredientId);
-                                }
-                              });
+                              ref.read(shoppingListProvider.notifier).toggleItem(item.id, !isChecked);
                             },
                           );
                         }),
@@ -543,8 +530,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                               calories: recipe.calories?.toInt() ?? 0,
                               rating: recipe.averageRating,
                               likes: recipe.likeCount,
-                              comments: recipe.ratingCount,
-                              saves: 0,
+                              comments: recipe.commentCount,
+                              saves: recipe.saveCount,
                               region: recipe.regionId != null ? regionNames[recipe.regionId!] ?? recipe.regionId : null,
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
@@ -587,11 +574,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       filtered = allItems;
     } else if (_activeFilter == 'acheter') {
       filtered = allItems
-          .where((i) => !_checkedShoppingIds.contains(i.ingredientId))
+          .where((i) => !i.isChecked)
           .toList();
     } else {
       filtered = allItems
-          .where((i) => _checkedShoppingIds.contains(i.ingredientId))
+          .where((i) => i.isChecked)
           .toList();
     }
     _logger.provider(
