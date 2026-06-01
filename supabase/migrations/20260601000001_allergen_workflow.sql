@@ -175,6 +175,10 @@ DECLARE
   v_user_vector vector(50);
   v_fan_creator_id uuid;
 BEGIN
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
   SELECT uv.vector INTO v_user_vector
   FROM user_vector uv
   WHERE uv.user_id = p_user_id;
@@ -527,6 +531,10 @@ DECLARE
   v_used_recipe_ids uuid[] := ARRAY[]::uuid[];
   v_user_allergens text[];
 BEGIN
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
   SELECT uv.vector INTO v_user_vector
   FROM user_vector uv WHERE uv.user_id = p_user_id;
 
