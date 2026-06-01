@@ -1,5 +1,5 @@
 -- Register weekly batch meal plan generation cron job.
--- Fires every Sunday at 23:00 UTC and calls the batch-generate-meal-plans edge function.
+-- Fires every Monday at 01:00 UTC and calls the batch-generate-meal-plans edge function.
 --
 -- The INTERNAL_SECRET must be stored in the Supabase Vault under the name 'INTERNAL_SECRET'
 -- before this migration is applied. Set it via:
@@ -28,7 +28,7 @@ WHERE jobname = 'batch-generate-meal-plans-weekly';
 
 SELECT cron.schedule(
   'batch-generate-meal-plans-weekly',
-  '0 23 * * 0',
+  '0 1 * * 1',
   $$
   SELECT net.http_post(
     -- NOTE: URL is hardcoded to production project njzqcftjzskwcpforwzf — update if migrating to a different project
