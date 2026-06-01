@@ -7,7 +7,7 @@ part of 'recipe_comment_provider.dart';
 // **************************************************************************
 
 String _$recipeCommentNotifierHash() =>
-    r'fad5fc3c64a20727a19635ef864b4aab851b3c46';
+    r'0711e26e339e856f70b97018e558fc04620dffcd';
 
 /// Copied from Dart SDK
 class _SystemHash {

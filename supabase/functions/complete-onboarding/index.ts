@@ -45,6 +45,7 @@ serve(async (req) => {
       batch_cooking_max_portions,
       dietary_restrictions,
       cuisine_preferences,
+      selectedAllergenIds,
       consent_privacy_at,
       consent_cgu_at,
     } = body;
@@ -124,6 +125,19 @@ serve(async (req) => {
         dietary_restrictions.map((restriction: string) => ({ user_id: user.id, restriction })),
       );
       logQueryResult(logger, "user_dietary_restriction", "INSERT", restrictionInsertError ? 0 : dietary_restrictions.length, restrictionInsertError ?? undefined);
+    }
+
+    logger.debug("[STEP 5b] Replace user_allergy");
+    logRLSCheck(logger, "user_allergy", "DELETE", user.id);
+    const { error: allergyDeleteError } = await admin.from("user_allergy").delete().eq("user_id", user.id);
+    logQueryResult(logger, "user_allergy", "DELETE", 0, allergyDeleteError ?? undefined);
+
+    if (selectedAllergenIds?.length) {
+      logRLSCheck(logger, "user_allergy", "INSERT", user.id);
+      const { error: allergyInsertError } = await admin.from("user_allergy").insert(
+        selectedAllergenIds.map((allergen_id: string) => ({ user_id: user.id, allergen_id })),
+      );
+      logQueryResult(logger, "user_allergy", "INSERT", allergyInsertError ? 0 : selectedAllergenIds.length, allergyInsertError ?? undefined);
     }
 
     // 6. Remplacer les préférences culinaires
