@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../shared/models/user_preferences.dart';
+import 'widgets/allergen_picker_widget.dart';
 
 class PreferencesPage extends ConsumerStatefulWidget {
   const PreferencesPage({super.key});
@@ -334,33 +335,33 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                               _localPrefs = local.copyWith(noLactose: v));
                         },
                       ),
-                      if (local.allergies.isNotEmpty) ...[
-                        const Divider(height: 1, indent: 48),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Allergies',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: AkeliColors.onSurface,
-                                ),
+                      const Divider(height: 1, indent: 48),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Allergies & Intolérances',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AkeliColors.onSurface,
                               ),
-                              const SizedBox(height: 8),
-                              Wrap(
-                                spacing: 8,
-                                children: local.allergies
-                                    .map((a) => Chip(label: Text(a)))
-                                    .toList(),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 12),
+                            AllergenPickerWidget(
+                              selectedAllergens: local.allergens,
+                              onChanged: (updated) {
+                                setState(() {
+                                  _localPrefs = local.copyWith(allergens: updated);
+                                });
+                              },
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),

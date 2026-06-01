@@ -1,6 +1,7 @@
 // lib/shared/models/user_preferences.dart
 
 import 'package:akeli/core/logger.dart';
+import 'package:akeli/features/settings/models/allergen_model.dart';
 
 class UserPreferencesModel {
   final String? cookingTime;       // 'quick' | 'medium' | 'any' | null
@@ -11,7 +12,7 @@ class UserPreferencesModel {
   final bool noMeat;
   final bool noGluten;
   final bool noLactose;
-  final List<String> allergies;
+  final List<AllergenModel> allergens;
 
   const UserPreferencesModel({
     this.cookingTime,
@@ -22,7 +23,7 @@ class UserPreferencesModel {
     this.noMeat = false,
     this.noGluten = false,
     this.noLactose = false,
-    this.allergies = const [],
+    this.allergens = const [],
   });
 
   UserPreferencesModel copyWith({
@@ -34,7 +35,7 @@ class UserPreferencesModel {
     bool? noMeat,
     bool? noGluten,
     bool? noLactose,
-    List<String>? allergies,
+    List<AllergenModel>? allergens,
     bool clearCookingTime = false,
     bool clearCuisineRegion = false,
   }) {
@@ -48,7 +49,7 @@ class UserPreferencesModel {
         noMeat: noMeat ?? this.noMeat,
         noGluten: noGluten ?? this.noGluten,
         noLactose: noLactose ?? this.noLactose,
-        allergies: allergies ?? this.allergies,
+        allergens: allergens ?? this.allergens,
       );
   }
 }

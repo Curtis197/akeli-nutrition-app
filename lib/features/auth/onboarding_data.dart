@@ -1,4 +1,5 @@
 import 'package:akeli/core/logger.dart';
+import 'package:akeli/features/settings/models/allergen_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OnboardingData {
@@ -18,7 +19,7 @@ class OnboardingData {
   final bool noMeat;
   final bool noGluten;
   final bool noLactose;
-  final List<String> allergies;
+  final List<AllergenModel> allergens;
   final List<String> cuisinePreferences;
   final String? weightGoal;   // 'loss' | 'maintenance' | 'gain'
   final String? muscleGoal;   // 'loss' | 'maintenance' | 'gain'
@@ -43,7 +44,7 @@ class OnboardingData {
     this.noMeat = false,
     this.noGluten = false,
     this.noLactose = false,
-    this.allergies = const [],
+    this.allergens = const [],
     this.cuisinePreferences = const [],
     this.weightGoal,
     this.muscleGoal,
@@ -69,7 +70,7 @@ class OnboardingData {
     bool? noMeat,
     bool? noGluten,
     bool? noLactose,
-    List<String>? allergies,
+    List<AllergenModel>? allergens,
     List<String>? cuisinePreferences,
     String? weightGoal,
     String? muscleGoal,
@@ -94,7 +95,7 @@ class OnboardingData {
         noMeat: noMeat ?? this.noMeat,
         noGluten: noGluten ?? this.noGluten,
         noLactose: noLactose ?? this.noLactose,
-        allergies: allergies ?? this.allergies,
+        allergens: allergens ?? this.allergens,
         cuisinePreferences: cuisinePreferences ?? this.cuisinePreferences,
         weightGoal: weightGoal ?? this.weightGoal,
         muscleGoal: muscleGoal ?? this.muscleGoal,
@@ -168,7 +169,7 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
     bool? noMeat,
     bool? noGluten,
     bool? noLactose,
-    List<String>? allergies,
+    List<AllergenModel>? allergens,
     List<String>? cuisinePreferences,
   }) {
     _logger.provider('OnboardingNotifier → updatePreferences | noPork: $noPork | noMeat: $noMeat | noGluten: $noGluten | noLactose: $noLactose');
@@ -177,7 +178,7 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         noMeat: noMeat,
         noGluten: noGluten,
         noLactose: noLactose,
-        allergies: allergies,
+        allergens: allergens,
         cuisinePreferences: cuisinePreferences);
   }
 
@@ -201,7 +202,7 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         noMeat: state.noMeat,
         noGluten: state.noGluten,
         noLactose: state.noLactose,
-        allergies: state.allergies,
+        allergens: state.allergens,
         cuisinePreferences: state.cuisinePreferences,
         weightGoal: state.weightGoal,
         muscleGoal: state.muscleGoal,
@@ -226,7 +227,7 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         noMeat: state.noMeat,
         noGluten: state.noGluten,
         noLactose: state.noLactose,
-        allergies: state.allergies,
+        allergens: state.allergens,
         cuisinePreferences: state.cuisinePreferences,
         weightGoal: state.weightGoal,
         muscleGoal: state.muscleGoal,

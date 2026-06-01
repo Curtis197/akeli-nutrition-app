@@ -12,6 +12,7 @@ import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
 import '../../core/logger.dart';
 import '../nutrition_plan/nutrition_plan_page.dart';
+import '../settings/widgets/allergen_picker_widget.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -100,7 +101,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       if (d.noMeat) 'no_meat',
       if (d.noGluten) 'no_gluten',
       if (d.noLactose) 'no_lactose',
-      ...d.allergies,
     ];
 
     // Build goal_type set from the user's explicit onboarding selections.
@@ -129,6 +129,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       'batch_cooking_enabled': d.batchCookingEnabled,
       'batch_cooking_max_portions': d.batchMaxPortions,
       'dietary_restrictions': restrictions,
+      'selectedAllergenIds': d.allergens.map((a) => a.id).toList(),
       'cuisine_preferences': d.cuisinePreferences,
       if (d.consentPrivacy) 'consent_privacy_at': now,
       if (d.consentCgu) 'consent_cgu_at': now,
@@ -1565,7 +1566,6 @@ class _StepPreferences extends ConsumerStatefulWidget {
 
 class _StepPreferencesState extends ConsumerState<_StepPreferences> {
   final _logger = appLogger;
-  final _allergyCtrl = TextEditingController();
 
   static const _kRegions = [
     ('west_africa',    'Afrique de l\'Ouest'),
@@ -1579,7 +1579,6 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
 
   @override
   void dispose() {
-    _allergyCtrl.dispose();
     super.dispose();
   }
 
@@ -1666,78 +1665,12 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _allergyCtrl,
-                        style: GoogleFonts.inter(
-                            fontSize: 14, color: AkeliColors.onSurface),
-                        decoration: InputDecoration(
-                          hintText: 'Ex: arachides, noix...',
-                          filled: true,
-                          fillColor: AkeliColors.surfaceContainerHighest,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                              borderSide: BorderSide.none),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: AkeliSpacing.md,
-                              vertical: AkeliSpacing.sm),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AkeliSpacing.sm),
-                    GestureDetector(
-                      onTap: () {
-                        _logger.userAction('Add allergy tapped', screen: 'OnboardingPage');
-                        final txt = _allergyCtrl.text.trim();
-                        if (txt.isNotEmpty) {
-                          final updated = [...data.allergies, txt];
-                          notifier.updatePreferences(allergies: updated);
-                          _allergyCtrl.clear();
-                        }
-                      },
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AkeliColors.primary,
-                          borderRadius: BorderRadius.circular(AkeliRadius.md),
-                        ),
-                        child: const Icon(Icons.add_rounded,
-                            color: Colors.white, size: 22),
-                      ),
-                    ),
-                  ],
+                AllergenPickerWidget(
+                  selectedAllergens: data.allergens,
+                  onChanged: (updated) {
+                    notifier.updatePreferences(allergens: updated);
+                  },
                 ),
-                if (data.allergies.isNotEmpty) ...[
-                  const SizedBox(height: AkeliSpacing.md),
-                  Wrap(
-                    spacing: AkeliSpacing.sm,
-                    runSpacing: AkeliSpacing.sm,
-                    children: data.allergies.map((a) {
-                      return Chip(
-                        label: Text(a,
-                            style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: AkeliColors.onSurface)),
-                        backgroundColor: AkeliColors.surfaceContainerLow,
-                        deleteIcon: const Icon(Icons.close_rounded, size: 16),
-                        onDeleted: () {
-                          _logger.userAction('Allergy removed', screen: 'OnboardingPage', metadata: {'allergy': a});
-                          final updated = data.allergies
-                              .where((x) => x != a)
-                              .toList();
-                          notifier.updatePreferences(allergies: updated);
-                        },
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(AkeliRadius.pill)),
-                      );
-                    }).toList(),
-                  ),
-                ],
               ],
             ),
           ),

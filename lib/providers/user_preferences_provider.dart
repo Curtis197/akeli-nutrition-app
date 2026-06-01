@@ -4,14 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:akeli/core/logger.dart';
 import '../core/supabase_client.dart';
+import '../features/settings/models/allergen_model.dart';
 import '../shared/models/user_preferences.dart';
 import 'auth_provider.dart';
 
 class UserPreferencesNotifier
     extends AutoDisposeAsyncNotifier<UserPreferencesModel> {
   final _logger = appLogger;
-
-  static const _knownRestrictions = {'no_pork', 'no_meat', 'no_gluten', 'no_lactose'};
 
   @override
   Future<UserPreferencesModel> build() async {
@@ -50,22 +49,34 @@ class UserPreferencesNotifier
           .select('restriction')
           .eq('user_id', user.id);
 
+      final allergensFuture = client
+          .from('user_allergy')
+          .select('allergen:allergen_id ( id, slug, label )')
+          .eq('user_id', user.id);
+
       final results = await Future.wait<dynamic>([
         healthFuture,
         profileFuture,
         cuisineFuture,
         restrictionsFuture,
+        allergensFuture,
       ]);
 
       final health = results[0] as Map<String, dynamic>?;
       final profile = results[1] as Map<String, dynamic>;
       final cuisine = results[2] as Map<String, dynamic>?;
       final rawRestrictions = results[3] as List<dynamic>;
+      final rawAllergens = results[4] as List<dynamic>;
 
       final restrictionCodes =
           rawRestrictions.map((r) => r['restriction'] as String).toList();
 
-      _logger.db('AFTER | tables: user_health_profile,user_profile,user_cuisine_preference,user_dietary_restriction | userId: ${user.id}');
+      final allergens = rawAllergens.map((row) {
+        final a = row['allergen'] as Map<String, dynamic>;
+        return AllergenModel.fromJson(a);
+      }).toList();
+
+      _logger.db('AFTER | tables: user_health_profile,user_profile,user_cuisine_preference,user_dietary_restriction,user_allergy | userId: ${user.id}');
       _logger.provider('UserPreferencesNotifier → data | userId: ${user.id}');
 
       return UserPreferencesModel(
@@ -77,9 +88,7 @@ class UserPreferencesNotifier
         noMeat: restrictionCodes.contains('no_meat'),
         noGluten: restrictionCodes.contains('no_gluten'),
         noLactose: restrictionCodes.contains('no_lactose'),
-        allergies: restrictionCodes
-            .where((r) => !_knownRestrictions.contains(r))
-            .toList(),
+        allergens: allergens,
       );
     } on PostgrestException catch (e, st) {
       if (e.code == '42501') {
@@ -148,7 +157,6 @@ class UserPreferencesNotifier
         if (updated.noMeat) 'no_meat',
         if (updated.noGluten) 'no_gluten',
         if (updated.noLactose) 'no_lactose',
-        ...updated.allergies,
       ];
       if (restrictions.isNotEmpty) {
         _logger.db('BEFORE | table: user_dietary_restriction | op: INSERT | rows: ${restrictions.length}');
@@ -156,6 +164,18 @@ class UserPreferencesNotifier
           restrictions.map((r) => {'user_id': user.id, 'restriction': r}).toList(),
         );
         _logger.db('AFTER | table: user_dietary_restriction | op: INSERT | rows: ${restrictions.length}');
+      }
+
+      _logger.db('BEFORE | table: user_allergy | op: DELETE | userId: ${user.id}');
+      await client.from('user_allergy').delete().eq('user_id', user.id);
+      _logger.db('AFTER | table: user_allergy | op: DELETE');
+
+      if (updated.allergens.isNotEmpty) {
+        _logger.db('BEFORE | table: user_allergy | op: INSERT | rows: ${updated.allergens.length}');
+        await client.from('user_allergy').insert(
+          updated.allergens.map((a) => {'user_id': user.id, 'allergen_id': a.id}).toList(),
+        );
+        _logger.db('AFTER | table: user_allergy | op: INSERT | rows: ${updated.allergens.length}');
       }
 
       _logger.provider('UserPreferencesNotifier → save success');
