@@ -77,6 +77,8 @@ class HealthProfileNotifier
           .select('goal_type')
           .eq('user_id', user.id)
           .eq('is_active', true)
+          .order('created_at', ascending: false)
+          .limit(1)
           .maybeSingle();
 
       final results = await Future.wait<dynamic>([healthFuture, goalFuture]);
