@@ -51,6 +51,8 @@ dependencies:
 
   # Icons
   cupertino_icons: ^1.0.8
+  firebase_core: ^4.10.0
+  firebase_messaging: ^16.3.0
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +62,7 @@ dev_dependencies:
   riverpod_generator: ^2.4.3
   custom_lint: ^0.7.6
   riverpod_lint: ^2.6.4
+  mocktail: ^1.0.5
 
 flutter:
   uses-material-design: true
