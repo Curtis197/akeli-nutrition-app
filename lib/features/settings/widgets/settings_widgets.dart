@@ -1,5 +1,6 @@
 // lib/features/settings/widgets/settings_widgets.dart
 
+import 'package:akeli/core/logger.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 
@@ -67,9 +68,15 @@ class SettingsRadioRow extends StatelessWidget {
     required this.onTap,
   });
 
+  static final _logger = appLogger;
+
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
+        onTap: () {
+          _logger.userAction('SettingsRadioRow tapped', screen: 'Settings',
+              metadata: {'label': label});
+          onTap();
+        },
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
