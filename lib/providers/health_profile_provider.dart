@@ -115,10 +115,12 @@ class HealthProfileNotifier
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    _logger.userAction('HealthProfileNotifier save', metadata: {
-      'goalType': updated.goalType,
-      'activityLevel': updated.activityLevel,
-    });
+    _logger.userAction('HealthProfileNotifier save',
+        screen: 'HealthProfilePage',
+        metadata: {
+          'goalType': updated.goalType,
+          'activityLevel': updated.activityLevel,
+        });
 
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
