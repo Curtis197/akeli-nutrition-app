@@ -42,11 +42,18 @@ BEGIN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
 
+  -- Validate p_order_by early to surface caller bugs instead of silently falling back
+  IF p_order_by IS NOT NULL AND p_order_by NOT IN ('rating', 'likes', 'created_at') THEN
+    RAISE EXCEPTION 'Invalid p_order_by value: %. Valid values: rating, likes, created_at', p_order_by;
+  END IF;
+
   SELECT uv.vector INTO v_user_vector
   FROM user_vector uv WHERE uv.user_id = p_user_id;
 
   -- Cold start: no user vector → rank by like_count unless p_order_by overrides
   IF v_user_vector IS NULL THEN
+    -- Cold start: no user vector → rank by denormalised like_count (trigger-maintained).
+    -- Previously used COUNT(recipe_like) JOIN; like_count is equivalent and avoids GROUP BY.
     RETURN QUERY
     SELECT
       r.id AS recipe_id,
