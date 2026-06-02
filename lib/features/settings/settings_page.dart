@@ -274,6 +274,14 @@ class SettingsPage extends ConsumerWidget {
                             context.push(AkeliRoutes.preferences);
                           },
                         ),
+                        _MenuItem(
+                          icon: Icons.monitor_heart_outlined,
+                          label: 'Santé & Objectifs',
+                          onTap: () {
+                            appLogger.userAction('Health profile menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.healthProfile);
+                          },
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
