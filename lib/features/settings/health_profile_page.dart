@@ -383,6 +383,8 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           setState(() => _local = local.copyWith(weightGoal: v));
                         },
                         onCleared: () {
+                          _logger.userAction('Weight goal cleared',
+                              screen: 'HealthProfilePage');
                           setState(() =>
                               _local = local.copyWith(clearWeightGoal: true));
                         },
@@ -403,6 +405,8 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           setState(() => _local = local.copyWith(muscleGoal: v));
                         },
                         onCleared: () {
+                          _logger.userAction('Muscle goal cleared',
+                              screen: 'HealthProfilePage');
                           setState(() =>
                               _local = local.copyWith(clearMuscleGoal: true));
                         },
