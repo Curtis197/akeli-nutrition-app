@@ -36,6 +36,8 @@ import '../features/recipes/domain/entities/recipe_tracking.dart';
 import '../features/recipes/creator_detail_page.dart';
 import 'logger.dart';
 
+final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
 // Routes
 
 abstract class AkeliRoutes {
