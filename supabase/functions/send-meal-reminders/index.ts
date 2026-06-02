@@ -1,12 +1,14 @@
-// Cron — toutes les heures (0 * * * *)
-// Envoie des push notifications pour les rappels repas configurés
+// Cron-only — not callable from Flutter. Secured by x-internal-secret.
+// Fires daily at 07:00 UTC via pg_cron. Sends one meal reminder per user
+// who has at least one meal_plan_entry for today.
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, serverError } from "../_shared/response.ts";
 import { serviceClient, verifyInternalSecret } from "../_shared/supabase.ts";
 import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
-const SELF_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const INTERNAL_SECRET = Deno.env.get("INTERNAL_SECRET")!;
+const PUSH_URL = `${SUPABASE_URL}/functions/v1/send-push-notification`;
 
 serve(async (req) => {
   const logger = createLogger("send-meal-reminders");
@@ -22,72 +24,71 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+    logger.debug("[STEP 2] Querying meal_plan_entry for date: " + today);
+
     const admin = serviceClient();
 
-    const now = new Date();
-    const currentHour = now.getUTCHours();
-    const currentMinute = now.getUTCMinutes();
-    // 1=Lundi ... 7=Dimanche (matches days_of_week column convention)
-    const currentDayOfWeek = now.getUTCDay() === 0 ? 7 : now.getUTCDay();
+    logRLSCheck(logger, "meal_plan_entry", "SELECT", "cron");
+    const { data: entries, error: entriesError } = await admin
+      .from("meal_plan_entry")
+      .select("user_id")
+      .eq("planned_date", today);
+    logQueryResult(logger, "meal_plan_entry", "SELECT", entries?.length ?? 0, entriesError ?? undefined);
 
-    logger.debug("[STEP 2] Query meal reminders");
-    logRLSCheck(logger, "meal_reminder", "SELECT", "cron");
-    const { data: reminders, error } = await admin
-      .from("meal_reminder")
-      .select("user_id, meal_type, reminder_time, days_of_week")
-      .eq("is_active", true);
-    logQueryResult(logger, "meal_reminder", "SELECT", reminders?.length ?? 0, error ?? undefined);
+    if (entriesError) {
+      logger.error("Failed to query meal_plan_entry", { message: entriesError.message });
+      return serverError(entriesError);
+    }
 
-    logger.debug("[STEP 2] Fetched active reminders | count: " + (reminders?.length ?? 0) + " | currentHour: " + currentHour);
+    // Deduplicate — one notification per user
+    const userIds = [...new Set((entries ?? []).map((e: { user_id: string }) => e.user_id))];
+    logger.debug("[STEP 3] Unique users to notify: " + userIds.length);
 
-    if (error) throw error;
+    let notified = 0;
+    let failed = 0;
 
-    let sent = 0;
+    for (const userId of userIds) {
+      const mealCount = (entries ?? []).filter((e: { user_id: string }) => e.user_id === userId).length;
+      const bodyText = mealCount === 1
+        ? "Vous avez 1 repas planifié aujourd'hui."
+        : `Vous avez ${mealCount} repas planifiés aujourd'hui.`;
 
-    logger.debug("[STEP 3] Processing reminders for hour: " + currentHour + ":" + currentMinute);
+      try {
+        const res = await fetch(PUSH_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-secret": INTERNAL_SECRET,
+          },
+          body: JSON.stringify({
+            user_id: userId,
+            type: "meal_reminder",
+            title: "Votre plan repas du jour",
+            body: bodyText,
+            data: { date: today },
+          }),
+        });
 
-    for (const reminder of reminders ?? []) {
-      const [rHour, rMinute] = reminder.reminder_time.split(":").map(Number);
-      const diffMinutes = Math.abs(rHour * 60 + rMinute - (currentHour * 60 + currentMinute));
-
-      if (diffMinutes > 5) continue;
-
-      const days: number[] = reminder.days_of_week ?? [1, 2, 3, 4, 5, 6, 7];
-      if (!days.includes(currentDayOfWeek)) continue;
-
-      const mealLabels: Record<string, string> = {
-        breakfast: "Petit-déjeuner",
-        lunch: "Déjeuner",
-        dinner: "Dîner",
-        snack: "Collation",
-      };
-
-      const pushRes = await fetch(`${SELF_URL}/functions/v1/send-push-notification`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-internal-secret": INTERNAL_SECRET,
-        },
-        body: JSON.stringify({
-          user_id: reminder.user_id,
-          title: `⏰ C'est l'heure du ${mealLabels[reminder.meal_type] ?? reminder.meal_type}`,
-          body: "Consultez votre plan repas Akeli",
-          type: "meal_reminder",
-          data: { meal_type: reminder.meal_type },
-        }),
-      });
-
-      if (pushRes.ok) {
-        sent++;
-      } else {
-        logger.warn('Push notification failed | user_id: ' + reminder.user_id + ' | meal_type: ' + reminder.meal_type + ' | status: ' + pushRes.status);
+        if (res.ok) {
+          notified++;
+        } else {
+          logger.warn("Push failed for user | userId: " + userId + " | status: " + res.status);
+          failed++;
+        }
+      } catch (fetchErr) {
+        const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+        logger.error("Push fetch threw for user | userId: " + userId, { message: msg });
+        failed++;
       }
     }
 
-    logger.info("✅ EXIT | status: 200 | sent: " + sent + " | duration: " + (Date.now() - start) + "ms");
-    return ok({ checked: reminders?.length ?? 0, sent });
+    const skipped = 0; // reserved for future opt-out logic
+    logger.info(`✅ EXIT | notified: ${notified} | skipped: ${skipped} | failed: ${failed} | duration: ${Date.now() - start}ms`);
+    return ok({ notified, skipped, failed });
   } catch (e) {
-    logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
-    return serverError(e);
+    const caught = e instanceof Error ? e : new Error(String(e));
+    logger.error("💥 Unhandled error", { message: caught.message, stack: caught.stack });
+    return serverError(caught);
   }
 });
