@@ -29,12 +29,12 @@ serve(async (req) => {
 
     const admin = serviceClient();
 
-    logRLSCheck(logger, "meal_plan_entry", "SELECT", "cron");
+    logRLSCheck(logger, "meal_plan_entry+meal_plan", "SELECT", "cron");
     const { data: entries, error: entriesError } = await admin
       .from("meal_plan_entry")
-      .select("user_id")
-      .eq("planned_date", today);
-    logQueryResult(logger, "meal_plan_entry", "SELECT", entries?.length ?? 0, entriesError ?? undefined);
+      .select("meal_plan!inner(user_id)")
+      .eq("scheduled_date", today);
+    logQueryResult(logger, "meal_plan_entry+meal_plan", "SELECT", entries?.length ?? 0, entriesError ?? undefined);
 
     if (entriesError) {
       logger.error("Failed to query meal_plan_entry", { message: entriesError.message });
@@ -42,14 +42,14 @@ serve(async (req) => {
     }
 
     // Deduplicate — one notification per user
-    const userIds = [...new Set((entries ?? []).map((e: { user_id: string }) => e.user_id))];
+    const userIds = [...new Set((entries ?? []).map((e: { meal_plan: { user_id: string } }) => e.meal_plan.user_id))];
     logger.debug("[STEP 3] Unique users to notify: " + userIds.length);
 
     let notified = 0;
     let failed = 0;
 
     for (const userId of userIds) {
-      const mealCount = (entries ?? []).filter((e: { user_id: string }) => e.user_id === userId).length;
+      const mealCount = (entries ?? []).filter((e: { meal_plan: { user_id: string } }) => e.meal_plan.user_id === userId).length;
       const bodyText = mealCount === 1
         ? "Vous avez 1 repas planifié aujourd'hui."
         : `Vous avez ${mealCount} repas planifiés aujourd'hui.`;
