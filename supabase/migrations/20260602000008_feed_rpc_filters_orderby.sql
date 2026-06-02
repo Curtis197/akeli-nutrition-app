@@ -13,7 +13,12 @@
 -- All new params are optional (DEFAULT NULL) — no breaking change to existing callers.
 -- Calorie filters use LEFT JOIN recipe_macro, null-safe: recipes with no macro row pass.
 -- Quality gate (drop_off_rate ≤ 0.20) applies in all paths.
+-- Allergen filter preserved from remote 3-param version (was deployed without a local migration).
 -- =============================================================================
+
+-- Drop the old 3-param overload — replaced by this 9-param version.
+-- The old signature was (uuid, int, uuid[]); keeping it would create ambiguous overloads.
+DROP FUNCTION IF EXISTS generate_feed_personalized(uuid, int, uuid[]);
 
 CREATE OR REPLACE FUNCTION generate_feed_personalized(
   p_user_id      uuid,
@@ -51,10 +56,16 @@ BEGIN
   FROM user_vector uv WHERE uv.user_id = p_user_id;
 
   -- Cold start: no user vector → rank by like_count unless p_order_by overrides
+  -- Cold start: no user vector → rank by denormalised like_count (trigger-maintained).
+  -- Previously used COUNT(recipe_like) JOIN; like_count is equivalent and avoids GROUP BY.
   IF v_user_vector IS NULL THEN
-    -- Cold start: no user vector → rank by denormalised like_count (trigger-maintained).
-    -- Previously used COUNT(recipe_like) JOIN; like_count is equivalent and avoids GROUP BY.
     RETURN QUERY
+    WITH user_allergens AS (
+      SELECT COALESCE(array_agg(a.slug), '{}') AS tags
+      FROM user_allergy ua
+      JOIN allergen a ON a.id = ua.allergen_id
+      WHERE ua.user_id = p_user_id
+    )
     SELECT
       r.id AS recipe_id,
       CASE p_order_by
@@ -78,6 +89,7 @@ BEGIN
         WHERE rpm.recipe_id = r.id
           AND rpm.drop_off_rate > 0.20
       )
+      AND NOT (r.allergen_tags && (SELECT tags FROM user_allergens))
     ORDER BY score DESC
     LIMIT LEAST(p_limit, 200);
     RETURN;
@@ -85,6 +97,12 @@ BEGIN
 
   -- Vectorized path: rank by cosine similarity unless p_order_by overrides
   RETURN QUERY
+  WITH user_allergens AS (
+    SELECT COALESCE(array_agg(a.slug), '{}') AS tags
+    FROM user_allergy ua
+    JOIN allergen a ON a.id = ua.allergen_id
+    WHERE ua.user_id = p_user_id
+  )
   SELECT
     r.id AS recipe_id,
     CASE p_order_by
@@ -109,6 +127,7 @@ BEGIN
       WHERE rpm.recipe_id = r.id
         AND rpm.drop_off_rate > 0.20
     )
+    AND NOT (r.allergen_tags && (SELECT tags FROM user_allergens))
   ORDER BY score DESC
   LIMIT LEAST(p_limit, 200);
 END;
