@@ -2,30 +2,34 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:akeli/providers/recipe_provider.dart';
 
 void main() {
-  group('FeedParams.hasFilters', () {
-    test('returns false when no filters set', () {
+  group('FeedParams', () {
+    test('can be constructed with no filters', () {
       const p = FeedParams(limit: 20);
-      expect(p.hasFilters, isFalse);
+      expect(p.limit, equals(20));
+      expect(p.regionId, isNull);
+      expect(p.difficulty, isNull);
+      expect(p.maxTimeMin, isNull);
+      expect(p.orderBy, isNull);
     });
 
-    test('returns true when regionId set', () {
+    test('can set regionId filter', () {
       const p = FeedParams(limit: 20, regionId: 'west_africa');
-      expect(p.hasFilters, isTrue);
+      expect(p.regionId, equals('west_africa'));
     });
 
-    test('returns true when difficulty set', () {
+    test('can set difficulty filter', () {
       const p = FeedParams(limit: 20, difficulty: 'easy');
-      expect(p.hasFilters, isTrue);
+      expect(p.difficulty, equals('easy'));
     });
 
-    test('returns true when maxTimeMin set', () {
+    test('can set maxTimeMin filter', () {
       const p = FeedParams(limit: 20, maxTimeMin: 30);
-      expect(p.hasFilters, isTrue);
+      expect(p.maxTimeMin, equals(30));
     });
 
-    test('returns true when orderBy set', () {
+    test('can set orderBy filter', () {
       const p = FeedParams(limit: 20, orderBy: 'rating');
-      expect(p.hasFilters, isTrue);
+      expect(p.orderBy, equals('rating'));
     });
 
     test('equality includes orderBy', () {

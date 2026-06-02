@@ -30,9 +30,6 @@ class FeedParams {
     this.orderBy,
   });
 
-  bool get hasFilters =>
-      regionId != null || difficulty != null || maxTimeMin != null || minCal != null || maxCal != null || orderBy != null;
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -56,7 +53,7 @@ final feedProvider =
         (ref, params) async {
   final user = ref.watch(currentUserProvider);
   appLogger.provider(
-      'feedProvider build() | userId: ${user?.id ?? "null"} | hasFilters: ${params.hasFilters} | orderBy: ${params.orderBy}');
+      'feedProvider build() | userId: ${user?.id ?? "null"} | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy}');
   ref.onDispose(() => appLogger.provider('feedProvider disposed'));
 
   if (user == null) {
@@ -66,117 +63,83 @@ final feedProvider =
 
   final client = ref.watch(supabaseClientProvider);
 
-  if (!params.hasFilters) {
-    // Personalized path — RPC preserves recommendation scores
-    final rpcParams = {
-      'p_user_id': user.id,
-      'p_limit': params.limit,
-      'p_exclude': params.excludeIds,
-    };
-    appLogger.db('BEFORE rpc | fn: generate_feed_personalized | userId: ${user.id} | params: $rpcParams');
+  final rpcParams = {
+    'p_user_id': user.id,
+    'p_limit': params.limit,
+    'p_exclude': params.excludeIds,
+    if (params.regionId != null) 'p_region_id': params.regionId,
+    if (params.difficulty != null) 'p_difficulty': params.difficulty,
+    if (params.maxTimeMin != null) 'p_max_time_min': params.maxTimeMin,
+    if (params.minCal != null) 'p_min_cal': params.minCal,
+    if (params.maxCal != null) 'p_max_cal': params.maxCal,
+    if (params.orderBy != null) 'p_order_by': params.orderBy,
+  };
 
-    try {
-      final rpcData =
-          await client.rpc('generate_feed_personalized', params: rpcParams) as List<dynamic>;
-      appLogger.db('AFTER rpc | fn: generate_feed_personalized | rows: ${rpcData.length}');
+  appLogger.db(
+      'BEFORE rpc | fn: generate_feed_personalized | userId: ${user.id} | params: $rpcParams');
 
-      if (rpcData.isEmpty) {
-        appLogger.rls(
-            'Zero rows | rpc: generate_feed_personalized | userId: ${user.id} | possible RLS or empty feed');
-        return [];
-      }
-
-      final recipeIds = rpcData
-          .cast<Map<String, dynamic>>()
-          .map((e) => e['recipe_id'] as String)
-          .toList();
-
-      appLogger.db('BEFORE | table: recipe | op: SELECT in | ids: ${recipeIds.length}');
-      final recipeData = await client
-          .from('recipe')
-          .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
-          .inFilter('id', recipeIds) as List<dynamic>;
-      appLogger.db('AFTER | table: recipe | rows: ${recipeData.length}');
-
-      if (recipeData.isEmpty) {
-        appLogger.rls('Zero rows | table: recipe | possible RLS block | userId: ${user.id}');
-      }
-
-      final recipeMap = {
-        for (final r in recipeData.cast<Map<String, dynamic>>()) r['id'] as String: r
-      };
-      final recipes = recipeIds
-          .where(recipeMap.containsKey)
-          .map((id) => Recipe.fromJson(recipeMap[id]!))
-          .toList();
-
-      appLogger.provider('feedProvider → data (personalized) | recipes: ${recipes.length}');
-      return recipes;
-    } on PostgrestException catch (e, st) {
-      if (e.code == '42501') {
-        appLogger.rls('Permission denied | rpc: generate_feed_personalized | userId: ${user.id}',
-            error: e, stackTrace: st);
-      } else {
-        appLogger.db('ERROR rpc | fn: generate_feed_personalized | code: ${e.code} | ${e.message}',
-            error: e, stackTrace: st);
-      }
-      appLogger.provider('feedProvider → error | ${e.message}');
-      rethrow;
-    } catch (e, st) {
-      appLogger.db('ERROR rpc | unexpected: $e', error: e, stackTrace: st);
-      appLogger.provider('feedProvider → error | $e');
-      rethrow;
-    }
-  } else {
-    // Filtered path — direct recipe table query
+  try {
+    final rpcData =
+        await client.rpc('generate_feed_personalized', params: rpcParams)
+            as List<dynamic>;
     appLogger.db(
-        'BEFORE | table: recipe | op: SELECT filtered | region: ${params.regionId} | difficulty: ${params.difficulty} | maxTime: ${params.maxTimeMin} | orderBy: ${params.orderBy}');
+        'AFTER rpc | fn: generate_feed_personalized | rows: ${rpcData.length}');
 
-    try {
-      var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').eq('is_published', true);
-
-      if (params.regionId != null) query = query.eq('region', params.regionId!);
-      if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
-      if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
-      if (params.minCal != null) query = query.filter('recipe_macro.calories', 'gte', params.minCal!);
-      if (params.maxCal != null) query = query.filter('recipe_macro.calories', 'lte', params.maxCal!);
-
-      final orderColumn = switch (params.orderBy) {
-        'rating' => 'average_rating',
-        'likes' => 'like_count',
-        'created_at' => 'created_at',
-        _ => 'created_at',
-      };
-
-      final data = await query
-          .order(orderColumn, ascending: false)
-          .limit(params.limit) as List<dynamic>;
-
-      appLogger.db('AFTER | table: recipe | rows: ${data.length}');
-
-      if (data.isEmpty) {
-        appLogger
-            .rls('Zero rows | table: recipe | filtered | userId: ${user.id} | possible RLS or no matches');
-      }
-
-      final recipes = data.cast<Map<String, dynamic>>().map(Recipe.fromJson).toList();
-      appLogger.provider('feedProvider → data (filtered) | recipes: ${recipes.length}');
-      return recipes;
-    } on PostgrestException catch (e, st) {
-      if (e.code == '42501') {
-        appLogger.rls('Permission denied | table: recipe | filtered | userId: ${user.id}',
-            error: e, stackTrace: st);
-      } else {
-        appLogger.db('ERROR | table: recipe | filtered | code: ${e.code} | ${e.message}',
-            error: e, stackTrace: st);
-      }
-      appLogger.provider('feedProvider → error | ${e.message}');
-      rethrow;
-    } catch (e, st) {
-      appLogger.db('ERROR | table: recipe | filtered | unexpected: $e', error: e, stackTrace: st);
-      appLogger.provider('feedProvider → error | $e');
-      rethrow;
+    if (rpcData.isEmpty) {
+      appLogger.rls(
+          'Zero rows | rpc: generate_feed_personalized | userId: ${user.id} | possible RLS or empty feed');
+      return [];
     }
+
+    final recipeIds = rpcData
+        .cast<Map<String, dynamic>>()
+        .map((e) => e['recipe_id'] as String)
+        .toList();
+
+    appLogger.db(
+        'BEFORE | table: recipe | op: SELECT in | ids: ${recipeIds.length}');
+    final recipeData = await client
+        .from('recipe')
+        .select(
+            '*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .inFilter('id', recipeIds) as List<dynamic>;
+    appLogger.db('AFTER | table: recipe | rows: ${recipeData.length}');
+
+    if (recipeData.isEmpty) {
+      appLogger.rls(
+          'Zero rows | table: recipe | possible RLS block | userId: ${user.id}');
+    }
+
+    final recipeMap = {
+      for (final r in recipeData.cast<Map<String, dynamic>>())
+        r['id'] as String: r
+    };
+    final recipes = recipeIds
+        .where(recipeMap.containsKey)
+        .map((id) => Recipe.fromJson(recipeMap[id]!))
+        .toList();
+
+    appLogger.provider(
+        'feedProvider → data | recipes: ${recipes.length}');
+    return recipes;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls(
+          'Permission denied | rpc: generate_feed_personalized | userId: ${user.id}',
+          error: e,
+          stackTrace: st);
+    } else {
+      appLogger.db(
+          'ERROR rpc | fn: generate_feed_personalized | code: ${e.code} | ${e.message}',
+          error: e,
+          stackTrace: st);
+    }
+    appLogger.provider('feedProvider → error | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR rpc | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('feedProvider → error | $e');
+    rethrow;
   }
 });
 
