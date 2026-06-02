@@ -55,7 +55,6 @@ BEGIN
   SELECT uv.vector INTO v_user_vector
   FROM user_vector uv WHERE uv.user_id = p_user_id;
 
-  -- Cold start: no user vector → rank by like_count unless p_order_by overrides
   -- Cold start: no user vector → rank by denormalised like_count (trigger-maintained).
   -- Previously used COUNT(recipe_like) JOIN; like_count is equivalent and avoids GROUP BY.
   IF v_user_vector IS NULL THEN
