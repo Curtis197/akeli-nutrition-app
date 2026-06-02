@@ -79,4 +79,47 @@ class HealthProfileModel {
       goalType: clearGoalType ? null : (goalType ?? this.goalType),
     );
   }
+
+  factory HealthProfileModel.fromJson({
+    Map<String, dynamic>? health,
+    Map<String, dynamic>? goal,
+  }) {
+    return HealthProfileModel(
+      sex: health?['sex'] as String?,
+      birthDate: health?['birth_date'] != null
+          ? DateTime.tryParse(health!['birth_date'] as String)
+          : null,
+      heightCm: (health?['height_cm'] as num?)?.toDouble(),
+      weightKg: (health?['weight_kg'] as num?)?.toDouble(),
+      targetWeightKg: (health?['target_weight_kg'] as num?)?.toDouble(),
+      activityLevel: health?['activity_level'] as String?,
+      weightGoal: health?['weight_goal'] as String?,
+      muscleGoal: health?['muscle_goal'] as String?,
+      startingWeightKg: (health?['starting_weight_kg'] as num?)?.toDouble(),
+      targetTimeWeeks: health?['target_time_weeks'] as int?,
+      goalType: goal?['goal_type'] as String?,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HealthProfileModel &&
+          sex == other.sex &&
+          birthDate == other.birthDate &&
+          heightCm == other.heightCm &&
+          weightKg == other.weightKg &&
+          targetWeightKg == other.targetWeightKg &&
+          activityLevel == other.activityLevel &&
+          weightGoal == other.weightGoal &&
+          muscleGoal == other.muscleGoal &&
+          startingWeightKg == other.startingWeightKg &&
+          targetTimeWeeks == other.targetTimeWeeks &&
+          goalType == other.goalType;
+
+  @override
+  int get hashCode => Object.hash(
+      sex, birthDate, heightCm, weightKg, targetWeightKg,
+      activityLevel, weightGoal, muscleGoal,
+      startingWeightKg, targetTimeWeeks, goalType);
 }
