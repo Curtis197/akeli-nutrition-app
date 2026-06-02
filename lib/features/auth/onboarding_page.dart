@@ -13,6 +13,7 @@ import 'onboarding_data.dart';
 import '../../core/logger.dart';
 import '../nutrition_plan/nutrition_plan_page.dart';
 import '../settings/widgets/allergen_picker_widget.dart';
+import '../settings/widgets/intensity_badge.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -1212,12 +1213,33 @@ class _SexOption extends StatelessWidget {
 
 // ── Step 4: Goals ────────────────────────────────────────────────────────────
 
-class _StepGoals extends ConsumerWidget {
+class _StepGoals extends ConsumerStatefulWidget {
   final int step;
   const _StepGoals({required this.step});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_StepGoals> createState() => _StepGoalsState();
+}
+
+class _StepGoalsState extends ConsumerState<_StepGoals> {
+  late final TextEditingController _motivationsCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _motivationsCtrl = TextEditingController(
+      text: ref.read(onboardingProvider).motivations,
+    );
+  }
+
+  @override
+  void dispose() {
+    _motivationsCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     appLogger.provider('_StepGoals build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
@@ -1334,6 +1356,147 @@ class _StepGoals extends ConsumerWidget {
                         screen: 'OnboardingPage', metadata: {'muscleGoal': v});
                     notifier.updateGoals(muscleGoal: v);
                   },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Target weight + timeline ──────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('POIDS CIBLE',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _MetricField(
+                  value: data.targetWeight?.toString() ?? '',
+                  suffix: 'kg',
+                  onChanged: (v) {
+                    appLogger.userAction('Target weight changed',
+                        screen: 'OnboardingPage',
+                        metadata: {'value': v});
+                    notifier.updateGoals(targetWeight: double.tryParse(v));
+                  },
+                ),
+                const SizedBox(height: AkeliSpacing.xl),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('DÉLAI ESTIMÉ',
+                        style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurfaceVariant,
+                            letterSpacing: 0.1)),
+                    IntensityBadge(
+                      currentKg: data.weight,
+                      targetKg: data.targetWeight,
+                      months: data.timelineMonths.toDouble(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AkeliSpacing.md),
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${data.timelineMonths} ',
+                          style: GoogleFonts.plusJakartaSans(
+                              fontSize: 56,
+                              fontWeight: FontWeight.w800,
+                              color: AkeliColors.primary,
+                              height: 1),
+                        ),
+                        TextSpan(
+                          text: 'mois',
+                          style: GoogleFonts.inter(
+                              fontSize: 20,
+                              color: AkeliColors.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliderTheme(
+                  data: SliderThemeData(
+                    activeTrackColor: AkeliColors.secondaryContainer,
+                    inactiveTrackColor: AkeliColors.surfaceContainerHighest,
+                    thumbColor: AkeliColors.surfaceContainerLowest,
+                    overlayColor:
+                        AkeliColors.primary.withValues(alpha: 0.1),
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 14),
+                    trackHeight: 10,
+                  ),
+                  child: Slider(
+                    value: data.timelineMonths.toDouble(),
+                    min: 1,
+                    max: 12,
+                    divisions: 11,
+                    onChanged: (v) {
+                      appLogger.userAction('Timeline months changed',
+                          screen: 'OnboardingPage',
+                          metadata: {'months': v.round()});
+                      notifier.updateGoals(timelineMonths: v.round());
+                    },
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('1 mois',
+                        style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: AkeliColors.onSurfaceVariant,
+                            letterSpacing: 0.1)),
+                    Text('12 mois',
+                        style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: AkeliColors.onSurfaceVariant,
+                            letterSpacing: 0.1)),
+                  ],
+                ),
+                const SizedBox(height: AkeliSpacing.xl),
+                Text('VOS MOTIVATIONS',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                Container(
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(AkeliRadius.sm),
+                  ),
+                  child: TextField(
+                    controller: _motivationsCtrl,
+                    maxLines: 3,
+                    onChanged: (v) {
+                      appLogger.userAction('Motivations changed',
+                          screen: 'OnboardingPage');
+                      notifier.updateGoals(motivations: v);
+                    },
+                    style: GoogleFonts.inter(
+                        fontSize: 15, color: AkeliColors.onSurface),
+                    decoration: InputDecoration(
+                      hintText: 'Qu\'est-ce qui vous motive ?',
+                      hintStyle: GoogleFonts.inter(
+                          fontSize: 15,
+                          color: AkeliColors.onSurfaceVariant),
+                      border: InputBorder.none,
+                      filled: false,
+                      contentPadding: const EdgeInsets.all(AkeliSpacing.md),
+                    ),
+                  ),
                 ),
               ],
             ),
