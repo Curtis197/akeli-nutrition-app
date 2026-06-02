@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/health_profile_provider.dart';
 import 'models/health_profile_model.dart';
@@ -506,7 +507,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
         final msg = kcal != null
             ? 'Profil mis à jour · $kcal kcal/jour'
             : 'Profil mis à jour';
-        ScaffoldMessenger.of(context).showSnackBar(
+        rootScaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(content: Text(msg)),
         );
         context.pop();

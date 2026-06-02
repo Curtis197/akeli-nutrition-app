@@ -155,6 +155,7 @@ class HealthProfileNotifier
       final calorieGoal = computeCalorieGoal(updated);
       double? proteinGoal;
       double? fatGoal;
+      double? carbsGoal;
       if (calorieGoal != null && updated.goalType != null) {
         final macros =
             NutritionCalculatorService.getDefaultMacros(updated.goalType!);
@@ -162,6 +163,8 @@ class HealthProfileNotifier
             calorieGoal, macros['protein']!, 'protein');
         fatGoal = NutritionCalculatorService.calculateMacroGrams(
             calorieGoal, macros['fat']!, 'fat');
+        carbsGoal = NutritionCalculatorService.calculateMacroGrams(
+            calorieGoal, macros['carbs']!, 'carbs');
       }
 
       // 3. Delete existing user_goal rows
@@ -181,6 +184,7 @@ class HealthProfileNotifier
           if (calorieGoal != null) 'calorie_goal': calorieGoal,
           if (proteinGoal != null) 'protein_goal': proteinGoal,
           if (fatGoal != null) 'fat_goal': fatGoal,
+          if (carbsGoal != null) 'carbs_goal': carbsGoal,
         });
         _logger.db('AFTER | table: user_goal | op: INSERT | rows: 1');
       }
