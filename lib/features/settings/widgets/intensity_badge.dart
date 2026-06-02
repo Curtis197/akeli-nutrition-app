@@ -1,11 +1,7 @@
 // lib/features/settings/widgets/intensity_badge.dart
 
-import 'package:akeli/core/logger.dart';
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
-
-// ignore: unused_element
-final _logger = appLogger;
 
 /// Pill badge showing weight-loss pace: Intense / Modéré / Durable.
 ///
@@ -54,7 +50,7 @@ class IntensityBadge extends StatelessWidget {
       return const SizedBox.shrink();
     }
     final delta = (targetKg! - currentKg!).abs();
-    if (delta <= 0) return const SizedBox.shrink();
+    if (delta == 0) return const SizedBox.shrink();
 
     final kgPerMonth = delta / months!;
     final (label, bg, fg) = _compute(kgPerMonth);
