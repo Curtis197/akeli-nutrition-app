@@ -111,7 +111,72 @@ WHERE tablename = 'my_table';
 
 ---
 
-## 3. Dart / Flutter Testing
+## 3. Query Shape Verification
+
+Unit tests mock the DB and never catch query shape bugs — wrong cardinality, missing filters, wrong column names. After writing or modifying **any Supabase query in a provider**, verify the actual query shape against the remote DB using MCP `execute_sql`.
+
+> [!CAUTION]
+> **`.maybeSingle()` is the most dangerous pattern.** It throws code 406 if the table has more than one matching row — even if the schema says there should be only one. Always verify the real row count before using it.
+
+### Cardinality check — run before using `.maybeSingle()`
+
+For every query that uses `.maybeSingle()` or `.single()`, run this against the remote DB to confirm 0 or 1 row is actually returned for a real user:
+
+```sql
+SELECT COUNT(*)
+FROM my_table
+WHERE user_id = '<real-user-uuid>'
+  AND <other_filters>;
+-- Must return 0 or 1. If > 1, the query needs .order(...).limit(1) before .maybeSingle()
+```
+
+**Real example that caused a production bug** — `user_goal` had 4 rows for one user despite `is_active = true` filter:
+```sql
+SELECT COUNT(*)
+FROM user_goal
+WHERE user_id = 'f068c92c-b9ea-496d-af52-94f40c8fab26'
+  AND is_active = true;
+-- Returned 4 → .maybeSingle() would throw 406 at runtime
+-- Fix: add .order('created_at', ascending: false).limit(1) before .maybeSingle()
+```
+
+### Column name check — run after every migration
+
+After a migration renames or adds columns, verify the column names the provider selects actually exist:
+
+```sql
+SELECT column_name
+FROM information_schema.columns
+WHERE table_name = 'my_table'
+  AND column_name IN ('col_a', 'col_b', 'col_c');
+-- Every column the provider SELECTs must appear here
+```
+
+**Real example** — `allergen.label` was renamed to `label_fr` by a migration but the Flutter query still selected `label`, causing a 42703 error:
+```sql
+SELECT column_name
+FROM information_schema.columns
+WHERE table_name = 'allergen'
+  AND column_name IN ('label', 'label_fr', 'label_en');
+-- 'label' was missing → query fix required
+```
+
+### Query shape checklist
+
+For every new or modified Supabase query in a provider, check all that apply:
+
+| Query type | What to verify with MCP |
+|---|---|
+| `.maybeSingle()` | Row count ≤ 1 for a real user |
+| `.single()` | Row count = exactly 1 for a real user |
+| `.select('col_a, col_b')` | All selected columns exist on the table |
+| `.eq('col', value)` | Column exists and has the right data type |
+| `.upsert({...}, onConflict: 'col')` | Conflict column has a UNIQUE constraint |
+| Foreign key join (PostgREST embed) | FK relationship exists in schema |
+
+---
+
+## 4. Dart / Flutter Testing
 
 All Dart logic (Providers, pure functions, utils) must have unit tests. These never hit the network.
 
@@ -151,6 +216,7 @@ For any change, run all three layers that apply:
 | Layer changed | Run |
 |---|---|
 | Dart only | `flutter test` |
-| Migration / RPC / RLS | MCP `execute_sql` verification queries |
+| New/modified Supabase query in a provider | Section 3 query shape checks (cardinality + column names) |
+| Migration / RPC / RLS | MCP `execute_sql` verification queries (Section 2) |
 | Edge Function | `curl` against remote endpoint + `flutter test` |
-| All layers | All of the above, in order: Dart → DB → Edge Function |
+| All layers | Dart → Query shape → DB → Edge Function |
