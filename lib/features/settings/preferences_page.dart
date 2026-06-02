@@ -9,6 +9,7 @@ import '../../core/theme.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../shared/models/user_preferences.dart';
 import 'widgets/allergen_picker_widget.dart';
+import 'widgets/settings_widgets.dart';
 
 class PreferencesPage extends ConsumerStatefulWidget {
   const PreferencesPage({super.key});
@@ -116,17 +117,17 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // ── Cuisson ─────────────────────────────────────────────
-                const _SectionHeader(title: 'CUISSON'),
+                const SettingsSectionHeader(title: 'CUISSON'),
                 const SizedBox(height: 8),
-                _Card(
+                SettingsCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const _Label('Temps de préparation'),
+                      const SettingsLabel('Temps de préparation'),
                       const SizedBox(height: 12),
                       ..._cookingTimeOptions.map((opt) {
                         final (value, label, icon) = opt;
-                        return _RadioRow(
+                        return SettingsRadioRow(
                           icon: icon,
                           label: label,
                           selected: local.cookingTime == value,
@@ -141,7 +142,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                         );
                       }),
                       const Divider(height: 24),
-                      const _Label('Cuisson en batch'),
+                      const SettingsLabel('Cuisson en batch'),
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -238,9 +239,9 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                 const SizedBox(height: 24),
 
                 // ── Région culinaire ─────────────────────────────────────
-                const _SectionHeader(title: 'RÉGION CULINAIRE'),
+                const SettingsSectionHeader(title: 'RÉGION CULINAIRE'),
                 const SizedBox(height: 8),
-                _Card(
+                SettingsCard(
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -279,9 +280,9 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                 const SizedBox(height: 24),
 
                 // ── Restrictions alimentaires ─────────────────────────────
-                const _SectionHeader(title: 'RESTRICTIONS ALIMENTAIRES'),
+                const SettingsSectionHeader(title: 'RESTRICTIONS ALIMENTAIRES'),
                 const SizedBox(height: 8),
-                _Card(
+                SettingsCard(
                   child: Column(
                     children: [
                       _ToggleRow(
@@ -430,104 +431,6 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 }
 
 // ── Private widgets ─────────────────────────────────────────────────────────
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  const _SectionHeader({required this.title});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(left: 8, bottom: 4),
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: AkeliColors.onSurfaceVariant,
-            letterSpacing: 1.2,
-          ),
-        ),
-      );
-}
-
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
-
-  @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AkeliColors.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: child,
-      );
-}
-
-class _Label extends StatelessWidget {
-  final String text;
-  const _Label(this.text);
-
-  @override
-  Widget build(BuildContext context) => Text(
-        text,
-        style: const TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: AkeliColors.onSurfaceVariant,
-          letterSpacing: 0.5,
-        ),
-      );
-}
-
-class _RadioRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _RadioRow(
-      {required this.icon,
-      required this.label,
-      required this.selected,
-      required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            children: [
-              Icon(icon,
-                  size: 20,
-                  color: selected
-                      ? AkeliColors.primary
-                      : AkeliColors.onSurfaceVariant),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: selected
-                        ? AkeliColors.primary
-                        : AkeliColors.onSurface,
-                    fontWeight:
-                        selected ? FontWeight.w600 : FontWeight.normal,
-                  ),
-                ),
-              ),
-              if (selected)
-                const Icon(Icons.check_circle_rounded,
-                    color: AkeliColors.primary, size: 20),
-            ],
-          ),
-        ),
-      );
-}
 
 class _ToggleRow extends StatelessWidget {
   final String label;
