@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/core/quantity_formatter.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
 
 class AkeliShoppingRow extends StatelessWidget {
@@ -16,8 +17,7 @@ class AkeliShoppingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final qtyText =
-        '${item.quantity.toStringAsFixed(item.quantity % 1 == 0 ? 0 : 1)} ${item.unit}';
+    final qtyText = formatQuantity(item.quantity, item.unit);
 
     return GestureDetector(
       onTap: onToggle,

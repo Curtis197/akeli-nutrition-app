@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../core/quantity_formatter.dart';
 
 // ---------------------------------------------------------------------------
 // MealPlan
@@ -290,6 +291,8 @@ class CookingSessionIngredient {
       unit: json['unit'] as String,
     );
   }
+
+  String get quantityDisplay => formatQuantity(quantityNeeded, unit);
 }
 
 // ---------------------------------------------------------------------------
@@ -378,8 +381,7 @@ class ShoppingItem {
     required this.isChecked,
   });
 
-  String get quantityDisplay =>
-      '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : 1)} $unit';
+  String get quantityDisplay => formatQuantity(quantity, unit);
 
   factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
         id: json['id'] as String? ?? '', // Fallback if missing
@@ -434,6 +436,5 @@ class MealIngredient {
         unit: json['unit'] as String,
       );
 
-  String get quantityDisplay =>
-      '${quantity.toStringAsFixed(quantity % 1 == 0 ? 0 : 1)} $unit';
+  String get quantityDisplay => formatQuantity(quantity, unit);
 }

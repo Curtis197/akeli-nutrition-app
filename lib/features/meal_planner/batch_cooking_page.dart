@@ -257,7 +257,7 @@ class _CookingSessionCard extends StatelessWidget {
                   ...session.ingredients!.map((ing) => Padding(
                     padding: const EdgeInsets.only(bottom: 2),
                     child: Text(
-                      '• ${ing.ingredientName} — ${ing.quantityNeeded.toStringAsFixed(1)} ${ing.unit}',
+                      '• ${ing.ingredientName} — ${ing.quantityDisplay}',
                       style: const TextStyle(
                         fontSize: 13,
                         color: AkeliColors.onSurface,
