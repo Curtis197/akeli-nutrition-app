@@ -37,13 +37,31 @@ serve(async (req) => {
       return err("days must be between 1 and 14");
     }
 
-    logger.debug("[STEP 2] RPC call | fn: generate_meal_plan");
+    logger.debug("[STEP 1.5] Fetch batch cooking preference");
+    const { data: profileData, error: profileError } = await client
+      .from("user_profile")
+      .select("batch_cooking_enabled, batch_cooking_max_portions")
+      .eq("id", user.id)
+      .single();
+    if (profileError) {
+      logger.warn("[STEP 1.5] Failed to fetch batch preference (non-fatal) | " + profileError.message);
+    }
+    const batchEnabled = profileData?.batch_cooking_enabled ?? false;
+    const maxPortions = profileData?.batch_cooking_max_portions ?? 4;
+    logger.debug("[STEP 1.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions);
+
+    // When batch cooking is on, honour the user's recipe-repetition cap.
+    // When off, fall back to the default of 3 (hardcoded legacy behaviour).
+    const maxRecipeRepeat = batchEnabled ? maxPortions : 3;
+
+    logger.debug("[STEP 2] RPC call | fn: generate_meal_plan | maxRecipeRepeat: " + maxRecipeRepeat);
     logRLSCheck(logger, "generate_meal_plan", "RPC", user.id);
     const { data, error } = await client.rpc("generate_meal_plan", {
       p_user_id: user.id,
       p_days: days,
       p_meals_per_day: meals_per_day,
       p_start_date: start_date,
+      p_max_recipe_repeat: maxRecipeRepeat,
     });
     logQueryResult(logger, "generate_meal_plan", "RPC", data?.length ?? 0, error ?? undefined);
 
@@ -66,21 +84,6 @@ serve(async (req) => {
     logger.debug("[STEP 3] Plan created | meal_plan_id: " + mealPlanId + " | entries: " + data.length);
 
     if (mealPlanId) {
-      logger.debug("[STEP 3.5] Fetch batch cooking preference");
-      const { data: profileData, error: profileError } = await client
-        .from("user_profile")
-        .select("batch_cooking_enabled, batch_cooking_max_portions")
-        .eq("id", user.id)
-        .single();
-
-      if (profileError) {
-        logger.warn("[STEP 3.5] Failed to fetch batch preference (non-fatal) | " + profileError.message);
-      }
-
-      const batchEnabled = profileData?.batch_cooking_enabled ?? false;
-      const maxPortions = profileData?.batch_cooking_max_portions ?? 4;
-      logger.debug("[STEP 3.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions);
-
       if (batchEnabled) {
         logger.debug("[STEP 4] RPC call | fn: create_batch_sessions | maxPortions: " + maxPortions);
         logRLSCheck(logger, "create_batch_sessions", "RPC", user.id);
