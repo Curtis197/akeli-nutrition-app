@@ -1,9 +1,5 @@
 // lib/core/quantity_formatter.dart
-import 'package:akeli/core/logger.dart';
 import 'package:collection/collection.dart';
-
-// ignore: unused_element
-final _logger = appLogger;
 
 // Units rendered as fractions (1/2, 1/4 etc.) rather than plain decimals.
 const _countableUnits = {
