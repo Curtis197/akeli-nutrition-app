@@ -24,8 +24,12 @@ jobs:
 
       - name: Install Supabase CLI
         run: |
-          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz
-          sudo mv supabase /usr/local/bin/supabase
+          if ! command -v supabase &> /dev/null; then
+            tmpdir=$(mktemp -d)
+            curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz -C "$tmpdir"
+            sudo mv "$tmpdir/supabase" /usr/local/bin/supabase
+          fi
+          supabase --version
 
       - name: Apply migrations to staging
         env:
