@@ -245,7 +245,7 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
             ingredientId: e['ingredient_id'] as String?,
             name: (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown',
             quantity: (e['quantity'] as num).toDouble(),
-            unit: e['unit'] as String,
+            unit: (e['unit'] as String?) ?? '',
             category: ingredient?['category'] as String?,
             isChecked: (e['is_checked'] as bool?) ?? false,
          );
