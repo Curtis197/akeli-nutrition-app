@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.akeli.nutrition"
+    namespace = "com.akeli.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -37,8 +37,8 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.akeli.nutrition"
-        minSdk = 23
+        applicationId = "com.akeli.app"
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
