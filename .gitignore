@@ -33,6 +33,11 @@ ios/.symlinks/
 android/.gradle/
 android/local.properties
 
+# Android signing — never commit these
+android/key.properties
+android/app/*.keystore
+android/app/*.jks
+
 # Python bytecode
 __pycache__/
 **/__pycache__/
