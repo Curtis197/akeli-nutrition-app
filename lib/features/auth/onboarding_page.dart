@@ -1222,6 +1222,7 @@ class _StepGoals extends ConsumerStatefulWidget {
 }
 
 class _StepGoalsState extends ConsumerState<_StepGoals> {
+  final _logger = appLogger;
   late final TextEditingController _motivationsCtrl;
 
   @override
@@ -1239,8 +1240,17 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
   }
 
   @override
+  void didUpdateWidget(_StepGoals old) {
+    super.didUpdateWidget(old);
+    final providerText = ref.read(onboardingProvider).motivations;
+    if (providerText != _motivationsCtrl.text) {
+      _motivationsCtrl.text = providerText;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    appLogger.provider('_StepGoals build()');
+    _logger.provider('_StepGoals build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1279,7 +1289,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Perdre du poids',
                   icon: Icons.trending_down_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Weight goal selected',
+                    _logger.userAction('Weight goal selected',
                         screen: 'OnboardingPage', metadata: {'weightGoal': v});
                     notifier.updateGoals(weightGoal: v);
                   },
@@ -1290,7 +1300,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Maintenir mon poids',
                   icon: Icons.balance_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Weight goal selected',
+                    _logger.userAction('Weight goal selected',
                         screen: 'OnboardingPage', metadata: {'weightGoal': v});
                     notifier.updateGoals(weightGoal: v);
                   },
@@ -1301,7 +1311,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Prendre de la masse',
                   icon: Icons.trending_up_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Weight goal selected',
+                    _logger.userAction('Weight goal selected',
                         screen: 'OnboardingPage', metadata: {'weightGoal': v});
                     notifier.updateGoals(weightGoal: v);
                   },
@@ -1330,7 +1340,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Réduire la masse musculaire',
                   icon: Icons.remove_circle_outline_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Muscle goal selected',
+                    _logger.userAction('Muscle goal selected',
                         screen: 'OnboardingPage', metadata: {'muscleGoal': v});
                     notifier.updateGoals(muscleGoal: v);
                   },
@@ -1341,7 +1351,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Maintenir mes muscles',
                   icon: Icons.fitness_center_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Muscle goal selected',
+                    _logger.userAction('Muscle goal selected',
                         screen: 'OnboardingPage', metadata: {'muscleGoal': v});
                     notifier.updateGoals(muscleGoal: v);
                   },
@@ -1352,7 +1362,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Développer mes muscles',
                   icon: Icons.add_circle_outline_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Muscle goal selected',
+                    _logger.userAction('Muscle goal selected',
                         screen: 'OnboardingPage', metadata: {'muscleGoal': v});
                     notifier.updateGoals(muscleGoal: v);
                   },
@@ -1379,10 +1389,14 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   value: data.targetWeight?.toString() ?? '',
                   suffix: 'kg',
                   onChanged: (v) {
-                    appLogger.userAction('Target weight changed',
+                    _logger.userAction('Target weight changed',
                         screen: 'OnboardingPage',
                         metadata: {'value': v});
-                    notifier.updateGoals(targetWeight: double.tryParse(v));
+                    if (v.isEmpty) {
+                      notifier.clearTargetWeight();
+                    } else {
+                      notifier.updateGoals(targetWeight: double.tryParse(v));
+                    }
                   },
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
@@ -1442,7 +1456,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     max: 12,
                     divisions: 11,
                     onChanged: (v) {
-                      appLogger.userAction('Timeline months changed',
+                      _logger.userAction('Timeline months changed',
                           screen: 'OnboardingPage',
                           metadata: {'months': v.round()});
                       notifier.updateGoals(timelineMonths: v.round());
@@ -1481,7 +1495,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     controller: _motivationsCtrl,
                     maxLines: 3,
                     onChanged: (v) {
-                      appLogger.userAction('Motivations changed',
+                      _logger.userAction('Motivations changed',
                           screen: 'OnboardingPage');
                       notifier.updateGoals(motivations: v);
                     },
@@ -1522,7 +1536,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Rapide (< 30 min)',
                   icon: Icons.bolt_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Cooking time selected',
+                    _logger.userAction('Cooking time selected',
                         screen: 'OnboardingPage', metadata: {'cookingTime': v});
                     notifier.updateGoals(cookingTime: v);
                   },
@@ -1533,7 +1547,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Moyen (30–60 min)',
                   icon: Icons.timer_outlined,
                   onChanged: (v) {
-                    appLogger.userAction('Cooking time selected',
+                    _logger.userAction('Cooking time selected',
                         screen: 'OnboardingPage', metadata: {'cookingTime': v});
                     notifier.updateGoals(cookingTime: v);
                   },
@@ -1544,7 +1558,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   label: 'Peu importe',
                   icon: Icons.all_inclusive_rounded,
                   onChanged: (v) {
-                    appLogger.userAction('Cooking time selected',
+                    _logger.userAction('Cooking time selected',
                         screen: 'OnboardingPage', metadata: {'cookingTime': v});
                     notifier.updateGoals(cookingTime: v);
                   },
@@ -1594,7 +1608,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                           value: data.batchCookingEnabled,
                           activeThumbColor: AkeliColors.primary,
                           onChanged: (v) {
-                            appLogger.userAction('Batch cooking toggled',
+                            _logger.userAction('Batch cooking toggled',
                                 screen: 'OnboardingPage',
                                 metadata: {'enabled': v});
                             notifier.updateGoals(batchCookingEnabled: v);
@@ -1631,7 +1645,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                                         .toList(),
                                     onChanged: (v) {
                                       if (v == null) return;
-                                      appLogger.userAction(
+                                      _logger.userAction(
                                           'Batch max portions selected',
                                           screen: 'OnboardingPage',
                                           metadata: {'portions': v});
