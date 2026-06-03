@@ -11,6 +11,7 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/health_profile_provider.dart';
 import 'models/health_profile_model.dart';
+import 'widgets/intensity_badge.dart';
 import 'widgets/settings_widgets.dart';
 
 class HealthProfilePage extends ConsumerStatefulWidget {
@@ -416,7 +417,17 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                       const Divider(height: 24),
 
                       // Durée cible
-                      const SettingsLabel('Durée cible'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const SettingsLabel('Durée cible'),
+                          IntensityBadge(
+                            currentKg: local.weightKg,
+                            targetKg: local.targetWeightKg,
+                            months: (local.targetTimeWeeks ?? 12) / 4.33,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
