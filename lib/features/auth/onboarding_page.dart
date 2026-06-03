@@ -1089,6 +1089,14 @@ class _MetricFieldState extends State<_MetricField> {
   }
 
   @override
+  void didUpdateWidget(_MetricField old) {
+    super.didUpdateWidget(old);
+    if (widget.value != _ctrl.text) {
+      _ctrl.text = widget.value;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(

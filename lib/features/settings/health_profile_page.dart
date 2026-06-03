@@ -424,7 +424,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           IntensityBadge(
                             currentKg: local.weightKg,
                             targetKg: local.targetWeightKg,
-                            months: (local.targetTimeWeeks ?? 12) / 4.33,
+                            months: (local.targetTimeWeeks ?? 26) / 4.33,
                           ),
                         ],
                       ),
@@ -433,13 +433,13 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                         children: [
                           Expanded(
                             child: Slider(
-                              value: (local.targetTimeWeeks ?? 12).toDouble(),
+                              value: (local.targetTimeWeeks ?? 26).toDouble(),
                               min: 4,
                               max: 52,
                               divisions: 48,
                               activeColor: AkeliColors.primary,
                               label:
-                                  '${local.targetTimeWeeks ?? 12} semaines',
+                                  '${local.targetTimeWeeks ?? 26} semaines',
                               onChanged: (v) {
                                 _logger.userAction('Target weeks changed',
                                     screen: 'HealthProfilePage',
@@ -452,7 +452,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           SizedBox(
                             width: 72,
                             child: Text(
-                              '${local.targetTimeWeeks ?? 12} sem.',
+                              '${local.targetTimeWeeks ?? 26} sem.',
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
