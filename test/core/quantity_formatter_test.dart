@@ -37,6 +37,9 @@ void main() {
     test('0.75 tsp shows as 3/4 tsp', () {
       expect(formatQuantity(0.75, 'tsp'), '3/4 tsp');
     });
+    test('0.667 tsp shows as 2/3 tsp', () {
+      expect(formatQuantity(0.667, 'tsp'), '2/3 tsp');
+    });
     test('0.5 tbsp shows as 1/2 tbsp', () {
       expect(formatQuantity(0.5, 'tbsp'), '1/2 tbsp');
     });
