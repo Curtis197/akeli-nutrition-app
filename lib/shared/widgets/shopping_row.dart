@@ -1,90 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:akeli/core/theme.dart';
-
-// ---------------------------------------------------------------------------
-// AkeliShoppingRow
-// ---------------------------------------------------------------------------
+import 'package:akeli/core/quantity_formatter.dart';
+import 'package:akeli/shared/models/meal_plan.dart';
 
 class AkeliShoppingRow extends StatelessWidget {
-  final String quantity;
-  final String ingredient;
-  final bool checked;
+  final ShoppingItem item;
+  final bool isChecked;
   final VoidCallback onToggle;
 
   const AkeliShoppingRow({
     super.key,
-    required this.quantity,
-    required this.ingredient,
-    required this.checked,
+    required this.item,
+    required this.isChecked,
     required this.onToggle,
   });
 
   @override
   Widget build(BuildContext context) {
+    final qtyText = formatQuantity(item.quantity, item.unit);
+
     return GestureDetector(
       onTap: onToggle,
-      child: Opacity(
-        opacity: checked ? 0.5 : 1.0,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: AkeliSpacing.sm,
-            horizontal: AkeliSpacing.xs,
-          ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isChecked
+              ? AkeliColors.surfaceContainerLow
+              : AkeliColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: isChecked
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  )
+                ],
+        ),
+        child: Opacity(
+          opacity: isChecked ? 0.6 : 1.0,
           child: Row(
             children: [
-              Text(
-                quantity,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AkeliColors.secondary,
-                    ),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isChecked ? AkeliColors.primary : Colors.transparent,
+                  border: isChecked
+                      ? null
+                      : Border.all(color: AkeliColors.outlineVariant, width: 2),
+                ),
+                child: isChecked
+                    ? const Icon(Icons.check, size: 16, color: Colors.white)
+                    : null,
               ),
-              const SizedBox(width: AkeliSpacing.sm),
+              const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  ingredient,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AkeliColors.textPrimary,
-                        decoration:
-                            checked ? TextDecoration.lineThrough : null,
-                      ),
+                  item.name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: isChecked
+                        ? AkeliColors.onSurfaceVariant
+                        : AkeliColors.onSurface,
+                    decoration:
+                        isChecked ? TextDecoration.lineThrough : null,
+                  ),
                 ),
               ),
-              const SizedBox(width: AkeliSpacing.sm),
-              _AkeliCheckbox(checked: checked),
+              const SizedBox(width: 12),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isChecked
+                      ? AkeliColors.surfaceContainerHighest
+                      : AkeliColors.surfaceContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  qtyText,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AkeliColors.onSurfaceVariant,
+                    decoration:
+                        isChecked ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _AkeliCheckbox extends StatelessWidget {
-  final bool checked;
-
-  const _AkeliCheckbox({required this.checked});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: checked ? AkeliColors.primary : Colors.transparent,
-        border: Border.all(
-          color: AkeliColors.primary,
-          width: 1.5,
-        ),
-        borderRadius: BorderRadius.circular(AkeliRadius.sm / 2),
-      ),
-      child: checked
-          ? const Icon(
-              Icons.check,
-              size: 14,
-              color: Colors.white,
-            )
-          : null,
     );
   }
 }

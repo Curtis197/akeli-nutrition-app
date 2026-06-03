@@ -298,19 +298,19 @@ class RecipeFeedNotifier extends AsyncNotifier<RecipeFeedState> {
           // Unlike
           _logger.db('Removing like | recipeId: $recipeId');
           
-          final {error} = await supabase
-              .from('recipe_like')
-              .delete()
-              .eq('recipe_id', recipeId)
-              .eq('user_id', userId);
-          
-          if (error != null) {
+          try {
+            await supabase
+                .from('recipe_like')
+                .delete()
+                .eq('recipe_id', recipeId)
+                .eq('user_id', userId);
+          } on PostgrestException catch (error) {
             if (error.code == '42501') {
               _logger.rls('Permission denied on unlike | recipeId: $recipeId');
             } else {
               _logger.db('Unlike failed | recipeId: $recipeId | error: ${error.message}');
             }
-            throw error;
+            rethrow;
           }
           
           _logger.db('Recipe unliked successfully | recipeId: $recipeId');
@@ -318,20 +318,20 @@ class RecipeFeedNotifier extends AsyncNotifier<RecipeFeedState> {
           // Like
           _logger.db('Adding like | recipeId: $recipeId');
           
-          final {error} = await supabase
-              .from('recipe_like')
-              .insert({
-                'recipe_id': recipeId,
-                'user_id': userId,
-              });
-          
-          if (error != null) {
+          try {
+            await supabase
+                .from('recipe_like')
+                .insert({
+                  'recipe_id': recipeId,
+                  'user_id': userId,
+                });
+          } on PostgrestException catch (error) {
             if (error.code == '42501') {
               _logger.rls('Permission denied on like | recipeId: $recipeId');
             } else {
               _logger.db('Like failed | recipeId: $recipeId | error: ${error.message}');
             }
-            throw error;
+            rethrow;
           }
           
           _logger.db('Recipe liked successfully | recipeId: $recipeId');

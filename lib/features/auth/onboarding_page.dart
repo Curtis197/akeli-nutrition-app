@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/router.dart';
+import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
 import '../../core/logger.dart';
+import '../nutrition_plan/nutrition_plan_page.dart';
+import '../settings/widgets/allergen_picker_widget.dart';
+import '../settings/widgets/intensity_badge.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -18,8 +24,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _pageController = PageController();
+  final GlobalKey<NutritionPlanPageState> _nutritionPlanKey = GlobalKey<NutritionPlanPageState>();
   int _currentStep = 0;
-  static const int _totalSteps = 6;
+  static const int _totalSteps = 7;
+  static const int _nutritionPlanStep = 5;
   bool _isSubmitting = false;
   final _logger = appLogger;
 
@@ -33,7 +41,20 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   void _next() {
     _logger.userAction('Onboarding next tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
-    if (!notifier.canAdvance(_currentStep)) return;
+    if (!notifier.canAdvance(_currentStep)) {
+      const messages = {
+        1: 'Veuillez accepter les deux conditions pour continuer.',
+        2: 'Veuillez entrer votre prénom pour continuer.',
+        3: 'Veuillez entrer votre poids cible pour continuer.',
+      };
+      final msg = messages[_currentStep];
+      if (msg != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg)),
+        );
+      }
+      return;
+    }
     if (_currentStep < _totalSteps - 1) {
       _pageController.nextPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
@@ -43,10 +64,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _back() {
-    _logger.userAction('Onboarding step back', screen: 'OnboardingPage', metadata: {'step': _currentStep});
+    _logger.userAction('Onboarding back tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     if (_currentStep > 0) {
       _pageController.previousPage(
           duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    }
+  }
+
+  Future<void> _saveNutritionPlanAndNext() async {
+    final state = _nutritionPlanKey.currentState;
+    if (state != null) {
+      setState(() => _isSubmitting = true);
+      await state.savePlan();
+      if (mounted) setState(() => _isSubmitting = false);
+    } else {
+      _next();
     }
   }
 
@@ -55,15 +87,84 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
     setState(() => _isSubmitting = true);
+
+    final d = ref.read(onboardingProvider);
+    final client = ref.read(supabaseClientProvider);
+    final now = DateTime.now().toUtc().toIso8601String();
+
+    // Approximate birth_date from age (Jan 1 of birth year)
+    final birthDate = d.age != null
+        ? '${DateTime.now().year - d.age!}-01-01'
+        : null;
+
+    final restrictions = <String>[
+      if (d.noPork) 'no_pork',
+      if (d.noMeat) 'no_meat',
+      if (d.noGluten) 'no_gluten',
+      if (d.noLactose) 'no_lactose',
+    ];
+
+    // Build goal_type set from the user's explicit onboarding selections.
+    // "health" is always included as a baseline.
+    final goalSet = <String>{'health'};
+    if (d.weightGoal == 'loss') goalSet.add('weight_loss');
+    if (d.weightGoal == 'gain') goalSet.add('muscle_gain');
+    if (d.weightGoal == 'maintenance') goalSet.add('maintenance');
+    if (d.muscleGoal == 'gain') goalSet.add('muscle_gain');
+    if (d.muscleGoal == 'loss') goalSet.add('weight_loss');
+    if (d.muscleGoal == 'maintenance') goalSet.add('maintenance');
+    final inferredGoals = goalSet.toList();
+
+    final body = <String, dynamic>{
+      'first_name': d.name,
+      if (d.sex != null) 'sex': d.sex,
+      if (birthDate != null) 'birth_date': birthDate,
+      if (d.height != null) 'height_cm': d.height,
+      if (d.weight != null) 'weight_kg': d.weight,
+      if (d.targetWeight != null) 'target_weight_kg': d.targetWeight,
+      if (d.activityLevel != null) 'activity_level': d.activityLevel,
+      'goals': inferredGoals,
+      if (d.weightGoal != null) 'weight_goal': d.weightGoal,
+      if (d.muscleGoal != null) 'muscle_goal': d.muscleGoal,
+      if (d.cookingTime != null) 'cooking_time': d.cookingTime,
+      'batch_cooking_enabled': d.batchCookingEnabled,
+      'batch_cooking_max_portions': d.batchMaxPortions,
+      'dietary_restrictions': restrictions,
+      'selectedAllergenIds': d.allergens.map((a) => a.id).toList(),
+      'cuisine_preferences': d.cuisinePreferences,
+      if (d.consentPrivacy) 'consent_privacy_at': now,
+      if (d.consentCgu) 'consent_cgu_at': now,
+    };
+
     try {
       _logger.edge('complete-onboarding', 'BEFORE | userId: ${LogHelper.maskUuid(user.id)}');
-      // TODO(wave2): persist onboardingProvider state to Supabase user profile
-      await Future.delayed(const Duration(milliseconds: 600));
+      await client.functions.invoke('complete-onboarding', body: body);
       _logger.edge('complete-onboarding', 'AFTER | success');
+      ref.invalidate(userProfileProvider);
+      // Fire-and-forget: generate first meal plan in background while navigating home.
+      // The meal planner page handles loading/empty state while generation completes.
+      _logger.edge('generate-meal-plan', 'BEFORE (post-onboarding) | non-blocking');
+      client.functions.invoke('generate-meal-plan', body: {
+        'days': 7,
+        'meals_per_day': 3,
+      }).then((_) {
+        _logger.edge('generate-meal-plan', 'AFTER (post-onboarding) | success');
+      }).catchError((Object e) {
+        _logger.edge('generate-meal-plan', 'ERROR (post-onboarding) | $e');
+      });
       if (mounted) context.go(AkeliRoutes.home);
     } catch (e, st) {
       _logger.edge('complete-onboarding', 'ERROR | $e', error: e, stackTrace: st);
-      rethrow;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Erreur de synchronisation. Vos données peuvent être complétées depuis votre profil.',
+            ),
+          ),
+        );
+        context.go(AkeliRoutes.home);
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -100,6 +201,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   _StepProfile(step: _currentStep),
                   _StepGoals(step: _currentStep),
                   _StepPreferences(step: _currentStep),
+                  NutritionPlanPage(
+                    key: _nutritionPlanKey,
+                    isOnboarding: true,
+                    onCompleted: _next,
+                  ),
                   _StepSummary(step: _currentStep),
                 ],
               ),
@@ -108,7 +214,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               step: _currentStep,
               totalSteps: _totalSteps,
               onBack: _currentStep > 0 ? _back : null,
-              onNext: _next,
+              onNext: _currentStep == _nutritionPlanStep ? _saveNutritionPlanAndNext : _next,
               isLoading: _isSubmitting,
             ),
           ],
@@ -301,7 +407,9 @@ class _OnboardingBottomBar extends StatelessWidget {
 
 class _StepCard extends StatelessWidget {
   final Widget child;
-  const _StepCard({required this.child});
+  final EdgeInsetsGeometry? padding;
+  
+  const _StepCard({required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -317,7 +425,7 @@ class _StepCard extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(AkeliSpacing.lg),
+      padding: padding ?? const EdgeInsets.all(AkeliSpacing.lg),
       child: child,
     );
   }
@@ -410,12 +518,39 @@ class _StepLanguage extends ConsumerWidget {
 
 // ── Step 2: Consent ──────────────────────────────────────────────────────────
 
-class _StepConsent extends ConsumerWidget {
+class _StepConsent extends ConsumerStatefulWidget {
   final int step;
   const _StepConsent({required this.step});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_StepConsent> createState() => _StepConsentState();
+}
+
+class _StepConsentState extends ConsumerState<_StepConsent> {
+  final _logger = appLogger;
+  late final TapGestureRecognizer _privacyRecognizer;
+  late final TapGestureRecognizer _cguRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.provider('_StepConsentState initState');
+    _privacyRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AkeliRoutes.privacyPolicy);
+    _cguRecognizer = TapGestureRecognizer()
+      ..onTap = () => context.push(AkeliRoutes.termsOfService);
+  }
+
+  @override
+  void dispose() {
+    _logger.provider('_StepConsentState disposed');
+    _privacyRecognizer.dispose();
+    _cguRecognizer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -440,27 +575,33 @@ class _StepConsent extends ConsumerWidget {
           ),
           const SizedBox(height: AkeliSpacing.xl),
           _StepCard(
+            padding: EdgeInsets.zero,
             child: Column(
               children: [
-                const _ConsentSection(
-                  title: 'Données collectées',
-                  items: [
-                    ('Identité et contact :', "Nom, prénom et adresse email pour sécuriser votre compte."),
-                    ("Usage de l'application :", "Statistiques anonymes pour améliorer votre expérience quotidienne."),
-                  ],
-                ),
-                const SizedBox(height: AkeliSpacing.lg),
-                const _ConsentSection(
-                  title: 'Vos droits',
-                  items: [
-                    ('Accès total :', "Consultez, modifiez ou exportez vos données à tout moment depuis les paramètres."),
-                    ("Droit à l'oubli :", "Suppression définitive de votre compte et de vos données sur simple demande."),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.lg, 0),
+                  child: Column(
+                    children: [
+                      _ConsentSection(
+                        title: 'Données collectées',
+                        items: [
+                          ('Identité et contact :', "Nom, prénom et adresse email pour sécuriser votre compte."),
+                          ("Usage de l'application :", "Statistiques anonymes pour améliorer votre expérience quotidienne."),
+                        ],
+                      ),
+                      SizedBox(height: AkeliSpacing.lg),
+                      _ConsentSection(
+                        title: 'Vos droits',
+                        items: [
+                          ('Accès total :', "Consultez, modifiez ou exportez vos données à tout moment depuis les paramètres."),
+                          ("Droit à l'oubli :", "Suppression définitive de votre compte et de vos données sur simple demande."),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AkeliSpacing.lg),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: -AkeliSpacing.lg),
                   padding: const EdgeInsets.all(AkeliSpacing.lg),
                   decoration: const BoxDecoration(
                     color: AkeliColors.surfaceContainerLow,
@@ -475,16 +616,54 @@ class _StepConsent extends ConsumerWidget {
                         value: data.consentPrivacy,
                         onChanged: (v) =>
                             notifier.updateConsent(privacy: v),
-                        label:
-                            "J'accepte la Politique de Confidentialité et confirme avoir lu les informations concernant le traitement de mes données personnelles (RGPD).",
+                        label: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AkeliColors.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                            children: [
+                              const TextSpan(text: "J'accepte la "),
+                              TextSpan(
+                                text: "Politique de Confidentialité",
+                                style: const TextStyle(
+                                  color: AkeliColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: _privacyRecognizer,
+                              ),
+                              const TextSpan(text: " et confirme avoir lu les informations concernant le traitement de mes données personnelles (RGPD)."),
+                            ],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AkeliSpacing.md),
                       _ConsentCheckbox(
                         value: data.consentCgu,
                         onChanged: (v) =>
                             notifier.updateConsent(cgu: v),
-                        label:
-                            "J'accepte les Conditions Générales d'Utilisation (CGU) d'Akeli.",
+                        label: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AkeliColors.onSurfaceVariant,
+                              height: 1.5,
+                            ),
+                            children: [
+                              const TextSpan(text: "J'accepte les "),
+                              TextSpan(
+                                text: "Conditions Générales d'Utilisation (CGU)",
+                                style: const TextStyle(
+                                  color: AkeliColors.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                                recognizer: _cguRecognizer,
+                              ),
+                              const TextSpan(text: " d'Akeli."),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -571,7 +750,7 @@ class _ConsentSection extends StatelessWidget {
 class _ConsentCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
-  final String label;
+  final Widget label;
 
   const _ConsentCheckbox({
     required this.value,
@@ -608,11 +787,7 @@ class _ConsentCheckbox extends StatelessWidget {
           ),
           const SizedBox(width: AkeliSpacing.md),
           Expanded(
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                  fontSize: 13, color: AkeliColors.onSurfaceVariant, height: 1.5),
-            ),
+            child: label,
           ),
         ],
       ),
@@ -914,6 +1089,14 @@ class _MetricFieldState extends State<_MetricField> {
   }
 
   @override
+  void didUpdateWidget(_MetricField old) {
+    super.didUpdateWidget(old);
+    if (widget.value != _ctrl.text) {
+      _ctrl.text = widget.value;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -1041,34 +1224,41 @@ class _SexOption extends StatelessWidget {
 class _StepGoals extends ConsumerStatefulWidget {
   final int step;
   const _StepGoals({required this.step});
+
   @override
   ConsumerState<_StepGoals> createState() => _StepGoalsState();
 }
 
 class _StepGoalsState extends ConsumerState<_StepGoals> {
   final _logger = appLogger;
-  late final TextEditingController _targetWeightCtrl;
   late final TextEditingController _motivationsCtrl;
 
   @override
   void initState() {
     super.initState();
-    final d = ref.read(onboardingProvider);
-    _targetWeightCtrl =
-        TextEditingController(text: d.targetWeight?.toString() ?? '');
-    _motivationsCtrl = TextEditingController(text: d.motivations);
+    _motivationsCtrl = TextEditingController(
+      text: ref.read(onboardingProvider).motivations,
+    );
   }
 
   @override
   void dispose() {
-    _targetWeightCtrl.dispose();
     _motivationsCtrl.dispose();
     super.dispose();
   }
 
   @override
+  void didUpdateWidget(_StepGoals old) {
+    super.didUpdateWidget(old);
+    final providerText = ref.read(onboardingProvider).motivations;
+    if (providerText != _motivationsCtrl.text) {
+      _motivationsCtrl.text = providerText;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _logger.provider('_StepGoalsState build()');
+    _logger.provider('_StepGoals build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1088,39 +1278,134 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
               'Définissons ensemble ce que vous souhaitez accomplir.',
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AkeliSpacing.xl),
+
+          // ── Weight goal ──────────────────────────────────────────────────
           _StepCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('POIDS CIBLE (KG)',
+                Text('OBJECTIF POIDS',
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: AkeliColors.onSurfaceVariant,
                         letterSpacing: 0.1)),
-                const SizedBox(height: AkeliSpacing.sm),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(AkeliRadius.sm),
-                  ),
-                  child: TextField(
-                    controller: _targetWeightCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (v) => notifier.updateGoals(
-                        targetWeight: double.tryParse(v)),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'loss',
+                  groupValue: data.weightGoal,
+                  label: 'Perdre du poids',
+                  icon: Icons.trending_down_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'maintenance',
+                  groupValue: data.weightGoal,
+                  label: 'Maintenir mon poids',
+                  icon: Icons.balance_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'gain',
+                  groupValue: data.weightGoal,
+                  label: 'Prendre de la masse',
+                  icon: Icons.trending_up_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Weight goal selected',
+                        screen: 'OnboardingPage', metadata: {'weightGoal': v});
+                    notifier.updateGoals(weightGoal: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Muscle goal ──────────────────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('OBJECTIF MUSCULAIRE',
                     style: GoogleFonts.inter(
-                        fontSize: 18, color: AkeliColors.onSurface),
-                    decoration: InputDecoration(
-                      hintText: 'Ex: 65',
-                      filled: false,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(AkeliSpacing.md),
-                      suffixText: 'kg',
-                      suffixStyle: GoogleFonts.inter(
-                          fontSize: 13, color: AkeliColors.onSurfaceVariant),
-                    ),
-                  ),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'loss',
+                  groupValue: data.muscleGoal,
+                  label: 'Réduire la masse musculaire',
+                  icon: Icons.remove_circle_outline_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'maintenance',
+                  groupValue: data.muscleGoal,
+                  label: 'Maintenir mes muscles',
+                  icon: Icons.fitness_center_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'gain',
+                  groupValue: data.muscleGoal,
+                  label: 'Développer mes muscles',
+                  icon: Icons.add_circle_outline_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Muscle goal selected',
+                        screen: 'OnboardingPage', metadata: {'muscleGoal': v});
+                    notifier.updateGoals(muscleGoal: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Target weight + timeline ──────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('POIDS CIBLE',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _MetricField(
+                  value: data.targetWeight?.toString() ?? '',
+                  suffix: 'kg',
+                  onChanged: (v) {
+                    _logger.userAction('Target weight changed',
+                        screen: 'OnboardingPage',
+                        metadata: {'value': v});
+                    if (v.isEmpty) {
+                      notifier.clearTargetWeight();
+                    } else {
+                      notifier.updateGoals(targetWeight: double.tryParse(v));
+                    }
+                  },
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
                 Row(
@@ -1132,19 +1417,10 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                             fontWeight: FontWeight.w600,
                             color: AkeliColors.onSurfaceVariant,
                             letterSpacing: 0.1)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AkeliColors.tertiaryFixed,
-                        borderRadius: BorderRadius.circular(AkeliRadius.pill),
-                      ),
-                      child: Text('Modéré',
-                          style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: AkeliColors.onTertiaryFixed,
-                              letterSpacing: 0.08)),
+                    IntensityBadge(
+                      currentKg: data.weight,
+                      targetKg: data.targetWeight,
+                      months: data.timelineMonths.toDouble(),
                     ),
                   ],
                 ),
@@ -1176,8 +1452,10 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     activeTrackColor: AkeliColors.secondaryContainer,
                     inactiveTrackColor: AkeliColors.surfaceContainerHighest,
                     thumbColor: AkeliColors.surfaceContainerLowest,
-                    overlayColor: AkeliColors.primary.withValues(alpha: 0.1),
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14),
+                    overlayColor:
+                        AkeliColors.primary.withValues(alpha: 0.1),
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 14),
                     trackHeight: 10,
                   ),
                   child: Slider(
@@ -1185,8 +1463,12 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     min: 1,
                     max: 12,
                     divisions: 11,
-                    onChanged: (v) =>
-                        notifier.updateGoals(timelineMonths: v.round()),
+                    onChanged: (v) {
+                      _logger.userAction('Timeline months changed',
+                          screen: 'OnboardingPage',
+                          metadata: {'months': v.round()});
+                      notifier.updateGoals(timelineMonths: v.round());
+                    },
                   ),
                 ),
                 Row(
@@ -1211,7 +1493,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                         fontWeight: FontWeight.w600,
                         color: AkeliColors.onSurfaceVariant,
                         letterSpacing: 0.1)),
-                const SizedBox(height: AkeliSpacing.sm),
+                const SizedBox(height: AkeliSpacing.md),
                 Container(
                   decoration: BoxDecoration(
                     color: AkeliColors.surfaceContainerHighest,
@@ -1219,22 +1501,240 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   ),
                   child: TextField(
                     controller: _motivationsCtrl,
-                    maxLines: 4,
-                    onChanged: (v) => notifier.updateGoals(motivations: v),
+                    maxLines: 3,
+                    onChanged: (v) {
+                      _logger.userAction('Motivations changed',
+                          screen: 'OnboardingPage');
+                      notifier.updateGoals(motivations: v);
+                    },
                     style: GoogleFonts.inter(
                         fontSize: 15, color: AkeliColors.onSurface),
-                    decoration: const InputDecoration(
-                      hintText: 'Pourquoi souhaitez-vous atteindre cet objectif ?',
-                      filled: false,
+                    decoration: InputDecoration(
+                      hintText: 'Qu\'est-ce qui vous motive ?',
+                      hintStyle: GoogleFonts.inter(
+                          fontSize: 15,
+                          color: AkeliColors.onSurfaceVariant),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(AkeliSpacing.md),
+                      filled: false,
+                      contentPadding: const EdgeInsets.all(AkeliSpacing.md),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Cooking time ─────────────────────────────────────────────────
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('TEMPS DE CUISINE',
+                    style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.1)),
+                const SizedBox(height: AkeliSpacing.md),
+                _GoalRadioOption(
+                  value: 'quick',
+                  groupValue: data.cookingTime,
+                  label: 'Rapide (< 30 min)',
+                  icon: Icons.bolt_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'medium',
+                  groupValue: data.cookingTime,
+                  label: 'Moyen (30–60 min)',
+                  icon: Icons.timer_outlined,
+                  onChanged: (v) {
+                    _logger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+                _GoalRadioOption(
+                  value: 'any',
+                  groupValue: data.cookingTime,
+                  label: 'Peu importe',
+                  icon: Icons.all_inclusive_rounded,
+                  onChanged: (v) {
+                    _logger.userAction('Cooking time selected',
+                        screen: 'OnboardingPage', metadata: {'cookingTime': v});
+                    notifier.updateGoals(cookingTime: v);
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AkeliSpacing.lg),
+
+          // ── Batch cooking ─────────────────────────────────────────────
+          _StepCard(
+            child: Consumer(
+              builder: (context, ref, _) {
+                final data = ref.watch(onboardingProvider);
+                final notifier = ref.read(onboardingProvider.notifier);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('CUISSON EN BATCH',
+                        style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurfaceVariant,
+                            letterSpacing: 0.1)),
+                    const SizedBox(height: AkeliSpacing.sm),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Préparer plusieurs repas à la fois',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: AkeliColors.onSurface)),
+                              const SizedBox(height: 2),
+                              Text('Cuire en grande quantité pour la semaine',
+                                  style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      color: AkeliColors.onSurfaceVariant)),
+                            ],
+                          ),
+                        ),
+                        Switch(
+                          value: data.batchCookingEnabled,
+                          activeThumbColor: AkeliColors.primary,
+                          onChanged: (v) {
+                            _logger.userAction('Batch cooking toggled',
+                                screen: 'OnboardingPage',
+                                metadata: {'enabled': v});
+                            notifier.updateGoals(batchCookingEnabled: v);
+                          },
+                        ),
+                      ],
+                    ),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: data.batchCookingEnabled
+                          ? Padding(
+                              key: const ValueKey('portions'),
+                              padding: const EdgeInsets.only(top: AkeliSpacing.md),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Portions max par session',
+                                      style: GoogleFonts.inter(
+                                          fontSize: 15,
+                                          color: AkeliColors.onSurface)),
+                                  DropdownButton<int>(
+                                    value: data.batchMaxPortions,
+                                    underline: const SizedBox.shrink(),
+                                    style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: AkeliColors.primary),
+                                    items: List.generate(6, (i) => i + 2)
+                                        .map((n) => DropdownMenuItem(
+                                              value: n,
+                                              child: Text('$n'),
+                                            ))
+                                        .toList(),
+                                    onChanged: (v) {
+                                      if (v == null) return;
+                                      _logger.userAction(
+                                          'Batch max portions selected',
+                                          screen: 'OnboardingPage',
+                                          metadata: {'portions': v});
+                                      notifier.updateGoals(batchMaxPortions: v);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('hidden')),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+// Reusable radio row used inside _StepGoals sections.
+class _GoalRadioOption extends StatelessWidget {
+  final String value;
+  final String? groupValue;
+  final String label;
+  final IconData icon;
+  final ValueChanged<String> onChanged;
+
+  const _GoalRadioOption({
+    required this.value,
+    required this.groupValue,
+    required this.label,
+    required this.icon,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = groupValue == value;
+    return GestureDetector(
+      onTap: () => onChanged(value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        margin: const EdgeInsets.only(bottom: AkeliSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AkeliSpacing.md, vertical: AkeliSpacing.sm + 2),
+        decoration: BoxDecoration(
+          color: selected
+              ? AkeliColors.primaryContainer
+              : AkeliColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AkeliRadius.sm),
+          border: Border.all(
+            color: selected ? AkeliColors.primary : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon,
+                size: 20,
+                color: selected
+                    ? AkeliColors.primary
+                    : AkeliColors.onSurfaceVariant),
+            const SizedBox(width: AkeliSpacing.md),
+            Expanded(
+              child: Text(label,
+                  style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight:
+                          selected ? FontWeight.w600 : FontWeight.w400,
+                      color: selected
+                          ? AkeliColors.onPrimaryContainer
+                          : AkeliColors.onSurface)),
+            ),
+            if (selected)
+              const Icon(Icons.check_circle_rounded,
+                  size: 20, color: AkeliColors.primary),
+          ],
+        ),
       ),
     );
   }
@@ -1251,11 +1751,19 @@ class _StepPreferences extends ConsumerStatefulWidget {
 
 class _StepPreferencesState extends ConsumerState<_StepPreferences> {
   final _logger = appLogger;
-  final _allergyCtrl = TextEditingController();
+
+  static const _kRegions = [
+    ('west_africa',    'Afrique de l\'Ouest'),
+    ('east_africa',    'Afrique de l\'Est'),
+    ('north_africa',   'Afrique du Nord'),
+    ('central_africa', 'Afrique Centrale'),
+    ('south_africa',   'Afrique Australe'),
+    ('caribbean',      'Caraïbes'),
+    ('occidental',     'Occident'),
+  ];
 
   @override
   void dispose() {
-    _allergyCtrl.dispose();
     super.dispose();
   }
 
@@ -1342,78 +1850,48 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _allergyCtrl,
-                        style: GoogleFonts.inter(
-                            fontSize: 14, color: AkeliColors.onSurface),
-                        decoration: InputDecoration(
-                          hintText: 'Ex: arachides, noix...',
-                          filled: true,
-                          fillColor: AkeliColors.surfaceContainerHighest,
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                              borderSide: BorderSide.none),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: AkeliSpacing.md,
-                              vertical: AkeliSpacing.sm),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AkeliSpacing.sm),
-                    GestureDetector(
-                      onTap: () {
-                        _logger.userAction('Add allergy tapped', screen: 'OnboardingPage');
-                        final txt = _allergyCtrl.text.trim();
-                        if (txt.isNotEmpty) {
-                          final updated = [...data.allergies, txt];
-                          notifier.updatePreferences(allergies: updated);
-                          _allergyCtrl.clear();
-                        }
-                      },
-                      child: Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AkeliColors.primary,
-                          borderRadius: BorderRadius.circular(AkeliRadius.md),
-                        ),
-                        child: const Icon(Icons.add_rounded,
-                            color: Colors.white, size: 22),
-                      ),
-                    ),
-                  ],
+                AllergenPickerWidget(
+                  selectedAllergens: data.allergens,
+                  onChanged: (updated) {
+                    notifier.updatePreferences(allergens: updated);
+                  },
                 ),
-                if (data.allergies.isNotEmpty) ...[
-                  const SizedBox(height: AkeliSpacing.md),
-                  Wrap(
-                    spacing: AkeliSpacing.sm,
-                    runSpacing: AkeliSpacing.sm,
-                    children: data.allergies.map((a) {
-                      return Chip(
-                        label: Text(a,
-                            style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: AkeliColors.onSurface)),
-                        backgroundColor: AkeliColors.surfaceContainerLow,
-                        deleteIcon: const Icon(Icons.close_rounded, size: 16),
-                        onDeleted: () {
-                          _logger.userAction('Allergy removed', screen: 'OnboardingPage', metadata: {'allergy': a});
-                          final updated = data.allergies
-                              .where((x) => x != a)
-                              .toList();
-                          notifier.updatePreferences(allergies: updated);
+              ],
+            ),
+          ),
+          const SizedBox(height: AkeliSpacing.xl),
+          _StepCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Inspirations Régionales',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface),
+                ),
+                const SizedBox(height: AkeliSpacing.xs),
+                Text(
+                  'Sélectionnez votre région de prédilection pour des recommandations ciblées.',
+                  style: GoogleFonts.inter(
+                      fontSize: 13, color: AkeliColors.onSurfaceVariant),
+                ),
+                const SizedBox(height: AkeliSpacing.md),
+                ..._kRegions.map((r) => Padding(
+                      padding: const EdgeInsets.only(bottom: AkeliSpacing.xs),
+                      child: _RegionTile(
+                        label: r.$2,
+                        selected: data.cuisinePreferences.isNotEmpty &&
+                            data.cuisinePreferences[0] == r.$1,
+                        onTap: () {
+                          _logger.userAction('Region selected',
+                              screen: 'OnboardingPage',
+                              metadata: {'region': r.$1});
+                          notifier.updateCuisineRegion(r.$1);
                         },
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(AkeliRadius.pill)),
-                      );
-                    }).toList(),
-                  ),
-                ],
+                      ),
+                    )),
               ],
             ),
           ),
@@ -1743,6 +2221,75 @@ class _SummaryCard extends StatelessWidget {
                   fontSize: 12,
                   color: AkeliColors.onSurfaceVariant)),
         ],
+      ),
+    );
+  }
+}
+
+// ── Region tile ──────────────────────────────────────────────────────────────
+
+class _RegionTile extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _RegionTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AkeliSpacing.md, vertical: 14),
+        decoration: BoxDecoration(
+          color: selected
+              ? AkeliColors.secondaryContainer.withValues(alpha: 0.4)
+              : AkeliColors.surface,
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          border: Border.all(
+            color: selected
+                ? AkeliColors.secondaryContainer
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.public_rounded,
+              color: selected
+                  ? AkeliColors.primary
+                  : AkeliColors.onSurfaceVariant,
+              size: 22,
+            ),
+            const SizedBox(width: AkeliSpacing.md),
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AkeliColors.onSurface,
+                ),
+              ),
+            ),
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off_rounded,
+              color: selected
+                  ? AkeliColors.primary
+                  : AkeliColors.outlineVariant,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -75,40 +75,25 @@ class _ImageVariant extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Image area with tags overlay
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AkeliRadius.xl),
-          ),
-          child: Stack(
-            children: [
-              Container(
-                height: card.isMinimalist ? 140 : 120,
-                width: double.infinity,
-                color: AkeliColors.surfaceContainerHigh,
-                child: card.imageUrl != null
-                    ? Image.network(card.imageUrl!, fit: BoxFit.cover)
-                    : Center(
-                        child: Text(
-                          card.emoji ?? '🥘',
-                          style: const TextStyle(fontSize: 40),
+        // Image area — expands to fill whatever height remains after the body
+        Expanded(
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AkeliRadius.xl),
+            ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  color: AkeliColors.surfaceContainerHigh,
+                  child: card.imageUrl != null
+                      ? Image.network(card.imageUrl!, fit: BoxFit.cover)
+                      : Center(
+                          child: Text(
+                            card.emoji ?? '🥘',
+                            style: const TextStyle(fontSize: 40),
+                          ),
                         ),
-                      ),
-              ),
-              // Floating Sparkle Button (Premium only)
-              if (card.isMinimalist)
-                Positioned(
-                  top: AkeliSpacing.md,
-                  right: AkeliSpacing.md,
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: AkeliColors.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.auto_awesome, color: Colors.white, size: 16),
-                  ),
                 ),
               if (!card.isMinimalist && card.tags.isNotEmpty)
                 Positioned(
@@ -127,6 +112,7 @@ class _ImageVariant extends StatelessWidget {
                 ),
             ],
           ),
+        ),
         ),
         // Body
         Padding(

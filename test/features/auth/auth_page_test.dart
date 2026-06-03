@@ -23,24 +23,28 @@ void main() {
       await tester.pumpWidget(_testApp(const AuthPage()));
       await tester.pump();
       expect(find.text("S'inscrire"), findsOneWidget);
-      expect(find.text('Se connecter'), findsOneWidget);
+      // AnimatedCrossFade keeps both children in the tree, so 'Se connecter'
+      // appears in both the pill tab and the login form submit button.
+      expect(find.text('Se connecter'), findsWidgets);
     });
 
     testWidgets('sign-up form validates empty email', (tester) async {
       await tester.pumpWidget(_testApp(const AuthPage()));
-      await tester.pump();
-      // Tap the Commencer button without filling fields
+      await tester.pumpAndSettle();
+      // Scroll 'Commencer' into view — the form may extend below the test viewport.
       final submitBtn = find.text('Commencer');
+      await tester.ensureVisible(submitBtn);
       await tester.tap(submitBtn);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.text('Email requis'), findsOneWidget);
     });
 
     testWidgets('switching to login tab shows login heading', (tester) async {
       await tester.pumpWidget(_testApp(const AuthPage()));
       await tester.pump();
-      // Tap 'Se connecter' tab
-      await tester.tap(find.text('Se connecter'));
+      // Tap the first 'Se connecter' — the pill tab, not the login button.
+      // AnimatedCrossFade keeps both in the tree so .first selects the tab.
+      await tester.tap(find.text('Se connecter').first);
       await tester.pumpAndSettle();
       expect(find.text('Heureux de vous revoir !'), findsOneWidget);
     });

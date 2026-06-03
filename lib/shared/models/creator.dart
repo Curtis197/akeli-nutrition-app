@@ -34,7 +34,7 @@ class Creator {
         id: json['id'] as String,
         userId: json['user_id'] as String,
         displayName: json['display_name'] as String,
-        avatarUrl: json['avatar_url'] as String?,
+        avatarUrl: json['profile_image_url'] as String?,
         bio: json['bio'] as String?,
         specialties: (json['specialties'] as List<dynamic>?)?.cast<String>() ?? [],
         recipeCount: (json['recipe_count'] as int?) ?? 0,
@@ -42,7 +42,7 @@ class Creator {
         isFanEligible: ((json['recipe_count'] as int?) ?? 0) >= 30,
         isMyFanCreator: (json['is_my_fan_creator'] as bool?) ?? false,
         averageRating: (json['average_rating'] as num?)?.toDouble() ?? 0.0,
-        regionId: json['food_region_id'] as String?,
+        regionId: json['heritage_region'] as String?,
       );
 }
 

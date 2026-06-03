@@ -1,7 +1,13 @@
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
 # Environment
 .env
 .env.local
 .env.*
+token.txt
 
 # Editors
 .vscode/
@@ -13,6 +19,7 @@
 build/
 .dart_tool/
 .flutter-plugins
+.flutter-plugins-dependencies
 *.iml
 
 # iOS generated / ephemeral (not committed)
@@ -27,9 +34,22 @@ android/.gradle/
 android/local.properties
 
 # Python bytecode
+__pycache__/
 **/__pycache__/
 **/*.pyc
 **/*.pyo
 
-# Logs
-*.log
+# Supabase local state
+supabase/.branches/
+supabase/.temp/gotrue-version
+supabase/.temp/pooler-url
+supabase/.temp/postgres-version
+supabase/.temp/project-ref
+supabase/.temp/rest-version
+supabase/.temp/storage-migration
+supabase/.temp/storage-version
+
+# Utility scripts (may contain embedded credentials)
+migration_out.txt
+reset_out.txt
+test_users.sql

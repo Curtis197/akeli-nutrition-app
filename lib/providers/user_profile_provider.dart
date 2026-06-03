@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/logger.dart';
@@ -182,6 +183,47 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
       } catch (e, st) {
         _logger.db('ERROR | table: user_profile | UPDATE | unexpected: $e', error: e, stackTrace: st);
         _logger.provider('UserProfileNotifier → error (updateProfile unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> updateAvatar(File imageFile) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('updateAvatar');
+    _logger.provider('UserProfileNotifier → loading (updateAvatar)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final ext = imageFile.path.split('.').last.toLowerCase();
+        final path = '${user.id}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+        _logger.db('BEFORE | storage: avatars | op: UPLOAD | path: $path');
+        await client.storage.from('avatars').upload(path, imageFile, fileOptions: const FileOptions(upsert: true));
+        _logger.db('AFTER | storage: avatars | op: UPLOAD | success');
+
+        final publicUrl = client.storage.from('avatars').getPublicUrl(path);
+
+        final data = await client
+            .from('user_profile')
+            .update({'avatar_url': publicUrl})
+            .eq('id', user.id)
+            .select()
+            .single();
+        _logger.db('AFTER | table: user_profile | op: UPDATE | avatar_url');
+        
+        return UserProfile.fromJson(data);
+      } on StorageException catch (e, st) {
+        _logger.db('ERROR | storage: avatars | UPLOAD | code: ${e.statusCode}', error: e, stackTrace: st);
+        _logger.provider('UserProfileNotifier → error (updateAvatar)');
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | updateAvatar | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('UserProfileNotifier → error (updateAvatar)');
         rethrow;
       }
     });

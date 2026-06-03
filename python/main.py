@@ -9,12 +9,15 @@ from pydantic import BaseModel
 import uvicorn
 import os
 
-from engine.vectorization import compute_user_vector, compute_recipe_vector
+from engine.vectorization import compute_user_vector, compute_recipe_vector, compute_creator_vector
 from engine.database import (
     upsert_user_vector,
     upsert_recipe_vector,
     get_active_users,
     get_pending_recipes,
+    get_all_creators,
+    get_creator_recipe_vectors,
+    upsert_creator_vector,
 )
 
 app = FastAPI(
@@ -43,6 +46,10 @@ class UserVectorRequest(BaseModel):
 
 class RecipeVectorRequest(BaseModel):
     recipe_id: str
+
+
+class CreatorVectorRequest(BaseModel):
+    creator_id: str
 
 
 class NightlyBatchRequest(BaseModel):
@@ -89,6 +96,39 @@ async def api_compute_recipe_vector(request: RecipeVectorRequest):
             raise HTTPException(status_code=404, detail="Recipe not found or not published")
         upsert_recipe_vector(request.recipe_id, vector)
         return {"recipe_id": request.recipe_id, "vector_computed": True, "dimensions": len(vector)}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ---------------------------------------------------------------------------
+# Endpoint: compute-creator-vector
+# Appelé après la publication d'une recette pour mettre à jour le creator_vector
+# ---------------------------------------------------------------------------
+
+@app.post("/compute-creator-vector")
+async def api_compute_creator_vector(request: CreatorVectorRequest):
+    """
+    Calcule et stocke le creator_vector pour un créateur.
+    Requiert que les recipe_vectors du créateur soient déjà calculés.
+    """
+    try:
+        vector = compute_creator_vector(request.creator_id)
+        if vector is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Creator not found or no published recipe vectors available"
+            )
+        recipe_vectors = get_creator_recipe_vectors(request.creator_id)
+        recipe_count = len(recipe_vectors)
+        upsert_creator_vector(request.creator_id, vector, recipe_count)
+        return {
+            "creator_id": request.creator_id,
+            "vector_computed": True,
+            "dimensions": len(vector),
+            "recipe_count_sampled": recipe_count,
+        }
     except HTTPException:
         raise
     except Exception as e:
@@ -152,6 +192,24 @@ def run_nightly_batch():
             logger.error(f"[nightly-batch] Recipe {recipe_id} failed: {e}")
 
     logger.info(f"[nightly-batch] Recipe vectors: {recipe_success}/{len(pending_recipes)} updated")
+
+    # --- 3. Creator vectors ---
+    # Must run AFTER recipe vectors — creator vectors are derived from them.
+    all_creators = get_all_creators()
+    logger.info(f"[nightly-batch] Processing {len(all_creators)} creators")
+
+    creator_success = 0
+    for creator_id in all_creators:
+        try:
+            vector = compute_creator_vector(creator_id)
+            if vector is not None:
+                recipe_count = len(get_creator_recipe_vectors(creator_id))
+                upsert_creator_vector(creator_id, vector, recipe_count)
+                creator_success += 1
+        except Exception as e:
+            logger.error(f"[nightly-batch] Creator {creator_id} failed: {e}")
+
+    logger.info(f"[nightly-batch] Creator vectors: {creator_success}/{len(all_creators)} updated")
 
 
 # ---------------------------------------------------------------------------

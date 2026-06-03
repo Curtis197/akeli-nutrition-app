@@ -80,9 +80,15 @@ class MockData {
       fatG: 22,
       fiberG: 8,
       averageRating: 4.8,
-      ratingCount: 124,
+      averageRatingTaste: 4.9,
+      averageRatingEase: 4.7,
+      averageRatingSatiety: 4.6,
+      ratingCount: 128,
+      commentCount: 42,
       likeCount: 450,
       isLiked: true,
+      isSaved: false,
+      saveCount: 120,
       isPublished: true,
       ingredients: const [
         RecipeIngredient(ingredientId: 'i1', name: 'Riz brisé', quantity: 1, unit: 'kg', isOptional: false),
@@ -112,10 +118,16 @@ class MockData {
       carbsG: 40,
       fatG: 18,
       fiberG: 12,
-      averageRating: 4.6,
-      ratingCount: 85,
+      averageRating: 4.5,
+      averageRatingTaste: 4.6,
+      averageRatingEase: 4.2,
+      averageRatingSatiety: 4.8,
+      ratingCount: 84,
+      commentCount: 15,
       likeCount: 230,
       isLiked: false,
+      isSaved: false,
+      saveCount: 45,
       isPublished: true,
       ingredients: const [
         RecipeIngredient(ingredientId: 'i4', name: 'Feuilles de Ndolé', quantity: 500, unit: 'g', isOptional: false),
@@ -145,7 +157,10 @@ class MockData {
         mealType: 'lunch',
         scheduledDate: DateTime.now(),
         isConsumed: true,
-        components: [
+        isCustomMeal: false,
+        servings: 1.0,
+        ingredients: const [],
+        components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-1',
             mealPlanEntryId: 'mpe-1',
@@ -167,7 +182,10 @@ class MockData {
         mealType: 'dinner',
         scheduledDate: DateTime.now(),
         isConsumed: false,
-        components: [
+        isCustomMeal: false,
+        servings: 1.0,
+        ingredients: const [],
+        components: const [
           MealPlanEntryComponent(
             id: 'comp-mpe-2',
             mealPlanEntryId: 'mpe-2',
@@ -189,6 +207,7 @@ class MockData {
   // --- Shopping List ---
   static final List<ShoppingItem> shoppingList = [
     const ShoppingItem(
+      id: 'mock1',
       ingredientId: 'i1',
       name: 'Riz brisé',
       quantity: 1,
@@ -197,6 +216,7 @@ class MockData {
       isChecked: false,
     ),
     const ShoppingItem(
+      id: 'mock2',
       ingredientId: 'i2',
       name: 'Poisson Mérou',
       quantity: 2,
@@ -205,6 +225,7 @@ class MockData {
       isChecked: true,
     ),
     const ShoppingItem(
+      id: 'mock3',
       ingredientId: 'i4',
       name: 'Feuilles de Ndolé',
       quantity: 500,

@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../providers/food_region_provider.dart';
 import '../../providers/meal_plan_provider.dart';
+import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/user_profile_provider.dart';
@@ -25,10 +27,15 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  double _currentWeight = 68.5;
+  double _currentWeight = 0.0;
   String _activeFilter = 'tout';
-  final Set<String> _checkedShoppingIds = {};
   final _logger = appLogger;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.provider('_HomePageState initState | _currentWeight default: $_currentWeight kg (hardcoded)');
+  }
 
   @override
   void dispose() {
@@ -41,88 +48,54 @@ class _HomePageState extends ConsumerState<HomePage> {
     final profileAsync = ref.watch(userProfileProvider);
     final healthAsync = ref.watch(healthProfileProvider);
     final nutritionAsync = ref.watch(todayNutritionProvider);
+    final nutritionPlanAsync = ref.watch(activeNutritionPlanProvider);
     final mealPlanAsync = ref.watch(activeMealPlanProvider);
     final shoppingAsync = ref.watch(shoppingListProvider);
     final recipesAsync = ref.watch(feedProvider(const FeedParams(limit: 10)));
+    final weightAsync = ref.watch(weightLogProvider);
+    final regionNames = ref.watch(foodRegionNamesProvider).valueOrNull ?? {};
+
+    ref.listen(weightLogProvider, (_, next) {
+      next.when(
+        data: (entries) {
+          _logger.provider('weightLogProvider listener | entries: ${entries.length}');
+          if (entries.isNotEmpty) {
+            _logger.provider('weightLogProvider listener | updating stepper: $_currentWeight → ${entries.first.weightKg} kg (from weight_log row[0])');
+            setState(() => _currentWeight = entries.first.weightKg);
+          } else {
+            final healthWeight = ref.read(healthProfileProvider).valueOrNull?.weightKg;
+            if (healthWeight != null) {
+              _logger.provider('weightLogProvider listener | 0 entries → falling back to health profile weightKg: $healthWeight kg');
+              setState(() => _currentWeight = healthWeight);
+            } else {
+              _logger.provider('weightLogProvider listener | 0 entries, no health profile weight → keeping default: $_currentWeight kg');
+            }
+          }
+        },
+        loading: () => _logger.provider('weightLogProvider listener | loading'),
+        error: (e, st) => _logger.provider('weightLogProvider listener | error: $e'),
+      );
+    });
+
+    // When health profile loads after weight_log (or weight_log has no entries),
+    // seed the stepper from onboarding weight.
+    ref.listen(healthProfileProvider, (_, next) {
+      next.whenData((health) {
+        final weightLogEntries = ref.read(weightLogProvider).valueOrNull;
+        final hasLogEntries = weightLogEntries != null && weightLogEntries.isNotEmpty;
+        if (!hasLogEntries && health?.weightKg != null) {
+          _logger.provider('healthProfileProvider listener | no weight_log entries → seeding stepper from health profile: ${health!.weightKg} kg');
+          setState(() => _currentWeight = health.weightKg!);
+        }
+      });
+    });
 
     _logger.provider(
         'HomePage build() | profileAsync.isLoading: ${profileAsync.isLoading} | mealPlanAsync.isLoading: ${mealPlanAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
-      body: NestedScrollView(
-        floatHeaderSlivers: true,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            pinned: false,
-            floating: true,
-            snap: false,
-            backgroundColor: AkeliColors.background,
-            automaticallyImplyLeading: false,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            leadingWidth: 72,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: profileAsync.when(
-                data: (profile) => Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AkeliColors.primary.withValues(alpha: 0.1),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: AkeliColors.surfaceContainerHigh,
-                      backgroundImage: profile?.avatarUrl != null
-                          ? NetworkImage(profile!.avatarUrl!)
-                          : null,
-                      child: profile?.avatarUrl == null
-                          ? const Icon(Icons.person_outline,
-                              color: AkeliColors.outline, size: 20)
-                          : null,
-                    ),
-                  ),
-                ),
-                loading: () => const Center(
-                    child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))),
-                error: (_, __) =>
-                    const CircleAvatar(radius: 20, child: Icon(Icons.person)),
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none_rounded,
-                    color: AkeliColors.secondary, size: 26),
-                onPressed: () {
-                  _logger.userAction('Notifications button tapped',
-                      screen: 'HomePage');
-                  context.go('/notifications');
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: IconButton(
-                  icon: const Icon(Icons.settings_outlined,
-                      color: AkeliColors.secondary, size: 26),
-                  onPressed: () {
-                    _logger.userAction('Settings button tapped',
-                        screen: 'HomePage');
-                    context.go('/profile');
-                  },
-                ),
-              ),
-            ],
-          ),
-        ],
-        body: SingleChildScrollView(
+      body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -168,77 +141,150 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 32, horizontal: 24),
                   decoration: BoxDecoration(
                     color: AkeliColors.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(AkeliRadius.xl),
                     boxShadow: const [AkeliShadows.sm],
                   ),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: healthAsync.maybeWhen(
-                            data: (health) {
-                              final weight = health?.weightKg ?? _currentWeight;
-                              final target = health?.targetWeightKg ?? 70.0;
-                              return AkeliModernMetric(
-                                label: 'Poids actuel',
-                                value: weight > 0
-                                    ? weight.toStringAsFixed(1)
-                                    : '--',
-                                unit: 'kg',
-                                progress: (target > 0)
-                                    ? (target / weight).clamp(0.0, 1.0)
-                                    : 0.7,
-                                gradientColors: const [
-                                  AkeliColors.primary,
-                                  AkeliColors.primaryContainer
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        _logger.userAction('Nutrition card tapped', screen: 'HomePage');
+                        context.go('/nutrition');
+                      },
+                      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 32, horizontal: 24),
+                        child: Column(
+                          children: [
+                            IntrinsicHeight(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: weightAsync.maybeWhen(
+                                      data: (entries) {
+                                        final health = healthAsync.valueOrNull;
+                                        _logger.provider('Weight graph data: | entries: ${entries.length} | healthProfile: ${health == null ? "null" : "loaded"} | targetWeightKg: ${health?.targetWeightKg}');
+                                        for (var i = 0; i < entries.length; i++) {
+                                          _logger.provider('  graph entry[$i] | date: ${entries[i].date} | weightKg: ${entries[i].weightKg}');
+                                        }
+
+                                        if (entries.isEmpty) {
+                                          final profileWeight = health?.weightKg;
+                                          final profileTarget = health?.targetWeightKg;
+                                          _logger.provider('Weight graph → data (no entries) | health.weightKg: $profileWeight | health.targetWeightKg: $profileTarget');
+                                          return AkeliModernMetric(
+                                            label: 'Poids actuel',
+                                            subtitle: profileWeight != null
+                                                ? '${profileWeight.toStringAsFixed(1)}kg → ${profileTarget?.toStringAsFixed(1) ?? '--'}kg'
+                                                : '--kg → --kg',
+                                            value: '0',
+                                            unit: '%',
+                                            progress: 0,
+                                            gradientColors: const [
+                                              AkeliColors.primary,
+                                              AkeliColors.primaryContainer
+                                            ],
+                                          );
+                                        }
+
+                                        final currentWeight = entries.first.weightKg;
+                                        // Use onboarding weight as origin; entries.last is unreliable
+                                        // (multiple same-day taps skew it vs. the real starting point).
+                                        final startingWeight = health?.weightKg ?? entries.last.weightKg;
+                                        final targetWeight = health?.targetWeightKg;
+
+                                        double progress = 0.0;
+                                        if (targetWeight != null && startingWeight != targetWeight) {
+                                          progress = (startingWeight - currentWeight) / (startingWeight - targetWeight);
+                                        }
+                                        progress = progress.clamp(0.0, 1.0);
+
+                                        _logger.provider(
+                                          'Weight graph → data | current: ${currentWeight}kg | starting: ${startingWeight.toStringAsFixed(1)}kg (health profile) | target: ${targetWeight?.toStringAsFixed(1) ?? "--"}kg | progress: ${(progress * 100).toInt()}%');
+
+                                        return AkeliModernMetric(
+                                          label: 'Poids',
+                                          subtitle: '${currentWeight.toStringAsFixed(1)}kg → ${targetWeight?.toStringAsFixed(1) ?? '--'}kg',
+                                          value: '${(progress * 100).toInt()}',
+                                          unit: '%',
+                                          progress: progress,
+                                          gradientColors: const [
+                                            AkeliColors.primary,
+                                            AkeliColors.primaryContainer
+                                          ],
+                                        );
+                                      },
+                                      orElse: () => const AkeliModernMetric(
+                                        label: 'Poids actuel',
+                                        subtitle: '--kg → --kg',
+                                        value: '0',
+                                        unit: '%',
+                                        progress: 0,
+                                        gradientColors: [
+                                          AkeliColors.primary,
+                                          AkeliColors.primaryContainer
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  VerticalDivider(
+                                    color: AkeliColors.outline.withValues(alpha: 0.1),
+                                    thickness: 1,
+                                    indent: 10,
+                                    endIndent: 10,
+                                  ),
+                                  Expanded(
+                                    child: nutritionAsync.when(
+                                      data: (nutrition) {
+                                        final consumed = nutrition?.calories.toInt() ?? 0;
+                                        final target = (nutritionPlanAsync.valueOrNull?.calorieGoal ?? 2000).toDouble();
+                                        final double rawProgress = consumed / target;
+                                        final progress = rawProgress.clamp(0.0, 1.0);
+
+                                        _logger.provider(
+                                          'Calories graph → data | consumed: $consumed kcal | target: ${target.toInt()} kcal | progress: ${(progress * 100).toInt()}%');
+
+                                        return AkeliModernMetric(
+                                          label: 'Calories',
+                                          subtitle: '$consumed → ${target.toInt()} kcal',
+                                          value: '${(progress * 100).toInt()}',
+                                          unit: '%',
+                                          progress: progress,
+                                          gradientColors: const [
+                                            AkeliColors.secondary,
+                                            AkeliColors.secondaryContainer
+                                          ],
+                                        );
+                                      },
+                                      loading: () => const Center(
+                                          child: CircularProgressIndicator()),
+                                      error: (_, __) =>
+                                          const Icon(Icons.error_outline),
+                                    ),
+                                  ),
                                 ],
-                              );
-                            },
-                            orElse: () => const AkeliModernMetric(
-                              label: 'Poids actuel',
-                              value: '--',
-                              unit: 'kg',
-                              progress: 0,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'Voir mes progrès →',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AkeliColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
-                        VerticalDivider(
-                          color: AkeliColors.outline.withValues(alpha: 0.1),
-                          thickness: 1,
-                          indent: 10,
-                          endIndent: 10,
-                        ),
-                        Expanded(
-                          child: nutritionAsync.when(
-                            data: (nutrition) {
-                              final consumed = nutrition?.calories.toInt() ?? 0;
-                              const target = 2000.0;
-                              return AkeliModernMetric(
-                                label: 'Calories',
-                                value: '$consumed',
-                                unit: 'kcal',
-                                progress: (consumed / target).clamp(0.0, 1.0),
-                                gradientColors: const [
-                                  AkeliColors.secondary,
-                                  AkeliColors.secondaryContainer
-                                ],
-                                onTap: () {
-                                  _logger.userAction('Nutrition metric tapped',
-                                      screen: 'HomePage');
-                                  context.go('/nutrition');
-                                },
-                              );
-                            },
-                            loading: () =>
-                                const Center(child: CircularProgressIndicator()),
-                            error: (_, __) => const Icon(Icons.error_outline),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -255,6 +301,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         screen: 'HomePage',
                         metadata: {'newWeight': newWeight});
                     setState(() => _currentWeight = newWeight);
+                    ref.read(weightLogNotifierProvider.notifier).addEntry(newWeight);
                   },
                 ),
               ),
@@ -299,9 +346,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                           title: entry.recipeTitle ?? 'Repas',
                           mealType: entry.mealTypeLabel,
                           calories: entry.calories,
-                          protein: entry.proteinG,
-                          carbs: entry.carbsG,
-                          fat: entry.fatG,
                           imageUrl: entry.recipeThumbnail,
                           onTap: () {
                             _logger.userAction('Meal card tapped',
@@ -418,28 +462,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: Column(
                         children: List.generate(filtered.length, (index) {
                           final item = filtered[index];
-                          final isChecked =
-                              _checkedShoppingIds.contains(item.ingredientId);
+                          final isChecked = item.isChecked;
                           return AkeliShoppingRow(
-                            quantity: item.quantityDisplay,
-                            ingredient: item.name,
-                            checked: isChecked,
+                            item: item,
+                            isChecked: isChecked,
                             onToggle: () {
                               HapticFeedback.mediumImpact();
                               _logger.userAction('Shopping item toggled',
                                   screen: 'HomePage',
                                   metadata: {
-                                    'itemId': item.ingredientId,
+                                    'itemId': item.id,
                                     'checked': !isChecked
                                   });
-                              setState(() {
-                                if (isChecked) {
-                                  _checkedShoppingIds
-                                      .remove(item.ingredientId);
-                                } else {
-                                  _checkedShoppingIds.add(item.ingredientId);
-                                }
-                              });
+                              ref.read(shoppingListProvider.notifier).toggleItem(item.id, !isChecked);
                             },
                           );
                         }),
@@ -495,9 +530,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                               calories: recipe.calories?.toInt() ?? 0,
                               rating: recipe.averageRating,
                               likes: recipe.likeCount,
-                              comments: recipe.ratingCount,
-                              saves: 0,
-                              region: recipe.regionId,
+                              comments: recipe.commentCount,
+                              saves: recipe.saveCount,
+                              region: recipe.regionId != null ? regionNames[recipe.regionId!] ?? recipe.regionId : null,
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
                               isMinimalist: true,
@@ -530,7 +565,6 @@ class _HomePageState extends ConsumerState<HomePage> {
             ],
           ),
         ),
-      ),
     );
   }
 
@@ -540,11 +574,11 @@ class _HomePageState extends ConsumerState<HomePage> {
       filtered = allItems;
     } else if (_activeFilter == 'acheter') {
       filtered = allItems
-          .where((i) => !_checkedShoppingIds.contains(i.ingredientId))
+          .where((i) => !i.isChecked)
           .toList();
     } else {
       filtered = allItems
-          .where((i) => _checkedShoppingIds.contains(i.ingredientId))
+          .where((i) => i.isChecked)
           .toList();
     }
     _logger.provider(

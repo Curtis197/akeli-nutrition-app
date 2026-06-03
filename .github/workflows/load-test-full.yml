@@ -1,0 +1,54 @@
+name: Load Test — Full (k6 Cloud)
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Test phase to run'
+        required: true
+        type: choice
+        options: [stress, load, smoke]
+
+jobs:
+  full-load:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: grafana/setup-k6-action@v1
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: Install Supabase CLI
+        run: |
+          curl -fsSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz
+          sudo mv supabase /usr/local/bin/supabase
+
+      - name: Apply migrations to staging
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push --project-ref jienstczcxunsdurhqib
+
+      - name: Seed staging DB
+        env:
+          STAGING_DB_URL: ${{ secrets.STAGING_DB_URL }}
+          STAGING_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          STAGING_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+          STAGING_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          psql $STAGING_DB_URL -f load-tests/k6/seed/01_recipes.sql
+          psql $STAGING_DB_URL -f load-tests/k6/seed/02_users.sql
+          psql $STAGING_DB_URL -f load-tests/k6/seed/03_groups.sql
+          psql $STAGING_DB_URL -f load-tests/k6/seed/04_fan_subscriptions.sql
+          psql $STAGING_DB_URL -f load-tests/k6/seed/05_allergens.sql
+          deno run --allow-net --allow-write load-tests/k6/seed/create-jwt-pool.ts
+
+      - name: Run on k6 Cloud
+        env:
+          K6_CLOUD_TOKEN:    ${{ secrets.K6_CLOUD_TOKEN }}
+          SUPABASE_URL:      ${{ secrets.STAGING_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+        run: k6 cloud load-tests/k6/${{ inputs.phase }}.js

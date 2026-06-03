@@ -35,72 +35,41 @@ A first migration attempt was made but produced poor results:
 
 ---
 
-## 🏗️ Phase 1 — Pure UI (Current Phase)
+## ✅ Phase 1 — Pure UI (Completed)
 
-**Rule**: Zero backend calls. Zero Supabase. Zero Firebase. Only mock data and Riverpod state.
-
-**Goal**: Achieve pixel-perfect, high-fidelity UI for every page, validated against Stitch mockups.
-
-### How each page is done (8-step audit workflow)
-
-1. Extract widget tree from FF source (`flutterflow_application/akeli/lib/`)
-2. Document baseline design attributes (colors, fonts, spacing)
-3. Generate Stitch prompt from baseline
-4. Extract Stitch high-fidelity widget tree (from `stitch/*/code.html`)
-5. Delta analysis — Baseline vs. Stitch
-6. User approval of proposed changes
-7. Visual screenshot analysis (`stitch/*/screen.png`) → implementation blueprint
-8. Flutter transcription into `lib/features/`
-
-### Page Status
-
-| Page | FF Audit | Stitch | Delta | Approved | Transcribed |
-|---|---|---|---|---|---|
-| Meal Detail | ✅ Done (audit-exemple.md) | ✅ | ✅ | ⬜ | ⬜ |
-| Meal Planner | ⬜ | ✅ stitch_meal_planner | ⬜ | ⬜ | ⬜ |
-| Home Dashboard | 🟡 Steps 1-2 done | ✅ stitch_modern_dashboard | ⬜ | ⬜ | ⬜ |
-| Recipes Feed | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Recipe Detail | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| AI Assistant | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Community | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Profile | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Auth / Onboarding | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| Nutrition | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-
-### Phase 1 Rules
-- All widgets use constants or mock data from `lib/shared/mocks/`
-- Riverpod providers are allowed for UI state only (no async data fetching)
-- Navigation via GoRouter is kept
-- No Supabase imports anywhere in `lib/features/`
+All UI screens transcribed, pixel-perfect, and high-fidelity.
 
 ---
 
-## 🏗️ Phase 2 — Design System Hardening
+## ✅ Phase 2 — Design System Hardening (Completed)
 
-**Prerequisite**: All pages transcribed and visually approved in Phase 1.
-
-**Goal**: Extract repeated patterns into a robust, reusable component library.
-
-- [ ] Audit all Phase 1 screens for repeated patterns
-- [ ] Extract into `lib/core/design_system/` components
-- [ ] Ensure all design tokens (colors, spacing, radius, typography) are centralized in `lib/core/theme.dart`
-- [ ] Dark mode verification pass
-- [ ] Performance audit (const constructors, no rebuilds on unchanged state)
+- [x] Audit all Phase 1 screens for repeated patterns
+- [x] Extract into `lib/core/design_system/` components
+- [x] Ensure all design tokens (colors, spacing, radius, typography) are centralized in `lib/core/theme.dart`
+- [x] Dark mode verification pass
+- [x] Performance audit (const constructors, no rebuilds on unchanged state)
 
 ---
 
-## 🏗️ Phase 3 — Backend Reconnection
+## ✅ Phase 3 — Backend Reconnection (Completed)
 
-**Prerequisite**: Phase 2 complete. Design is frozen.
+- [x] Swap `lib/shared/mocks/` with real Supabase providers
+- [x] Re-enable auth flow (Supabase Auth with email confirmation)
+- [x] Re-enable GoRouter guards
+- [x] Implement error states and loading states for every screen
+- [x] Edge Functions: meal plan generation, AI assistant
+- [x] End-to-end testing against production Supabase
 
-**Goal**: Replace mock data with real Supabase data without touching the UI layer.
+---
 
-- [ ] Swap `lib/shared/mocks/` with real Supabase providers
-- [ ] Re-enable auth flow (Supabase Auth with email confirmation)
-- [ ] Re-enable GoRouter guards
-- [ ] Implement error states and loading states for every screen
-- [ ] Edge Functions: meal plan generation, AI assistant
-- [ ] End-to-end testing against production Supabase
+## 🚀 Phase 4 — Live Testing & Debugging (Current Phase)
+
+**Goal**: Monitor real-time logs, fix layout bugs, optimize queries, and resolve edge cases found during live usage.
+
+- [ ] Actively track logs via `appLogger`
+- [ ] Address RLS policy blocks
+- [ ] Fix runtime exceptions and edge cases
+- [ ] Performance and query optimization
 
 ---
 

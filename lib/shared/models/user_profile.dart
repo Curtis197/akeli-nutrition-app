@@ -14,6 +14,8 @@ class UserProfile {
   final bool isCreator;
   final String locale; // fr | en | ...
   final DateTime createdAt;
+  final DateTime? consentPrivacyAt;
+  final DateTime? consentCguAt;
 
   const UserProfile({
     required this.id,
@@ -28,6 +30,8 @@ class UserProfile {
     required this.isCreator,
     this.locale = 'fr',
     required this.createdAt,
+    this.consentPrivacyAt,
+    this.consentCguAt,
   });
 
   String get displayName =>
@@ -46,6 +50,12 @@ class UserProfile {
         isCreator: (json['is_creator'] as bool?) ?? false,
         locale: json['locale'] as String? ?? 'fr',
         createdAt: DateTime.parse(json['created_at'] as String),
+        consentPrivacyAt: json['consent_privacy_at'] != null
+            ? DateTime.parse(json['consent_privacy_at'] as String)
+            : null,
+        consentCguAt: json['consent_cgu_at'] != null
+            ? DateTime.parse(json['consent_cgu_at'] as String)
+            : null,
       );
 
   UserProfile copyWith({
@@ -79,8 +89,10 @@ class HealthProfile {
   final DateTime? birthDate;
   final String? sex;
   final double? weightKg;
+  final double? startingWeightKg;
   final double? heightCm;
   final double? targetWeightKg;
+  final int? targetTimeWeeks;
   final String? activityLevel;
   final String? primaryGoal;
   final List<String> dietaryRestrictions;
@@ -91,8 +103,10 @@ class HealthProfile {
     this.birthDate,
     this.sex,
     this.weightKg,
+    this.startingWeightKg,
     this.heightCm,
     this.targetWeightKg,
+    this.targetTimeWeeks,
     this.activityLevel,
     this.primaryGoal,
     required this.dietaryRestrictions,
@@ -106,8 +120,10 @@ class HealthProfile {
             : null,
         sex: json['sex'] as String?,
         weightKg: (json['weight_kg'] as num?)?.toDouble(),
+        startingWeightKg: (json['starting_weight_kg'] as num?)?.toDouble(),
         heightCm: (json['height_cm'] as num?)?.toDouble(),
         targetWeightKg: (json['target_weight_kg'] as num?)?.toDouble(),
+        targetTimeWeeks: json['target_time_weeks'] as int?,
         activityLevel: json['activity_level'] as String?,
         primaryGoal: json['primary_goal'] as String?,
         dietaryRestrictions:

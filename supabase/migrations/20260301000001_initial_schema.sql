@@ -503,7 +503,7 @@ CREATE TABLE meal_consumption (
   servings           numeric(4,1) DEFAULT 1,
   consumed_at        timestamptz DEFAULT now(),
   month_key          text GENERATED ALWAYS AS (
-    to_char(consumed_at, 'YYYY-MM')
+    (EXTRACT(YEAR FROM consumed_at AT TIME ZONE 'UTC'))::text || '-' || LPAD((EXTRACT(MONTH FROM consumed_at AT TIME ZONE 'UTC'))::text, 2, '0')
   ) STORED  -- ex: '2026-03' — facilite les agrégations mensuelles
 );
 
@@ -769,10 +769,7 @@ CREATE TABLE community_group (
 ALTER TABLE community_group ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public reads public groups" ON community_group
   FOR SELECT USING (is_public = true);
-CREATE POLICY "member reads private groups" ON community_group
-  FOR SELECT USING (
-    id IN (SELECT group_id FROM group_member WHERE user_id = auth.uid())
-  );
+-- Policy moved after group_member creation
 
 CREATE TRIGGER trg_community_group_updated_at
   BEFORE UPDATE ON community_group
@@ -791,6 +788,11 @@ CREATE TABLE group_member (
 ALTER TABLE group_member ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "member reads own membership" ON group_member
   FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "member reads private groups" ON community_group
+  FOR SELECT USING (
+    id IN (SELECT group_id FROM group_member WHERE user_id = auth.uid())
+  );
 
 -- conversation ----------------------------------------------------------
 CREATE TABLE conversation (

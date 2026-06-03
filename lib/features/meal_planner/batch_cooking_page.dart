@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/meal_plan.dart';
@@ -25,7 +27,13 @@ class BatchCookingPage extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go(AkeliRoutes.mealPlanner);
+                }
+              },
             style: IconButton.styleFrom(
               backgroundColor: Colors.transparent,
             ),
@@ -39,27 +47,7 @@ class BatchCookingPage extends ConsumerWidget {
             fontSize: 18,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_none, color: AkeliColors.primary),
-              onPressed: () {},
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.transparent,
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          appLogger.userAction('Create batch session FAB tapped', screen: 'BatchCookingPage');
-          _showCreateSessionSheet(context);
-        },
-        backgroundColor: AkeliColors.primary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add, color: Colors.white, size: 32),
+        actions: const [],
       ),
       body: sessionsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -75,107 +63,40 @@ class BatchCookingPage extends ConsumerWidget {
                 separatorBuilder: (_, index) => index == 0 ? const SizedBox.shrink() : const SizedBox(height: 16),
                 itemBuilder: (_, index) {
                   if (index == 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    return const Padding(
+                      padding: EdgeInsets.only(bottom: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Cette semaine',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  color: AkeliColors.onSurface,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Vos préparations en cours',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AkeliColors.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            'Cette semaine',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: AkeliColors.onSurface,
+                            ),
                           ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text('Voir tout', style: TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold)),
+                          SizedBox(height: 4),
+                          Text(
+                            'Vos préparations en cours',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AkeliColors.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
                     );
                   }
-                  return _CookingSessionCard(session: sessions[index - 1]);
+                  final session = sessions[index - 1];
+                  return _CookingSessionCard(
+                    session: session,
+                    onToggleCooked: () => ref
+                        .read(cookingSessionNotifierProvider.notifier)
+                        .markCooked(session.id, isCooked: !session.isCooked),
+                  );
                 },
               ),
-      ),
-    );
-  }
-
-  void _showCreateSessionSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AkeliColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          24,
-          24,
-          MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nouvelle session',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AkeliColors.secondaryContainer.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.info_outline, color: AkeliColors.primary, size: 18),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'La création de sessions batch sera disponible prochainement avec le sélecteur de recettes.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AkeliColors.onSurfaceVariant,
-                          ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AkeliColors.primary,
-                  disabledBackgroundColor: AkeliColors.surfaceContainerHighest,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-                child: const Text('Bientôt disponible', style: TextStyle(fontWeight: FontWeight.w700)),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -204,7 +125,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Appuyez sur + pour créer votre première session batch.',
+              'Vos sessions batch apparaîtront ici automatiquement quand une recette est planifiée plusieurs fois.',
               style: TextStyle(color: AkeliColors.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
@@ -219,7 +140,8 @@ class _EmptyState extends StatelessWidget {
 
 class _CookingSessionCard extends StatelessWidget {
   final CookingSession session;
-  const _CookingSessionCard({required this.session});
+  final VoidCallback onToggleCooked;
+  const _CookingSessionCard({required this.session, required this.onToggleCooked});
 
   String _formatDate(DateTime date) {
     const months = [
@@ -269,7 +191,7 @@ class _CookingSessionCard extends StatelessWidget {
           ),
           const SizedBox(width: 20),
 
-          // Info
+            // Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,7 +222,7 @@ class _CookingSessionCard extends StatelessWidget {
                           value: progress,
                           backgroundColor: AkeliColors.surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            session.hasAvailablePortions
+                            (session.totalPortions - session.portionsUsed) > 0
                                 ? AkeliColors.primary
                                 : AkeliColors.outline,
                           ),
@@ -319,22 +241,40 @@ class _CookingSessionCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (session.ingredients != null && session.ingredients!.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  const Divider(color: AkeliColors.surfaceContainerHighest),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Ingrédients (ajustés):',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  ...session.ingredients!.map((ing) => Padding(
+                    padding: const EdgeInsets.only(bottom: 2),
+                    child: Text(
+                      '• ${ing.ingredientName} — ${ing.quantityDisplay}',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AkeliColors.onSurface,
+                      ),
+                    ),
+                  )),
+                ],
               ],
             ),
           ),
           const SizedBox(width: 16),
-          // More vert button
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: AkeliColors.surfaceContainer,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.more_vert, color: AkeliColors.onSurfaceVariant, size: 20),
+          GestureDetector(
+            onTap: onToggleCooked,
+            child: Icon(
+              session.isCooked ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+              color: session.isCooked ? AkeliColors.primary : AkeliColors.outline,
+              size: 28,
             ),
           ),
         ],

@@ -14,8 +14,8 @@ export function err(message: string, status = 400): Response {
   });
 }
 
-export function unauthorized(): Response {
-  return err("Unauthorized", 401);
+export function unauthorized(message: string = "Unauthorized"): Response {
+  return err(message, 401);
 }
 
 export function serverError(e: unknown): Response {

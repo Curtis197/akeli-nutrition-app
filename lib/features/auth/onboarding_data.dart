@@ -1,3 +1,5 @@
+import 'package:akeli/core/logger.dart';
+import 'package:akeli/features/settings/models/allergen_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OnboardingData {
@@ -17,8 +19,13 @@ class OnboardingData {
   final bool noMeat;
   final bool noGluten;
   final bool noLactose;
-  final List<String> allergies;
+  final List<AllergenModel> allergens;
   final List<String> cuisinePreferences;
+  final String? weightGoal;   // 'loss' | 'maintenance' | 'gain'
+  final String? muscleGoal;   // 'loss' | 'maintenance' | 'gain'
+  final String? cookingTime;  // 'quick' | 'medium' | 'any'
+  final bool batchCookingEnabled;
+  final int batchMaxPortions;
 
   const OnboardingData({
     this.language = 'fr',
@@ -37,8 +44,13 @@ class OnboardingData {
     this.noMeat = false,
     this.noGluten = false,
     this.noLactose = false,
-    this.allergies = const [],
+    this.allergens = const [],
     this.cuisinePreferences = const [],
+    this.weightGoal,
+    this.muscleGoal,
+    this.cookingTime,
+    this.batchCookingEnabled = false,
+    this.batchMaxPortions = 4,
   });
 
   OnboardingData copyWith({
@@ -58,8 +70,13 @@ class OnboardingData {
     bool? noMeat,
     bool? noGluten,
     bool? noLactose,
-    List<String>? allergies,
+    List<AllergenModel>? allergens,
     List<String>? cuisinePreferences,
+    String? weightGoal,
+    String? muscleGoal,
+    String? cookingTime,
+    bool? batchCookingEnabled,
+    int? batchMaxPortions,
   }) =>
       OnboardingData(
         language: language ?? this.language,
@@ -78,21 +95,34 @@ class OnboardingData {
         noMeat: noMeat ?? this.noMeat,
         noGluten: noGluten ?? this.noGluten,
         noLactose: noLactose ?? this.noLactose,
-        allergies: allergies ?? this.allergies,
+        allergens: allergens ?? this.allergens,
         cuisinePreferences: cuisinePreferences ?? this.cuisinePreferences,
+        weightGoal: weightGoal ?? this.weightGoal,
+        muscleGoal: muscleGoal ?? this.muscleGoal,
+        cookingTime: cookingTime ?? this.cookingTime,
+        batchCookingEnabled: batchCookingEnabled ?? this.batchCookingEnabled,
+        batchMaxPortions: batchMaxPortions ?? this.batchMaxPortions,
       );
 }
 
 class OnboardingNotifier extends Notifier<OnboardingData> {
+  final _logger = appLogger;
+
   @override
-  OnboardingData build() => const OnboardingData();
+  OnboardingData build() {
+    _logger.provider('OnboardingNotifier build()');
+    return const OnboardingData();
+  }
 
-  void updateLanguage(String v) =>
-      state = state.copyWith(language: v);
+  void updateLanguage(String v) {
+    _logger.provider('OnboardingNotifier → updateLanguage | $v');
+    state = state.copyWith(language: v);
+  }
 
-  void updateConsent({bool? privacy, bool? cgu}) =>
-      state = state.copyWith(
-          consentPrivacy: privacy, consentCgu: cgu);
+  void updateConsent({bool? privacy, bool? cgu}) {
+    _logger.provider('OnboardingNotifier → updateConsent | privacy: $privacy | cgu: $cgu');
+    state = state.copyWith(consentPrivacy: privacy, consentCgu: cgu);
+  }
 
   void updateProfile({
     String? name,
@@ -101,40 +131,64 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
     double? weight,
     double? height,
     String? activityLevel,
-  }) =>
-      state = state.copyWith(
-          name: name,
-          age: age,
-          sex: sex,
-          weight: weight,
-          height: height,
-          activityLevel: activityLevel);
+  }) {
+    _logger.provider('OnboardingNotifier → updateProfile | name: $name | sex: $sex');
+    state = state.copyWith(
+        name: name,
+        age: age,
+        sex: sex,
+        weight: weight,
+        height: height,
+        activityLevel: activityLevel);
+  }
 
   void updateGoals({
     double? targetWeight,
     int? timelineMonths,
     String? motivations,
-  }) =>
-      state = state.copyWith(
-          targetWeight: targetWeight,
-          timelineMonths: timelineMonths,
-          motivations: motivations);
+    String? weightGoal,
+    String? muscleGoal,
+    String? cookingTime,
+    bool? batchCookingEnabled,
+    int? batchMaxPortions,
+  }) {
+    _logger.provider('OnboardingNotifier → updateGoals | cookingTime: $cookingTime | batchEnabled: $batchCookingEnabled | batchMax: $batchMaxPortions');
+    state = state.copyWith(
+        targetWeight: targetWeight,
+        timelineMonths: timelineMonths,
+        motivations: motivations,
+        weightGoal: weightGoal,
+        muscleGoal: muscleGoal,
+        cookingTime: cookingTime,
+        batchCookingEnabled: batchCookingEnabled,
+        batchMaxPortions: batchMaxPortions);
+  }
 
   void updatePreferences({
     bool? noPork,
     bool? noMeat,
     bool? noGluten,
     bool? noLactose,
-    List<String>? allergies,
+    List<AllergenModel>? allergens,
     List<String>? cuisinePreferences,
-  }) =>
-      state = state.copyWith(
-          noPork: noPork,
-          noMeat: noMeat,
-          noGluten: noGluten,
-          noLactose: noLactose,
-          allergies: allergies,
-          cuisinePreferences: cuisinePreferences);
+  }) {
+    _logger.provider('OnboardingNotifier → updatePreferences | noPork: $noPork | noMeat: $noMeat | noGluten: $noGluten | noLactose: $noLactose');
+    state = state.copyWith(
+        noPork: noPork,
+        noMeat: noMeat,
+        noGluten: noGluten,
+        noLactose: noLactose,
+        allergens: allergens,
+        cuisinePreferences: cuisinePreferences);
+  }
+
+  void updateCuisineRegion(String code) {
+    final current = state.cuisinePreferences;
+    _logger.provider('OnboardingNotifier → updateCuisineRegion | code: $code');
+    state = state.copyWith(
+      cuisinePreferences: current.length == 1 && current[0] == code ? [] : [code],
+    );
+  }
 
   // copyWith uses ?? so it can't clear nullable fields to null.
   // Use these explicit reset methods when the user removes a previously set value.
@@ -148,8 +202,13 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         noMeat: state.noMeat,
         noGluten: state.noGluten,
         noLactose: state.noLactose,
-        allergies: state.allergies,
+        allergens: state.allergens,
         cuisinePreferences: state.cuisinePreferences,
+        weightGoal: state.weightGoal,
+        muscleGoal: state.muscleGoal,
+        cookingTime: state.cookingTime,
+        batchCookingEnabled: state.batchCookingEnabled,
+        batchMaxPortions: state.batchMaxPortions,
       );
 
   void clearTargetWeight() => state = OnboardingData(
@@ -168,8 +227,13 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         noMeat: state.noMeat,
         noGluten: state.noGluten,
         noLactose: state.noLactose,
-        allergies: state.allergies,
+        allergens: state.allergens,
         cuisinePreferences: state.cuisinePreferences,
+        weightGoal: state.weightGoal,
+        muscleGoal: state.muscleGoal,
+        cookingTime: state.cookingTime,
+        batchCookingEnabled: state.batchCookingEnabled,
+        batchMaxPortions: state.batchMaxPortions,
       );
 
   /// Returns true if the user may advance from the given step index (0-based).
@@ -181,11 +245,13 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         return state.consentPrivacy && state.consentCgu;
       case 2: // Profile — name required
         return state.name.trim().isNotEmpty;
-      case 3: // Goals — target weight required
-        return state.targetWeight != null;
+      case 3: // Goals — weight goal required
+        return state.weightGoal != null;
       case 4: // Preferences — no hard requirement
         return true;
-      case 5: // Summary — always valid
+      case 5: // NutritionPlanPage — already validated via savePlan
+        return true;
+      case 6: // Summary — always valid
         return true;
       default:
         return false;

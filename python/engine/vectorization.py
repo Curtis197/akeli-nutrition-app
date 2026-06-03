@@ -2,35 +2,44 @@
 Vectorisation 50D — user_vector et recipe_vector
 Ref: V1_VECTORIZATION_MEAL_PLANNER.md + PYTHON_RECOMMENDATION_ENGINE.md
 
-User vector (50D):
-  [0:10]  Goals (10D)
-  [10:25] Preferences (15D)
-  [25:40] Behavior (15D)
-  [40:50] Outcomes (10D)
+Shared semantic space: dimension i means the SAME thing in both vectors.
+  User value  = "how much the user wants/prefers this"
+  Recipe value = "how much this recipe provides/is this"
+  Cosine similarity = genuine preference-property alignment.
 
-Recipe vector (50D):
-  [0:10]  Macros (10D)
-  [10:20] Metadata (10D)
-  [20:40] Outcomes (20D)
-  [40:50] Creator signals (10D)
+Dimensions:
+  [0]     Protein intensity    — user: goal-driven desire; recipe: protein ratio
+  [1]     Low-calorie          — user: weight_loss goal;   recipe: 1 - cal_density
+  [2]     High-fiber / satiety — user: weight_loss goal;   recipe: fiber_density
+  [3]     Satiety index        — user: weight_loss goal;   recipe: (prot*4+fiber*2)/cal
+  [4]     Carb-rich            — user: muscle_gain goal;   recipe: carb ratio
+  [5]     Caloric surplus      — user: muscle_gain goal;   recipe: cal_density
+  [6]     Quick meal           — user: 1-activity_level;   recipe: 1 - time_normalized
+  [7]     Difficulty match     — user: activity_level;     recipe: difficulty_normalized
+  [8]     Recipe freshness     — user: neutral 0.5;        recipe: recency score
+  [9]     Popularity           — user: neutral 0.5;        recipe: log-popularity
+  [10-22] Cuisine regions (13D one-hot, SAME mapping both vectors)
+  [23]    Vegetarian/vegan     — user: flag; recipe: 1 if suitable
+  [24]    Halal                — user: flag; recipe: 1 if suitable
+  [25]    Creator quality      — user: neutral 0.5;        recipe: creator_experience
+  [26]    Fan-eligible creator — user: neutral 0.3;        recipe: 1 if fan_eligible
+  [27-49] Reserved (zeros)
 """
 
 from __future__ import annotations
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from typing import Optional
 import numpy as np
 
 from .database import (
     get_user_health_profile,
-    get_user_behavior,
     get_recipe_data,
     get_recipe_consumption_stats,
+    get_creator_recipe_vectors,   # new
 )
 
-# Dimensions
 VECTOR_DIM = 50
 
-# Mappings
 ACTIVITY_MAP = {
     "sedentary": 0.1,
     "light": 0.3,
@@ -48,26 +57,42 @@ GOAL_MAP = {
 }
 
 REGION_MAP = {
-    "west_africa": 0,
+    "west_africa":    0,
     "central_africa": 1,
-    "east_africa": 2,
-    "north_africa": 3,
-    "south_africa": 4,
-    "caribbean": 5,
-    "france": 6,
-    "mediterranean": 7,
-    "middle_east": 8,
-    "south_asia": 9,
+    "east_africa":    2,
+    "north_africa":   3,
+    "south_africa":   4,
+    "caribbean":      5,
+    "france":         6,
+    "mediterranean":  7,
+    "middle_east":    8,
+    "south_asia":     9,
     "southeast_asia": 10,
-    "latin_america": 11,
-    "north_america": 12,
+    "latin_america":  11,
+    "north_america":  12,
 }
 
 DIFFICULTY_MAP = {"easy": 0.25, "medium": 0.6, "hard": 1.0}
 
+# Dim offsets
+DIM_PROTEIN      = 0
+DIM_LOW_CAL      = 1
+DIM_FIBER        = 2
+DIM_SATIETY      = 3
+DIM_CARB         = 4
+DIM_CAL_SURPLUS  = 5
+DIM_QUICK_MEAL   = 6
+DIM_DIFFICULTY   = 7
+DIM_FRESHNESS    = 8
+DIM_POPULARITY   = 9
+DIM_REGIONS      = 10   # 10..22 (13 dims)
+DIM_VEGETARIAN   = 23
+DIM_HALAL        = 24
+DIM_CREATOR_Q    = 25
+DIM_FAN_ELIGIBLE = 26
+
 
 def _normalize_l2(v: np.ndarray) -> np.ndarray:
-    """Normalisation L2 pour cosine similarity."""
     norm = np.linalg.norm(v)
     return v / norm if norm > 1e-10 else v
 
@@ -76,80 +101,110 @@ def _normalize_l2(v: np.ndarray) -> np.ndarray:
 # USER VECTOR
 # ---------------------------------------------------------------------------
 
+def _infer_goals_from_profile(profile: dict) -> set:
+    """Derive goal types from health metrics when explicit goals are absent."""
+    goals = set()
+    weight_goal = profile.get("weight_goal")
+    muscle_goal = profile.get("muscle_goal")
+    if weight_goal == "loss":
+        goals.add("weight_loss")
+    elif weight_goal == "gain":
+        goals.add("muscle_gain")
+    elif weight_goal == "maintenance":
+        goals.add("maintenance")
+    if muscle_goal == "gain":
+        goals.add("muscle_gain")
+    elif muscle_goal == "loss":
+        goals.add("weight_loss")
+    elif muscle_goal == "maintenance":
+        goals.add("maintenance")
+    # Fall back to weight delta when new fields are absent (legacy profiles)
+    if not goals:
+        weight = profile.get("weight_kg")
+        target = profile.get("target_weight_kg")
+        if weight is not None and target is not None:
+            delta = float(target) - float(weight)
+            if delta < -2:
+                goals.add("weight_loss")
+            elif delta > 2:
+                goals.add("muscle_gain")
+            else:
+                goals.add("maintenance")
+    goals.add("health")
+    return goals
+
+
 def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
-    """
-    Construit le vecteur 50D d'un utilisateur.
-    Retourne None si le profil est insuffisant.
-    """
     profile = get_user_health_profile(user_id)
     if not profile:
         return None
 
-    behavior = get_user_behavior(user_id, weeks=4)
-
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
 
-    # ---- [0:10] GOALS (10D) ----
-    goals = profile.get("goals") or []
-    for goal in goals:
-        idx = GOAL_MAP.get(goal)
-        if idx is not None:
-            vector[idx] = 1.0  # one-hot multi-label
+    explicit_goals = set(g for g in (profile.get("goals") or []) if g)
+    goals = explicit_goals if explicit_goals else _infer_goals_from_profile(profile)
+    activity = ACTIVITY_MAP.get(profile.get("activity_level", "moderate"), 0.5)
 
-    # Activity level [5]
-    vector[5] = ACTIVITY_MAP.get(profile.get("activity_level", "moderate"), 0.5)
+    # ---- Nutritional preferences derived from goals ----
+    if "weight_loss" in goals:
+        vector[DIM_PROTEIN]     = 1.0   # high protein for satiety/muscle preservation
+        vector[DIM_LOW_CAL]     = 1.0   # lower calorie density
+        vector[DIM_FIBER]       = 0.8   # fiber for satiety
+        vector[DIM_SATIETY]     = 1.0
+    if "muscle_gain" in goals:
+        vector[DIM_PROTEIN]     = max(vector[DIM_PROTEIN], 1.0)
+        vector[DIM_CARB]        = 0.8   # carbs for energy/training
+        vector[DIM_CAL_SURPLUS] = 0.7   # caloric surplus needed
+    if "maintenance" in goals:
+        vector[DIM_PROTEIN]     = max(vector[DIM_PROTEIN], 0.5)
+        vector[DIM_LOW_CAL]     = max(vector[DIM_LOW_CAL], 0.5)
+    if "health" in goals:
+        vector[DIM_FIBER]       = max(vector[DIM_FIBER], 0.7)
+        vector[DIM_SATIETY]     = max(vector[DIM_SATIETY], 0.5)
+    if "performance" in goals:
+        vector[DIM_PROTEIN]     = max(vector[DIM_PROTEIN], 0.8)
+        vector[DIM_CARB]        = max(vector[DIM_CARB], 0.7)
 
-    # Goal proximity — progression vers l'objectif [6]
-    w_kg = profile.get("weight_kg") or 0
-    t_kg = profile.get("target_weight_kg") or w_kg
-    if w_kg and t_kg and w_kg != t_kg:
-        # Normalise sur une plage de 30kg
-        delta = abs(w_kg - t_kg)
-        vector[6] = min(1.0, delta / 30.0)
+    # ---- Time/difficulty preference ----
+    cooking_time = profile.get("cooking_time")
+    if cooking_time == "quick":
+        vector[DIM_QUICK_MEAL] = 0.9
+    elif cooking_time == "medium":
+        vector[DIM_QUICK_MEAL] = 0.5
+    elif cooking_time == "any":
+        vector[DIM_QUICK_MEAL] = 0.3
+    else:
+        # Legacy profiles without cooking_time: derive from activity level
+        vector[DIM_QUICK_MEAL] = 1.0 - activity
+    vector[DIM_DIFFICULTY]  = activity
 
-    # Current weight normalisé [7] (60–120kg → 0–1)
-    if w_kg:
-        vector[7] = min(1.0, max(0.0, (w_kg - 40.0) / 100.0))
+    # ---- Neutral signals (user has no strong preference) ----
+    vector[DIM_FRESHNESS]   = 0.5
+    vector[DIM_POPULARITY]  = 0.5
+    vector[DIM_CREATOR_Q]   = 0.5
+    vector[DIM_FAN_ELIGIBLE] = 0.3
 
-    # ---- [10:25] PREFERENCES (15D) ----
+    # ---- Cuisine regions (one-hot, same mapping as recipe) ----
     regions = profile.get("cuisine_regions") or []
-    for region in regions[:5]:  # max 5 régions
+    for region in regions[:5]:
         idx = REGION_MAP.get(region)
-        if idx is not None and idx < 13:
-            vector[10 + idx] = 1.0  # indices 10..22
+        if idx is not None:
+            vector[DIM_REGIONS + idx] = 1.0
 
+    # ---- Dietary restrictions ----
     restrictions = profile.get("restrictions") or []
-    # Indicateurs diététiques [23]
     if "vegetarian" in restrictions or "vegan" in restrictions:
-        vector[23] = 1.0
+        vector[DIM_VEGETARIAN] = 1.0
     if "halal" in restrictions:
-        vector[24] = 1.0
+        vector[DIM_HALAL] = 1.0
 
-    # ---- [25:40] BEHAVIOR (15D) ----
-    total_consumptions = behavior.get("total_consumptions") or 0
-    active_days = behavior.get("active_days") or 0
-
-    # Fréquence de logging [25] (1 = 1x/j sur 4 semaines)
-    vector[25] = min(1.0, active_days / 28.0)
-
-    # Volume de consommation [26]
-    vector[26] = min(1.0, total_consumptions / 84.0)  # 3 repas/j × 28j = 84
-
-    # Portion moyenne [27]
-    avg_servings = behavior.get("avg_servings") or 1.0
-    vector[27] = min(1.0, avg_servings / 2.0)
-
-    # ---- [40:50] OUTCOMES (10D) ----
-    current_weight = behavior.get("current_weight_kg") or w_kg
-    # Vélocité de poids — tendance [40]
-    if w_kg and current_weight and w_kg != current_weight:
-        velocity = (current_weight - w_kg) / 4.0  # kg/semaine sur 4 sem
-        # Normalise entre -1 et 1 (perte = négatif = bien pour weight_loss)
-        vector[40] = max(-1.0, min(1.0, velocity / 2.0))
-
-    # Adhérence globale [41] — proportion de jours actifs
-    if active_days > 0:
-        vector[41] = min(1.0, active_days / 28.0)
+    # ---- Goal dims carry 2× weight vs preference dims ----
+    # After L2 normalization, equal-magnitude dims have equal pull in the dot
+    # product. Goals (why you eat) should dominate over preferences (what you
+    # like), so we amplify goal-driven dims before normalizing.
+    for dim in (DIM_PROTEIN, DIM_LOW_CAL, DIM_FIBER, DIM_SATIETY,
+                DIM_CARB, DIM_CAL_SURPLUS):
+        vector[dim] *= 2.0
 
     return _normalize_l2(vector)
 
@@ -159,90 +214,100 @@ def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
 # ---------------------------------------------------------------------------
 
 def compute_recipe_vector(recipe_id: str) -> Optional[np.ndarray]:
-    """
-    Construit le vecteur 50D d'une recette.
-    Retourne None si la recette n'est pas publiée ou données insuffisantes.
-    """
     recipe = get_recipe_data(recipe_id)
     if not recipe:
         return None
 
     stats = get_recipe_consumption_stats(recipe_id, days=30)
-
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
 
-    # ---- [0:10] MACROS (10D) ----
-    cal = recipe.get("calories") or 0
-    prot = recipe.get("protein_g") or 0
-    carbs = recipe.get("carbs_g") or 0
-    fat = recipe.get("fat_g") or 0
-    fiber = recipe.get("fiber_g") or 0
-    total_macros = prot + carbs + fat
+    # All values are already per-serving (divided in get_recipe_data query)
+    cal   = float(recipe.get("calories")  or 0)
+    prot  = float(recipe.get("protein_g") or 0)
+    carbs = float(recipe.get("carbs_g")   or 0)
+    fiber = float(recipe.get("fiber_g")   or 0)
 
-    # Ratios macros [0, 1, 2]
-    if total_macros > 0:
-        vector[0] = prot / total_macros
-        vector[1] = carbs / total_macros
-        vector[2] = fat / total_macros
+    # Calorie-based macro percentages (standard nutrition metric):
+    # fat=9 kcal/g, protein=carbs=4 kcal/g — gram ratios misrepresent fat contribution
+    prot_kcal  = prot  * 4
+    carbs_kcal = carbs * 4
 
-    # Densité calorique [3] — 0 = légère, 1 = dense (max ~800 kcal/portion)
-    vector[3] = min(1.0, cal / 800.0)
-
-    # Densité fibre [4] — 0 = pauvre, 1 = riche (max ~15g)
-    vector[4] = min(1.0, fiber / 15.0)
-
-    # Indice de satiété estimé [5] — plus de protéines + fibres = plus satiétant
     if cal > 0:
-        satiety = (prot * 4 + fiber * 2) / cal
-        vector[5] = min(1.0, satiety)
+        vector[DIM_PROTEIN] = min(1.0, prot_kcal  / cal)   # % calories from protein
+        vector[DIM_CARB]    = min(1.0, carbs_kcal / cal)   # % calories from carbs
 
-    # ---- [10:20] METADATA (10D) ----
+    # Caloric density cap at 800 kcal/serving (p90 for Akeli recipes is ~420,
+    # outliers above 800 are full-meal traditional dishes — cap is intentional)
+    cal_density = min(1.0, cal / 800.0)
+    vector[DIM_LOW_CAL]     = 1.0 - cal_density
+    vector[DIM_CAL_SURPLUS] = cal_density
+
+    # Fiber: currently NULL for all recipes in DB — dimension reserved for future data
+    vector[DIM_FIBER] = min(1.0, fiber / 15.0) if fiber > 0 else 0.0
+
+    # Satiety: protein-kcal fraction (fiber term is 0 until data exists)
+    if cal > 0:
+        vector[DIM_SATIETY] = min(1.0, (prot_kcal + fiber * 2) / cal)
+
+    # ---- Time / difficulty ----
     prep = recipe.get("prep_time_min") or 0
     cook = recipe.get("cook_time_min") or 0
     total_time = prep + cook
+    vector[DIM_QUICK_MEAL]  = 1.0 - min(1.0, total_time / 120.0)  # quick = 1.0
+    vector[DIM_DIFFICULTY]  = DIFFICULTY_MAP.get(recipe.get("difficulty", "medium"), 0.5)
 
-    # Temps total normalisé [10] — max 120 min
-    vector[10] = min(1.0, total_time / 120.0)
-
-    # Difficulté [11]
-    vector[11] = DIFFICULTY_MAP.get(recipe.get("difficulty", "medium"), 0.5)
-
-    # Région culinaire [12] — one-hot index normalisé
-    region_idx = REGION_MAP.get(recipe.get("region", ""), -1)
-    if region_idx >= 0:
-        vector[12] = (region_idx + 1) / len(REGION_MAP)
-
-    # Âge de la recette [13] — nouvelles recettes = boost
+    # ---- Freshness ----
     created_at = recipe.get("created_at")
     if created_at:
         if isinstance(created_at, str):
             created_at = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
         age_days = (datetime.now(created_at.tzinfo) - created_at).days
-        # Récente (< 7j) = 1.0, ancienne (> 365j) = 0.0
-        vector[13] = max(0.0, 1.0 - age_days / 365.0)
+        vector[DIM_FRESHNESS] = max(0.0, 1.0 - age_days / 365.0)
 
-    # ---- [20:40] OUTCOMES (20D) ----
+    # ---- Popularity ----
     total_consumptions = stats.get("total_consumptions") or 0
-    unique_users = stats.get("unique_users") or 0
+    vector[DIM_POPULARITY] = min(1.0, np.log1p(total_consumptions) / np.log1p(1000))
 
-    # Popularité (log scale) [20] — max ~1000 consommations
-    vector[20] = min(1.0, np.log1p(total_consumptions) / np.log1p(1000))
+    # ---- Cuisine region (one-hot, same mapping as user) ----
+    region_idx = REGION_MAP.get(recipe.get("region", ""), -1)
+    if region_idx >= 0:
+        vector[DIM_REGIONS + region_idx] = 1.0
 
-    # Reach (utilisateurs uniques) [21]
-    vector[21] = min(1.0, np.log1p(unique_users) / np.log1p(500))
-
-    # Repeat rate [22] — si beaucoup de consommations par user
-    if unique_users > 0:
-        repeat_rate = total_consumptions / unique_users
-        vector[22] = min(1.0, repeat_rate / 5.0)  # max 5 consommations par user
-
-    # ---- [40:50] CREATOR SIGNALS (10D) ----
-    creator_recipe_count = recipe.get("creator_recipe_count") or 0
-
-    # Expérience du créateur [40] — normalisé sur 100 recettes
-    vector[40] = min(1.0, creator_recipe_count / 100.0)
-
-    # Éligibilité Fan [41] — booste légèrement les créateurs Fan-eligible
-    vector[41] = 1.0 if creator_recipe_count >= 30 else 0.0
+    # ---- Creator signals ----
+    creator_count = recipe.get("creator_recipe_count") or 0
+    vector[DIM_CREATOR_Q]    = min(1.0, creator_count / 100.0)
+    vector[DIM_FAN_ELIGIBLE] = 1.0 if creator_count >= 30 else 0.0
 
     return _normalize_l2(vector)
+
+
+# ---------------------------------------------------------------------------
+# CREATOR VECTOR
+# ---------------------------------------------------------------------------
+
+def compute_creator_vector(creator_id: str) -> Optional[np.ndarray]:
+    """
+    Compute the creator vector as the L2-normalized average of all
+    published recipe vectors for this creator.
+
+    Lives in the same 50D semantic space as user_vector and recipe_vector,
+    so cosine similarity with user_vector is directly interpretable as
+    creator-user alignment.
+
+    Returns None if:
+    - no published recipe vectors exist yet for this creator
+    - the centroid has zero norm (degenerate case — all recipes all-zero)
+    """
+    recipe_vectors = get_creator_recipe_vectors(creator_id)
+    if not recipe_vectors:
+        return None
+
+    # Stack into matrix and compute unweighted mean — shape (50,)
+    matrix = np.stack(recipe_vectors, axis=0)                  # (N, 50)
+    centroid = np.mean(matrix, axis=0).astype(np.float32)      # (50,)
+
+    norm = np.linalg.norm(centroid)
+    if norm <= 1e-10:
+        return None
+
+    return (centroid / norm).astype(np.float32)

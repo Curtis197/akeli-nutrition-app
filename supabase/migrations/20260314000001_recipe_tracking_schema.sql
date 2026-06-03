@@ -17,6 +17,8 @@ ALTER TABLE recipe DROP COLUMN IF EXISTS instructions;
 -- 2. recipe_step — Structured preparation steps
 -- ============================================================
 
+DROP TABLE IF EXISTS recipe_step CASCADE;
+
 CREATE TABLE recipe_step (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   recipe_id       uuid NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
@@ -41,7 +43,7 @@ CREATE POLICY "recipe_step_select_published" ON recipe_step
     EXISTS (
       SELECT 1 FROM recipe r
       WHERE r.id = recipe_step.recipe_id
-        AND r.status = 'published'
+        AND r.is_published = true
     )
   );
 

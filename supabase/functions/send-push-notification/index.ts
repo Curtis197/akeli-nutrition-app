@@ -4,9 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { ok, err, serverError } from "../_shared/response.ts";
 import { serviceClient, verifyInternalSecret } from "../_shared/supabase.ts";
 import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
-
-const FCM_SERVER_KEY = Deno.env.get("FCM_SERVER_KEY")!;
-const FCM_URL = "https://fcm.googleapis.com/fcm/send";
+import { sendFcmV1 } from "../_shared/fcm.ts";
 
 serve(async (req) => {
   const logger = createLogger("send-push-notification");
@@ -54,37 +52,42 @@ serve(async (req) => {
       body: notifBody,
       data,
     });
-    logQueryResult(logger, "notification", "INSERT", notifInsertError ? 0 : 1, notifInsertError ?? undefined);
+    const notificationInserted = !notifInsertError;
+    logQueryResult(logger, "notification", "INSERT", notificationInserted ? 1 : 0, notifInsertError ?? undefined);
 
     if (pushToken?.token) {
-      logger.debug("[STEP 5] Sending FCM push | platform: " + (pushToken?.platform ?? "unknown"));
-      const fcmPayload = {
-        to: pushToken.token,
-        notification: { title, body: notifBody },
-        data: { ...data, click_action: "FLUTTER_NOTIFICATION_CLICK" },
-        priority: "high",
-      };
+      logger.debug("[STEP 5] Sending FCM v1 push | platform: " + (pushToken.platform ?? "unknown"));
 
-      const fcmRes = await fetch(FCM_URL, {
-        method: "POST",
-        headers: {
-          "Authorization": `key=${FCM_SERVER_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(fcmPayload),
-      });
+      const fcmResult = await sendFcmV1(
+        pushToken.token,
+        title,
+        notifBody ?? "",
+        Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
+      );
 
-      if (!fcmRes.ok) {
-        logger.warn('FCM send failed — push skipped | status: ' + fcmRes.status + ' | notification_inserted: true');
+      if (!fcmResult.ok) {
+        logger.warn("FCM send failed | status: " + fcmResult.status + " | notification_inserted: true");
+
+        // FCM 404 means the token is stale — clean it up
+        if (fcmResult.status === 404) {
+          logger.debug("[STEP 5b] Deleting stale push token");
+          logRLSCheck(logger, "push_token", "DELETE", user_id);
+          const { error: deleteError } = await admin
+            .from("push_token")
+            .delete()
+            .eq("token", pushToken.token);
+          logQueryResult(logger, "push_token", "DELETE", deleteError ? 0 : 1, deleteError ?? undefined);
+        }
       }
     } else {
       logger.debug("[STEP 5] No push token found, skipping FCM");
     }
 
     logger.info("✅ EXIT | status: 200 | duration: " + (Date.now() - start) + "ms");
-    return ok({ sent: !!pushToken?.token, notification_inserted: true });
+    return ok({ sent: !!pushToken?.token, notification_inserted: notificationInserted });
   } catch (e) {
-    logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
+    const caught = e instanceof Error ? e : new Error(String(e));
+    logger.error("💥 Unhandled error", { message: caught.message, stack: caught.stack });
     return serverError(e);
   }
 });

@@ -50,5 +50,28 @@ void main() {
       addTearDown(c.dispose);
       expect(c.read(onboardingProvider.notifier).canAdvance(0), isTrue);
     });
+
+    test('updateCuisineRegion sets single region', () {
+      final c = _container();
+      addTearDown(c.dispose);
+      c.read(onboardingProvider.notifier).updateCuisineRegion('west_africa');
+      expect(c.read(onboardingProvider).cuisinePreferences, ['west_africa']);
+    });
+
+    test('updateCuisineRegion replaces previous selection', () {
+      final c = _container();
+      addTearDown(c.dispose);
+      c.read(onboardingProvider.notifier).updateCuisineRegion('west_africa');
+      c.read(onboardingProvider.notifier).updateCuisineRegion('north_africa');
+      expect(c.read(onboardingProvider).cuisinePreferences, ['north_africa']);
+    });
+
+    test('updateCuisineRegion deselects when same code tapped twice', () {
+      final c = _container();
+      addTearDown(c.dispose);
+      c.read(onboardingProvider.notifier).updateCuisineRegion('west_africa');
+      c.read(onboardingProvider.notifier).updateCuisineRegion('west_africa');
+      expect(c.read(onboardingProvider).cuisinePreferences, isEmpty);
+    });
   });
 }

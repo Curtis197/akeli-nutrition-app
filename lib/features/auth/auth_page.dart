@@ -177,39 +177,37 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                             _ErrorBanner(message: _errorMessage!),
                             const SizedBox(height: AkeliSpacing.md),
                           ],
-                          // Forms — animated switch between sign-up and login
-                          AnimatedSwitcher(
+                          AnimatedCrossFade(
                             duration: const Duration(milliseconds: 200),
-                            child: _isLogin
-                                ? _LoginForm(
-                                    key: const ValueKey('login'),
-                                    formKey: _loginKey,
-                                    emailCtrl: _loginEmail,
-                                    passwordCtrl: _loginPassword,
-                                    passwordVisible: _loginPasswordVisible,
-                                    onTogglePassword: () => setState(() =>
-                                        _loginPasswordVisible =
-                                            !_loginPasswordVisible),
-                                    onSubmit: isLoading ? null : _signIn,
-                                    isLoading: isLoading,
-                                  )
-                                : _SignUpForm(
-                                    key: const ValueKey('signup'),
-                                    formKey: _signUpKey,
-                                    emailCtrl: _signUpEmail,
-                                    passwordCtrl: _signUpPassword,
-                                    confirmCtrl: _signUpConfirm,
-                                    passwordVisible: _signUpPasswordVisible,
-                                    confirmVisible: _signUpConfirmVisible,
-                                    onTogglePassword: () => setState(() =>
-                                        _signUpPasswordVisible =
-                                            !_signUpPasswordVisible),
-                                    onToggleConfirm: () => setState(() =>
-                                        _signUpConfirmVisible =
-                                            !_signUpConfirmVisible),
-                                    onSubmit: isLoading ? null : _signUp,
-                                    isLoading: isLoading,
-                                  ),
+                            crossFadeState: _isLogin 
+                                ? CrossFadeState.showSecond 
+                                : CrossFadeState.showFirst,
+                            firstChild: _SignUpForm(
+                              key: const ValueKey('signup'),
+                              formKey: _signUpKey,
+                              emailCtrl: _signUpEmail,
+                              passwordCtrl: _signUpPassword,
+                              confirmCtrl: _signUpConfirm,
+                              passwordVisible: _signUpPasswordVisible,
+                              confirmVisible: _signUpConfirmVisible,
+                              onTogglePassword: () => setState(() =>
+                                  _signUpPasswordVisible = !_signUpPasswordVisible),
+                              onToggleConfirm: () => setState(() =>
+                                  _signUpConfirmVisible = !_signUpConfirmVisible),
+                              onSubmit: isLoading ? null : _signUp,
+                              isLoading: isLoading,
+                            ),
+                            secondChild: _LoginForm(
+                              key: const ValueKey('login'),
+                              formKey: _loginKey,
+                              emailCtrl: _loginEmail,
+                              passwordCtrl: _loginPassword,
+                              passwordVisible: _loginPasswordVisible,
+                              onTogglePassword: () => setState(() =>
+                                  _loginPasswordVisible = !_loginPasswordVisible),
+                              onSubmit: isLoading ? null : _signIn,
+                              isLoading: isLoading,
+                            ),
                           ),
                         ],
                       ),

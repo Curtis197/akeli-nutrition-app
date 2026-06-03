@@ -38,8 +38,16 @@ serve(async (req) => {
       target_weight_kg,
       activity_level,
       goals,
+      weight_goal,
+      muscle_goal,
+      cooking_time,
+      batch_cooking_enabled,
+      batch_cooking_max_portions,
       dietary_restrictions,
       cuisine_preferences,
+      selectedAllergenIds,
+      consent_privacy_at,
+      consent_cgu_at,
     } = body;
 
     logger.debug("[STEP 2] Validating params", {
@@ -54,6 +62,11 @@ serve(async (req) => {
     if (!sex || !birth_date || !height_cm || !weight_kg || !activity_level) {
       logger.warn("EARLY RETURN | reason: missing required health profile fields");
       return err("Missing required health profile fields");
+    }
+
+    if (!consent_privacy_at || !consent_cgu_at) {
+      logger.warn("EARLY RETURN | reason: missing consent timestamps");
+      return err("User consent timestamps are required");
     }
 
     const admin = serviceClient();
@@ -71,22 +84,33 @@ serve(async (req) => {
         weight_kg,
         target_weight_kg,
         activity_level,
+        ...(weight_goal !== undefined && { weight_goal }),
+        ...(muscle_goal !== undefined && { muscle_goal }),
+        ...(cooking_time !== undefined && { cooking_time }),
       });
     logQueryResult(logger, "user_health_profile", "UPSERT", healthError ? 0 : 1, healthError ?? undefined);
     if (healthError) throw healthError;
 
-    // 4. Remplacer les goals
-    logger.debug("[STEP 4] Replace user_goal");
-    logRLSCheck(logger, "user_goal", "DELETE", user.id);
-    const { error: goalDeleteError } = await admin.from("user_goal").delete().eq("user_id", user.id);
-    logQueryResult(logger, "user_goal", "DELETE", 0, goalDeleteError ?? undefined);
-
+    // 4. Remplacer les goal_type rows (uniquement si fournis).
+    // NutritionPlanPage écrit une row séparée avec goal_type=NULL et les macros numériques —
+    // on ne supprime QUE les rows où goal_type IS NOT NULL pour ne pas perdre les macros.
+    logger.debug("[STEP 4] Replace user_goal (goal_type rows only)");
     if (goals?.length) {
+      logRLSCheck(logger, "user_goal", "DELETE", user.id);
+      const { error: goalDeleteError } = await admin
+        .from("user_goal")
+        .delete()
+        .eq("user_id", user.id)
+        .not("goal_type", "is", null);
+      logQueryResult(logger, "user_goal", "DELETE", 0, goalDeleteError ?? undefined);
+
       logRLSCheck(logger, "user_goal", "INSERT", user.id);
       const { error: goalInsertError } = await admin.from("user_goal").insert(
         goals.map((goal_type: string) => ({ user_id: user.id, goal_type, is_active: true })),
       );
       logQueryResult(logger, "user_goal", "INSERT", goalInsertError ? 0 : goals.length, goalInsertError ?? undefined);
+    } else {
+      logger.debug("[STEP 4] Skipping user_goal replace — no goals in body");
     }
 
     // 5. Remplacer les restrictions alimentaires
@@ -101,6 +125,19 @@ serve(async (req) => {
         dietary_restrictions.map((restriction: string) => ({ user_id: user.id, restriction })),
       );
       logQueryResult(logger, "user_dietary_restriction", "INSERT", restrictionInsertError ? 0 : dietary_restrictions.length, restrictionInsertError ?? undefined);
+    }
+
+    logger.debug("[STEP 5b] Replace user_allergy");
+    logRLSCheck(logger, "user_allergy", "DELETE", user.id);
+    const { error: allergyDeleteError } = await admin.from("user_allergy").delete().eq("user_id", user.id);
+    logQueryResult(logger, "user_allergy", "DELETE", 0, allergyDeleteError ?? undefined);
+
+    if (selectedAllergenIds?.length) {
+      logRLSCheck(logger, "user_allergy", "INSERT", user.id);
+      const { error: allergyInsertError } = await admin.from("user_allergy").insert(
+        selectedAllergenIds.map((allergen_id: string) => ({ user_id: user.id, allergen_id })),
+      );
+      logQueryResult(logger, "user_allergy", "INSERT", allergyInsertError ? 0 : selectedAllergenIds.length, allergyInsertError ?? undefined);
     }
 
     // 6. Remplacer les préférences culinaires
@@ -131,6 +168,10 @@ serve(async (req) => {
         first_name,
         last_name,
         onboarding_done: true,
+        consent_privacy_at,
+        consent_cgu_at,
+        ...(batch_cooking_enabled !== undefined && { batch_cooking_enabled }),
+        ...(batch_cooking_max_portions !== undefined && { batch_cooking_max_portions }),
       })
       .eq("id", user.id);
     logQueryResult(logger, "user_profile", "UPDATE", profileUpdateError ? 0 : 1, profileUpdateError ?? undefined);

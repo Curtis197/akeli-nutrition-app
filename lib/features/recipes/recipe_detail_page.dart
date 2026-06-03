@@ -2,14 +2,22 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../providers/creator_provider.dart';
+import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
+import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/recipe.dart';
+import '../../shared/models/meal_plan.dart';
+import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
+import 'widgets/recipe_comments_sheet.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final String recipeId;
@@ -33,31 +41,35 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   // Tracking state
   RecipeOpen? _currentOpen;
 
+  bool? _optimisticIsSaved;
+
   @override
   void initState() {
     super.initState();
-    _logger.provider('RecipeDetailPage initState() | recipeId: ${widget.recipeId} | source: ${widget.source}');
+    _logger.provider(
+        'RecipeDetailPage initState() | recipeId: ${widget.recipeId} | source: ${widget.source}');
     _trackOpen();
   }
 
   Future<void> _trackOpen() async {
     try {
-      _logger.db('BEFORE | op: trackOpen | recipeId: ${widget.recipeId} | source: ${widget.source}');
-      _currentOpen = await ref
-          .read(recipeTrackingRepositoryProvider)
-          .trackOpen(
+      _logger.db(
+          'BEFORE | op: trackOpen | recipeId: ${widget.recipeId} | source: ${widget.source}');
+      _currentOpen = await ref.read(recipeTrackingRepositoryProvider).trackOpen(
             recipeId: widget.recipeId,
             source: widget.source,
           );
       _logger.db('AFTER | op: trackOpen | openId: ${_currentOpen?.id}');
     } catch (e, st) {
-      _logger.db('ERROR | op: trackOpen | recipeId: ${widget.recipeId}', error: e, stackTrace: st);
+      _logger.db('ERROR | op: trackOpen | recipeId: ${widget.recipeId}',
+          error: e, stackTrace: st);
     }
   }
 
   @override
   void dispose() {
-    _logger.provider('RecipeDetailPage disposed | recipeId: ${widget.recipeId}');
+    _logger
+        .provider('RecipeDetailPage disposed | recipeId: ${widget.recipeId}');
     _trackClose();
     _pageController.dispose();
     super.dispose();
@@ -66,64 +78,184 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
   void _trackClose() {
     final open = _currentOpen;
     if (open == null) return;
-    _logger.db('FIRE | op: trackClose | openId: ${open.id} | fire-and-forget from dispose');
+    _logger.db(
+        'FIRE | op: trackClose | openId: ${open.id} | fire-and-forget from dispose');
     ref.read(recipeTrackingRepositoryProvider).trackClose(
-      openId: open.id,
-      openedAt: open.openedAt,
-    );
+          openId: open.id,
+          openedAt: open.openedAt,
+        );
   }
 
   @override
   Widget build(BuildContext context) {
     final recipeAsync = ref.watch(recipeDetailProvider(widget.recipeId));
 
-    _logger.provider('RecipeDetailPage build() | recipeId: ${widget.recipeId} | recipeAsync.isLoading: ${recipeAsync.isLoading}');
+    _logger.provider(
+        'RecipeDetailPage build() | recipeId: ${widget.recipeId} | recipeAsync.isLoading: ${recipeAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
       body: recipeAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: AkeliColors.primary)),
+        loading: () => const Center(
+            child: CircularProgressIndicator(color: AkeliColors.primary)),
         error: (err, _) => ErrorState(
           message: err.toString(),
-          onRetry: () =>
-              ref.invalidate(recipeDetailProvider(widget.recipeId)),
+          onRetry: () => ref.invalidate(recipeDetailProvider(widget.recipeId)),
         ),
         data: (recipe) {
           if (recipe == null) {
             return const ErrorState(message: 'Recette introuvable.');
           }
+
+          final bool currentIsSaved = _optimisticIsSaved ?? recipe.isSaved;
+
           return _RecipeContent(
             recipe: recipe,
+            isSaved: currentIsSaved,
             currentImageIndex: _currentImageIndex,
             pageController: _pageController,
             onImageChanged: (i) {
-              _logger.userAction('Recipe image swiped', screen: 'RecipeDetailPage', metadata: {'imageIndex': i});
+              _logger.userAction('Recipe image swiped',
+                  screen: 'RecipeDetailPage', metadata: {'imageIndex': i});
               setState(() => _currentImageIndex = i);
             },
-            onLike: () {
-              _logger.userAction('Like button tapped', screen: 'RecipeDetailPage', metadata: {'recipeId': recipe.id, 'isLiked': recipe.isLiked});
-              ref.read(recipeLikeProvider.notifier).toggle(recipe.id, recipe.isLiked);
+            onLike: () async {
+              _logger.userAction('Save button tapped',
+                  screen: 'RecipeDetailPage',
+                  metadata: {'recipeId': recipe.id, 'isSaved': currentIsSaved});
+
+              setState(() {
+                _optimisticIsSaved = !currentIsSaved;
+              });
+
+              try {
+                await ref
+                    .read(recipeSaveProvider.notifier)
+                    .toggle(recipe.id, currentIsSaved);
+                ref.invalidate(recipeDetailProvider(widget.recipeId));
+              } catch (e) {
+                if (mounted) {
+                  setState(() {
+                    _optimisticIsSaved = currentIsSaved;
+                  });
+                }
+              }
             },
+            onAddToPlan: () => _showSwapDialog(recipe),
           );
         },
       ),
+    );
+  }
+
+  Future<void> _showSwapDialog(Recipe recipe) async {
+    final mealPlan = await ref.read(activeMealPlanProvider.future);
+    if (!mounted) return;
+    if (mealPlan == null || mealPlan.entries.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Aucun plan de repas actif.'),
+        backgroundColor: AkeliColors.error,
+      ));
+      return;
+    }
+
+    // Group entries by date
+    final groupedEntries = <String, List<MealPlanEntry>>{};
+    for (var entry in mealPlan.entries) {
+      final dateStr = entry.scheduledDate.toIso8601String().split('T').first;
+      groupedEntries.putIfAbsent(dateStr, () => []).add(entry);
+    }
+
+    final sortedDates = groupedEntries.keys.toList()..sort();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AkeliColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          maxChildSize: 0.9,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text('Remplacer un repas',
+                      style: GoogleFonts.plusJakartaSans(
+                          fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: sortedDates.length,
+                    itemBuilder: (context, index) {
+                      final dateStr = sortedDates[index];
+                      final entries = groupedEntries[dateStr]!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            child: Text(dateStr,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: AkeliColors.primary)),
+                          ),
+                          ...entries.map((entry) => ListTile(
+                                leading: const Icon(Icons.restaurant,
+                                    color: AkeliColors.outline),
+                                title: Text(entry.mealTypeLabel),
+                                subtitle:
+                                    Text(entry.recipeTitle ?? 'Sans recette'),
+                                onTap: () {
+                                  ref
+                                      .read(mealPlanSwapProvider.notifier)
+                                      .swapMeal(entry.id, recipe.id);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(const SnackBar(
+                                    content: Text('Repas remplacé avec succès'),
+                                    backgroundColor: AkeliColors.primary,
+                                  ));
+                                },
+                              )),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
 
 class _RecipeContent extends StatelessWidget {
   final Recipe recipe;
+  final bool isSaved;
   final int currentImageIndex;
   final PageController pageController;
   final ValueChanged<int> onImageChanged;
   final VoidCallback onLike;
+  final VoidCallback onAddToPlan;
 
   const _RecipeContent({
     required this.recipe,
+    required this.isSaved,
     required this.currentImageIndex,
     required this.pageController,
     required this.onImageChanged,
     required this.onLike,
+    required this.onAddToPlan,
   });
 
   @override
@@ -151,7 +283,8 @@ class _RecipeContent extends StatelessWidget {
                       Container(
                         color: AkeliColors.background,
                         child: const Center(
-                          child: Icon(Icons.restaurant_rounded, size: 80, color: AkeliColors.primary),
+                          child: Icon(Icons.restaurant_rounded,
+                              size: 80, color: AkeliColors.primary),
                         ),
                       )
                     else
@@ -165,12 +298,13 @@ class _RecipeContent extends StatelessWidget {
                           errorWidget: (_, __, ___) => Container(
                             color: AkeliColors.background,
                             child: const Center(
-                              child: Icon(Icons.restaurant_rounded, size: 60, color: AkeliColors.primary),
+                              child: Icon(Icons.restaurant_rounded,
+                                  size: 60, color: AkeliColors.primary),
                             ),
                           ),
                         ),
                       ),
-                    
+
                     // Gradient Overlay
                     Positioned.fill(
                       child: DecoratedBox(
@@ -201,7 +335,8 @@ class _RecipeContent extends StatelessWidget {
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AkeliColors.onPrimary.withValues(alpha: 0.8),
+                              color:
+                                  AkeliColors.onPrimary.withValues(alpha: 0.8),
                               letterSpacing: 1.5,
                             ),
                           ),
@@ -233,7 +368,10 @@ class _RecipeContent extends StatelessWidget {
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
                       boxShadow: const [
-                        BoxShadow(color: Color(0x0A1B1C16), blurRadius: 24, offset: Offset(0, 12)),
+                        BoxShadow(
+                            color: Color(0x0A1B1C16),
+                            blurRadius: 24,
+                            offset: Offset(0, 12)),
                       ],
                     ),
                     child: Column(
@@ -262,17 +400,28 @@ class _RecipeContent extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Divider(color: AkeliColors.surfaceContainerHighest, height: 1),
+                        const Divider(
+                            color: AkeliColors.surfaceContainerHighest,
+                            height: 1),
                         const SizedBox(height: 24),
 
                         // Macros
                         Row(
                           children: [
-                            Expanded(child: _MacroBox(label: 'PROTÉINES', value: '${recipe.proteinG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'PROTÉINES',
+                                    value: '${recipe.proteinG ?? 0}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'GLUCIDES', value: '${recipe.carbsG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'GLUCIDES',
+                                    value: '${recipe.carbsG ?? 0}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'LIPIDES', value: '${recipe.fatG ?? 0}g')),
+                            Expanded(
+                                child: _MacroBox(
+                                    label: 'LIPIDES',
+                                    value: '${recipe.fatG ?? 0}g')),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -294,27 +443,31 @@ class _RecipeContent extends StatelessWidget {
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                              colors: [
+                                AkeliColors.primary,
+                                AkeliColors.primaryContainer
+                              ],
                             ),
-                            borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                            borderRadius:
+                                BorderRadius.circular(AkeliRadius.pill),
                           ),
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(AkeliRadius.pill),
-                              onTap: () {
-                                appLogger.userAction('Add to calendar tapped', screen: 'RecipeDetailPage');
-                                // TODO: Implement Add to Calendar
-                              },
+                              borderRadius:
+                                  BorderRadius.circular(AkeliRadius.pill),
+                              onTap: onAddToPlan,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 16, horizontal: 24),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.calendar_today_rounded, color: AkeliColors.onPrimary, size: 20),
+                                    const Icon(Icons.calendar_today_rounded,
+                                        color: AkeliColors.onPrimary, size: 20),
                                     const SizedBox(width: 12),
                                     Text(
-                                      'Ajouter au calendrier',
+                                      'Ajouter au plan repas',
                                       style: GoogleFonts.inter(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
@@ -342,7 +495,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -378,7 +536,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -410,15 +573,17 @@ class _RecipeContent extends StatelessWidget {
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                              color: Colors.transparent, 
+                              borderRadius:
+                                  BorderRadius.circular(AkeliRadius.md),
+                              color: Colors.transparent,
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Text(
-                                    ing.name + (ing.isOptional ? ' (opt.)' : ''),
+                                    ing.name +
+                                        (ing.isOptional ? ' (opt.)' : ''),
                                     style: GoogleFonts.inter(
                                       fontSize: 15,
                                       color: AkeliColors.onSurface,
@@ -452,7 +617,12 @@ class _RecipeContent extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                      boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                      boxShadow: const [
+                        BoxShadow(
+                            color: Color(0x051B1C16),
+                            blurRadius: 12,
+                            offset: Offset(0, 4))
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -509,57 +679,12 @@ class _RecipeContent extends StatelessWidget {
                   ),
                 ),
 
+              // RATINGS & COMMENTS SECTION
+              _RatingsAndCommentsSection(recipe: recipe),
+              const SizedBox(height: 24),
+
               // CREATOR CARD
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(AkeliRadius.xl),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [AkeliShadows.sm],
-                          image: DecorationImage(
-                            image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBZoZmH1Y5a-Pc2GzIrFGmGCXlHreRhu1Z6JxT9Tc54fo417lFxPztaj8LHhnjfsKKuweQ7x2Sock9uBCk7-Mpelfn9yk-kq3cyJTZQHk8AHBjpmB4wiG-1nIt3SfGk7lpQ0anmR-m7zgit9sN0-OUMsgmx6DKQYVYYCO4zH1_AtzeaSbWnW3Yy5P3ax9SVNe5Cl1cmCc5TqlCt_uLfwIsnetSu5K9v5LG-GtLx19sLzk6rtkSnRQx9XDcIfxkvN3pSgEix_8t1c1Q'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'RECETTE CRÉÉE PAR',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AkeliColors.onSurfaceVariant,
-                              letterSpacing: 1.0,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Chef Amina', 
-                            style: GoogleFonts.plusJakartaSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: AkeliColors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              _CreatorCardSection(creatorId: recipe.creatorId),
             ],
           ),
         ),
@@ -574,11 +699,18 @@ class _RecipeContent extends StatelessWidget {
             children: [
               _FrostedIconButton(
                 icon: Icons.arrow_back,
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    context.go(AkeliRoutes.recipes);
+                  }
+                },
               ),
               _FrostedIconButton(
-                icon: recipe.isLiked ? Icons.bookmark : Icons.bookmark_border,
-                iconColor: recipe.isLiked ? AkeliColors.primary : AkeliColors.onSurface,
+                icon: isSaved ? Icons.bookmark : Icons.bookmark_border,
+                iconColor:
+                    isSaved ? AkeliColors.primary : AkeliColors.onSurface,
                 onPressed: onLike,
               ),
             ],
@@ -728,6 +860,221 @@ class _FrostedIconButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CreatorCardSection extends ConsumerWidget {
+  final String creatorId;
+
+  const _CreatorCardSection({required this.creatorId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final creatorAsync = ref.watch(creatorByIdProvider(creatorId));
+    final regionNames = ref.watch(foodRegionNamesProvider).valueOrNull ?? {};
+
+    appLogger.provider('_CreatorCardSection build() | creatorId: $creatorId');
+
+    return creatorAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 32),
+        child: SizedBox(
+            height: 80, child: Center(child: CircularProgressIndicator())),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (creator) {
+        if (creator == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(
+                  'RECETTE CRÉÉE PAR',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurfaceVariant,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+              CreatorCard(
+                creator: creator,
+                regionName: creator.regionId != null
+                    ? regionNames[creator.regionId!] ?? creator.regionId
+                    : null,
+                onTap: () {
+                  appLogger.userAction('Creator card tapped from recipe detail',
+                      screen: 'RecipeDetailPage',
+                      metadata: {'creatorId': creatorId});
+                  context.push(AkeliRoutes.creatorDetailPath(creatorId));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RatingsAndCommentsSection extends StatelessWidget {
+  final Recipe recipe;
+
+  const _RatingsAndCommentsSection({required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          boxShadow: const [
+            BoxShadow(
+                color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Avis de la communauté',
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded,
+                        color: AkeliColors.accentAmber, size: 24),
+                    const SizedBox(width: 4),
+                    Text(
+                      recipe.averageRating.toStringAsFixed(1),
+                      style: GoogleFonts.inter(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AkeliColors.onSurface,
+                      ),
+                    ),
+                    Text(
+                      ' (${recipe.ratingCount})',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Goût', rating: recipe.averageRatingTaste)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Facilité', rating: recipe.averageRatingEase)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _DetailedRatingBar(
+                        label: 'Satiété', rating: recipe.averageRatingSatiety)),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => Padding(
+                    padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + 40),
+                    child: RecipeCommentsSheet(recipeId: recipe.id),
+                  ),
+                );
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: AkeliColors.surfaceContainer,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AkeliRadius.md)),
+              ),
+              child: const Text(
+                'Voir les commentaires',
+                style: TextStyle(
+                  color: AkeliColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DetailedRatingBar extends StatelessWidget {
+  final String label;
+  final double rating;
+
+  const _DetailedRatingBar({required this.label, required this.rating});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AkeliColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: rating / 5.0,
+                  backgroundColor: AkeliColors.surfaceContainerHigh,
+                  color: AkeliColors.primary,
+                  minHeight: 6,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              rating.toStringAsFixed(1),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AkeliColors.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

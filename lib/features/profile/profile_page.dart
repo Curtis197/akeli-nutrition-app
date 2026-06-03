@@ -1,23 +1,75 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/dm_provider.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/profile_tabs_provider.dart';
 import '../../shared/widgets/avatar.dart';
 
-class ProfilePage extends ConsumerWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends ConsumerStatefulWidget {
+  final String? userId; // Optional, for viewing other profiles
+  
+  const ProfilePage({super.key, this.userId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(userProfileProvider);
-    final isPremium = ref.watch(isPremiumProvider);
-    appLogger.provider('ProfilePage build() | isPremium: $isPremium');
+  ConsumerState<ProfilePage> createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  bool _isUploading = false;
+  
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() => _isUploading = true);
+      try {
+        final file = File(pickedFile.path);
+        await ref.read(userProfileNotifierProvider.notifier).updateAvatar(file);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        }
+      } finally {
+        if (mounted) setState(() => _isUploading = false);
+      }
+    }
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+  
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = ref.watch(currentUserProvider);
+    final isCurrentUser = widget.userId == null || widget.userId == currentUser?.id;
+
+    final profileAsync = ref.watch(userProfileProvider);
+    final targetUserId = widget.userId ?? currentUser?.id ?? '';
+    
+    final userSavedRecipesAsync = ref.watch(userSavedRecipesProvider(targetUserId));
+    final userCommentsAsync = ref.watch(userCommentsProvider(targetUserId));
+    final userGroupsAsync = ref.watch(userGroupsProvider(targetUserId));
+    
     return Scaffold(
       backgroundColor: AkeliColors.background,
       extendBodyBehindAppBar: true,
@@ -42,19 +94,44 @@ class ProfilePage extends ConsumerWidget {
                       color: AkeliColors.surfaceContainerHighest,
                       shape: BoxShape.circle,
                     ),
-                    child: const BackButton(color: AkeliColors.onSurfaceVariant),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.arrow_back, color: AkeliColors.onSurfaceVariant),
+                      onPressed: () {
+                        if (context.canPop()) {
+                          context.pop();
+                        } else {
+                          context.go(AkeliRoutes.home);
+                        }
+                      },
+                    ),
                   ),
-                  const Text(
-                    'Akeli Oasis',
-                    style: TextStyle(
-                      fontFamily: 'Plus Jakarta Sans',
+                  Text(
+                    profileAsync.valueOrNull?.displayName ?? 'Profil',
+                    style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AkeliColors.primary,
+                      color: AkeliColors.onSurface,
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(width: 48), // Spacer for balance
+                  if (isCurrentUser)
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: AkeliColors.surfaceContainerHighest,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: const Icon(Icons.settings_outlined, color: AkeliColors.onSurfaceVariant),
+                        onPressed: () {
+                          appLogger.userAction('Settings button tapped', screen: 'ProfilePage');
+                          context.push(AkeliRoutes.settings);
+                        },
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 48),
                 ],
               ),
             ),
@@ -67,11 +144,11 @@ class ProfilePage extends ConsumerWidget {
         data: (profile) => SingleChildScrollView(
           child: Column(
             children: [
-              // Header Section: Hero & Profile
+              // Hero & Profile
               Stack(
                 alignment: Alignment.topCenter,
                 children: [
-                  // Decorative Gradient Background
+                  // Gradient
                   Positioned(
                     top: -100,
                     left: -50,
@@ -83,7 +160,7 @@ class ProfilePage extends ConsumerWidget {
                           colors: [
                             AkeliColors.primary.withValues(alpha: 0.15),
                             AkeliColors.surface.withValues(alpha: 0.8),
-                            AkeliColors.tertiary.withValues(alpha: 0.05),
+                            AkeliColors.tertiaryFixed.withValues(alpha: 0.15),
                           ],
                           radius: 1.5,
                         ),
@@ -100,126 +177,256 @@ class ProfilePage extends ConsumerWidget {
                     child: Column(
                       children: [
                         // Avatar
-                        Container(
-                          width: 120,
-                          height: 120,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AkeliColors.primary.withValues(alpha: 0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
+                        GestureDetector(
+                          onTap: isCurrentUser && !_isUploading ? _pickAndUploadImage : null,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 120,
+                                height: 120,
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AkeliColors.primary.withValues(alpha: 0.2),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                    ),
+                                  ],
+                                ),
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: AkeliColors.surfaceContainerLowest,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: ClipOval(
+                                    child: AkeliAvatar(
+                                      imageUrl: profile?.avatarUrl,
+                                      initials: (profile?.displayName.isNotEmpty == true
+                                              ? profile!.displayName[0]
+                                              : 'A')
+                                          .toUpperCase(),
+                                      size: AvatarSize.lg,
+                                    ),
+                                  ),
+                                ),
                               ),
+                              if (_isUploading)
+                                Container(
+                                  width: 120,
+                                  height: 120,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(color: Colors.white),
+                                  ),
+                                ),
+                              if (isCurrentUser && !_isUploading)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AkeliColors.primary,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: AkeliColors.surfaceContainerLowest, width: 2),
+                                    ),
+                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                                  ),
+                                ),
                             ],
-                          ),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: AkeliColors.surfaceContainerLowest,
-                              shape: BoxShape.circle,
-                            ),
-                            child: ClipOval(
-                              child: AkeliAvatar(
-                                imageUrl: profile?.avatarUrl,
-                                initials: (profile?.displayName.isNotEmpty == true
-                                        ? profile!.displayName[0]
-                                        : 'A')
-                                    .toUpperCase(),
-                                size: AvatarSize.lg,
-                              ),
-                            ),
                           ),
                         ),
                         const SizedBox(height: 24),
                         // Identity
                         Text(
-                          profile?.displayName ?? 'Utilisateur',
-                          style: const TextStyle(
-                            fontFamily: 'Plus Jakarta Sans',
+                          profile?.displayName.isNotEmpty == true 
+                              ? profile!.displayName 
+                              : 'Utilisateur',
+                          style: GoogleFonts.plusJakartaSans(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: AkeliColors.onSurface,
                             letterSpacing: -0.5,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          profile?.bio?.isNotEmpty == true
-                              ? profile!.bio!
-                              : 'Curating wellness & culinary serenity.',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: AkeliColors.onSurfaceVariant,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (isPremium) ...[
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AkeliColors.secondary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(24),
+                        if (profile?.bio?.isNotEmpty == true) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            profile!.bio!,
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              color: AkeliColors.onSurfaceVariant,
                             ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.star_rounded, color: AkeliColors.secondary, size: 16),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Premium',
-                                  style: TextStyle(color: AkeliColors.secondary, fontSize: 14, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                         const SizedBox(height: 32),
                         // Action Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed: () {
-                                  appLogger.userAction('Edit profile button tapped', screen: 'ProfilePage');
-                                  _editProfile(context, ref);
-                                },
-                                icon: const Icon(Icons.edit_rounded, size: 20),
-                                label: const Text('Modifier', style: TextStyle(fontWeight: FontWeight.bold)),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: AkeliColors.primary,
-                                  foregroundColor: AkeliColors.onPrimary,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        if (isCurrentUser)
+                          const SizedBox.shrink()
+                        else
+                          Consumer(builder: (context, ref, _) {
+                            final convStateAsync = ref.watch(conversationStateProvider(widget.userId!));
+                            
+                            return convStateAsync.when(
+                              loading: () => const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8),
+                                  child: CircularProgressIndicator(),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () {
-                                  appLogger.userAction('Settings button tapped', screen: 'ProfilePage');
-                                  _showSettings(context, ref);
-                                },
-                                icon: const Icon(Icons.settings_outlined, size: 20),
-                                label: const Text('Paramètres', style: TextStyle(fontWeight: FontWeight.bold)),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AkeliColors.primary,
-                                  backgroundColor: AkeliColors.surfaceContainerLowest,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                              error: (err, _) => const SizedBox.shrink(),
+                              data: (convState) {
+                                if (convState.status == ConvState.none) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                                            ),
+                                            borderRadius: BorderRadius.circular(AkeliRadius.md),
+                                          ),
+                                          child: FilledButton.icon(
+                                            onPressed: () async {
+                                              appLogger.userAction('Ajouter button tapped', screen: 'ProfilePage');
+                                              try {
+                                                await sendDmRequest(ref, widget.userId!);
+                                                ref.invalidate(conversationStateProvider(widget.userId!));
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Demande envoyée')),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Erreur lors de l\'envoi de la demande')),
+                                                  );
+                                                }
+                                              }
+                                            },
+                                            icon: const Icon(Icons.person_add_rounded, size: 20, color: Colors.white),
+                                            label: Text('Ajouter', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: Colors.transparent,
+                                              shadowColor: Colors.transparent,
+                                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else if (convState.status == ConvState.pending) {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: null,
+                                          icon: const Icon(Icons.access_time_rounded, size: 20),
+                                          label: Text('En attente', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.textSecondary,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            appLogger.userAction('Ecrire button tapped', screen: 'ProfilePage');
+                                            context.push(AkeliRoutes.dmChatPath(convState.conversationId!), extra: profile?.displayName ?? '');
+                                          },
+                                          icon: const Icon(Icons.edit, size: 20),
+                                          label: Text('Ecrire', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.primary,
+                                            backgroundColor: AkeliColors.surfaceContainerLowest,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            appLogger.userAction('Supprimer button tapped', screen: 'ProfilePage');
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('Fermer la conversation ?'),
+                                                content: const Text("Vous quitterez cette conversation. L'autre utilisateur gardera son historique."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.pop(ctx),
+                                                    child: const Text('Annuler'),
+                                                  ),
+                                                  TextButton(
+                                                    style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
+                                                    onPressed: () async {
+                                                      Navigator.pop(ctx);
+                                                      try {
+                                                        await leaveDmConversation(ref, convState.conversationId!);
+                                                        ref.invalidate(conversationStateProvider(widget.userId!));
+                                                        if (context.mounted) {
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(content: Text('Conversation fermée')),
+                                                          );
+                                                        }
+                                                      } catch (e) {
+                                                        if (context.mounted) {
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            const SnackBar(content: Text('Erreur lors de la fermeture')),
+                                                          );
+                                                        }
+                                                      }
+                                                    },
+                                                    child: const Text('Fermer'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(Icons.close_rounded, size: 20),
+                                          label: Text('Supprimer', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AkeliColors.error,
+                                            backgroundColor: AkeliColors.surfaceContainerLowest,
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            side: BorderSide(color: AkeliColors.error.withValues(alpha: 0.3)),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
+                            );
+                          }),
                       ],
                     ),
                   ),
@@ -228,459 +435,390 @@ class ProfilePage extends ConsumerWidget {
               
               // Content Section
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.only(top: 24, bottom: 48, left: 16, right: 16),
-                decoration: BoxDecoration(
-                  color: AkeliColors.surfaceContainerLowest,
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.02),
-                      blurRadius: 48,
-                      offset: const Offset(0, -8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _Section(
-                      title: 'Menu',
-                      items: [
-                        _MenuItem(
-                          icon: Icons.monitor_weight_outlined,
-                          label: 'Suivi nutritionnel',
-                          onTap: () {
-                            appLogger.userAction('Nutrition tracking menu tapped', screen: 'ProfilePage');
-                            context.push(AkeliRoutes.nutrition);
-                          },
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(top: 24, bottom: 48, left: 16, right: 16),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerLowest,
+                    borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.02),
+                        blurRadius: 48,
+                        offset: const Offset(0, -8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Tab Navigation
+                      TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        dividerColor: Colors.transparent,
+                        indicator: BoxDecoration(
+                          color: AkeliColors.secondaryContainer,
+                          borderRadius: BorderRadius.circular(AkeliRadius.pill),
                         ),
-                        _MenuItem(
-                          icon: Icons.star_outline_rounded,
-                          label: 'Mon abonnement',
-                          trailing: isPremium
-                              ? const Chip(
-                                  label: Text('Premium'),
-                                  backgroundColor: AkeliColors.primary,
-                                  labelStyle: TextStyle(color: Colors.white, fontSize: 11),
-                                  padding: EdgeInsets.zero,
-                                )
-                              : null,
-                          onTap: () {
-                            appLogger.userAction('Subscription menu tapped', screen: 'ProfilePage');
-                            context.push(AkeliRoutes.subscription);
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.favorite_outline_rounded,
-                          label: 'Mode Fan',
-                          onTap: () {
-                            appLogger.userAction('Fan mode menu tapped', screen: 'ProfilePage');
-                            context.push(AkeliRoutes.fanMode);
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _Section(
-                      title: 'Application',
-                      items: [
-                        _MenuItem(
-                          icon: Icons.chat_bubble_outline_rounded,
-                          label: 'Assistant IA',
-                          onTap: () {
-                            appLogger.userAction('AI assistant menu tapped', screen: 'ProfilePage');
-                            context.push(AkeliRoutes.aiChat);
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.notifications_outlined,
-                          label: 'Notifications',
-                          onTap: () {
-                            appLogger.userAction('Notifications menu tapped', screen: 'ProfilePage');
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.language_rounded,
-                          label: 'Langue',
-                          trailing: const Text('Français', style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
-                          onTap: () {
-                            appLogger.userAction('Language menu tapped', screen: 'ProfilePage');
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _Section(
-                      title: 'Support',
-                      items: [
-                        _MenuItem(
-                          icon: Icons.help_outline_rounded,
-                          label: 'Aide & FAQ',
-                          onTap: () {
-                            appLogger.userAction('Help FAQ menu tapped', screen: 'ProfilePage');
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.privacy_tip_outlined,
-                          label: 'Politique de confidentialité',
-                          onTap: () {
-                            appLogger.userAction('Privacy policy menu tapped', screen: 'ProfilePage');
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.description_outlined,
-                          label: 'Conditions d\'utilisation',
-                          onTap: () {
-                            appLogger.userAction('Terms menu tapped', screen: 'ProfilePage');
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    // Sign out
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          appLogger.userAction('Sign out button tapped', screen: 'ProfilePage');
-                          _signOut(context, ref);
-                        },
-                        icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.bold)),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AkeliColors.error,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(color: AkeliColors.error.withValues(alpha: 0.3)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        labelColor: AkeliColors.onSecondaryContainer,
+                        unselectedLabelColor: AkeliColors.onSurfaceVariant,
+                        labelStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 14),
+                        unselectedLabelStyle: GoogleFonts.inter(fontWeight: FontWeight.w500, fontSize: 14),
+                        tabAlignment: TabAlignment.start,
+                        splashFactory: NoSplash.splashFactory,
+                        padding: EdgeInsets.zero,
+                        labelPadding: const EdgeInsets.symmetric(horizontal: 24),
+                        tabs: const [
+                          Tab(text: 'Recettes'),
+                          Tab(text: 'Commentaires'),
+                          Tab(text: 'Groupes'),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      // Tab Views
+                      SizedBox(
+                        height: 500, // Fixed height for now
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            // Recettes Tab
+                            userSavedRecipesAsync.when(
+                              loading: () => const Center(child: CircularProgressIndicator()),
+                              error: (_, __) => const Center(
+                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              ),
+                              data: (recipes) {
+                                if (recipes.isEmpty) {
+                                  return const Center(
+                                    child: Text('Aucune recette enregistrée', style: TextStyle(color: AkeliColors.outline)),
+                                  );
+                                }
+                                return ListView.separated(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  itemCount: recipes.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                  itemBuilder: (context, index) {
+                                    final r = recipes[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        context.push(AkeliRoutes.recipeDetailPath(r.id));
+                                      },
+                                      child: _ProfileRecipeCard(
+                                        title: r.title,
+                                        subtitle: '${r.totalTimeMin} min • ${r.difficulty}',
+                                        rating: r.averageRating.toStringAsFixed(1),
+                                        imageUrl: r.thumbnailUrl ?? '',
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            // Commentaires Tab
+                            userCommentsAsync.when(
+                              loading: () => const Center(child: CircularProgressIndicator()),
+                              error: (_, __) => const Center(
+                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              ),
+                              data: (comments) {
+                                if (comments.isEmpty) {
+                                  return const Center(
+                                    child: Text('Aucun commentaire', style: TextStyle(color: AkeliColors.outline)),
+                                  );
+                                }
+                                return ListView.separated(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  itemCount: comments.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                  itemBuilder: (context, index) {
+                                    final c = comments[index];
+                                    final recipe = c['recipe'] as Map<String, dynamic>?;
+                                    final recipeTitle = recipe?['title'] as String? ?? 'Recette inconnue';
+                                    final recipeImage = recipe?['thumbnail_url'] as String? ?? '';
+                                    final content = c['content'] as String? ?? '';
+                                    
+                                    return _ProfileCommentCard(
+                                      recipeTitle: recipeTitle,
+                                      recipeImage: recipeImage,
+                                      content: content,
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            // Groupes Tab
+                            userGroupsAsync.when(
+                              loading: () => const Center(child: CircularProgressIndicator()),
+                              error: (_, __) => const Center(
+                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              ),
+                              data: (groups) {
+                                if (groups.isEmpty) {
+                                  return const Center(
+                                    child: Text('Aucun groupe', style: TextStyle(color: AkeliColors.outline)),
+                                  );
+                                }
+                                return ListView.separated(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  itemCount: groups.length,
+                                  separatorBuilder: (_, __) => const SizedBox(height: 16),
+                                  itemBuilder: (context, index) {
+                                    final g = groups[index];
+                                    final groupId = g['id'] as String;
+                                    final title = g['name'] as String? ?? 'Groupe';
+                                    final isPrivate = g['is_private'] as bool? ?? false;
+                                    final memberCount = g['member_count'] as int? ?? 0;
+                                    
+                                    return _ProfileGroupCard(
+                                      groupId: groupId,
+                                      title: title,
+                                      isPrivate: isPrivate,
+                                      memberCount: memberCount,
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Akeli V1.0',
-                      style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 12),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       ),
     );
   }
-
-  Future<void> _signOut(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Voulez-vous vraiment vous déconnecter ?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              appLogger.userAction('Sign out cancelled', screen: 'ProfilePage');
-              Navigator.pop(ctx, false);
-            },
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: AkeliColors.error),
-            child: const Text('Déconnecter'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      appLogger.userAction('Sign out confirmed', screen: 'ProfilePage');
-      await ref.read(authNotifierProvider.notifier).signOut();
-    }
-  }
-
-  void _editProfile(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => _EditProfileSheet(ref: ref),
-    );
-  }
-
-  void _showSettings(BuildContext context, WidgetRef ref) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Paramètres bientôt disponibles.')),
-    );
-  }
 }
 
-class _Section extends StatelessWidget {
+class _ProfileRecipeCard extends StatelessWidget {
   final String title;
-  final List<_MenuItem> items;
+  final String subtitle;
+  final String rating;
+  final String imageUrl;
 
-  const _Section({required this.title, required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    appLogger.d('ProfileSection build() | title: $title');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 12),
-          child: Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: AkeliColors.onSurfaceVariant,
-              letterSpacing: 1.2,
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: AkeliColors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: items.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return Column(
-                children: [
-                  item,
-                  if (index < items.length - 1)
-                    Divider(height: 1, indent: 48, color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
-                ],
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MenuItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Widget? trailing;
-  final VoidCallback onTap;
-
-  const _MenuItem({
-    required this.icon,
-    required this.label,
-    this.trailing,
-    required this.onTap,
+  const _ProfileRecipeCard({
+    required this.title,
+    required this.subtitle,
+    required this.rating,
+    required this.imageUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('ProfileMenuItem build() | label: $label');
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              Icon(icon, color: AkeliColors.onSurfaceVariant, size: 24),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface, fontWeight: FontWeight.w500),
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AkeliRadius.md),
+            child: Image.network(
+              imageUrl,
+              width: 96,
+              height: 96,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 96,
+                height: 96,
+                color: AkeliColors.surfaceContainerHigh,
+                child: const Icon(Icons.broken_image, color: AkeliColors.outline),
               ),
-              if (trailing != null) trailing!,
-              if (trailing == null)
-                const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AkeliColors.outline),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AkeliColors.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(Icons.star_rounded, size: 16, color: AkeliColors.accentAmber),
+                    const SizedBox(width: 4),
+                    Text(
+                      rating,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _EditProfileSheet extends ConsumerStatefulWidget {
-  final WidgetRef ref;
+class _ProfileCommentCard extends StatelessWidget {
+  final String recipeTitle;
+  final String recipeImage;
+  final String content;
 
-  const _EditProfileSheet({required this.ref});
-
-  @override
-  ConsumerState<_EditProfileSheet> createState() => _EditProfileSheetState();
-}
-
-class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
-  final _nameCtrl = TextEditingController();
-  final _bioCtrl = TextEditingController();
-  bool _saving = false;
-  final _logger = appLogger;
-
-  @override
-  void initState() {
-    super.initState();
-    _logger.provider('EditProfileSheet initState()');
-    final profile = ref.read(userProfileProvider).valueOrNull;
-    if (profile != null) {
-      _nameCtrl.text = profile.username ?? '';
-      _bioCtrl.text = profile.bio ?? '';
-    }
-  }
-
-  @override
-  void dispose() {
-    _logger.provider('EditProfileSheet disposed');
-    _nameCtrl.dispose();
-    _bioCtrl.dispose();
-    super.dispose();
-  }
+  const _ProfileCommentCard({
+    required this.recipeTitle,
+    required this.recipeImage,
+    required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
-    _logger.provider('EditProfileSheet build()');
     return Container(
-      decoration: const BoxDecoration(
-        color: AkeliColors.background,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
       ),
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 32,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 32,
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AkeliRadius.sm),
+            child: Image.network(
+              recipeImage,
+              width: 48,
+              height: 48,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 48,
+                height: 48,
+                color: AkeliColors.surfaceContainerHigh,
+                child: const Icon(Icons.broken_image, color: AkeliColors.outline, size: 20),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Modifier le profil',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.primary, letterSpacing: -0.5),
-                ),
-                const Spacer(),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AkeliColors.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(12),
+                Text(
+                  recipeTitle,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
                   ),
-                  child: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: AkeliColors.onSurfaceVariant),
-                    onPressed: () {
-                      _logger.userAction('Edit profile sheet closed', screen: 'ProfilePage');
-                      Navigator.pop(context);
-                    },
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  content,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: AkeliColors.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: AkeliColors.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 32, offset: const Offset(0, 12)),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Nom', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AkeliColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
-                    ),
-                    child: TextField(
-                      controller: _nameCtrl,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.person_outline, color: AkeliColors.outline),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
-                      style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text('Description', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
-                  const SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AkeliColors.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.2)),
-                    ),
-                    child: TextField(
-                      controller: _bioCtrl,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(bottom: 32), // Align icon to top
-                          child: Icon(Icons.description_outlined, color: AkeliColors.outline),
-                        ),
-                        hintText: 'Parlez-nous un peu de vous...',
-                        hintStyle: TextStyle(color: AkeliColors.outline),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
-                      style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface),
-                    ),
-                  ),
-                ],
-              ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileGroupCard extends StatelessWidget {
+  final String groupId;
+  final String title;
+  final bool isPrivate;
+  final int memberCount;
+
+  const _ProfileGroupCard({
+    required this.groupId,
+    required this.title,
+    required this.isPrivate,
+    required this.memberCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        onTap: () {
+          appLogger.userAction('Group card tapped', screen: 'ProfilePage', metadata: {'groupId': groupId});
+          context.push(AkeliRoutes.groupDetailPath(groupId));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: AkeliColors.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AkeliRadius.md),
+            border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+          ),
+          padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AkeliColors.primaryContainer,
+              borderRadius: BorderRadius.circular(AkeliRadius.sm),
             ),
-            const SizedBox(height: 32),
-            FilledButton(
-              onPressed: _saving ? null : () {
-                _logger.userAction('Save profile button tapped', screen: 'ProfilePage');
-                _save();
-              },
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                backgroundColor: AkeliColors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                elevation: 4,
-                shadowColor: AkeliColors.primary.withValues(alpha: 0.4),
-              ),
-              child: _saving
-                  ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
-                    )
-                  : const Text('Enregistrer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: Icon(
+              isPrivate ? Icons.lock_rounded : Icons.public_rounded,
+              color: AkeliColors.onPrimaryContainer,
             ),
-          ],
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$memberCount membre${memberCount > 1 ? 's' : ''}',
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AkeliColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
         ),
       ),
     );
   }
-
-  Future<void> _save() async {
-    _logger.userAction('Profile save executed', screen: 'ProfilePage');
-    setState(() => _saving = true);
-    try {
-      await ref.read(userProfileNotifierProvider.notifier).updateProfile(
-            username: _nameCtrl.text.trim(),
-            bio: _bioCtrl.text.trim(),
-          );
-      if (mounted) Navigator.pop(context);
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
 }
-

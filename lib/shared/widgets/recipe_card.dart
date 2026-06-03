@@ -95,7 +95,7 @@ class _RecipeCardState extends ConsumerState<RecipeCard> {
                       top: AkeliSpacing.sm,
                       right: AkeliSpacing.sm,
                       child: _LikeButton(
-                        isLiked: widget.recipe.isLiked,
+                        isLiked: widget.recipe.isSaved,
                         onTap: widget.onLike,
                       ),
                     ),
@@ -137,6 +137,20 @@ class _RecipeCardState extends ConsumerState<RecipeCard> {
                               color: AkeliColors.primary,
                             ),
                           const Spacer(),
+                          if (widget.recipe.likeCount > 0) ...[
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.bookmark_rounded, size: 13, color: AkeliColors.primary),
+                                const SizedBox(width: 2),
+                                Text(
+                                  '${widget.recipe.likeCount}',
+                                  style: const TextStyle(fontSize: 11, color: AkeliColors.primary, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 6),
+                          ],
                           _DifficultyChip(difficulty: widget.recipe.difficulty),
                         ],
                       ),

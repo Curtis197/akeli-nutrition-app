@@ -221,6 +221,7 @@ ALTER TABLE recipe
 -- Schéma de retour inchangé — le recipe_id vient du composant base.
 -- ---------------------------------------------------------------------------
 
+DROP FUNCTION IF EXISTS generate_meal_plan(uuid, int, int, date);
 CREATE OR REPLACE FUNCTION generate_meal_plan(
   p_user_id       uuid,
   p_days          int     DEFAULT 7,
@@ -330,7 +331,7 @@ BEGIN
         v_entry_id,
         v_component_id,
         v_current_date,
-        v_meal_type,
+        v_meal_type::text,
         v_recipe.id,
         v_recipe.title,
         v_recipe.cover_image_url,

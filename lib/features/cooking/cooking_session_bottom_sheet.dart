@@ -58,16 +58,16 @@ class CookingSessionBottomSheet extends StatelessWidget {
               children: [
                 // Icon
                 Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [AkeliColors.primary, AkeliColors.primaryContainer],
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.kitchen_rounded, size: 40, color: AkeliColors.onPrimary),
+                  child: const Icon(Icons.kitchen_rounded, size: 40, color: AkeliColors.onPrimary),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 
                 // Title
                 Text(
@@ -78,7 +78,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                     color: AkeliColors.onSurface,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 
                 // Subtitle
                 Text(
@@ -89,11 +89,11 @@ class CookingSessionBottomSheet extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 
                 // Placeholder message
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -101,8 +101,8 @@ class CookingSessionBottomSheet extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.construction_outlined, color: AkeliColors.secondary, size: 24),
-                      SizedBox(width: 12),
+                      const Icon(Icons.construction_outlined, color: AkeliColors.secondary, size: 24),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +115,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                                 color: AkeliColors.onSecondaryContainer,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Cette fonctionnalité sera disponible dans une prochaine mise à jour',
                               style: GoogleFonts.inter(
@@ -129,7 +129,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 
                 // Close button
                 SizedBox(
@@ -140,7 +140,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56),
+                      minimumSize: const Size(double.infinity, 56),
                       backgroundColor: AkeliColors.primary,
                       foregroundColor: AkeliColors.onPrimary,
                       shape: RoundedRectangleBorder(

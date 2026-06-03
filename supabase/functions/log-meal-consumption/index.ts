@@ -128,18 +128,20 @@ serve(async (req) => {
       logger.debug('Fan mode check skipped | base recipe has no creator_id');
     }
 
-    // 4. Récupérer le creator_id de chaque recette distincte
-    logger.debug("[STEP 5] Get recipe creators");
+    // 4. Récupérer le user_profile.id du créateur pour chaque recette distincte.
+    //    recipe.creator_id → creator entity id; meal_consumption.creator_id FK → user_profile.id.
+    //    Must join through the creator table to resolve the correct user_profile id.
+    logger.debug("[STEP 5] Get recipe creator user ids");
     const recipeIds = [...new Set(components.map((c) => c.recipe_id))];
     logRLSCheck(logger, "recipe", "SELECT", user.id);
     const { data: recipes, error: recipesError } = await client
       .from("recipe")
-      .select("id, creator_id")
+      .select("id, creator:creator_id(user_id)")
       .in("id", recipeIds);
     logQueryResult(logger, "recipe", "SELECT", recipes?.length ?? 0, recipesError ?? undefined);
 
-    const creatorById = Object.fromEntries(
-      (recipes ?? []).map((r) => [r.id, r.creator_id]),
+    const creatorUserById = Object.fromEntries(
+      (recipes ?? []).map((r) => [r.id, (r.creator as any)?.user_id ?? null]),
     );
 
     // 5. Insérer N lignes dans meal_consumption — une par composant.
@@ -148,7 +150,7 @@ serve(async (req) => {
     const consumptionRows = components.map((comp) => ({
       user_id: user.id,
       recipe_id: comp.recipe_id,
-      creator_id: creatorById[comp.recipe_id] ?? null,
+      creator_id: creatorUserById[comp.recipe_id] ?? null,
       meal_plan_entry_id,
       component_id: comp.id,
       servings,
@@ -163,14 +165,16 @@ serve(async (req) => {
 
     if (consumptionError) throw consumptionError;
 
-    // 6. Marquer l'entrée comme consommée
+    // 6. Marquer l'entrée comme consommée — via service client (no UPDATE RLS on meal_plan_entry)
     logger.debug("[STEP 7] Mark entry consumed");
-    logRLSCheck(logger, "meal_plan_entry", "UPDATE", user.id);
-    const { error: updateError } = await client
+    const admin = serviceClient();
+    const { error: updateError } = await admin
       .from("meal_plan_entry")
       .update({ is_consumed: true, consumed_at: new Date().toISOString() })
-      .eq("id", meal_plan_entry_id);
+      .eq("id", meal_plan_entry_id)
+      .eq("meal_plan_id", entry.meal_plan_id);
     logQueryResult(logger, "meal_plan_entry", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
+    if (updateError) logger.warn("Mark consumed failed (non-fatal) | " + updateError.message);
 
     logger.info("✅ EXIT | status: 200 | components_logged: " + components.length + " | duration: " + (Date.now() - start) + "ms");
     return ok({ consumed: true, components_logged: components.length });

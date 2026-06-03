@@ -10,6 +10,7 @@ class AkeliModernMetric extends StatelessWidget {
   final String label;
   final String value;
   final String? unit;
+  final String? subtitle;
   final double progress;
   final List<Color>? gradientColors;
   final VoidCallback? onTap;
@@ -19,6 +20,7 @@ class AkeliModernMetric extends StatelessWidget {
     required this.label,
     required this.value,
     this.unit,
+    this.subtitle,
     required this.progress,
     this.gradientColors,
     this.onTap,
@@ -104,6 +106,15 @@ class AkeliModernMetric extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AkeliColors.outline,
+                  ),
+            ),
+          ],
         ],
       ),
     );

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch
 import numpy as np
 
-from engine.vectorization import compute_user_vector, compute_recipe_vector, VECTOR_DIM
+from engine.vectorization import compute_user_vector, compute_recipe_vector, compute_creator_vector, VECTOR_DIM
 
 @patch("engine.vectorization.get_user_behavior")
 @patch("engine.vectorization.get_user_health_profile")
@@ -94,3 +94,71 @@ def test_compute_recipe_vector_not_found(mock_get_data):
 
     # Assert
     assert vector is None
+
+
+def test_upsert_creator_vector_signature():
+    """upsert_creator_vector must accept (creator_id, vector, recipe_count_sampled)."""
+    from engine.database import upsert_creator_vector
+    import inspect
+    sig = inspect.signature(upsert_creator_vector)
+    params = list(sig.parameters.keys())
+    assert params == ['creator_id', 'vector', 'recipe_count_sampled']
+
+
+# --- compute_creator_vector ---
+
+@patch("engine.vectorization.get_creator_recipe_vectors")
+def test_compute_creator_vector_success(mock_get_vectors):
+    """Returns L2-normalized 50D centroid of recipe vectors."""
+    # Two recipe vectors with known values
+    v1 = np.zeros(50, dtype=np.float32)
+    v1[0] = 1.0
+    v2 = np.zeros(50, dtype=np.float32)
+    v2[0] = 0.5
+    v2[1] = 0.5
+    mock_get_vectors.return_value = [v1, v2]
+
+    result = compute_creator_vector("creator_abc")
+
+    assert result is not None
+    assert isinstance(result, np.ndarray)
+    assert len(result) == 50
+    # Must be L2-normalized
+    assert np.isclose(np.linalg.norm(result), 1.0, atol=1e-6)
+    # Centroid before normalization: [0.75, 0.25, 0, ...] → check direction preserved
+    assert result[0] > result[1]
+
+
+@patch("engine.vectorization.get_creator_recipe_vectors")
+def test_compute_creator_vector_no_recipes(mock_get_vectors):
+    """Returns None when creator has no recipe vectors."""
+    mock_get_vectors.return_value = []
+
+    result = compute_creator_vector("creator_no_recipes")
+
+    assert result is None
+
+
+@patch("engine.vectorization.get_creator_recipe_vectors")
+def test_compute_creator_vector_single_recipe(mock_get_vectors):
+    """Single recipe vector — centroid equals that recipe vector (normalized)."""
+    v = np.zeros(50, dtype=np.float32)
+    v[10] = 1.0  # only region dim — already normalized (norm=1)
+    mock_get_vectors.return_value = [v]
+
+    result = compute_creator_vector("creator_one_recipe")
+
+    assert result is not None
+    assert np.isclose(np.linalg.norm(result), 1.0, atol=1e-6)
+    assert result[10] == pytest.approx(1.0, abs=1e-5)
+
+
+@patch("engine.vectorization.get_creator_recipe_vectors")
+def test_compute_creator_vector_zero_norm(mock_get_vectors):
+    """Returns None if centroid is all-zeros (degenerate case)."""
+    v = np.zeros(50, dtype=np.float32)
+    mock_get_vectors.return_value = [v]
+
+    result = compute_creator_vector("creator_zero")
+
+    assert result is None

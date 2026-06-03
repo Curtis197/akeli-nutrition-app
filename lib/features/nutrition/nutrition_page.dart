@@ -1,11 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
+import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
+import '../../providers/user_profile_provider.dart';
 
 class NutritionPage extends ConsumerStatefulWidget {
   const NutritionPage({super.key});
@@ -55,7 +58,13 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  context.go(AkeliRoutes.home);
+                }
+              },
             style: IconButton.styleFrom(backgroundColor: Colors.transparent),
           ),
         ),
@@ -145,10 +154,20 @@ class _TodayTab extends ConsumerWidget {
               const SizedBox(height: 24),
               // Macro donut chart inside a beautiful card
               _OrganicCard(
-                child: _MacroDonutChart(
-                  proteinG: nutrition.proteinG,
-                  carbsG: nutrition.carbsG,
-                  fatG: nutrition.fatG,
+                child: Column(
+                  children: [
+                    _MacroDonutChart(
+                      proteinG: nutrition.proteinG,
+                      carbsG: nutrition.carbsG,
+                      fatG: nutrition.fatG,
+                    ),
+                    const SizedBox(height: 24),
+                    _MacroTargetBars(
+                      proteinG: nutrition.proteinG,
+                      carbsG: nutrition.carbsG,
+                      fatG: nutrition.fatG,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -159,7 +178,7 @@ class _TodayTab extends ConsumerWidget {
               const SizedBox(height: 24),
               // Weight log
               _OrganicCard(
-                child: _WeightSection(),
+                child: _WeightTrendChart(),
               ),
               const SizedBox(height: 80),
             ],
@@ -334,9 +353,9 @@ class _MacroDonutChart extends StatelessWidget {
 class _Legend extends StatelessWidget {
   final Color color;
   final String label;
-  final String value;
+  final String? value;
 
-  const _Legend({required this.color, required this.label, required this.value});
+  const _Legend({required this.color, required this.label, this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -361,9 +380,69 @@ class _Legend extends StatelessWidget {
             ),
           ],
         ),
-        Text(
-          value,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AkeliColors.onSurface),
+        if (value != null)
+          Text(
+            value!,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: AkeliColors.onSurface),
+          ),
+      ],
+    );
+  }
+}
+
+class _MacroTargetBars extends StatelessWidget {
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+
+  const _MacroTargetBars({
+    required this.proteinG,
+    required this.carbsG,
+    required this.fatG,
+  });
+
+  // Fallback targets until healthProfileProvider exposes per-macro fields
+  static const _targetProt = 150.0;
+  static const _targetCarbs = 250.0;
+  static const _targetFat = 65.0;
+
+  @override
+  Widget build(BuildContext context) {
+    appLogger.d('MacroTargetBars build() | protein: $proteinG | carbs: $carbsG | fat: $fatG');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildMacroBar('Protéines', proteinG, _targetProt, AkeliColors.primary),
+        const SizedBox(height: 12),
+        _buildMacroBar('Glucides', carbsG, _targetCarbs, AkeliColors.tertiary),
+        const SizedBox(height: 12),
+        _buildMacroBar('Lipides', fatG, _targetFat, AkeliColors.warning),
+      ],
+    );
+  }
+
+  Widget _buildMacroBar(String label, double consumed, double target, Color color) {
+    final progress = (consumed / target).clamp(0.0, 1.0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text('${consumed.toInt()}g / ${target.toInt()}g', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: progress,
+            backgroundColor: AkeliColors.surfaceContainerHigh,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+            minHeight: 8,
+          ),
         ),
       ],
     );
@@ -447,11 +526,15 @@ class _WaterTrackerState extends State<_WaterTracker> {
   }
 }
 
-class _WeightSection extends ConsumerWidget {
+class _WeightTrendChart extends ConsumerWidget {
+  final _logger = appLogger;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final weightAsync = ref.watch(weightLogProvider);
-    appLogger.provider('WeightSection build() | weightAsync.isLoading: ${weightAsync.isLoading}');
+    final healthAsync = ref.watch(healthProfileProvider);
+
+    _logger.provider('WeightTrendChart build() | weightAsync.isLoading: ${weightAsync.isLoading} | healthAsync.isLoading: ${healthAsync.isLoading}');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,15 +562,15 @@ class _WeightSection extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.add_circle, color: AkeliColors.primary, size: 28),
               onPressed: () {
-                appLogger.userAction('Add weight button tapped', screen: 'NutritionPage');
+                _logger.userAction('Add weight button tapped', screen: 'NutritionPage');
                 _showAddWeightDialog(context, ref);
               },
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         weightAsync.when(
-          loading: () => const SizedBox(height: 40, child: Center(child: CircularProgressIndicator())),
+          loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
           error: (_, __) => const Text('Erreur de chargement', style: TextStyle(color: AkeliColors.error)),
           data: (entries) {
             if (entries.isEmpty) {
@@ -496,29 +579,172 @@ class _WeightSection extends ConsumerWidget {
                 style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14),
               );
             }
-            final latest = entries.first;
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
+            final currentWeight = entries.first.weightKg;
+            final startingWeight = entries.last.weightKg;
+            final targetWeight = healthAsync.valueOrNull?.targetWeightKg;
+            
+            double progress = 0.0;
+            if (targetWeight != null && startingWeight != targetWeight) {
+              progress = (startingWeight - currentWeight) / (startingWeight - targetWeight);
+            }
+            final progressPct = (progress * 100).clamp(0, 100).toInt();
+
+            Widget chartWidget = const SizedBox.shrink();
+            
+            if (entries.length < 2) {
+              chartWidget = const Text(
+                'Enregistrez un autre poids pour voir votre tendance.',
+                style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
+              );
+            } else {
+              final chronological = entries.take(10).toList().reversed.toList();
+              final spots = chronological.asMap().entries.map((e) {
+                return FlSpot(e.key.toDouble(), e.value.weightKg);
+              }).toList();
+              
+              final minWeight = chronological.map((e) => e.weightKg).reduce((a, b) => a < b ? a : b);
+              final maxWeight = chronological.map((e) => e.weightKg).reduce((a, b) => a > b ? a : b);
+              
+              final chartMinY = (targetWeight != null && targetWeight < minWeight ? targetWeight : minWeight) - 1.0;
+              final chartMaxY = (targetWeight != null && targetWeight > maxWeight ? targetWeight : maxWeight) + 1.0;
+
+              chartWidget = SizedBox(
+                height: 150,
+                child: LineChart(
+                  LineChartData(
+                    minY: chartMinY,
+                    maxY: chartMaxY,
+                    gridData: FlGridData(
+                      show: true,
+                      drawVerticalLine: false,
+                      horizontalInterval: 1,
+                      getDrawingHorizontalLine: (value) {
+                        return FlLine(color: AkeliColors.outline.withValues(alpha: 0.1), strokeWidth: 1);
+                      },
+                    ),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 32,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              value.toInt().toString(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AkeliColors.onSurfaceVariant,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    lineTouchData: LineTouchData(
+                      touchTooltipData: LineTouchTooltipData(
+                        getTooltipColor: (touchedSpot) => AkeliColors.surfaceContainerHighest,
+                        getTooltipItems: (touchedSpots) {
+                          return touchedSpots.map((spot) {
+                            return LineTooltipItem(
+                              '${spot.y} kg',
+                              const TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
+                    borderData: FlBorderData(show: false),
+                    extraLinesData: ExtraLinesData(
+                      horizontalLines: targetWeight != null && targetWeight > 0 ? [
+                        HorizontalLine(
+                          y: targetWeight,
+                          color: AkeliColors.tertiary,
+                          strokeWidth: 2,
+                          dashArray: [5, 5],
+                          label: HorizontalLineLabel(
+                            show: true,
+                            alignment: Alignment.topRight,
+                            padding: const EdgeInsets.only(right: 5, bottom: 5),
+                            style: const TextStyle(color: AkeliColors.tertiary, fontWeight: FontWeight.bold, fontSize: 10),
+                            labelResolver: (line) => 'Cible: ${line.y}kg',
+                          ),
+                        )
+                      ] : [],
+                    ),
+                    lineBarsData: [
+                      LineChartBarData(
+                        spots: spots,
+                        isCurved: true,
+                        color: AkeliColors.primary,
+                        barWidth: 3,
+                        isStrokeCapRound: true,
+                        dotData: const FlDotData(show: true),
+                        belowBarData: BarAreaData(
+                          show: true,
+                          color: AkeliColors.primary.withValues(alpha: 0.1),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  latest.weightKg.toStringAsFixed(1),
-                  style: const TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: AkeliColors.primary,
-                    letterSpacing: -1,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          currentWeight.toStringAsFixed(1),
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w900,
+                            color: AkeliColors.primary,
+                            letterSpacing: -1,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Text(
+                          'kg',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AkeliColors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (targetWeight != null && targetWeight > 0)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AkeliColors.primaryContainer.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '$progressPct% de l\'objectif',
+                          style: const TextStyle(
+                            color: AkeliColors.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
-                const SizedBox(width: 4),
-                const Text(
-                  'kg',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AkeliColors.onSurfaceVariant,
-                  ),
-                ),
+                const SizedBox(height: 16),
+                chartWidget,
               ],
             );
           },
@@ -563,12 +789,12 @@ class _WeightSection extends ConsumerWidget {
               backgroundColor: AkeliColors.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: () async {
+            onPressed: () {
               final kg = double.tryParse(ctrl.text.replaceAll(',', '.'));
               if (kg != null) {
                 appLogger.userAction('Weight dialog saved', screen: 'NutritionPage', metadata: {'weightKg': kg});
-                await ref.read(weightLogNotifierProvider.notifier).addEntry(kg);
-                if (ctx.mounted) Navigator.pop(ctx);
+                Navigator.pop(ctx);
+                ref.read(weightLogNotifierProvider.notifier).addEntry(kg);
               }
             },
             child: const Text('Enregistrer'),
@@ -589,56 +815,78 @@ class _WeeklyCaloriesChart extends StatelessWidget {
   Widget build(BuildContext context) {
     appLogger.d('WeeklyCaloriesChart build()');
     final bars = days.asMap().entries.map((entry) {
+      final protCal = entry.value.proteinG * 4;
+      final carbCal = entry.value.carbsG * 4;
+      final fatCal = entry.value.fatG * 9;
+      
       return BarChartGroupData(
         x: entry.key,
         barRods: [
           BarChartRodData(
-            toY: entry.value.calories,
-            color: AkeliColors.primaryContainer,
+            toY: protCal + carbCal + fatCal,
+            color: Colors.transparent,
             width: 16,
             borderRadius: BorderRadius.circular(4),
+            rodStackItems: [
+              BarChartRodStackItem(0, protCal, AkeliColors.primary),
+              BarChartRodStackItem(protCal, protCal + carbCal, AkeliColors.tertiary),
+              BarChartRodStackItem(protCal + carbCal, protCal + carbCal + fatCal, AkeliColors.warning),
+            ],
           ),
         ],
       );
     }).toList();
 
-    return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          barGroups: bars,
-          gridData: const FlGridData(show: false),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  const daysStr = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-                  final idx = value.toInt();
-                  if (idx < 0 || idx >= daysStr.length) {
-                    return const SizedBox.shrink();
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      daysStr[idx],
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AkeliColors.onSurfaceVariant,
-                      ),
-                    ),
-                  );
-                },
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: BarChart(
+            BarChartData(
+              barGroups: bars,
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      const daysStr = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+                      final idx = value.toInt();
+                      if (idx < 0 || idx >= daysStr.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          daysStr[idx],
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurfaceVariant,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 24),
+        const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _Legend(color: AkeliColors.primary, label: 'Protéines'),
+            _Legend(color: AkeliColors.tertiary, label: 'Glucides'),
+            _Legend(color: AkeliColors.warning, label: 'Lipides'),
+          ],
+        ),
+      ],
     );
   }
 }

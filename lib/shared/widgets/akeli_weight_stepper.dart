@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
+
+final _logger = appLogger;
 
 class AkeliWeightStepper extends StatelessWidget {
   final double weight;
@@ -31,7 +34,12 @@ class AkeliWeightStepper extends StatelessWidget {
         children: [
           _StepperButton(
             icon: Icons.remove,
-            onPressed: () => onChanged(weight - 0.1),
+            onPressed: () {
+              final newWeight = double.parse((weight - 0.1).toStringAsFixed(1));
+              _logger.userAction('Weight stepper −', screen: 'AkeliWeightStepper',
+                  metadata: {'from': weight, 'to': newWeight});
+              onChanged(newWeight);
+            },
             isActive: false,
           ),
           const SizedBox(width: AkeliSpacing.xl),
@@ -60,7 +68,12 @@ class AkeliWeightStepper extends StatelessWidget {
           const SizedBox(width: AkeliSpacing.xl),
           _StepperButton(
             icon: Icons.add,
-            onPressed: () => onChanged(weight + 0.1),
+            onPressed: () {
+              final newWeight = double.parse((weight + 0.1).toStringAsFixed(1));
+              _logger.userAction('Weight stepper +', screen: 'AkeliWeightStepper',
+                  metadata: {'from': weight, 'to': newWeight});
+              onChanged(newWeight);
+            },
             isActive: true,
           ),
         ],

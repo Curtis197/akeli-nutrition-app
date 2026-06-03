@@ -38,7 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_recipe_private ON recipe(owner_user_id)
 -- is_validated = true avant d'être éligible à recommend_combinations().
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE recipe_combination (
+CREATE TABLE IF NOT EXISTS recipe_combination (
   id               uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   base_recipe_id   uuid NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
   paired_recipe_id uuid NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
@@ -53,40 +53,40 @@ CREATE TABLE recipe_combination (
   )
 );
 
-CREATE INDEX idx_recipe_combination_base   ON recipe_combination(base_recipe_id);
-CREATE INDEX idx_recipe_combination_paired ON recipe_combination(paired_recipe_id);
-CREATE INDEX idx_recipe_combination_source ON recipe_combination(source, is_validated);
+CREATE INDEX IF NOT EXISTS idx_recipe_combination_base   ON recipe_combination(base_recipe_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_combination_paired ON recipe_combination(paired_recipe_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_combination_source ON recipe_combination(source, is_validated);
 
 -- Partial unique indexes to handle NULL owner_user_id correctly
-CREATE UNIQUE INDEX unique_combination_system
+CREATE UNIQUE INDEX IF NOT EXISTS unique_combination_system
   ON recipe_combination (base_recipe_id, paired_recipe_id, source)
   WHERE source IN ('creator', 'cross_creator');
 
-CREATE UNIQUE INDEX unique_combination_user
+CREATE UNIQUE INDEX IF NOT EXISTS unique_combination_user
   ON recipe_combination (base_recipe_id, paired_recipe_id, owner_user_id)
   WHERE source = 'user';
 
 ALTER TABLE recipe_combination ENABLE ROW LEVEL SECURITY;
 
--- Les combinaisons validées creator/cross_creator sont publiques
+DROP POLICY IF EXISTS "public reads validated combinations" ON recipe_combination;
 CREATE POLICY "public reads validated combinations" ON recipe_combination
   FOR SELECT USING (
     is_validated = true AND source IN ('creator', 'cross_creator')
   );
 
--- Les combinaisons utilisateur ne sont lisibles que par leur propriétaire
+DROP POLICY IF EXISTS "owner reads own combinations" ON recipe_combination;
 CREATE POLICY "owner reads own combinations" ON recipe_combination
   FOR SELECT USING (
     source = 'user' AND owner_user_id = auth.uid()
   );
 
--- Un utilisateur peut créer ses propres combinaisons
+DROP POLICY IF EXISTS "owner inserts own combinations" ON recipe_combination;
 CREATE POLICY "owner inserts own combinations" ON recipe_combination
   FOR INSERT WITH CHECK (
     source = 'user' AND owner_user_id = auth.uid()
   );
 
--- Un utilisateur peut supprimer ses propres combinaisons
+DROP POLICY IF EXISTS "owner deletes own combinations" ON recipe_combination;
 CREATE POLICY "owner deletes own combinations" ON recipe_combination
   FOR DELETE USING (
     source = 'user' AND owner_user_id = auth.uid()
@@ -99,16 +99,17 @@ CREATE POLICY "owner deletes own combinations" ON recipe_combination
 -- Jamais lu directement par l'app — uniquement par recommend_combinations().
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE combination_vector (
+CREATE TABLE IF NOT EXISTS combination_vector (
   combination_id uuid PRIMARY KEY REFERENCES recipe_combination(id) ON DELETE CASCADE,
   vector         vector(50) NOT NULL,
   last_computed  timestamptz DEFAULT now()
 );
 
-CREATE INDEX idx_combination_vector_hnsw ON combination_vector
+CREATE INDEX IF NOT EXISTS idx_combination_vector_hnsw ON combination_vector
   USING hnsw (vector vector_cosine_ops) WITH (m = 16, ef_construction = 64);
 
 ALTER TABLE combination_vector ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "reads combination_vector" ON combination_vector;
 CREATE POLICY "reads combination_vector" ON combination_vector
   FOR SELECT USING (
     EXISTS (
@@ -131,7 +132,7 @@ CREATE POLICY "reads combination_vector" ON combination_vector
 -- consumption_rate_7d : consommations des 7 derniers jours (trending).
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE recipe_performance_metrics (
+CREATE TABLE IF NOT EXISTS recipe_performance_metrics (
   recipe_id           uuid PRIMARY KEY REFERENCES recipe(id) ON DELETE CASCADE,
   drop_off_rate       numeric(5,4) NOT NULL DEFAULT 0 CHECK (drop_off_rate BETWEEN 0 AND 1),
   adherence_rate      numeric(5,4) NOT NULL DEFAULT 0 CHECK (adherence_rate BETWEEN 0 AND 1),
@@ -140,6 +141,7 @@ CREATE TABLE recipe_performance_metrics (
 );
 
 ALTER TABLE recipe_performance_metrics ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "public reads recipe_performance_metrics" ON recipe_performance_metrics;
 CREATE POLICY "public reads recipe_performance_metrics" ON recipe_performance_metrics
   FOR SELECT USING (true);
 
@@ -150,7 +152,7 @@ CREATE POLICY "public reads recipe_performance_metrics" ON recipe_performance_me
 -- seen_at / interacted_at permettent l'analyse des comportements de scroll.
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE user_feed (
+CREATE TABLE IF NOT EXISTS user_feed (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id       uuid NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE,
   recipe_id     uuid NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
@@ -162,18 +164,20 @@ CREATE TABLE user_feed (
   interacted_at timestamptz
 );
 
-CREATE INDEX idx_user_feed_user   ON user_feed(user_id, position);
-CREATE INDEX idx_user_feed_recipe ON user_feed(recipe_id);
-CREATE INDEX idx_user_feed_gen    ON user_feed(user_id, generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_feed_user   ON user_feed(user_id, position);
+CREATE INDEX IF NOT EXISTS idx_user_feed_recipe ON user_feed(recipe_id);
+CREATE INDEX IF NOT EXISTS idx_user_feed_gen    ON user_feed(user_id, generated_at DESC);
 
 ALTER TABLE user_feed ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "owner reads user_feed" ON user_feed;
 CREATE POLICY "owner reads user_feed" ON user_feed
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "owner deletes user_feed" ON user_feed;
 CREATE POLICY "owner deletes user_feed" ON user_feed
   FOR DELETE USING (auth.uid() = user_id);
 
--- Service role (Edge Function get-feed) insère les lignes du feed
+DROP POLICY IF EXISTS "service inserts user_feed" ON user_feed;
 CREATE POLICY "service inserts user_feed" ON user_feed
   FOR INSERT WITH CHECK (auth.role() = 'service_role');
 

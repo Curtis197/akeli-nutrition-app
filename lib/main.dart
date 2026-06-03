@@ -1,20 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'firebase_options.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme.dart';
 import 'core/logger.dart';
+import 'core/notification_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  appLogger.i('🚀 Akeli app starting | initializing Supabase');
+  appLogger.i('🚀 Akeli app starting | initializing Supabase & Firebase');
+
+  await initializeDateFormatting('fr_FR', null);
+
+  RemoteMessage? initialMessage;
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    appLogger.i('✅ Firebase initialized');
+
+    // Background handler must be registered before runApp
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // Terminated state — capture before runApp; deliver after first frame
+    initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      appLogger.i('FCM terminated-state message | type: ${initialMessage.data['type']}');
+    }
+
+    // Foreground: show in-app SnackBar
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      appLogger.i('FCM Foreground Message received: ${message.notification?.title}');
+
+      final title = message.notification?.title ?? 'Nouvelle notification';
+      final body = message.notification?.body ?? '';
+
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              if (body.isNotEmpty) Text(body),
+            ],
+          ),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Voir',
+            onPressed: () {
+              rootScaffoldMessengerKey.currentContext?.push(AkeliRoutes.notifications);
+            },
+          ),
+        ),
+      );
+    });
+  } catch (e) {
+    appLogger.e('⚠️ Firebase init failed (Please run flutterfire configure): $e');
+  }
 
   await initializeSupabase();
   appLogger.i('✅ Supabase initialized | launching ProviderScope');
 
+  // Single ProviderContainer shared with the widget tree so the router instance
+  // used by notification tap handlers is identical to the one used by GoRouter.
+  final container = ProviderContainer();
+  final router = container.read(routerProvider);
+
+  // Terminated state: deliver tap after first frame so the navigator is mounted
+  if (initialMessage != null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      handleNotificationTap(initialMessage!, router);
+    });
+  }
+
+  // Background state: app resumed by tapping a notification
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    appLogger.i('FCM background tap | type: ${message.data['type']}');
+    handleNotificationTap(message, router);
+  });
+
   runApp(
-    const ProviderScope(
-      child: AkeliApp(),
+    UncontrolledProviderScope(
+      container: container,
+      child: const AkeliApp(),
     ),
   );
 }
@@ -33,6 +109,7 @@ class AkeliApp extends ConsumerWidget {
       darkTheme: buildDarkTheme(),
       themeMode: ThemeMode.system,
       routerConfig: router,
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
     );
   }
 }
