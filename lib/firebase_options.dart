@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB0TkT_y-4K1YtQvzoGheABZL__0HcEoNo',
-    appId: '1:1080340252277:android:d4effd1a502828c1ea5a3c',
+    appId: '1:1080340252277:android:a3619f287ee0f70eea5a3c',
     messagingSenderId: '1080340252277',
     projectId: 'afro-health-oyks8y',
     storageBucket: 'afro-health-oyks8y.firebasestorage.app',
