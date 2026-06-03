@@ -71,6 +71,5 @@ flutter:
     - assets/icons/
 
 dependency_overrides:
-  objective_c:
-    path: .agent/mock_objective_c
+  path_provider_foundation: '>=2.3.2 <2.6.0'
 
