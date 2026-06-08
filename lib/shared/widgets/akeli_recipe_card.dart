@@ -19,6 +19,7 @@ class AkeliRecipeCard extends StatelessWidget {
   final String? imageUrl;
   final bool hasImage;
   final bool isMinimalist;
+  final bool horizontal;
   final VoidCallback? onTap;
 
   const AkeliRecipeCard({
@@ -35,6 +36,7 @@ class AkeliRecipeCard extends StatelessWidget {
     this.tags = const [],
     this.hasImage = true,
     this.isMinimalist = false,
+    this.horizontal = false,
     this.onTap,
   });
 
@@ -55,7 +57,11 @@ class AkeliRecipeCard extends StatelessWidget {
             ),
           ],
         ),
-        child: hasImage ? _ImageVariant(card: this) : _TextVariant(card: this),
+        child: horizontal
+            ? _HorizontalVariant(card: this)
+            : hasImage
+                ? _ImageVariant(card: this)
+                : _TextVariant(card: this),
       ),
     );
   }
@@ -162,6 +168,86 @@ class _ImageVariant extends StatelessWidget {
   }
 }
 
+
+// ---------------------------------------------------------------------------
+// Horizontal variant (single-column feed)
+// ---------------------------------------------------------------------------
+
+class _HorizontalVariant extends StatelessWidget {
+  final AkeliRecipeCard card;
+
+  const _HorizontalVariant({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 120,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Image
+          ClipRRect(
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(AkeliRadius.xl),
+            ),
+            child: SizedBox(
+              width: 120,
+              child: card.imageUrl != null
+                  ? Image.network(card.imageUrl!, fit: BoxFit.cover)
+                  : Container(
+                      color: AkeliColors.surfaceContainerHigh,
+                      child: Center(
+                        child: Text(
+                          card.emoji ?? '🥘',
+                          style: const TextStyle(fontSize: 36),
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+          // Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AkeliSpacing.md,
+                vertical: AkeliSpacing.sm,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (card.region != null)
+                    Text(
+                      card.region!,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: AkeliColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  const SizedBox(height: 4),
+                  Text(
+                    card.title,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AkeliColors.onSurface,
+                          fontSize: 14,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  _StatsRow(card: card),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Text-only variant

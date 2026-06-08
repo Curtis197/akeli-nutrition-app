@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,19 +8,43 @@ import '../../core/theme.dart';
 import '../../core/supabase_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
+import '../../providers/recipe_provider.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/section_header.dart';
 
-class GroupDetailPage extends ConsumerWidget {
+class GroupDetailPage extends ConsumerStatefulWidget {
   final String groupId;
   const GroupDetailPage({super.key, required this.groupId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    appLogger.provider('GroupDetailPage build() | groupId: $groupId');
-    final membersAsync = ref.watch(groupMembersProvider(groupId));
-    final groupAsync = ref.watch(groupDetailsProvider(groupId));
+  ConsumerState<GroupDetailPage> createState() => _GroupDetailPageState();
+}
+
+class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
+    with SingleTickerProviderStateMixin {
+  final _logger = appLogger;
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.provider('GroupDetailPage initState() | groupId: ${widget.groupId}');
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _logger.provider('GroupDetailPage disposed');
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _logger.provider('GroupDetailPage build() | groupId: ${widget.groupId}');
+    final membersAsync = ref.watch(groupMembersProvider(widget.groupId));
+    final groupAsync = ref.watch(groupDetailsProvider(widget.groupId));
     final currentUserId = ref.watch(currentUserProvider)?.id;
 
     bool isAdmin = false;
@@ -39,165 +64,141 @@ class GroupDetailPage extends ConsumerWidget {
             if (context.canPop()) {
               context.pop();
             } else {
-              context.go(AkeliRoutes.groupChatPath(groupId));
+              context.go(AkeliRoutes.groupChatPath(widget.groupId));
             }
           },
         ),
         title: const Text('Détail du groupe'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            groupAsync.when(
-              data: (group) {
-                final name = group?['name'] as String? ?? 'Groupe inconnu';
-                final description = group?['description'] as String?;
-                final coverUrl = group?['cover_url'] as String?;
+      body: Column(
+        children: [
+          // ── Group cover header ───────────────────────────────────────────
+          groupAsync.when(
+            data: (group) {
+              final name = group?['name'] as String? ?? 'Groupe inconnu';
+              final description = group?['description'] as String?;
+              final coverUrl = group?['cover_url'] as String?;
 
-                return Container(
-                  height: 200,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AkeliColors.primary.withValues(alpha: 0.1),
-                    image: coverUrl != null
-                        ? DecorationImage(
-                            image: NetworkImage(coverUrl),
-                            fit: BoxFit.cover,
-                            colorFilter: ColorFilter.mode(
-                              Colors.black.withValues(alpha: 0.4),
-                              BlendMode.darken,
-                            ),
-                          )
-                        : null,
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (coverUrl == null)
-                          const Text('👥', style: TextStyle(fontSize: 48)),
-                        const SizedBox(height: 8),
-                        Text(
+              return Container(
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: AkeliColors.primary.withValues(alpha: 0.1),
+                  image: coverUrl != null
+                      ? DecorationImage(
+                          image: NetworkImage(coverUrl),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            Colors.black.withValues(alpha: 0.4),
+                            BlendMode.darken,
+                          ),
+                        )
+                      : null,
+                ),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (coverUrl == null)
+                        const Text('👥', style: TextStyle(fontSize: 40)),
+                      const SizedBox(height: 6),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
                           name,
-                          style: Theme.of(context)
-                              .textTheme
-                              .displaySmall
-                              ?.copyWith(
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: coverUrl != null ? Colors.white : null,
                               ),
                           textAlign: TextAlign.center,
                         ),
-                        if (description != null && description.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: Text(
-                              description,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: coverUrl != null ? Colors.white70 : AkeliColors.textSecondary,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      ),
+                      if (description != null && description.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            description,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: coverUrl != null
+                                      ? Colors.white70
+                                      : AkeliColors.textSecondary,
+                                ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
+                        ),
                       ],
-                    ),
+                    ],
                   ),
-                );
-              },
-              loading: () => Container(
-                height: 200,
-                color: AkeliColors.primary.withValues(alpha: 0.1),
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-              error: (_, __) => Container(
-                height: 200,
-                color: AkeliColors.error.withValues(alpha: 0.1),
-                child: const Center(child: Text('Erreur de chargement')),
-              ),
+                ),
+              );
+            },
+            loading: () => Container(
+              height: 180,
+              color: AkeliColors.primary.withValues(alpha: 0.1),
+              child: const Center(child: CircularProgressIndicator()),
             ),
-            Padding(
-              padding: const EdgeInsets.all(AkeliSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: AkeliSpacing.lg),
-                  AkeliSectionHeader(
-                    title: 'Membres',
-                    trailingLabel: isAdmin ? 'Inviter' : null,
-                    onTrailingTap: isAdmin
-                        ? () {
-                            appLogger.userAction('Invite tapped',
-                                screen: 'GroupDetailPage');
-                            _showInviteSheet(context, ref, groupId);
-                          }
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  membersAsync.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => Center(child: Text('Erreur: $e')),
-                    data: (members) {
-                      if (members.isEmpty) {
-                        return const EmptyState(
-                          icon: Icons.people_outline_rounded,
-                          title: 'Aucun membre',
-                          subtitle: 'Les membres apparaîtront ici.',
-                        );
-                      }
-                      return Column(
-                        children: members.map((member) {
-                          final isMe = member.userId == currentUserId;
-                          return _MemberRow(
-                            member: member,
-                            isMe: isMe,
-                            onDmTap: () => _onDmTap(context, ref, member),
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AkeliSpacing.lg),
-                  const AkeliSectionHeader(title: 'Recettes partagées'),
-                  const SizedBox(height: 12),
-                  const EmptyState(
-                    icon: Icons.restaurant_menu_rounded,
-                    title: 'Aucune recette partagée',
-                    subtitle:
-                        'Les recettes partagées par le groupe apparaîtront ici.',
-                  ),
-                  const SizedBox(height: 80),
-                ],
-              ),
+            error: (_, __) => Container(
+              height: 180,
+              color: AkeliColors.error.withValues(alpha: 0.1),
+              child: const Center(child: Text('Erreur de chargement')),
             ),
-          ],
-        ),
+          ),
+
+          // ── Tab bar ──────────────────────────────────────────────────────
+          ColoredBox(
+            color: AkeliColors.background,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: AkeliColors.primary,
+              unselectedLabelColor: AkeliColors.textSecondary,
+              indicatorColor: AkeliColors.primary,
+              indicatorWeight: 2.5,
+              tabs: const [
+                Tab(text: 'Membres'),
+                Tab(text: 'Photos'),
+                Tab(text: 'Recettes'),
+              ],
+            ),
+          ),
+
+          // ── Tab content ──────────────────────────────────────────────────
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _MembersTab(
+                  groupId: widget.groupId,
+                  currentUserId: currentUserId,
+                  isAdmin: isAdmin,
+                  membersAsync: membersAsync,
+                  onDmTap: (member) => _onDmTap(context, member),
+                ),
+                _ImagesTab(groupId: widget.groupId),
+                _RecipesTab(groupId: widget.groupId),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Future<void> _onDmTap(
-      BuildContext context, WidgetRef ref, GroupMember member) async {
-    appLogger.userAction('DM button tapped',
+  Future<void> _onDmTap(BuildContext context, GroupMember member) async {
+    _logger.userAction('DM button tapped',
         screen: 'GroupDetailPage',
         metadata: {'targetUserId': member.userId});
     try {
-      // 1. Already have a conversation?
       final existingId = await checkExistingDm(ref, member.userId);
       if (existingId != null) {
         if (context.mounted) {
-          context.push(AkeliRoutes.dmChatPath(existingId),
-              extra: member.displayName);
+          context.push(AkeliRoutes.dmChatPath(existingId), extra: member.displayName);
         }
         return;
       }
 
-      // 2. Already sent a request?
       final pending = await checkPendingRequest(ref, member.userId);
       if (pending) {
         if (context.mounted) {
@@ -208,7 +209,6 @@ class GroupDetailPage extends ConsumerWidget {
         return;
       }
 
-      // 3. Send new request
       await sendDmRequest(ref, member.userId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -216,17 +216,333 @@ class GroupDetailPage extends ConsumerWidget {
         );
       }
     } catch (e, st) {
-      appLogger.db('ERROR | _onDmTap | ${e.toString()}',
-          error: e, stackTrace: st);
+      appLogger.db('ERROR | _onDmTap | ${e.toString()}', error: e, stackTrace: st);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Une erreur est survenue. Veuillez réessayer.')),
+          const SnackBar(content: Text('Une erreur est survenue. Veuillez réessayer.')),
         );
       }
     }
   }
 }
+
+// ── Tab 0 — Members ───────────────────────────────────────────────────────────
+
+class _MembersTab extends ConsumerWidget {
+  final String groupId;
+  final String? currentUserId;
+  final bool isAdmin;
+  final AsyncValue<List<GroupMember>> membersAsync;
+  final void Function(GroupMember) onDmTap;
+
+  const _MembersTab({
+    required this.groupId,
+    required this.currentUserId,
+    required this.isAdmin,
+    required this.membersAsync,
+    required this.onDmTap,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListView(
+      padding: const EdgeInsets.all(AkeliSpacing.md),
+      children: [
+        AkeliSectionHeader(
+          title: 'Membres',
+          trailingLabel: isAdmin ? 'Inviter' : null,
+          onTrailingTap: isAdmin
+              ? () {
+                  appLogger.userAction('Invite tapped', screen: 'GroupDetailPage');
+                  _showInviteSheet(context, ref, groupId);
+                }
+              : null,
+        ),
+        const SizedBox(height: 12),
+        membersAsync.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Erreur: $e')),
+          data: (members) {
+            if (members.isEmpty) {
+              return const EmptyState(
+                icon: Icons.people_outline_rounded,
+                title: 'Aucun membre',
+                subtitle: 'Les membres apparaîtront ici.',
+              );
+            }
+            return Column(
+              children: members.map((member) {
+                final isMe = member.userId == currentUserId;
+                return _MemberRow(
+                  member: member,
+                  isMe: isMe,
+                  onDmTap: () => onDmTap(member),
+                  onProfileTap: () {
+                    appLogger.userAction('Profile tapped',
+                        screen: 'GroupDetailPage',
+                        metadata: {'targetUserId': member.userId});
+                    context.push(AkeliRoutes.userProfilePath(member.userId));
+                  },
+                );
+              }).toList(),
+            );
+          },
+        ),
+        const SizedBox(height: 80),
+      ],
+    );
+  }
+}
+
+// ── Tab 1 — Photos ───────────────────────────────────────────────────────────
+
+class _ImagesTab extends ConsumerWidget {
+  final String groupId;
+  const _ImagesTab({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    appLogger.provider('_ImagesTab build() | groupId: $groupId');
+    final imagesAsync = ref.watch(groupSharedImagesProvider(groupId));
+
+    return imagesAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) {
+        appLogger.provider('_ImagesTab → error | $e');
+        return const Center(child: Text('Erreur de chargement'));
+      },
+      data: (urls) {
+        appLogger.provider('_ImagesTab → data | count: ${urls.length}');
+        if (urls.isEmpty) {
+          return const EmptyState(
+            icon: Icons.photo_library_outlined,
+            title: 'Aucune photo partagée',
+            subtitle: 'Les photos envoyées dans le chat apparaîtront ici.',
+          );
+        }
+        return GridView.builder(
+          padding: const EdgeInsets.all(AkeliSpacing.sm),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 3,
+            mainAxisSpacing: 3,
+          ),
+          itemCount: urls.length,
+          itemBuilder: (context, i) => _ImageTile(url: urls[i]),
+        );
+      },
+    );
+  }
+}
+
+class _ImageTile extends StatelessWidget {
+  final String url;
+  const _ImageTile({required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        appLogger.userAction('Photo tapped', screen: 'GroupDetailPage');
+        _openFullscreen(context);
+      },
+      child: CachedNetworkImage(
+        imageUrl: url,
+        fit: BoxFit.cover,
+        placeholder: (_, __) => Container(color: AkeliColors.surfaceContainer),
+        errorWidget: (_, __, ___) => Container(
+          color: AkeliColors.surfaceContainer,
+          child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
+        ),
+      ),
+    );
+  }
+
+  void _openFullscreen(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                child: CachedNetworkImage(imageUrl: url),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              right: 12,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Tab 2 — Recipes ──────────────────────────────────────────────────────────
+
+class _RecipesTab extends ConsumerWidget {
+  final String groupId;
+  const _RecipesTab({required this.groupId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    appLogger.provider('_RecipesTab build() | groupId: $groupId');
+    final recipeIdsAsync = ref.watch(groupSharedRecipesProvider(groupId));
+
+    return recipeIdsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) {
+        appLogger.provider('_RecipesTab → error | $e');
+        return const Center(child: Text('Erreur de chargement'));
+      },
+      data: (ids) {
+        appLogger.provider('_RecipesTab → data | count: ${ids.length}');
+        if (ids.isEmpty) {
+          return const EmptyState(
+            icon: Icons.restaurant_menu_rounded,
+            title: 'Aucune recette partagée',
+            subtitle: 'Les recettes partagées dans le chat apparaîtront ici.',
+          );
+        }
+        return ListView.separated(
+          padding: const EdgeInsets.all(AkeliSpacing.md),
+          itemCount: ids.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          itemBuilder: (context, i) => _SharedRecipeCard(recipeId: ids[i]),
+        );
+      },
+    );
+  }
+}
+
+class _SharedRecipeCard extends ConsumerWidget {
+  final String recipeId;
+  const _SharedRecipeCard({required this.recipeId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recipeAsync = ref.watch(recipeDetailProvider(recipeId));
+
+    return recipeAsync.when(
+      loading: () => Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainer,
+          borderRadius: BorderRadius.circular(AkeliRadius.md),
+        ),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (recipe) {
+        if (recipe == null) return const SizedBox.shrink();
+
+        return GestureDetector(
+          onTap: () {
+            appLogger.userAction('Shared recipe tapped',
+                screen: 'GroupDetailPage',
+                metadata: {'recipeId': recipeId});
+            context.push(AkeliRoutes.recipeDetailPath(recipeId));
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: AkeliColors.surface,
+              borderRadius: BorderRadius.circular(AkeliRadius.md),
+              boxShadow: const [AkeliShadows.sm],
+            ),
+            clipBehavior: Clip.hardEdge,
+            child: Row(
+              children: [
+                if (recipe.thumbnailUrl != null)
+                  CachedNetworkImage(
+                    imageUrl: recipe.thumbnailUrl!,
+                    width: 90,
+                    height: 80,
+                    fit: BoxFit.cover,
+                    errorWidget: (_, __, ___) => Container(
+                      width: 90,
+                      height: 80,
+                      color: AkeliColors.surfaceContainer,
+                      child: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                    ),
+                  )
+                else
+                  Container(
+                    width: 90,
+                    height: 80,
+                    color: AkeliColors.surfaceContainer,
+                    child: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          recipe.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            if (recipe.calories != null) ...[
+                              const Icon(Icons.local_fire_department_rounded,
+                                  size: 13, color: AkeliColors.secondary),
+                              const SizedBox(width: 3),
+                              Text(
+                                '${recipe.calories!.round()} kcal',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelSmall
+                                    ?.copyWith(color: AkeliColors.textSecondary),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            const Icon(Icons.timer_outlined,
+                                size: 13, color: AkeliColors.textSecondary),
+                            const SizedBox(width: 3),
+                            Text(
+                              '${recipe.totalTimeMin} min',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelSmall
+                                  ?.copyWith(color: AkeliColors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: Icon(Icons.chevron_right_rounded,
+                      color: AkeliColors.primary, size: 20),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ── Invite sheet ─────────────────────────────────────────────────────────────
 
 void _showInviteSheet(BuildContext context, WidgetRef ref, String groupId) {
   showModalBottomSheet(
@@ -278,8 +594,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
         );
       }
     } catch (e, st) {
-      appLogger.db('ERROR | invoke invite-to-group | $e',
-          error: e, stackTrace: st);
+      appLogger.db('ERROR | invoke invite-to-group | $e', error: e, stackTrace: st);
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -293,8 +608,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
   Widget build(BuildContext context) {
     final dmsAsync = ref.watch(myPrivateConversationsProvider);
     final membersAsync = ref.watch(groupMembersProvider(widget.groupId));
-    final pendingInvitesAsync =
-        ref.watch(pendingGroupInvitesProvider(widget.groupId));
+    final pendingInvitesAsync = ref.watch(pendingGroupInvitesProvider(widget.groupId));
 
     return Container(
       padding: const EdgeInsets.all(AkeliSpacing.md),
@@ -320,14 +634,14 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
               data: (dms) {
                 final members = membersAsync.valueOrNull ?? [];
                 final memberIds = members.map((m) => m.userId).toSet();
-
                 final pendingInvites = pendingInvitesAsync.valueOrNull ?? [];
                 final pendingIds = pendingInvites.toSet();
 
-                final eligibleDms = dms.where((dm) {
-                  return !memberIds.contains(dm.otherUserId) &&
-                      !pendingIds.contains(dm.otherUserId);
-                }).toList();
+                final eligibleDms = dms
+                    .where((dm) =>
+                        !memberIds.contains(dm.otherUserId) &&
+                        !pendingIds.contains(dm.otherUserId))
+                    .toList();
 
                 if (eligibleDms.isEmpty) {
                   return const EmptyState(
@@ -342,8 +656,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
                   itemCount: eligibleDms.length,
                   itemBuilder: (context, index) {
                     final dm = eligibleDms[index];
-                    final isSelected =
-                        _selectedUserIds.contains(dm.otherUserId);
+                    final isSelected = _selectedUserIds.contains(dm.otherUserId);
                     return CheckboxListTile(
                       value: isSelected,
                       onChanged: (val) {
@@ -370,14 +683,12 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
             ),
           ),
           FilledButton(
-            onPressed:
-                _selectedUserIds.isEmpty || _isSubmitting ? null : _submit,
+            onPressed: _selectedUserIds.isEmpty || _isSubmitting ? null : _submit,
             child: _isSubmitting
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white))
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : Text('Inviter (${_selectedUserIds.length})'),
           ),
         ],
@@ -386,54 +697,62 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
   }
 }
 
+// ── Member row ────────────────────────────────────────────────────────────────
+
 class _MemberRow extends StatelessWidget {
   final GroupMember member;
   final bool isMe;
   final VoidCallback onDmTap;
+  final VoidCallback onProfileTap;
 
   const _MemberRow({
     required this.member,
     required this.isMe,
     required this.onDmTap,
+    required this.onProfileTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AkeliSpacing.sm),
-      child: Row(
-        children: [
-          AkeliAvatar(
-            imageUrl: member.avatarUrl,
-            initials: member.displayName.isNotEmpty
-                ? member.displayName[0].toUpperCase()
-                : '?',
-            size: AvatarSize.md,
-          ),
-          const SizedBox(width: AkeliSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(member.displayName,
-                    style: Theme.of(context).textTheme.titleSmall),
-                Text(
-                  member.role == 'admin' ? 'Admin' : 'Membre',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: AkeliColors.onSurfaceVariant,
-                      ),
-                ),
-              ],
+    return InkWell(
+      onTap: onProfileTap,
+      borderRadius: BorderRadius.circular(AkeliRadius.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AkeliSpacing.sm),
+        child: Row(
+          children: [
+            AkeliAvatar(
+              imageUrl: member.avatarUrl,
+              initials: member.displayName.isNotEmpty
+                  ? member.displayName[0].toUpperCase()
+                  : '?',
+              size: AvatarSize.md,
             ),
-          ),
-          if (!isMe)
-            IconButton(
-              icon: const Icon(Icons.mail_outline_rounded),
-              color: AkeliColors.primary,
-              tooltip: 'Message privé',
-              onPressed: onDmTap,
+            const SizedBox(width: AkeliSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(member.displayName,
+                      style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    member.role == 'admin' ? 'Admin' : 'Membre',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AkeliColors.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
             ),
-        ],
+            if (!isMe)
+              IconButton(
+                icon: const Icon(Icons.mail_outline_rounded),
+                color: AkeliColors.primary,
+                tooltip: 'Message privé',
+                onPressed: onDmTap,
+              ),
+          ],
+        ),
       ),
     );
   }

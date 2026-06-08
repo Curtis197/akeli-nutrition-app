@@ -1169,3 +1169,76 @@ final pendingGroupInvitesProvider =
     rethrow;
   }
 });
+
+// ── Group shared images (message_type='image', content = URL) ────────────────
+
+final groupSharedImagesProvider =
+    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
+  final logger = appLogger;
+  logger.provider('groupSharedImagesProvider build() | groupId: $groupId');
+  ref.onDispose(
+      () => logger.provider('groupSharedImagesProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  logger.db('BEFORE | table: chat_message | op: SELECT images | groupId: $groupId');
+
+  try {
+    final rows = await client
+        .from('chat_message')
+        .select('content')
+        .eq('group_id', groupId)
+        .eq('message_type', 'image')
+        .order('sent_at', ascending: false) as List<dynamic>;
+
+    logger.db('AFTER | table: chat_message | rows: ${rows.length}');
+    if (rows.isEmpty) {
+      logger.rls('Zero rows | table: chat_message | images | groupId: $groupId | possible RLS block');
+    }
+    return rows.map((r) => r['content'] as String).toList();
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | table: chat_message | images | groupId: $groupId',
+          error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | table: chat_message | images | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
+
+// ── Group shared recipes (message_type='recipe_share', recipe_id) ─────────────
+
+final groupSharedRecipesProvider =
+    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
+  final logger = appLogger;
+  logger.provider('groupSharedRecipesProvider build() | groupId: $groupId');
+  ref.onDispose(
+      () => logger.provider('groupSharedRecipesProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  logger.db('BEFORE | table: chat_message | op: SELECT recipes | groupId: $groupId');
+
+  try {
+    final rows = await client
+        .from('chat_message')
+        .select('recipe_id')
+        .eq('group_id', groupId)
+        .eq('message_type', 'recipe_share')
+        .not('recipe_id', 'is', null)
+        .order('sent_at', ascending: false) as List<dynamic>;
+
+    logger.db('AFTER | table: chat_message | rows: ${rows.length}');
+    if (rows.isEmpty) {
+      logger.rls('Zero rows | table: chat_message | recipes | groupId: $groupId | possible RLS block');
+    }
+    return rows.map((r) => r['recipe_id'] as String).toList();
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | table: chat_message | recipes | groupId: $groupId',
+          error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | table: chat_message | recipes | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
