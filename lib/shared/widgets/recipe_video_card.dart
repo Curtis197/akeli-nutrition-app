@@ -41,19 +41,22 @@ class _RecipeVideoCardState extends State<RecipeVideoCard> {
         VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     try {
       await _videoController.initialize();
-      _chewieController = ChewieController(
-        videoPlayerController: _videoController,
-        autoPlay: false,
-        looping: false,
-        placeholder: widget.thumbnailUrl != null
-            ? CachedNetworkImage(
-                imageUrl: widget.thumbnailUrl!, fit: BoxFit.cover)
-            : null,
-      );
       if (mounted) {
+        _chewieController = ChewieController(
+          videoPlayerController: _videoController,
+          autoPlay: false,
+          looping: false,
+          placeholder: widget.thumbnailUrl != null
+              ? CachedNetworkImage(
+                  imageUrl: widget.thumbnailUrl!, fit: BoxFit.cover)
+              : null,
+        );
         _videoController.addListener(_onVideoEvent);
         setState(() => _initialized = true);
         _logger.provider('RecipeVideoCard → initialized');
+      } else {
+        // Widget disposed while initializing — clean up immediately
+        _videoController.dispose();
       }
     } catch (e, st) {
       _logger.provider('RecipeVideoCard → error | init failed | ${widget.videoUrl}',

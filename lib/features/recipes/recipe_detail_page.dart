@@ -489,7 +489,8 @@ class _RecipeContent extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        if (recipe.steps.isNotEmpty) const SizedBox(height: 12),
+                        if (recipe.steps.isNotEmpty)
                         OutlinedButton(
                           onPressed: () {
                             appLogger.userAction('Start Cooking tapped',
@@ -709,7 +710,7 @@ class _RecipeContent extends StatelessWidget {
                                 '/recipe/${recipe.id}/cook',
                                 extra: {
                                   'recipe': recipe,
-                                  'initialStepIndex': step.stepNumber - 1,
+                                  'initialStepIndex': recipe.steps.indexOf(step),
                                 },
                               );
                             },

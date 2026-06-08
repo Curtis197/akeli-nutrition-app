@@ -50,6 +50,12 @@ class _CookingModePageState extends State<CookingModePage> {
   @override
   void initState() {
     super.initState();
+    if (widget.recipe.steps.isEmpty) {
+      _currentStepIndex = 0;
+      _timerSeconds = 0;
+      _logger.provider('CookingModePage initState() | recipeId: ${widget.recipe.id} | no steps');
+      return;
+    }
     _currentStepIndex = widget.initialStepIndex
         .clamp(0, widget.recipe.steps.length - 1);
     _resetTimer();
@@ -73,6 +79,7 @@ class _CookingModePageState extends State<CookingModePage> {
       _logger.userAction('Timer started', screen: 'CookingModePage',
           metadata: {'step': _currentStepIndex + 1, 'totalSeconds': _timerSeconds});
       _timer = Timer.periodic(const Duration(seconds: 1), (t) {
+        if (!_timerRunning) { t.cancel(); return; }
         if (_timerSeconds <= 0) {
           t.cancel();
           HapticFeedback.mediumImpact();
@@ -114,6 +121,26 @@ class _CookingModePageState extends State<CookingModePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.recipe.steps.isEmpty) {
+      return Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => context.pop(),
+                ),
+              ),
+              const Expanded(
+                child: Center(child: Text('Aucune étape disponible')),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     final step = _currentStep;
     final totalSteps = widget.recipe.steps.length;
     final isLast = _currentStepIndex == totalSteps - 1;

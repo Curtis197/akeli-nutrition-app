@@ -35,6 +35,7 @@ final ingredientDetailProvider =
           'Permission denied | table: ingredient | ingredientId: $ingredientId',
           error: e,
           stackTrace: st);
+      return null;
     } else {
       logger.db(
           'ERROR | table: ingredient | code: ${e.code} | ${e.message}',
@@ -42,7 +43,6 @@ final ingredientDetailProvider =
           stackTrace: st);
       rethrow;
     }
-    rethrow;
   } catch (e, st) {
     logger.db('ERROR | table: ingredient | unexpected | $e', error: e, stackTrace: st);
     rethrow;

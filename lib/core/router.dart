@@ -177,6 +177,11 @@ final routerProvider = Provider<GoRouter>((ref) {
               final extra = state.extra as Map<String, dynamic>?;
               if (extra == null || extra['recipe'] == null) {
                 final recipeId = state.pathParameters['id']!;
+                appLogger.navigation(
+                  '/recipe/$recipeId/cook',
+                  '/recipe/$recipeId',
+                  reason: 'cook route missing extra — falling back to detail page',
+                );
                 return RecipeDetailPage(recipeId: recipeId, source: TrackingSource.feed);
               }
               appLogger.userAction(
