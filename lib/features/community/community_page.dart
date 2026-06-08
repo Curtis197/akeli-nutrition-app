@@ -40,14 +40,14 @@ final communityGroupsProvider =
       .map((m) => m['group_id'] as String)
       .toList();
 
-  logger.db('BEFORE | table: community_group | op: SELECT | inFilter count: ${groupIds.length}');
+  logger.db('BEFORE | table: v_community_group | op: SELECT | inFilter count: ${groupIds.length}');
   final groups = await client
-      .from('community_group')
+      .from('v_community_group')
       .select('*')
       .inFilter('id', groupIds)
       .order('updated_at', ascending: false) as List<dynamic>;
 
-  logger.db('AFTER | table: community_group | rows: ${groups.length}');
+  logger.db('AFTER | table: v_community_group | rows: ${groups.length}');
   return groups.cast<Map<String, dynamic>>();
 });
 
@@ -685,7 +685,7 @@ class _PrivesTab extends ConsumerWidget {
                 request: req,
                 onAccept: () async {
                   final convId = await acceptDmRequest(
-                      ref, req.requestId, req.requesterId);
+                      ref, req.requestId);
                   if (context.mounted) {
                     context.push(AkeliRoutes.dmChatPath(convId),
                         extra: req.requesterName);

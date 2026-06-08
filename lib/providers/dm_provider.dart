@@ -114,6 +114,8 @@ class ChatMessage {
   final String senderName;
   final String? senderAvatar;
   final String content;
+  final String messageType; // 'text' | 'image' | 'recipe_share'
+  final String? recipeId;
   final DateTime sentAt;
   final bool isMine;
 
@@ -124,6 +126,8 @@ class ChatMessage {
     required this.senderName,
     this.senderAvatar,
     required this.content,
+    required this.messageType,
+    this.recipeId,
     required this.sentAt,
     required this.isMine,
   });
@@ -141,6 +145,8 @@ class ChatMessage {
       senderName: profile?['first_name'] as String? ?? 'Utilisateur',
       senderAvatar: profile?['avatar_url'] as String?,
       content: json['content'] as String,
+      messageType: json['message_type'] as String? ?? 'text',
+      recipeId: json['recipe_id'] as String?,
       sentAt: DateTime.parse(json['sent_at'] as String),
       isMine: senderId == currentUserId,
     );
@@ -469,6 +475,44 @@ final resolveConversationIdProvider =
   }
 });
 
+/// Fetches a userId→displayName map for all participants in a conversation.
+final conversationParticipantNamesProvider =
+    FutureProvider.autoDispose.family<Map<String, String>, String>((ref, conversationId) async {
+  final logger = appLogger;
+  logger.provider('conversationParticipantNamesProvider build() | conversationId: $conversationId');
+  ref.onDispose(() => logger.provider('conversationParticipantNamesProvider disposed'));
+
+  final client = ref.watch(supabaseClientProvider);
+  logger.db('BEFORE | table: conversation_participant | op: SELECT names | conversationId: $conversationId');
+
+  try {
+    final rows = await client
+        .from('conversation_participant')
+        .select('user_id, user_profile:user_id(first_name)')
+        .eq('conversation_id', conversationId) as List<dynamic>;
+
+    logger.db('AFTER | table: conversation_participant | rows: ${rows.length}');
+
+    final map = <String, String>{};
+    for (final row in rows.cast<Map<String, dynamic>>()) {
+      final userId = row['user_id'] as String;
+      final profile = row['user_profile'] as Map<String, dynamic>?;
+      final name = profile?['first_name'] as String?;
+      if (name != null && name.isNotEmpty) {
+        map[userId] = name;
+      }
+    }
+    return map;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      logger.rls('Permission denied | conversationParticipantNamesProvider | conversationId: $conversationId', error: e, stackTrace: st);
+    } else {
+      logger.db('ERROR | conversationParticipantNamesProvider | code: ${e.code}', error: e, stackTrace: st);
+    }
+    return {};
+  }
+});
+
 /// Real-time stream of messages in a conversation, newest first.
 final chatMessagesProvider =
     StreamProvider.autoDispose.family<List<ChatMessage>, String>(
@@ -618,86 +662,59 @@ Future<void> sendDmRequest(WidgetRef ref, String recipientId) async {
   }
 }
 
-/// Accepts a DM request: updates status, creates conversation + participants.
+/// Accepts a DM request via the SECURITY DEFINER RPC, which handles
+/// participant insertion without RLS conflicts.
 /// Returns the new conversationId.
 Future<String> acceptDmRequest(
   WidgetRef ref,
   String requestId,
-  String requesterId,
 ) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
-  final userId = ref.read(currentUserProvider)!.id;
 
-  logger.db('BEFORE | acceptDmRequest | requestId: $requestId');
+  logger.db('BEFORE | rpc: respond_conversation_request | action: accepted | requestId: $requestId');
 
   try {
-    // 1. Mark request accepted
-    logger.db('BEFORE | table: conversation_request | op: UPDATE accepted | requestId: $requestId');
-    await client.from('conversation_request').update({
-      'status': 'accepted',
-      'responded_at': DateTime.now().toIso8601String(),
-    }).eq('id', requestId);
-    logger.db('AFTER | table: conversation_request | op: UPDATE accepted');
+    final result = await client.rpc('respond_conversation_request', params: {
+      'p_request_id': requestId,
+      'p_action': 'accepted',
+    }) as Map<String, dynamic>;
 
-    // 2. Create conversation
-    logger.db('BEFORE | table: conversation | op: INSERT | type: private');
-    final convResult = await client
-        .from('conversation')
-        .insert({'type': 'private', 'created_by': userId})
-        .select('id')
-        .single();
-    final conversationId = convResult['id'] as String;
-    logger.db('AFTER | table: conversation | conversationId: $conversationId');
-
-    // 3. Add both participants
-    logger.db('BEFORE | table: conversation_participant | op: INSERT | conversationId: $conversationId');
-    await client.from('conversation_participant').insert([
-      {'conversation_id': conversationId, 'user_id': userId},
-      {'conversation_id': conversationId, 'user_id': requesterId},
-    ]);
-    logger.db('AFTER | table: conversation_participant | inserted: 2');
+    final conversationId = result['conversation_id'] as String;
+    logger.db('AFTER | rpc: respond_conversation_request | conversationId: $conversationId');
 
     ref.invalidate(myPrivateConversationsProvider);
     ref.invalidate(pendingDmRequestsProvider);
 
-    logger.db('AFTER | acceptDmRequest | conversationId: $conversationId');
     return conversationId;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      logger.rls('Permission denied | acceptDmRequest | requestId: $requestId', error: e, stackTrace: st);
+      logger.rls('Permission denied | rpc: respond_conversation_request | requestId: $requestId', error: e, stackTrace: st);
     } else {
-      logger.db('ERROR | acceptDmRequest | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      logger.db('ERROR | rpc: respond_conversation_request | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
     }
     rethrow;
   }
 }
 
-/// Rejects a DM request.
+/// Rejects a DM request via the SECURITY DEFINER RPC.
 Future<void> rejectDmRequest(WidgetRef ref, String requestId) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
 
-  logger.db(
-      'BEFORE | table: conversation_request | op: UPDATE rejected | requestId: $requestId');
+  logger.db('BEFORE | rpc: respond_conversation_request | action: rejected | requestId: $requestId');
+
   try {
-    await client.from('conversation_request').update({
-      'status': 'rejected',
-      'responded_at': DateTime.now().toIso8601String(),
-    }).eq('id', requestId);
-    logger.db(
-        'AFTER | table: conversation_request | op: UPDATE rejected');
+    await client.rpc('respond_conversation_request', params: {
+      'p_request_id': requestId,
+      'p_action': 'rejected',
+    });
+    logger.db('AFTER | rpc: respond_conversation_request | rejected');
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
-      logger.rls(
-          'Permission denied | table: conversation_request | UPDATE | requestId: $requestId',
-          error: e,
-          stackTrace: st);
+      logger.rls('Permission denied | rpc: respond_conversation_request | requestId: $requestId', error: e, stackTrace: st);
     } else {
-      logger.db(
-          'ERROR | table: conversation_request | UPDATE | code: ${e.code}',
-          error: e,
-          stackTrace: st);
+      logger.db('ERROR | rpc: respond_conversation_request | code: ${e.code}', error: e, stackTrace: st);
     }
     rethrow;
   }
@@ -706,22 +723,65 @@ Future<void> rejectDmRequest(WidgetRef ref, String requestId) async {
 }
 
 /// Sends a text message in a conversation and updates conversation.updated_at.
-Future<void> sendMessage(WidgetRef ref, String conversationId, String content) async {
+/// Uploads an image to the chat_media bucket and returns its public URL.
+Future<String> uploadChatImage(
+  WidgetRef ref,
+  Uint8List bytes,
+  String extension,
+) async {
+  final logger = appLogger;
+  final client = ref.read(supabaseClientProvider);
+  final userId = ref.read(currentUserProvider)?.id;
+  if (userId == null) throw Exception('User not logged in');
+
+  // Normalize extension: heic/heif encode as JPEG, and 'jpg' is not a valid MIME subtype.
+  const extToMime = {
+    'jpg': 'jpeg',
+    'heic': 'jpeg',
+    'heif': 'jpeg',
+  };
+  final mimeSubtype = extToMime[extension] ?? extension;
+  final uploadExt = mimeSubtype; // keep stored file as .jpeg/.png/etc.
+  final path = '$userId/${DateTime.now().millisecondsSinceEpoch}.$uploadExt';
+  logger.db('BEFORE | storage: chat_media | op: UPLOAD | path: $path | mime: image/$mimeSubtype');
+  try {
+    await client.storage.from('chat_media').uploadBinary(
+      path,
+      bytes,
+      fileOptions: FileOptions(upsert: false, contentType: 'image/$mimeSubtype'),
+    );
+    final url = client.storage.from('chat_media').getPublicUrl(path);
+    logger.db('AFTER | storage: chat_media | op: UPLOAD | url: $url');
+    return url;
+  } on StorageException catch (e, st) {
+    logger.db('ERROR | storage: chat_media | UPLOAD | code: ${e.statusCode}', error: e, stackTrace: st);
+    rethrow;
+  }
+}
+
+Future<void> sendMessage(
+  WidgetRef ref,
+  String conversationId,
+  String content, {
+  String messageType = 'text',
+  String? recipeId,
+}) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
   final userId = ref.read(currentUserProvider)?.id;
   if (userId == null) return;
 
   logger.db(
-      'BEFORE | table: chat_message | op: INSERT | conversationId: $conversationId');
+      'BEFORE | table: chat_message | op: INSERT | conversationId: $conversationId | type: $messageType');
   try {
     await client.from('chat_message').insert({
       'conversation_id': conversationId,
       'sender_id': userId,
       'content': content,
-      'message_type': 'text',
+      'message_type': messageType,
+      if (recipeId != null) 'recipe_id': recipeId,
     });
-    logger.db('AFTER | table: chat_message | inserted');
+    logger.db('AFTER | table: chat_message | inserted | type: $messageType');
 
     await client
         .from('conversation')
@@ -743,7 +803,8 @@ Future<void> sendMessage(WidgetRef ref, String conversationId, String content) a
     rethrow;
   }
 
-  ref.invalidate(chatMessagesProvider(conversationId));
+  // chatMessagesProvider is a realtime stream — it updates automatically.
+  // Only invalidate the conversation list so the "last message" preview refreshes.
   ref.invalidate(myPrivateConversationsProvider);
 }
 
@@ -964,11 +1025,11 @@ final groupDetailsProvider =
   ref.onDispose(() => appLogger.provider('groupDetailsProvider disposed | groupId: $groupId'));
 
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: community_group | op: SELECT | groupId: $groupId');
+  appLogger.db('BEFORE | table: v_community_group | op: SELECT | groupId: $groupId');
 
   try {
     final data = await client
-        .from('community_group')
+        .from('v_community_group')
         .select('id, name, description, is_public, creator_id, region_code, language, topic, max_members, member_count, cover_url')
         .eq('id', groupId)
         .maybeSingle();
@@ -980,6 +1041,85 @@ final groupDetailsProvider =
       appLogger.rls('Permission denied | table: community_group | groupId: $groupId', error: e, stackTrace: st);
     } else {
       appLogger.db('ERROR | table: community_group | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
+
+/// Shared image URLs in a group's conversation, ordered newest-first.
+final groupSharedImagesProvider =
+    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
+  appLogger.provider('groupSharedImagesProvider build() | groupId: $groupId');
+  ref.onDispose(() => appLogger.provider('groupSharedImagesProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  final conversationId = await ref.watch(resolveConversationIdProvider(groupId).future);
+  if (conversationId == null) {
+    appLogger.provider('groupSharedImagesProvider → no conversation found');
+    return [];
+  }
+  appLogger.db('BEFORE | table: chat_message | op: SELECT | type: image | conversationId: $conversationId');
+
+  try {
+    final data = await client
+        .from('chat_message')
+        .select('content')
+        .eq('conversation_id', conversationId)
+        .eq('message_type', 'image')
+        .order('sent_at', ascending: false)
+        .limit(100) as List<dynamic>;
+
+    final urls = data.cast<Map<String, dynamic>>().map((r) => r['content'] as String).toList();
+    appLogger.db('AFTER | table: chat_message | rows: ${urls.length}');
+    return urls;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: chat_message | conversationId: $conversationId', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: chat_message | code: ${e.code}', error: e, stackTrace: st);
+    }
+    rethrow;
+  }
+});
+
+/// Shared recipe IDs in a group's conversation, ordered newest-first (deduped).
+final groupSharedRecipesProvider =
+    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
+  appLogger.provider('groupSharedRecipesProvider build() | groupId: $groupId');
+  ref.onDispose(() => appLogger.provider('groupSharedRecipesProvider disposed | groupId: $groupId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  final conversationId = await ref.watch(resolveConversationIdProvider(groupId).future);
+  if (conversationId == null) {
+    appLogger.provider('groupSharedRecipesProvider → no conversation found');
+    return [];
+  }
+  appLogger.db('BEFORE | table: chat_message | op: SELECT | type: recipe_share | conversationId: $conversationId');
+
+  try {
+    final data = await client
+        .from('chat_message')
+        .select('recipe_id')
+        .eq('conversation_id', conversationId)
+        .eq('message_type', 'recipe_share')
+        .not('recipe_id', 'is', null)
+        .order('sent_at', ascending: false)
+        .limit(100) as List<dynamic>;
+
+    // Deduplicate while preserving first-seen order
+    final seen = <String>{};
+    final ids = data
+        .cast<Map<String, dynamic>>()
+        .map((r) => r['recipe_id'] as String)
+        .where(seen.add)
+        .toList();
+    appLogger.db('AFTER | table: chat_message | recipes: ${ids.length} (deduped)');
+    return ids;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: chat_message | conversationId: $conversationId', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: chat_message | code: ${e.code}', error: e, stackTrace: st);
     }
     rethrow;
   }
@@ -1090,9 +1230,9 @@ final browseGroupsProvider = FutureProvider.autoDispose
               .map((r) => r['group_id'] as String)
               .toList();
           
-          logger.db('BEFORE | table: community_group | op: SELECT public IN');
+          logger.db('BEFORE | table: v_community_group | op: SELECT public IN');
           final groupsData = await client
-              .from('community_group')
+              .from('v_community_group')
               .select('id, name, description, member_count, max_members, region_code, language, topic, creator_id, cover_url')
               .inFilter('id', groupIds);
 
@@ -1115,9 +1255,9 @@ final browseGroupsProvider = FutureProvider.autoDispose
     }
 
     // Path 2 or Fallback: Direct query
-    logger.db('BEFORE | table: community_group | op: SELECT public (direct)');
+    logger.db('BEFORE | table: v_community_group | op: SELECT public (direct)');
     var query = client
-        .from('community_group')
+        .from('v_community_group')
         .select('id, name, description, member_count, max_members, region_code, language, topic, creator_id, cover_url')
         .eq('is_public', true);
 
@@ -1165,79 +1305,6 @@ final pendingGroupInvitesProvider =
       logger.rls('Permission denied | table: group_invite | SELECT | groupId: $groupId', error: e, stackTrace: st);
     } else {
       logger.db('ERROR | table: group_invite | SELECT | code: ${e.code}', error: e, stackTrace: st);
-    }
-    rethrow;
-  }
-});
-
-// ── Group shared images (message_type='image', content = URL) ────────────────
-
-final groupSharedImagesProvider =
-    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
-  final logger = appLogger;
-  logger.provider('groupSharedImagesProvider build() | groupId: $groupId');
-  ref.onDispose(
-      () => logger.provider('groupSharedImagesProvider disposed | groupId: $groupId'));
-
-  final client = ref.watch(supabaseClientProvider);
-  logger.db('BEFORE | table: chat_message | op: SELECT images | groupId: $groupId');
-
-  try {
-    final rows = await client
-        .from('chat_message')
-        .select('content')
-        .eq('group_id', groupId)
-        .eq('message_type', 'image')
-        .order('sent_at', ascending: false) as List<dynamic>;
-
-    logger.db('AFTER | table: chat_message | rows: ${rows.length}');
-    if (rows.isEmpty) {
-      logger.rls('Zero rows | table: chat_message | images | groupId: $groupId | possible RLS block');
-    }
-    return rows.map((r) => r['content'] as String).toList();
-  } on PostgrestException catch (e, st) {
-    if (e.code == '42501') {
-      logger.rls('Permission denied | table: chat_message | images | groupId: $groupId',
-          error: e, stackTrace: st);
-    } else {
-      logger.db('ERROR | table: chat_message | images | code: ${e.code}', error: e, stackTrace: st);
-    }
-    rethrow;
-  }
-});
-
-// ── Group shared recipes (message_type='recipe_share', recipe_id) ─────────────
-
-final groupSharedRecipesProvider =
-    FutureProvider.autoDispose.family<List<String>, String>((ref, groupId) async {
-  final logger = appLogger;
-  logger.provider('groupSharedRecipesProvider build() | groupId: $groupId');
-  ref.onDispose(
-      () => logger.provider('groupSharedRecipesProvider disposed | groupId: $groupId'));
-
-  final client = ref.watch(supabaseClientProvider);
-  logger.db('BEFORE | table: chat_message | op: SELECT recipes | groupId: $groupId');
-
-  try {
-    final rows = await client
-        .from('chat_message')
-        .select('recipe_id')
-        .eq('group_id', groupId)
-        .eq('message_type', 'recipe_share')
-        .not('recipe_id', 'is', null)
-        .order('sent_at', ascending: false) as List<dynamic>;
-
-    logger.db('AFTER | table: chat_message | rows: ${rows.length}');
-    if (rows.isEmpty) {
-      logger.rls('Zero rows | table: chat_message | recipes | groupId: $groupId | possible RLS block');
-    }
-    return rows.map((r) => r['recipe_id'] as String).toList();
-  } on PostgrestException catch (e, st) {
-    if (e.code == '42501') {
-      logger.rls('Permission denied | table: chat_message | recipes | groupId: $groupId',
-          error: e, stackTrace: st);
-    } else {
-      logger.db('ERROR | table: chat_message | recipes | code: ${e.code}', error: e, stackTrace: st);
     }
     rethrow;
   }

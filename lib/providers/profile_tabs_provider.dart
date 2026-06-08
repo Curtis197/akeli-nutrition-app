@@ -36,7 +36,7 @@ Future<List<Map<String, dynamic>>> userComments(Ref ref, String userId) async {
   final client = ref.watch(supabaseClientProvider);
   final response = await client
       .from('recipe_comment')
-      .select('*, recipe(title, thumbnail_url)')
+      .select('*, recipe(title, cover_image_url)')
       .eq('user_id', userId)
       .order('created_at', ascending: false);
       
@@ -60,7 +60,7 @@ Future<List<Map<String, dynamic>>> userGroups(Ref ref, String userId) async {
       .toList();
 
   final groups = await client
-      .from('community_group')
+      .from('v_community_group')
       .select('*')
       .inFilter('id', groupIds)
       .order('updated_at', ascending: false) as List<dynamic>;

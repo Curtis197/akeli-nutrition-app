@@ -12,6 +12,7 @@ class UserProfile {
   final String role; // user | admin
   final bool onboardingDone;
   final bool isCreator;
+  final bool isPrivate;
   final String locale; // fr | en | ...
   final DateTime createdAt;
   final DateTime? consentPrivacyAt;
@@ -28,6 +29,7 @@ class UserProfile {
     this.role = 'user',
     required this.onboardingDone,
     required this.isCreator,
+    this.isPrivate = false,
     this.locale = 'fr',
     required this.createdAt,
     this.consentPrivacyAt,
@@ -48,6 +50,7 @@ class UserProfile {
         role: json['role'] as String? ?? 'user',
         onboardingDone: (json['onboarding_done'] as bool?) ?? false,
         isCreator: (json['is_creator'] as bool?) ?? false,
+        isPrivate: (json['is_private'] as bool?) ?? false,
         locale: json['locale'] as String? ?? 'fr',
         createdAt: DateTime.parse(json['created_at'] as String),
         consentPrivacyAt: json['consent_privacy_at'] != null
@@ -66,6 +69,7 @@ class UserProfile {
     String? bio,
     bool? onboardingDone,
     bool? isCreator,
+    bool? isPrivate,
     String? locale,
   }) =>
       UserProfile(
@@ -78,6 +82,7 @@ class UserProfile {
         email: email,
         onboardingDone: onboardingDone ?? this.onboardingDone,
         isCreator: isCreator ?? this.isCreator,
+        isPrivate: isPrivate ?? this.isPrivate,
         locale: locale ?? this.locale,
         createdAt: createdAt,
       );

@@ -21,14 +21,19 @@ class MealPlannerPage extends ConsumerWidget {
           backgroundColor: AkeliColors.error,
         ));
       } else if (next.valueOrNull != null) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: false,
-          enableDrag: false,
-          backgroundColor: Colors.transparent,
-          builder: (_) => RatingBottomSheet(mealPlanEntryId: next.valueOrNull!),
-        );
+        final entryId = next.valueOrNull!;
+        final plan = ref.read(activeMealPlanProvider).valueOrNull;
+        final entry = plan?.entries.where((e) => e.id == entryId).firstOrNull;
+        if (entry == null || !entry.isRated) {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
+            backgroundColor: Colors.transparent,
+            builder: (_) => RatingBottomSheet(mealPlanEntryId: entryId),
+          );
+        }
       }
     });
 

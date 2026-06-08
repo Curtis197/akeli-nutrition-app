@@ -10,7 +10,10 @@ import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
+import '../../providers/recipe_provider.dart';
+import '../../providers/user_profile_provider.dart';
 import '../../providers/food_region_provider.dart';
+import '../../shared/models/recipe.dart';
 import '../../shared/widgets/chat_bubble.dart';
 import '../../shared/widgets/avatar.dart';
 
@@ -37,6 +40,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
   final _controller = TextEditingController();
   final _logger = appLogger;
   String? _resolvedConversationId;
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -100,6 +104,115 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
     });
   }
 
+  void _showAttachOptions() {
+    _logger.userAction('Attach button tapped', screen: 'GroupChatPage');
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AkeliColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AkeliColors.primary,
+                  child: Icon(Icons.image_outlined, color: Colors.white),
+                ),
+                title: const Text('Photo'),
+                subtitle: const Text('Depuis votre galerie'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _sendImageMessage();
+                },
+              ),
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: AkeliColors.secondary,
+                  child: Icon(Icons.restaurant_menu_outlined, color: Colors.white),
+                ),
+                title: const Text('Recette'),
+                subtitle: const Text('Partager une recette Akeli'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _showRecipePicker();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendImageMessage() async {
+    if (_resolvedConversationId == null) return;
+    final picker = ImagePicker();
+    final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 75);
+    if (file == null || !mounted) return;
+
+    final bytes = await file.readAsBytes();
+    final ext = file.name.split('.').last.toLowerCase();
+    final extension = ext.isNotEmpty ? ext : 'jpg';
+
+    _logger.userAction('Image selected for chat', screen: 'GroupChatPage',
+        metadata: {'size': bytes.length, 'ext': extension});
+    setState(() => _isUploading = true);
+    try {
+      final url = await uploadChatImage(ref, bytes, extension);
+      await sendMessage(ref, _resolvedConversationId!, url, messageType: 'image');
+      if (widget.groupId != null && mounted) {
+        _notifyGroupMembers(widget.groupId!, '📷 Photo');
+      }
+    } catch (e) {
+      _logger.db('ERROR | _sendImageMessage | $e', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Erreur lors de l'envoi de l'image")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  void _showRecipePicker() {
+    if (_resolvedConversationId == null) return;
+    _logger.userAction('Recipe picker opened', screen: 'GroupChatPage');
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AkeliColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _RecipePickerSheet(
+        onRecipeSelected: (recipe) {
+          Navigator.of(context).pop();
+          _logger.userAction('Recipe shared in chat', screen: 'GroupChatPage',
+              metadata: {'recipeId': recipe.id, 'title': recipe.title});
+          sendMessage(
+            ref,
+            _resolvedConversationId!,
+            recipe.title,
+            messageType: 'recipe_share',
+            recipeId: recipe.id,
+          ).then((_) {
+            if (widget.groupId != null) {
+              _notifyGroupMembers(widget.groupId!, '🍽️ ${recipe.title}');
+            }
+          }).catchError((Object e, StackTrace st) {
+            _logger.db('ERROR | sendMessage recipe_share | $e', error: e, stackTrace: st);
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // If groupId provided, resolve conversationId via provider
@@ -133,6 +246,8 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
     _logger.provider('GroupChatPage build() | conversationId: $convId');
 
     final messagesAsync = ref.watch(chatMessagesProvider(convId));
+    final participantNames = ref.watch(conversationParticipantNamesProvider(convId)).valueOrNull ?? {};
+    final currentUserProfile = ref.watch(userProfileProvider).valueOrNull;
 
     // Admin check — only needed for group chats
     final currentUserId = ref.watch(currentUserProvider)?.id;
@@ -173,17 +288,22 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                           groupDetails.valueOrNull?['name'] as String? ?? 'Discussion du groupe',
                           style: const TextStyle(fontSize: 18),
                         ),
-                        if (groupDetails.valueOrNull?['description'] != null &&
-                            (groupDetails.valueOrNull!['description'] as String).trim().isNotEmpty)
-                          Text(
-                            groupDetails.valueOrNull!['description'] as String,
+                        Builder(builder: (context) {
+                          final count = groupDetails.valueOrNull?['member_count'] as int?;
+                          final subtitle = count != null
+                              ? '$count membre${count > 1 ? 's' : ''}'
+                              : groupDetails.valueOrNull?['description'] as String? ?? '';
+                          if (subtitle.trim().isEmpty) return const SizedBox.shrink();
+                          return Text(
+                            subtitle,
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: AkeliColors.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                          ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -278,8 +398,12 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                         message: msg.content,
                         time: _formatTime(msg.sentAt),
                         isSent: msg.isMine,
-                        senderName: msg.isMine ? null : msg.senderName,
+                        senderName: msg.isMine
+                            ? (currentUserProfile?.firstName ?? 'Moi')
+                            : (participantNames[msg.senderId] ?? msg.senderName),
                         isRead: false,
+                        messageType: msg.messageType,
+                        recipeId: msg.recipeId,
                       ),
                     );
                   },
@@ -290,38 +414,68 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
           Container(
             color: AkeliColors.surface,
             padding: const EdgeInsets.symmetric(
-                horizontal: AkeliSpacing.md, vertical: AkeliSpacing.sm),
-            child: Row(
+                horizontal: AkeliSpacing.sm, vertical: AkeliSpacing.sm),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) {
-                      _logger.userAction('Message submitted via keyboard',
-                          screen: 'GroupChatPage');
-                      _sendMessage();
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Écrire un message…',
-                      border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(AkeliRadius.pill)),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: AkeliSpacing.md,
-                          vertical: AkeliSpacing.sm),
+                if (_isUploading)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 12, height: 12,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 8),
+                        Text('Envoi en cours…',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: AkeliColors.textSecondary)),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(width: AkeliSpacing.sm),
-                IconButton(
-                  icon: const Icon(Icons.send_rounded),
-                  color: AkeliColors.primary,
-                  onPressed: () {
-                    _logger.userAction('Send button tapped',
-                        screen: 'GroupChatPage');
-                    _sendMessage();
-                  },
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline_rounded),
+                      color: AkeliColors.primary,
+                      tooltip: 'Joindre',
+                      onPressed: _isUploading ? null : _showAttachOptions,
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) {
+                          _logger.userAction('Message submitted via keyboard',
+                              screen: 'GroupChatPage');
+                          _sendMessage();
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Écrire un message…',
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(AkeliRadius.pill)),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AkeliSpacing.md,
+                              vertical: AkeliSpacing.sm),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AkeliSpacing.xs),
+                    IconButton(
+                      icon: const Icon(Icons.send_rounded),
+                      color: AkeliColors.primary,
+                      onPressed: _isUploading
+                          ? null
+                          : () {
+                              _logger.userAction('Send button tapped',
+                                  screen: 'GroupChatPage');
+                              _sendMessage();
+                            },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -339,6 +493,153 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
       return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
     return '${dt.day}/${dt.month}';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Recipe Picker Sheet — lets user pick a published recipe to share in chat
+// ---------------------------------------------------------------------------
+
+class _RecipePickerSheet extends ConsumerStatefulWidget {
+  final void Function(Recipe) onRecipeSelected;
+
+  const _RecipePickerSheet({required this.onRecipeSelected});
+
+  @override
+  ConsumerState<_RecipePickerSheet> createState() => _RecipePickerSheetState();
+}
+
+class _RecipePickerSheetState extends ConsumerState<_RecipePickerSheet> {
+  final _logger = appLogger;
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _logger.provider('RecipePickerSheet initState()');
+    _searchController.addListener(() {
+      if (_searchController.text != _query) {
+        setState(() => _query = _searchController.text);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _logger.provider('RecipePickerSheet disposed');
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _logger.provider('RecipePickerSheet build() | query: "$_query"');
+    final recipesAsync = ref.watch(chatRecipePickerProvider(_query));
+
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      maxChildSize: 0.95,
+      minChildSize: 0.4,
+      builder: (_, scrollController) => Column(
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40, height: 4,
+            decoration: BoxDecoration(
+              color: AkeliColors.outline,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Partager une recette',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _searchController,
+              autofocus: false,
+              decoration: InputDecoration(
+                hintText: 'Rechercher une recette…',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(AkeliRadius.pill)),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: recipesAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) {
+                _logger.provider('RecipePickerSheet → error | $e');
+                return const Center(child: Text('Erreur de chargement'));
+              },
+              data: (recipes) {
+                _logger.provider('RecipePickerSheet → data | count: ${recipes.length}');
+                if (recipes.isEmpty) {
+                  return Center(
+                    child: Text(
+                      _query.isEmpty ? 'Aucune recette disponible' : 'Aucun résultat pour "$_query"',
+                      style: const TextStyle(color: AkeliColors.textSecondary),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.only(bottom: 32),
+                  itemCount: recipes.length,
+                  itemBuilder: (context, i) {
+                    final recipe = recipes[i];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: recipe.thumbnailUrl != null
+                            ? Image.network(
+                                recipe.thumbnailUrl!,
+                                width: 52, height: 52,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Container(
+                                  width: 52, height: 52,
+                                  color: AkeliColors.surfaceContainer,
+                                  child: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                                ),
+                              )
+                            : Container(
+                                width: 52, height: 52,
+                                color: AkeliColors.surfaceContainer,
+                                child: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                              ),
+                      ),
+                      title: Text(recipe.title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: recipe.calories != null
+                          ? Text('${recipe.calories!.round()} kcal · ${recipe.totalTimeMin} min',
+                              style: const TextStyle(color: AkeliColors.textSecondary, fontSize: 12))
+                          : Text('${recipe.totalTimeMin} min',
+                              style: const TextStyle(color: AkeliColors.textSecondary, fontSize: 12)),
+                      trailing: const Icon(Icons.send_rounded, color: AkeliColors.primary, size: 20),
+                      onTap: () {
+                        _logger.userAction('Recipe selected in picker', metadata: {'recipeId': recipe.id});
+                        widget.onRecipeSelected(recipe);
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

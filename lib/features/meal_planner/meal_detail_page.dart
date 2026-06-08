@@ -40,14 +40,18 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
           backgroundColor: AkeliColors.error,
         ));
       } else if (next.valueOrNull != null) {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: false,
-          enableDrag: false,
-          backgroundColor: Colors.transparent,
-          builder: (_) => RatingBottomSheet(mealPlanEntryId: widget.mealId),
-        );
+        final plan = ref.read(activeMealPlanProvider).valueOrNull;
+        final entry = plan?.entries.where((e) => e.id == widget.mealId).firstOrNull;
+        if (entry == null || !entry.isRated) {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
+            backgroundColor: Colors.transparent,
+            builder: (_) => RatingBottomSheet(mealPlanEntryId: widget.mealId),
+          );
+        }
       }
     });
 

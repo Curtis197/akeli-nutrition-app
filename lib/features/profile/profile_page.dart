@@ -65,7 +65,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
 
     final profileAsync = ref.watch(userProfileProvider);
     final targetUserId = widget.userId ?? currentUser?.id ?? '';
-    
+
+    // When viewing another user, load their profile separately for the header
+    final targetProfileAsync = isCurrentUser
+        ? null
+        : ref.watch(publicUserProfileProvider(targetUserId));
+    // The profile shown in the header — own profile or the target's
+    final displayProfile = isCurrentUser
+        ? profileAsync.valueOrNull
+        : targetProfileAsync?.valueOrNull;
+    final isPrivate = !isCurrentUser && (displayProfile?.isPrivate ?? false);
+
     final userSavedRecipesAsync = ref.watch(userSavedRecipesProvider(targetUserId));
     final userCommentsAsync = ref.watch(userCommentsProvider(targetUserId));
     final userGroupsAsync = ref.watch(userGroupsProvider(targetUserId));
@@ -107,7 +117,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                     ),
                   ),
                   Text(
-                    profileAsync.valueOrNull?.displayName ?? 'Profil',
+                    displayProfile?.displayName ?? 'Profil',
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -138,10 +148,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
           ),
         ),
       ),
-      body: profileAsync.when(
+      body: (isCurrentUser
+              ? profileAsync
+              : targetProfileAsync ?? const AsyncValue.loading())
+          .when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Erreur: $err')),
-        data: (profile) => SingleChildScrollView(
+        data: (_) => SingleChildScrollView(
           child: Column(
             children: [
               // Hero & Profile
@@ -208,9 +221,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                   ),
                                   child: ClipOval(
                                     child: AkeliAvatar(
-                                      imageUrl: profile?.avatarUrl,
-                                      initials: (profile?.displayName.isNotEmpty == true
-                                              ? profile!.displayName[0]
+                                      imageUrl: displayProfile?.avatarUrl,
+                                      initials: (displayProfile?.displayName.isNotEmpty == true
+                                              ? displayProfile!.displayName[0]
                                               : 'A')
                                           .toUpperCase(),
                                       size: AvatarSize.lg,
@@ -250,8 +263,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                         const SizedBox(height: 24),
                         // Identity
                         Text(
-                          profile?.displayName.isNotEmpty == true 
-                              ? profile!.displayName 
+                          displayProfile?.displayName.isNotEmpty == true 
+                              ? displayProfile!.displayName 
                               : 'Utilisateur',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 24,
@@ -260,10 +273,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                             letterSpacing: -0.5,
                           ),
                         ),
-                        if (profile?.bio?.isNotEmpty == true) ...[
+                        if (displayProfile?.bio?.isNotEmpty == true) ...[
                           const SizedBox(height: 8),
                           Text(
-                            profile!.bio!,
+                            displayProfile!.bio!,
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               color: AkeliColors.onSurfaceVariant,
@@ -301,7 +314,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                           ),
                                           child: FilledButton.icon(
                                             onPressed: () async {
-                                              appLogger.userAction('Ajouter button tapped', screen: 'ProfilePage');
+                                              appLogger.userAction('Start conversation tapped', screen: 'ProfilePage');
                                               try {
                                                 await sendDmRequest(ref, widget.userId!);
                                                 ref.invalidate(conversationStateProvider(widget.userId!));
@@ -318,8 +331,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                                 }
                                               }
                                             },
-                                            icon: const Icon(Icons.person_add_rounded, size: 20, color: Colors.white),
-                                            label: Text('Ajouter', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20, color: Colors.white),
+                                            label: Text('Démarrer une conversation', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
                                             style: FilledButton.styleFrom(
                                               backgroundColor: Colors.transparent,
                                               shadowColor: Colors.transparent,
@@ -353,73 +366,77 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                   return Row(
                                     children: [
                                       Expanded(
-                                        child: OutlinedButton.icon(
-                                          onPressed: () {
-                                            appLogger.userAction('Ecrire button tapped', screen: 'ProfilePage');
-                                            context.push(AkeliRoutes.dmChatPath(convState.conversationId!), extra: profile?.displayName ?? '');
-                                          },
-                                          icon: const Icon(Icons.edit, size: 20),
-                                          label: Text('Ecrire', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: AkeliColors.primary,
-                                            backgroundColor: AkeliColors.surfaceContainerLowest,
-                                            padding: const EdgeInsets.symmetric(vertical: 14),
-                                            side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                                            ),
+                                            borderRadius: BorderRadius.circular(AkeliRadius.md),
+                                          ),
+                                          child: FilledButton.icon(
+                                            onPressed: () {
+                                              appLogger.userAction('Message button tapped', screen: 'ProfilePage');
+                                              context.push(AkeliRoutes.dmChatPath(convState.conversationId!), extra: displayProfile?.displayName ?? '');
+                                            },
+                                            icon: const Icon(Icons.chat_bubble_rounded, size: 20, color: Colors.white),
+                                            label: Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            style: FilledButton.styleFrom(
+                                              backgroundColor: Colors.transparent,
+                                              shadowColor: Colors.transparent,
+                                              padding: const EdgeInsets.symmetric(vertical: 14),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: OutlinedButton.icon(
-                                          onPressed: () {
-                                            appLogger.userAction('Supprimer button tapped', screen: 'ProfilePage');
-                                            showDialog(
-                                              context: context,
-                                              builder: (ctx) => AlertDialog(
-                                                title: const Text('Fermer la conversation ?'),
-                                                content: const Text("Vous quitterez cette conversation. L'autre utilisateur gardera son historique."),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(ctx),
-                                                    child: const Text('Annuler'),
-                                                  ),
-                                                  TextButton(
-                                                    style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
-                                                    onPressed: () async {
-                                                      Navigator.pop(ctx);
-                                                      try {
-                                                        await leaveDmConversation(ref, convState.conversationId!);
-                                                        ref.invalidate(conversationStateProvider(widget.userId!));
-                                                        if (context.mounted) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            const SnackBar(content: Text('Conversation fermée')),
-                                                          );
-                                                        }
-                                                      } catch (e) {
-                                                        if (context.mounted) {
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            const SnackBar(content: Text('Erreur lors de la fermeture')),
-                                                          );
-                                                        }
+                                      const SizedBox(width: 12),
+                                      OutlinedButton(
+                                        onPressed: () {
+                                          appLogger.userAction('Close conversation tapped', screen: 'ProfilePage');
+                                          showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: const Text('Fermer la conversation ?'),
+                                              content: const Text("Vous quitterez cette conversation. L'autre utilisateur gardera son historique."),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(ctx),
+                                                  child: const Text('Annuler'),
+                                                ),
+                                                TextButton(
+                                                  style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
+                                                  onPressed: () async {
+                                                    Navigator.pop(ctx);
+                                                    try {
+                                                      await leaveDmConversation(ref, convState.conversationId!);
+                                                      ref.invalidate(conversationStateProvider(widget.userId!));
+                                                      if (context.mounted) {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('Conversation fermée')),
+                                                        );
                                                       }
-                                                    },
-                                                    child: const Text('Fermer'),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          },
-                                          icon: const Icon(Icons.close_rounded, size: 20),
-                                          label: Text('Supprimer', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: AkeliColors.error,
-                                            backgroundColor: AkeliColors.surfaceContainerLowest,
-                                            padding: const EdgeInsets.symmetric(vertical: 14),
-                                            side: BorderSide(color: AkeliColors.error.withValues(alpha: 0.3)),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
-                                          ),
+                                                    } catch (e) {
+                                                      if (context.mounted) {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('Erreur lors de la fermeture')),
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  child: const Text('Fermer'),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AkeliColors.error,
+                                          backgroundColor: AkeliColors.surfaceContainerLowest,
+                                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                                          side: BorderSide(color: AkeliColors.error.withValues(alpha: 0.3)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AkeliRadius.md)),
                                         ),
+                                        child: const Icon(Icons.close_rounded, size: 20),
                                       ),
                                     ],
                                   );
@@ -433,7 +450,43 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                 ],
               ),
               
-              // Content Section
+              // Content Section — hidden for private profiles
+              if (isPrivate)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.surfaceContainerLowest,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.lock_outline_rounded, size: 48, color: AkeliColors.onSurfaceVariant),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Ce profil est privé',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AkeliColors.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Envoyez un message pour vous connecter.',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: AkeliColors.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
+              else
               Container(
                   width: double.infinity,
                   padding: const EdgeInsets.only(top: 24, bottom: 48, left: 16, right: 16),
@@ -534,7 +587,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                     final c = comments[index];
                                     final recipe = c['recipe'] as Map<String, dynamic>?;
                                     final recipeTitle = recipe?['title'] as String? ?? 'Recette inconnue';
-                                    final recipeImage = recipe?['thumbnail_url'] as String? ?? '';
+                                    final recipeImage = recipe?['cover_image_url'] as String? ?? '';
                                     final content = c['content'] as String? ?? '';
                                     
                                     return _ProfileCommentCard(

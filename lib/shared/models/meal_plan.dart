@@ -69,6 +69,7 @@ class MealPlanEntry {
   final DateTime scheduledDate;
   final double servings;
   final bool isConsumed;
+  final bool isRated;
   final bool isCustomMeal;
   final String? customMealName;
   final double? customCalories;
@@ -89,6 +90,7 @@ class MealPlanEntry {
     required this.scheduledDate,
     required this.servings,
     required this.isConsumed,
+    required this.isRated,
     required this.isCustomMeal,
     this.customMealName,
     this.customCalories,
@@ -110,6 +112,8 @@ class MealPlanEntry {
         scheduledDate: DateTime.parse(json['scheduled_date'] as String),
         servings: (json['servings'] as num?)?.toDouble() ?? 1.0,
         isConsumed: (json['is_consumed'] as bool?) ?? false,
+        isRated: ((json['meal_consumption'] as List<dynamic>?) ?? [])
+            .any((c) => (c as Map<String, dynamic>)['rating'] != null),
         isCustomMeal: (json['is_custom_meal'] as bool?) ?? false,
         customMealName: json['custom_meal_name'] as String?,
         customCalories: (json['custom_calories'] as num?)?.toDouble(),

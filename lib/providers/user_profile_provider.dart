@@ -50,6 +50,44 @@ final userProfileProvider =
   }
 });
 
+// Fetches another user's public profile — used when viewing someone else's profile page.
+final publicUserProfileProvider =
+    FutureProvider.autoDispose.family<UserProfile?, String>((ref, userId) async {
+  appLogger.provider('publicUserProfileProvider build() | userId: $userId');
+  ref.onDispose(() => appLogger.provider('publicUserProfileProvider disposed | userId: $userId'));
+
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db('BEFORE | table: user_profile | op: SELECT | userId: $userId');
+
+  try {
+    final data = await client
+        .from('user_profile')
+        .select('id, first_name, last_name, username, avatar_url, bio, is_private, is_creator, created_at')
+        .eq('id', userId)
+        .maybeSingle();
+
+    appLogger.db('AFTER | table: user_profile | rows: ${data == null ? 0 : 1}');
+    if (data == null) {
+      appLogger.rls('Zero rows | table: user_profile | userId: $userId | possible RLS block');
+      return null;
+    }
+    appLogger.provider('publicUserProfileProvider → data | userId: $userId');
+    return UserProfile.fromJson({
+      ...data,
+      'onboarding_done': true,
+      'locale': 'fr',
+    });
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: user_profile | userId: $userId', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: user_profile | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+    }
+    appLogger.provider('publicUserProfileProvider → error | ${e.message}');
+    rethrow;
+  }
+});
+
 final healthProfileProvider =
     FutureProvider.autoDispose<HealthProfile?>((ref) async {
   final user = ref.watch(currentUserProvider);
@@ -143,6 +181,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     String? lastName,
     String? bio,
     String? avatarUrl,
+    bool? isPrivate,
   }) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
@@ -151,7 +190,9 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
       if (username != null) 'username': username,
       if (firstName != null) 'first_name': firstName,
       if (lastName != null) 'last_name': lastName,
+      if (bio != null && bio.isNotEmpty) 'bio': bio,
       if (avatarUrl != null) 'avatar_url': avatarUrl,
+      if (isPrivate != null) 'is_private': isPrivate,
     };
     if (updates.isEmpty) return;
 

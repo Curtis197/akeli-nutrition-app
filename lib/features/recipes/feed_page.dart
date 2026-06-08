@@ -775,20 +775,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             }
 
             return SliverPadding(
-              padding: const EdgeInsets.all(AkeliSpacing.md),
-              sliver: SliverGrid.builder(
-                gridDelegate:
-                    const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: AkeliSpacing.md,
-                  mainAxisSpacing: AkeliSpacing.md,
-                  childAspectRatio: 0.68,
-                ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AkeliSpacing.md,
+                vertical: AkeliSpacing.sm,
+              ),
+              sliver: SliverList.builder(
                 itemCount: displayList.length,
                 itemBuilder: (context, index) {
                   final recipe = displayList[index];
-                  return AkeliRecipeCard(
-                    hasImage: true,
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AkeliSpacing.md),
+                    child: AkeliRecipeCard(
+                    horizontal: true,
                     title: recipe.title,
                     calories: recipe.calories?.toInt() ?? 0,
                     rating: recipe.averageRating,
@@ -826,6 +824,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         );
                       }
                     },
+                    ),
                   );
                 },
               ),

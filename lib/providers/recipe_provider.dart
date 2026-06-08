@@ -296,6 +296,43 @@ final searchRecipesProvider =
 });
 
 // ---------------------------------------------------------------------------
+// Chat recipe picker — fetches published recipes for sharing in chat.
+// Empty/short query returns popular recipes; longer query searches by title.
+// ---------------------------------------------------------------------------
+
+final chatRecipePickerProvider =
+    FutureProvider.autoDispose.family<List<Recipe>, String>((ref, query) async {
+  appLogger.provider('chatRecipePickerProvider build() | query: "$query"');
+  ref.onDispose(() => appLogger.provider('chatRecipePickerProvider disposed'));
+
+  final client = ref.watch(supabaseClientProvider);
+  const sel = 'id, creator_id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g), like_count, average_rating, is_published, created_at';
+
+  appLogger.db('BEFORE | table: recipe | chatRecipePicker | query: "$query"');
+  try {
+    final data = query.length >= 2
+        ? await client
+            .from('recipe')
+            .select(sel)
+            .eq('is_published', true)
+            .ilike('title', '%$query%')
+            .limit(30) as List<dynamic>
+        : await client
+            .from('recipe')
+            .select(sel)
+            .eq('is_published', true)
+            .order('like_count', ascending: false)
+            .limit(30) as List<dynamic>;
+
+    appLogger.db('AFTER | table: recipe | chatRecipePicker | rows: ${data.length}');
+    return data.cast<Map<String, dynamic>>().map(Recipe.fromJson).toList();
+  } on PostgrestException catch (e, st) {
+    appLogger.db('ERROR | table: recipe | chatRecipePicker | code: ${e.code}', error: e, stackTrace: st);
+    rethrow;
+  }
+});
+
+// ---------------------------------------------------------------------------
 // User recipes (profile page)
 // ---------------------------------------------------------------------------
 

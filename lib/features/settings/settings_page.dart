@@ -308,6 +308,24 @@ class SettingsPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     _Section(
+                      title: 'Confidentialité',
+                      items: [
+                        _SwitchItem(
+                          icon: Icons.lock_outline_rounded,
+                          label: 'Profil privé',
+                          value: profile?.isPrivate ?? false,
+                          onChanged: (val) {
+                            appLogger.userAction('Private profile toggled',
+                                screen: 'SettingsPage',
+                                metadata: {'isPrivate': val});
+                            ref.read(userProfileNotifierProvider.notifier)
+                                .updateProfile(isPrivate: val);
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _Section(
                       title: 'Support',
                       items: [
                         _MenuItem(
@@ -411,7 +429,7 @@ class SettingsPage extends ConsumerWidget {
 
 class _Section extends StatelessWidget {
   final String title;
-  final List<_MenuItem> items;
+  final List<Widget> items;
 
   const _Section({required this.title, required this.items});
 
@@ -453,6 +471,37 @@ class _Section extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SwitchItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _SwitchItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Row(
+        children: [
+          Icon(icon, color: AkeliColors.onSurfaceVariant, size: 24),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AkeliColors.onSurface)),
+          ),
+          Switch(value: value, onChanged: onChanged, activeThumbColor: AkeliColors.primary),
+        ],
+      ),
     );
   }
 }

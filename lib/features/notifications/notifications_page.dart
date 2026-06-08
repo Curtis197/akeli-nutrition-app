@@ -72,11 +72,28 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               subtitle: 'Vous recevrez ici vos rappels de repas et messages.',
             );
           }
+          final items = _groupByDate(notifications);
           return ListView.builder(
             padding: const EdgeInsets.only(bottom: 80),
-            itemCount: notifications.length,
-            itemBuilder: (context, index) =>
-                _buildCard(notifications[index]),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              if (item is String) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+                  child: Text(
+                    item,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.onSurfaceVariant,
+                      letterSpacing: 1.1,
+                    ),
+                  ),
+                );
+              }
+              return _buildCard(item as Map<String, dynamic>);
+            },
           );
         },
       ),
@@ -101,7 +118,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
       case 'conversation_request':
         final requestId = data['request_id'] as String? ?? '';
-        final requesterId = data['requester_id'] as String? ?? '';
         return AkeliNotifCard(
           type: NotifType.request,
           title: title,
@@ -113,7 +129,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
                   _logger.userAction('Accept DM request tapped',
                       screen: 'NotificationsPage',
                       metadata: {'request_id': requestId});
-                  acceptDmRequest(ref, requestId, requesterId).then((_) {
+                  acceptDmRequest(ref, requestId).then((_) {
                     if (mounted) ref.invalidate(notificationsProvider);
                   }).catchError((Object e, StackTrace st) {
                     _logger.db('ERROR | acceptDmRequest | $e', error: e, stackTrace: st);
@@ -214,6 +230,38 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         );
     }
   }
+}
+
+/// Inserts String section headers between notification maps.
+/// Returns a list of mixed [String] (header) and [Map] (notification) items.
+List<Object> _groupByDate(List<Map<String, dynamic>> notifications) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(const Duration(days: 1));
+  final weekAgo = today.subtract(const Duration(days: 7));
+
+  String bucket(DateTime dt) {
+    final d = DateTime(dt.year, dt.month, dt.day);
+    if (!d.isBefore(today)) return "AUJOURD'HUI";
+    if (!d.isBefore(yesterday)) return 'HIER';
+    if (!d.isBefore(weekAgo)) return 'CETTE SEMAINE';
+    return 'PLUS TÔT';
+  }
+
+  final result = <Object>[];
+  String? lastBucket;
+
+  for (final notif in notifications) {
+    final raw = notif['created_at'] as String? ?? '';
+    final dt = DateTime.tryParse(raw)?.toLocal() ?? now;
+    final bucketLabel = bucket(dt);
+    if (bucketLabel != lastBucket) {
+      result.add(bucketLabel);
+      lastBucket = bucketLabel;
+    }
+    result.add(notif);
+  }
+  return result;
 }
 
 String _relativeTime(String isoString) {
