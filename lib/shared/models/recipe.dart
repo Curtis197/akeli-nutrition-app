@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:akeli/core/logger.dart';
 
 @immutable
 class Recipe {
@@ -73,6 +74,7 @@ class Recipe {
   int get totalTimeMin => prepTimeMin + cookTimeMin;
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
+    appLogger.db('Recipe.fromJson | id: ${json['id']}');
     final macro = json['recipe_macro'] as Map<String, dynamic>?;
     return Recipe(
         id: json['id'] as String,
@@ -182,7 +184,8 @@ class RecipeStep {
         imageUrl: json['image_url'] as String?,
         videoUrl: json['video_url'] as String?,
         ingredientIds: (json['ingredient_ids'] as List<dynamic>?)
-                ?.cast<String>() ??
+                ?.map((e) => e.toString())
+                .toList() ??
             const [],
       );
 }
