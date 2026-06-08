@@ -312,16 +312,16 @@ class _MarketNotesSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFF4CAF50).withValues(alpha: 0.08),
+          color: AkeliColors.accentGreen.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AkeliRadius.lg),
           border: Border.all(
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.25)),
+              color: AkeliColors.accentGreen.withValues(alpha: 0.25)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Icon(Icons.location_on_outlined,
-                color: Color(0xFF4CAF50), size: 20),
+                color: AkeliColors.accentGreen, size: 20),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

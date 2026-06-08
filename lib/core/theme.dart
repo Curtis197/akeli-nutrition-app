@@ -14,10 +14,11 @@ abstract class AkeliColors {
   static const onPrimaryContainer = Colors.white;
   static const secondary = Color(0xFFFF9F43);          // Orange accent
   static const accentAmber = Color(0xFFFF9F1C);        // Vivid amber (CTAs/highlights)
+  static const accentGreen = Color(0xFF4CAF50);
 
   // Surface Philosophy — "The Organic Layer"
-  static const surface = Color(0xFFFCFAEF);
-  static const surfaceContainerLowest = Color(0xFFFFFFFF);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceContainerLowest = Color(0xFFFCFAEF);
   static const surfaceContainerLow = Color(0xFFF6F4E9);
   static const surfaceContainer = Color(0xFFF0EEE3);
   static const surfaceContainerHigh = Color(0xFFEAE8DE);
