@@ -18,6 +18,8 @@ import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
 import 'widgets/recipe_comments_sheet.dart';
+import '../../shared/widgets/recipe_video_card.dart';
+import 'widgets/ingredient_detail_sheet.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final String recipeId;
@@ -357,6 +359,13 @@ class _RecipeContent extends StatelessWidget {
                 ),
               ),
 
+              // VIDEO CARD
+              if (recipe.videoUrl != null)
+                RecipeVideoCard(
+                  videoUrl: recipe.videoUrl!,
+                  thumbnailUrl: recipe.thumbnailUrl,
+                ),
+
               // META CARD (Overlapping Hero)
               Transform.translate(
                 offset: const Offset(0, -24),
@@ -480,6 +489,43 @@ class _RecipeContent extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        OutlinedButton(
+                          onPressed: () {
+                            appLogger.userAction('Start Cooking tapped',
+                                screen: 'RecipeDetailPage',
+                                metadata: {'recipeId': recipe.id});
+                            context.push(
+                              '/recipe/${recipe.id}/cook',
+                              extra: {
+                                'recipe': recipe,
+                                'initialStepIndex': 0,
+                              },
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 52),
+                            side: const BorderSide(color: AkeliColors.primary),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(AkeliRadius.pill)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.soup_kitchen_rounded,
+                                  color: AkeliColors.primary, size: 20),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Commencer la recette',
+                                style: GoogleFonts.inter(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AkeliColors.primary),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -569,37 +615,50 @@ class _RecipeContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         ...recipe.ingredients.map(
-                          (ing) => Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.circular(AkeliRadius.md),
-                              color: Colors.transparent,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    ing.name +
-                                        (ing.isOptional ? ' (opt.)' : ''),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      color: AkeliColors.onSurface,
+                          (ing) => InkWell(
+                            borderRadius:
+                                BorderRadius.circular(AkeliRadius.md),
+                            onTap: () {
+                              appLogger.userAction('Ingredient tapped',
+                                  screen: 'RecipeDetailPage',
+                                  metadata: {
+                                    'ingredientId': ing.ingredientId
+                                  });
+                              IngredientDetailSheet.show(context, ing);
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(AkeliRadius.md),
+                                color: Colors.transparent,
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      ing.name +
+                                          (ing.isOptional ? ' (opt.)' : ''),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        color: AkeliColors.onSurface,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: AkeliColors.accentAmber,
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: AkeliColors.accentAmber,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -637,40 +696,58 @@ class _RecipeContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         ...recipe.steps.map(
-                          (step) => Padding(
-                            padding: const EdgeInsets.only(bottom: 24),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: const BoxDecoration(
-                                    color: AkeliColors.surfaceContainer,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${step.stepNumber}',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: AkeliColors.primary,
+                          (step) => InkWell(
+                            borderRadius:
+                                BorderRadius.circular(AkeliRadius.md),
+                            onTap: () {
+                              appLogger.userAction('Step tapped',
+                                  screen: 'RecipeDetailPage',
+                                  metadata: {
+                                    'stepNumber': step.stepNumber
+                                  });
+                              context.push(
+                                '/recipe/${recipe.id}/cook',
+                                extra: {
+                                  'recipe': recipe,
+                                  'initialStepIndex': step.stepNumber - 1,
+                                },
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: AkeliColors.surfaceContainer,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${step.stepNumber}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: AkeliColors.primary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Text(
-                                    step.instruction,
-                                    style: GoogleFonts.inter(
-                                      fontSize: 15,
-                                      height: 1.6,
-                                      color: AkeliColors.onSurface,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      step.instruction,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        height: 1.6,
+                                        color: AkeliColors.onSurface,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
