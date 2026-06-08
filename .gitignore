@@ -58,3 +58,6 @@ supabase/.temp/storage-version
 migration_out.txt
 reset_out.txt
 test_users.sql
+
+# Unsplash credentials
+lib/features/cooking/unsplash
