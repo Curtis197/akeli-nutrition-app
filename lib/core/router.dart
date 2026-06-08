@@ -174,7 +174,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'cook',
             builder: (context, state) {
-              final extra = state.extra as Map<String, dynamic>;
+              final extra = state.extra as Map<String, dynamic>?;
+              if (extra == null || extra['recipe'] == null) {
+                final recipeId = state.pathParameters['id']!;
+                return RecipeDetailPage(recipeId: recipeId, source: TrackingSource.feed);
+              }
+              appLogger.userAction(
+                'Navigate to cooking mode',
+                screen: 'CookingModePage',
+                metadata: {'recipeId': state.pathParameters['id']},
+              );
               return CookingModePage(
                 recipe: extra['recipe'] as Recipe,
                 initialStepIndex: (extra['initialStepIndex'] as int?) ?? 0,
