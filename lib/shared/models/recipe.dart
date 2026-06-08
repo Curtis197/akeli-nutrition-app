@@ -29,6 +29,7 @@ class Recipe {
   final bool isSaved;
   final bool isLiked;
   final bool isPublished;
+  final String? videoUrl;
   final List<RecipeIngredient> ingredients;
   final List<RecipeStep> steps;
   final List<String> tagIds;
@@ -62,6 +63,7 @@ class Recipe {
     required this.isSaved,
     required this.isLiked,
     required this.isPublished,
+    this.videoUrl,
     required this.ingredients,
     required this.steps,
     required this.tagIds,
@@ -103,6 +105,7 @@ class Recipe {
         isSaved: (json['is_saved'] as bool?) ?? ((json['recipe_save'] as List<dynamic>?)?.isNotEmpty ?? false),
         isLiked: (json['is_liked'] as bool?) ?? ((json['recipe_like'] as List<dynamic>?)?.isNotEmpty ?? false),
         isPublished: (json['is_published'] as bool?) ?? true,
+        videoUrl: json['video_url'] as String?,
         ingredients: (json['ingredients'] as List<dynamic>?)
                 ?.map((e) =>
                     RecipeIngredient.fromJson(e as Map<String, dynamic>))
@@ -156,12 +159,16 @@ class RecipeStep {
   final String instruction;
   final int? durationMin;
   final String? imageUrl;
+  final String? videoUrl;
+  final List<String> ingredientIds;
 
   const RecipeStep({
     required this.stepNumber,
     required this.instruction,
     this.durationMin,
     this.imageUrl,
+    this.videoUrl,
+    this.ingredientIds = const [],
   });
 
   factory RecipeStep.fromJson(Map<String, dynamic> json) => RecipeStep(
@@ -173,5 +180,9 @@ class RecipeStep {
                 ? ((json['timer_seconds'] as int) / 60).round()
                 : null),
         imageUrl: json['image_url'] as String?,
+        videoUrl: json['video_url'] as String?,
+        ingredientIds: (json['ingredient_ids'] as List<dynamic>?)
+                ?.cast<String>() ??
+            const [],
       );
 }
