@@ -6,6 +6,9 @@ import '../shared/models/ingredient_detail.dart';
 final ingredientDetailProvider =
     FutureProvider.family<IngredientDetail?, String>((ref, ingredientId) async {
   final logger = appLogger;
+  logger.provider('ingredientDetailProvider build() | ingredientId: $ingredientId');
+  ref.onDispose(() => logger.provider('ingredientDetailProvider disposed | ingredientId: $ingredientId'));
+
   logger.db(
       'BEFORE | table: ingredient | op: SELECT | ingredientId: $ingredientId');
 
@@ -18,6 +21,7 @@ final ingredientDetailProvider =
         .maybeSingle();
 
     if (data == null) {
+      logger.db('AFTER | table: ingredient | rows: 0');
       logger.rls(
           'Zero rows | table: ingredient | ingredientId: $ingredientId | possible RLS block');
       return null;
@@ -36,7 +40,11 @@ final ingredientDetailProvider =
           'ERROR | table: ingredient | code: ${e.code} | ${e.message}',
           error: e,
           stackTrace: st);
+      rethrow;
     }
-    return null;
+    rethrow;
+  } catch (e, st) {
+    logger.db('ERROR | table: ingredient | unexpected | $e', error: e, stackTrace: st);
+    rethrow;
   }
 });
