@@ -35,6 +35,8 @@ import '../features/settings/health_profile_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import '../features/recipes/creator_detail_page.dart';
+import '../features/cooking/cooking_mode_page.dart';
+import '../shared/models/recipe.dart';
 import 'logger.dart';
 
 final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
@@ -74,8 +76,12 @@ abstract class AkeliRoutes {
   static String dmChatPath(String id) => '/dm/$id';
   static const creatorDetail = '/creators/:creatorId';
   static String creatorDetailPath(String id) => '/creators/$id';
+  static const userProfile = '/users/:userId';
+  static String userProfilePath(String id) => '/users/$id';
 
   static String recipeDetailPath(String id) => "/recipe/$id";
+  static const recipeCook = '/recipe/:id/cook';
+  static String recipeCookPath(String id) => '/recipe/$id/cook';
   static String mealDetailPath(String id) => "/meal/$id";
   static String groupChatPath(String id) => "/group/$id";
   static String groupDetailPath(String id) => "/group/$id/detail";
@@ -164,6 +170,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           final source = state.extra as TrackingSource? ?? TrackingSource.feed;
           return RecipeDetailPage(recipeId: recipeId, source: source);
         },
+        routes: [
+          GoRoute(
+            path: 'cook',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return CookingModePage(
+                recipe: extra['recipe'] as Recipe,
+                initialStepIndex: (extra['initialStepIndex'] as int?) ?? 0,
+              );
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: AkeliRoutes.shoppingList,
@@ -274,6 +292,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final creatorId = state.pathParameters['creatorId']!;
           return CreatorDetailPage(creatorId: creatorId);
+        },
+      ),
+      GoRoute(
+        path: AkeliRoutes.userProfile,
+        builder: (context, state) {
+          final userId = state.pathParameters['userId']!;
+          return ProfilePage(userId: userId);
         },
       ),
       // DM-6 will add conversationId/title params to GroupChatPage
