@@ -5,7 +5,7 @@ import 'package:akeli/shared/models/recipe.dart';
 void main() {
   group('IngredientDetail.fromJson', () {
     test('maps all fields when present', () {
-      final detail = IngredientDetail.fromJson({
+      final detail = IngredientDetail.fromJson(const {
         'id': 'ing-1',
         'name_fr': 'Gombo',
         'calories_per_100g': 33.0,
@@ -26,7 +26,7 @@ void main() {
     });
 
     test('returns null for nullable fields when absent', () {
-      final detail = IngredientDetail.fromJson({
+      final detail = IngredientDetail.fromJson(const {
         'id': 'ing-2',
         'name': 'Okra',
       });
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('prefers name_fr over name', () {
-      final detail = IngredientDetail.fromJson({
+      final detail = IngredientDetail.fromJson(const {
         'id': 'ing-3',
         'name_fr': 'Gombo',
         'name': 'Okra',
@@ -48,7 +48,7 @@ void main() {
 
   group('RecipeStep.fromJson with new fields', () {
     test('parses video_url and ingredient_ids', () {
-      final step = RecipeStep.fromJson({
+      final step = RecipeStep.fromJson(const {
         'step_number': 1,
         'instruction': 'Couper les légumes',
         'video_url': 'https://example.com/step1.mp4',
@@ -60,7 +60,7 @@ void main() {
     });
 
     test('defaults ingredient_ids to empty list when null', () {
-      final step = RecipeStep.fromJson({
+      final step = RecipeStep.fromJson(const {
         'step_number': 1,
         'instruction': 'Couper',
       });
@@ -71,7 +71,7 @@ void main() {
 
   group('Recipe.fromJson videoUrl', () {
     test('parses video_url field', () {
-      final recipe = Recipe.fromJson({
+      final recipe = Recipe.fromJson(const {
         'id': 'r1',
         'creator_id': 'c1',
         'title': 'Thiéboudienne',
@@ -98,7 +98,7 @@ void main() {
     });
 
     test('videoUrl is null when absent', () {
-      final recipe = Recipe.fromJson({
+      final recipe = Recipe.fromJson(const {
         'id': 'r1',
         'creator_id': 'c1',
         'title': 'Thiéboudienne',
