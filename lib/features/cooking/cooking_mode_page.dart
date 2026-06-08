@@ -81,7 +81,10 @@ class _CookingModePageState extends State<CookingModePage> {
               content: Text('Étape terminée !'),
               backgroundColor: AkeliColors.primary,
             ));
-            setState(() => _timerRunning = false);
+            setState(() {
+              _timerRunning = false;
+              _timerSeconds = (_currentStep.durationMin ?? 0) * 60;
+            });
           }
         } else {
           if (mounted) setState(() => _timerSeconds--);
@@ -111,8 +114,6 @@ class _CookingModePageState extends State<CookingModePage> {
 
   @override
   Widget build(BuildContext context) {
-    _logger.provider(
-        'CookingModePage build() | step: ${_currentStepIndex + 1}/${widget.recipe.steps.length}');
     final step = _currentStep;
     final totalSteps = widget.recipe.steps.length;
     final isLast = _currentStepIndex == totalSteps - 1;
@@ -148,6 +149,7 @@ class _CookingModePageState extends State<CookingModePage> {
                   child: Center(
                     child: Text(
                       step.instruction,
+                      textAlign: TextAlign.center,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 22,
                         height: 1.5,
