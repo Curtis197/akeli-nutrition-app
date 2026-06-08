@@ -3,6 +3,7 @@ import 'package:akeli/core/theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:video_player/video_player.dart';
 
 class RecipeVideoCard extends StatefulWidget {
@@ -24,6 +25,8 @@ class _RecipeVideoCardState extends State<RecipeVideoCard> {
   late VideoPlayerController _videoController;
   ChewieController? _chewieController;
   bool _initialized = false;
+  bool _hasError = false;
+  bool _wasPlaying = false;
 
   @override
   void initState() {
@@ -47,21 +50,24 @@ class _RecipeVideoCardState extends State<RecipeVideoCard> {
                 imageUrl: widget.thumbnailUrl!, fit: BoxFit.cover)
             : null,
       );
-      _videoController.addListener(_onVideoEvent);
       if (mounted) {
+        _videoController.addListener(_onVideoEvent);
         setState(() => _initialized = true);
         _logger.provider('RecipeVideoCard → initialized');
       }
     } catch (e, st) {
-      _logger.edge('video-player', 'ERROR | init failed | ${widget.videoUrl}',
+      _logger.provider('RecipeVideoCard → error | init failed | ${widget.videoUrl}',
           error: e, stackTrace: st);
+      if (mounted) setState(() => _hasError = true);
     }
   }
 
   void _onVideoEvent() {
-    if (_videoController.value.isPlaying) {
+    final isPlaying = _videoController.value.isPlaying;
+    if (isPlaying && !_wasPlaying) {
       _logger.userAction('Recipe video playing', screen: 'RecipeVideoCard');
     }
+    _wasPlaying = isPlaying;
   }
 
   @override
@@ -92,18 +98,34 @@ class _RecipeVideoCardState extends State<RecipeVideoCard> {
         ),
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: _initialized && _chewieController != null
-              ? Chewie(controller: _chewieController!)
-              : widget.thumbnailUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: widget.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(
-                          color: AkeliColors.primary),
-                    ),
+          child: _hasError
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.videocam_off_rounded,
+                          color: AkeliColors.onSurfaceVariant, size: 40),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Vidéo indisponible',
+                        style: GoogleFonts.inter(
+                            fontSize: 13, color: AkeliColors.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                )
+              : _initialized && _chewieController != null
+                  ? Chewie(controller: _chewieController!)
+                  : widget.thumbnailUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: widget.thumbnailUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(
+                              color: AkeliColors.primary),
+                        ),
         ),
       ),
     );
