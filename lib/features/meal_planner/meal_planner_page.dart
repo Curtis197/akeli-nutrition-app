@@ -131,7 +131,9 @@ class MealPlannerPage extends ConsumerWidget {
                       },
                       onConsumedToggle: (entryId) {
                         appLogger.userAction('Meal consumed toggle', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
-                        ref.read(mealConsumptionProvider.notifier).logConsumption(entryId);
+                        final plan = ref.read(activeMealPlanProvider).valueOrNull;
+                        final isConsumed = plan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
+                        ref.read(mealConsumptionProvider.notifier).toggleConsumption(entryId, isCurrentlyConsumed: isConsumed);
                       },
                     );
                   },

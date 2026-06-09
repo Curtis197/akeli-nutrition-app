@@ -77,9 +77,12 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
             isConsumeLoading: consumeState.isLoading,
             isLiked: isLiked,
             onConsume: () {
-              _logger.userAction('Mark consumed tapped', screen: 'MealDetailPage',
-                  metadata: {'mealId': entry.id});
-              ref.read(mealConsumptionProvider.notifier).logConsumption(entry.id);
+              _logger.userAction('Mark consumed tapped | isConsumed: ${entry.isConsumed}',
+                  screen: 'MealDetailPage', metadata: {'mealId': entry.id});
+              ref.read(mealConsumptionProvider.notifier).toggleConsumption(
+                entry.id,
+                isCurrentlyConsumed: entry.isConsumed,
+              );
             },
             onLike: _recipeId == null
                 ? null

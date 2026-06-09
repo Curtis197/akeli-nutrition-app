@@ -327,39 +327,64 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
     return null;
   }
 
-  Future<void> logConsumption(String mealPlanEntryId) async {
+  Future<void> toggleConsumption(String mealPlanEntryId, {required bool isCurrentlyConsumed}) async {
     if (state.isLoading) return;
 
-    _logger.userAction('Log meal consumption', metadata: {'mealPlanEntryId': mealPlanEntryId});
-    _logger.edge('log-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
-    _logger.provider('MealConsumptionNotifier → loading');
+    _logger.userAction('Toggle meal consumption | isConsumed: $isCurrentlyConsumed',
+        metadata: {'mealPlanEntryId': mealPlanEntryId});
 
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      try {
-        await client.functions.invoke(
-          'log-meal-consumption',
-          body: {'meal_plan_entry_id': mealPlanEntryId},
-        );
-        _logger.edge('log-meal-consumption', 'AFTER | success');
-        _logger.provider('MealConsumptionNotifier → data ($mealPlanEntryId)');
-        return mealPlanEntryId;
-      } on FunctionException catch (e) {
-        final details = e.details;
-        if (details is Map && details['error'] == 'Meal already consumed') {
-          _logger.edge('log-meal-consumption', 'WARNING | Already consumed. Treating as success.');
+
+    if (isCurrentlyConsumed) {
+      // Undo consumption
+      _logger.edge('unconsume-meal', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
+      _logger.provider('MealConsumptionNotifier → loading (unconsume)');
+      state = await AsyncValue.guard(() async {
+        try {
+          await client.functions.invoke(
+            'unconsume-meal',
+            body: {'meal_plan_entry_id': mealPlanEntryId},
+          );
+          _logger.edge('unconsume-meal', 'AFTER | success');
+          _logger.provider('MealConsumptionNotifier → data (unconsume $mealPlanEntryId)');
           return mealPlanEntryId;
+        } catch (e, st) {
+          _logger.edge('unconsume-meal', 'ERROR | $e', error: e, stackTrace: st);
+          _logger.provider('MealConsumptionNotifier → error | $e');
+          rethrow;
         }
-        _logger.edge('log-meal-consumption', 'ERROR | $e');
-        _logger.provider('MealConsumptionNotifier → error | $e');
-        rethrow;
-      } catch (e, st) {
-        _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
-        _logger.provider('MealConsumptionNotifier → error | $e');
-        rethrow;
-      }
-    });
+      });
+    } else {
+      // Log consumption
+      _logger.edge('log-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
+      _logger.provider('MealConsumptionNotifier → loading (consume)');
+      state = await AsyncValue.guard(() async {
+        try {
+          await client.functions.invoke(
+            'log-meal-consumption',
+            body: {'meal_plan_entry_id': mealPlanEntryId},
+          );
+          _logger.edge('log-meal-consumption', 'AFTER | success');
+          _logger.provider('MealConsumptionNotifier → data (consume $mealPlanEntryId)');
+          return mealPlanEntryId;
+        } on FunctionException catch (e) {
+          final details = e.details;
+          if (details is Map && details['error'] == 'Meal already consumed') {
+            _logger.edge('log-meal-consumption', 'WARNING | Already consumed. Treating as success.');
+            return mealPlanEntryId;
+          }
+          _logger.edge('log-meal-consumption', 'ERROR | $e');
+          _logger.provider('MealConsumptionNotifier → error | $e');
+          rethrow;
+        } catch (e, st) {
+          _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
+          _logger.provider('MealConsumptionNotifier → error | $e');
+          rethrow;
+        }
+      });
+    }
+
     if (state is AsyncData) ref.invalidate(activeMealPlanProvider);
   }
 }
