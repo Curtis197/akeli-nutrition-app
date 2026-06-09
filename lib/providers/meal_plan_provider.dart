@@ -26,7 +26,7 @@ final activeMealPlanProvider =
     final data = await client
         .from('meal_plan')
         .select(
-          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, prep_time_min, cook_time_min, recipe_macro(calories, protein_g, carbs_g, fat_g))), meal_consumption(rating))',
+          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, prep_time_min, cook_time_min, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
         )
         .eq('user_id', user.id)
         .eq('is_active', true)

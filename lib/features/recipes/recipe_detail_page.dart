@@ -616,18 +616,7 @@ class _RecipeContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         ...recipe.ingredients.map(
-                          (ing) => InkWell(
-                            borderRadius:
-                                BorderRadius.circular(AkeliRadius.md),
-                            onTap: () {
-                              appLogger.userAction('Ingredient tapped',
-                                  screen: 'RecipeDetailPage',
-                                  metadata: {
-                                    'ingredientId': ing.ingredientId
-                                  });
-                              IngredientDetailSheet.show(context, ing);
-                            },
-                            child: Container(
+                          (ing) => Container(
                               margin: const EdgeInsets.only(bottom: 8),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
@@ -658,10 +647,22 @@ class _RecipeContent extends StatelessWidget {
                                       color: AkeliColors.accentAmber,
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.info_outline),
+                                    color: AkeliColors.onSurfaceVariant,
+                                    onPressed: () {
+                                      appLogger.userAction('Ingredient tapped',
+                                          screen: 'RecipeDetailPage',
+                                          metadata: {
+                                            'ingredientId': ing.ingredientId
+                                          });
+                                      IngredientDetailSheet.show(context, ing);
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
-                          ),
                         ),
                       ],
                     ),
@@ -697,24 +698,7 @@ class _RecipeContent extends StatelessWidget {
                         ),
                         const SizedBox(height: 24),
                         ...recipe.steps.map(
-                          (step) => InkWell(
-                            borderRadius:
-                                BorderRadius.circular(AkeliRadius.md),
-                            onTap: () {
-                              appLogger.userAction('Step tapped',
-                                  screen: 'RecipeDetailPage',
-                                  metadata: {
-                                    'stepNumber': step.stepNumber
-                                  });
-                              context.push(
-                                '/recipe/${recipe.id}/cook',
-                                extra: {
-                                  'recipe': recipe,
-                                  'initialStepIndex': recipe.steps.indexOf(step),
-                                },
-                              );
-                            },
-                            child: Padding(
+                          (step) => Padding(
                               padding: const EdgeInsets.only(bottom: 24),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -747,10 +731,28 @@ class _RecipeContent extends StatelessWidget {
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.play_circle_outline),
+                                    color: AkeliColors.primary,
+                                    onPressed: () {
+                                      appLogger.userAction('Step tapped',
+                                          screen: 'RecipeDetailPage',
+                                          metadata: {
+                                            'stepNumber': step.stepNumber
+                                          });
+                                      context.push(
+                                        '/recipe/${recipe.id}/cook',
+                                        extra: {
+                                          'recipe': recipe,
+                                          'initialStepIndex': recipe.steps.indexOf(step),
+                                        },
+                                      );
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
-                          ),
                         ),
                       ],
                     ),
