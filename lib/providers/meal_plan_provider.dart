@@ -38,17 +38,28 @@ final activeMealPlanProvider =
       return null;
     }
     appLogger.db('BEFORE | table: recipe_comment | op: SELECT rated recipes | userId: ${user.id}');
-    final ratedResult = await client
-        .from('recipe_comment')
-        .select('recipe_id')
-        .eq('user_id', user.id)
-        .not('rating', 'is', null);
-    final ratedRecipeIds = (ratedResult as List)
-        .map((r) => r['recipe_id'] as String)
-        .toSet();
-    appLogger.db('AFTER | table: recipe_comment | rows: ${ratedRecipeIds.length}');
-    if (ratedRecipeIds.isEmpty) {
-      appLogger.rls('Zero rows | table: recipe_comment | userId: ${user.id} | no ratings or RLS block');
+    Set<String> ratedRecipeIds;
+    try {
+      final ratedResult = await client
+          .from('recipe_comment')
+          .select('recipe_id')
+          .eq('user_id', user.id)
+          .not('rating', 'is', null);
+      ratedRecipeIds = (ratedResult as List)
+          .map((r) => r['recipe_id'] as String)
+          .toSet();
+      appLogger.db('AFTER | table: recipe_comment | rows: ${ratedRecipeIds.length}');
+      if (ratedRecipeIds.isEmpty) {
+        appLogger.rls('Zero rows | table: recipe_comment | userId: ${user.id} | no ratings or RLS block');
+      }
+    } on PostgrestException catch (e, st) {
+      if (e.code == '42501') {
+        appLogger.rls('Permission denied | table: recipe_comment | userId: ${user.id}', error: e, stackTrace: st);
+      } else {
+        appLogger.db('ERROR | table: recipe_comment | code: ${e.code}', error: e, stackTrace: st);
+      }
+      appLogger.provider('activeMealPlanProvider → error | ${e.message}');
+      rethrow;
     }
     appLogger.provider('activeMealPlanProvider → data | mealPlanId: ${data['id']} | ratedCount: ${ratedRecipeIds.length}');
     return MealPlan.fromJson(data, ratedRecipeIds: ratedRecipeIds);
