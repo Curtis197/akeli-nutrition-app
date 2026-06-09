@@ -348,7 +348,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
           );
           _logger.edge('unconsume-meal', 'AFTER | success');
           _logger.provider('MealConsumptionNotifier → data (unconsume $mealPlanEntryId)');
-          return mealPlanEntryId;
+          return null;
         } catch (e, st) {
           _logger.edge('unconsume-meal', 'ERROR | $e', error: e, stackTrace: st);
           _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
