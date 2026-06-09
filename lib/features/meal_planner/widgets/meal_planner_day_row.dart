@@ -91,12 +91,10 @@ class MealPlannerDayRow extends StatelessWidget {
                     appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id});
                     onRecipeTap?.call(entry.id);
                   },
-                  onConsumedToggle: entry.isConsumed
-                      ? null
-                      : () {
-                          appLogger.userAction('Meal card consumed toggle', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id});
-                          onConsumedToggle?.call(entry.id);
-                        },
+                  onConsumedToggle: () {
+                      appLogger.userAction('Meal card consumed toggle', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id, 'wasConsumed': entry.isConsumed});
+                      onConsumedToggle?.call(entry.id);
+                  },
                 );
               },
             ),

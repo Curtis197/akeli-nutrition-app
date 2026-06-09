@@ -259,7 +259,7 @@ class _MealDetailBody extends ConsumerWidget {
                         // Consumed check
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: isConsumeLoading || entry.isConsumed ? null : onConsume,
+                          onTap: isConsumeLoading ? null : onConsume,
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
@@ -512,13 +512,19 @@ class _MealDetailBody extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     _ActionButton(
-                      icon: entry.isConsumed ? Icons.star_rounded : Icons.star_border_rounded,
-                      label: entry.isConsumed ? 'Note & commentaire' : 'Consommez d\'abord ce repas',
+                      icon: entry.isConsumed && entry.isRated
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
+                      label: !entry.isConsumed
+                          ? 'Consommez d\'abord ce repas'
+                          : entry.isRated
+                              ? 'Modifier votre avis'
+                              : 'Laisser un avis',
                       color: AkeliColors.accentAmber,
                       onTap: entry.isConsumed
                           ? () {
                               appLogger.userAction('Rating tapped', screen: 'MealDetailPage',
-                                  metadata: {'mealId': entry.id});
+                                  metadata: {'mealId': entry.id, 'isRated': entry.isRated});
                               showModalBottomSheet(
                                 context: pageContext,
                                 isScrollControlled: true,
