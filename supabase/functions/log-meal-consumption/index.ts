@@ -128,20 +128,18 @@ serve(async (req) => {
       logger.debug('Fan mode check skipped | base recipe has no creator_id');
     }
 
-    // 4. Récupérer le user_profile.id du créateur pour chaque recette distincte.
-    //    recipe.creator_id → creator entity id; meal_consumption.creator_id FK → user_profile.id.
-    //    Must join through the creator table to resolve the correct user_profile id.
-    logger.debug("[STEP 5] Get recipe creator user ids");
+    // 4. Récupérer l'ID du créateur (creator_id) pour chaque recette distincte.
+    logger.debug("[STEP 5] Get recipe creator ids");
     const recipeIds = [...new Set(components.map((c) => c.recipe_id))];
     logRLSCheck(logger, "recipe", "SELECT", user.id);
     const { data: recipes, error: recipesError } = await client
       .from("recipe")
-      .select("id, creator:creator_id(user_id)")
+      .select("id, creator_id")
       .in("id", recipeIds);
     logQueryResult(logger, "recipe", "SELECT", recipes?.length ?? 0, recipesError ?? undefined);
 
     const creatorUserById = Object.fromEntries(
-      (recipes ?? []).map((r) => [r.id, (r.creator as any)?.user_id ?? null]),
+      (recipes ?? []).map((r) => [r.id, r.creator_id ?? null]),
     );
 
     // 5. Insérer N lignes dans meal_consumption — une par composant.
