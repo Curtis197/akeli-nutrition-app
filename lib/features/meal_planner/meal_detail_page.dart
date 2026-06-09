@@ -42,7 +42,7 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
       } else if (next.valueOrNull != null) {
         final plan = ref.read(activeMealPlanProvider).valueOrNull;
         final entry = plan?.entries.where((e) => e.id == widget.mealId).firstOrNull;
-        if (entry == null || !entry.isRated) {
+        if (entry != null && !entry.isRated) {
           showModalBottomSheet(
             context: context,
             isScrollControlled: true,
