@@ -25,7 +25,14 @@ serve(async (req) => {
     logger.info("👤 Auth verified | userId: " + user.id);
 
     logger.debug("[STEP 1] Parse body");
-    const { meal_plan_entry_id } = await req.json();
+    let body: { meal_plan_entry_id?: string };
+    try {
+      body = await req.json();
+    } catch {
+      logger.warn("EARLY RETURN | reason: invalid JSON body");
+      return err("Invalid request body", 400);
+    }
+    const { meal_plan_entry_id } = body;
     if (!meal_plan_entry_id) {
       logger.warn("EARLY RETURN | reason: meal_plan_entry_id missing");
       return err("meal_plan_entry_id is required");
@@ -63,11 +70,11 @@ serve(async (req) => {
 
     logger.debug("[STEP 4] Reset is_consumed on meal_plan_entry");
     const admin = serviceClient();
+    logRLSCheck(logger, "meal_plan_entry", "UPDATE", user.id);
     const { error: updateError } = await admin
       .from("meal_plan_entry")
       .update({ is_consumed: false, consumed_at: null })
-      .eq("id", meal_plan_entry_id)
-      .eq("meal_plan_id", entry.meal_plan_id);
+      .eq("id", meal_plan_entry_id);
     logQueryResult(logger, "meal_plan_entry", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
     if (updateError) throw updateError;
