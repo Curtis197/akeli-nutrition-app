@@ -351,7 +351,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
           return mealPlanEntryId;
         } catch (e, st) {
           _logger.edge('unconsume-meal', 'ERROR | $e', error: e, stackTrace: st);
-          _logger.provider('MealConsumptionNotifier → error | $e');
+          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
           rethrow;
         }
       });
@@ -368,18 +368,18 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
           _logger.edge('log-meal-consumption', 'AFTER | success');
           _logger.provider('MealConsumptionNotifier → data (consume $mealPlanEntryId)');
           return mealPlanEntryId;
-        } on FunctionException catch (e) {
+        } on FunctionException catch (e, st) {
           final details = e.details;
           if (details is Map && details['error'] == 'Meal already consumed') {
             _logger.edge('log-meal-consumption', 'WARNING | Already consumed. Treating as success.');
             return mealPlanEntryId;
           }
-          _logger.edge('log-meal-consumption', 'ERROR | $e');
-          _logger.provider('MealConsumptionNotifier → error | $e');
+          _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
+          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
           rethrow;
         } catch (e, st) {
           _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
-          _logger.provider('MealConsumptionNotifier → error | $e');
+          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
           rethrow;
         }
       });
