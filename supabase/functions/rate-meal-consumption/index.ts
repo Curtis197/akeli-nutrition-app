@@ -60,37 +60,38 @@ serve(async (req) => {
       logger.warn("EARLY RETURN | reason: meal_plan_entry not found | id: " + meal_plan_entry_id + " | error: " + (entryError?.message || ""));
       return err("Meal plan entry not found", 404);
     }
-    
-    // Extract recipe_id from components
-    const recipeId = entry.meal_plan_entry_component?.find((c: any) => c.recipe_id)?.recipe_id;
-    if (!recipeId) {
-      logger.warn("EARLY RETURN | reason: recipe_id not found in components | id: " + meal_plan_entry_id);
-      return err("Recipe not found for this meal plan entry", 404);
-    }
     if (!entry.is_consumed) {
       logger.warn("EARLY RETURN | reason: meal_not_consumed | id: " + meal_plan_entry_id);
       return err("meal_not_consumed", 403);
     }
 
-    logger.debug("[STEP 3] Upsert rating and comment into recipe_comment");
+    // Extract all recipe_ids from components (one rating upsert per recipe)
+    const recipeIds = (entry.meal_plan_entry_component ?? [])
+      .map((c: any) => c.recipe_id)
+      .filter(Boolean) as string[];
+    if (recipeIds.length === 0) {
+      logger.warn("EARLY RETURN | reason: no recipe components found | id: " + meal_plan_entry_id);
+      return err("No recipe components found for this meal plan entry", 404);
+    }
+
+    logger.debug("[STEP 3] Upsert rating and comment for all components | count: " + recipeIds.length);
     const admin = serviceClient();
+    const upsertRows = recipeIds.map((recipeId) => ({
+      recipe_id: recipeId,
+      user_id: user.id,
+      rating,
+      rating_taste: rating_taste ?? null,
+      rating_ease: rating_ease ?? null,
+      rating_satiety: rating_satiety ?? null,
+      content: comment && comment.trim().length > 0 ? comment.trim() : null,
+      updated_at: new Date().toISOString(),
+    }));
+
     logRLSCheck(logger, "recipe_comment", "UPSERT", user.id);
     const { error: upsertError } = await admin
       .from("recipe_comment")
-      .upsert(
-        {
-          recipe_id: recipeId,
-          user_id: user.id,
-          rating,
-          rating_taste: rating_taste ?? null,
-          rating_ease: rating_ease ?? null,
-          rating_satiety: rating_satiety ?? null,
-          content: comment && comment.trim().length > 0 ? comment.trim() : null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id, recipe_id" }
-      );
-    logQueryResult(logger, "recipe_comment", "UPSERT", upsertError ? 0 : 1, upsertError ?? undefined);
+      .upsert(upsertRows, { onConflict: "user_id, recipe_id" });
+    logQueryResult(logger, "recipe_comment", "UPSERT", upsertError ? 0 : upsertRows.length, upsertError ?? undefined);
 
     if (upsertError) throw upsertError;
 

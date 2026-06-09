@@ -53,7 +53,6 @@ class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
             bottom: bottomPadding > 0 ? bottomPadding + 16 : 32,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Drag Handle
