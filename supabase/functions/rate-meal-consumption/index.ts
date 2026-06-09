@@ -51,14 +51,21 @@ serve(async (req) => {
     logRLSCheck(logger, "meal_plan_entry", "SELECT", user.id);
     const { data: entry, error: entryError } = await client
       .from("meal_plan_entry")
-      .select("id, is_consumed, recipe_id")
+      .select("id, is_consumed, meal_plan_entry_component(recipe_id)")
       .eq("id", meal_plan_entry_id)
       .maybeSingle();
     logQueryResult(logger, "meal_plan_entry", "SELECT", entry ? 1 : 0, entryError ?? undefined);
 
     if (entryError || !entry) {
-      logger.warn("EARLY RETURN | reason: meal_plan_entry not found | id: " + meal_plan_entry_id);
+      logger.warn("EARLY RETURN | reason: meal_plan_entry not found | id: " + meal_plan_entry_id + " | error: " + (entryError?.message || ""));
       return err("Meal plan entry not found", 404);
+    }
+    
+    // Extract recipe_id from components
+    const recipeId = entry.meal_plan_entry_component?.find((c: any) => c.recipe_id)?.recipe_id;
+    if (!recipeId) {
+      logger.warn("EARLY RETURN | reason: recipe_id not found in components | id: " + meal_plan_entry_id);
+      return err("Recipe not found for this meal plan entry", 404);
     }
     if (!entry.is_consumed) {
       logger.warn("EARLY RETURN | reason: meal_not_consumed | id: " + meal_plan_entry_id);
@@ -72,7 +79,7 @@ serve(async (req) => {
       .from("recipe_comment")
       .upsert(
         {
-          recipe_id: entry.recipe_id,
+          recipe_id: recipeId,
           user_id: user.id,
           rating,
           rating_taste: rating_taste ?? null,
