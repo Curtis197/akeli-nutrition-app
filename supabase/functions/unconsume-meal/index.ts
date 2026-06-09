@@ -59,22 +59,24 @@ serve(async (req) => {
 
     logger.debug("[STEP 3] Delete meal_consumption rows for this entry");
     logRLSCheck(logger, "meal_consumption", "DELETE", user.id);
-    const { error: deleteError } = await client
+    const { data: deleted, error: deleteError } = await client
       .from("meal_consumption")
       .delete()
       .eq("meal_plan_entry_id", meal_plan_entry_id)
-      .eq("user_id", user.id);
-    logQueryResult(logger, "meal_consumption", "DELETE", deleteError ? 0 : 1, deleteError ?? undefined);
+      .eq("user_id", user.id)
+      .select("id");
+    logQueryResult(logger, "meal_consumption", "DELETE", deleted?.length ?? 0, deleteError ?? undefined);
 
     if (deleteError) throw deleteError;
 
-    logger.debug("[STEP 4] Reset is_consumed on meal_plan_entry");
     const admin = serviceClient();
+    logger.debug("[STEP 4] Reset is_consumed on meal_plan_entry");
     logRLSCheck(logger, "meal_plan_entry", "UPDATE", user.id);
     const { error: updateError } = await admin
       .from("meal_plan_entry")
       .update({ is_consumed: false, consumed_at: null })
-      .eq("id", meal_plan_entry_id);
+      .eq("id", meal_plan_entry_id)
+      .eq("meal_plan_id", entry.meal_plan_id);
     logQueryResult(logger, "meal_plan_entry", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
 
     if (updateError) throw updateError;
