@@ -23,17 +23,19 @@ class MealPlan {
     required this.entries,
   });
 
-  factory MealPlan.fromJson(Map<String, dynamic> json) => MealPlan(
-        id: json['id'] as String,
-        userId: json['user_id'] as String,
-        startDate: DateTime.parse(json['start_date'] as String),
-        endDate: DateTime.parse(json['end_date'] as String),
-        isActive: (json['is_active'] as bool?) ?? true,
-        entries: (json['meal_plan_entry'] as List<dynamic>?)
-                ?.map((e) => MealPlanEntry.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-      );
+  factory MealPlan.fromJson(Map<String, dynamic> json, {Set<String> ratedRecipeIds = const {}}) {
+    return MealPlan(
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      startDate: DateTime.parse(json['start_date'] as String),
+      endDate: DateTime.parse(json['end_date'] as String),
+      isActive: (json['is_active'] as bool?) ?? true,
+      entries: (json['meal_plan_entry'] as List<dynamic>?)
+              ?.map((e) => MealPlanEntry.fromJson(e as Map<String, dynamic>, ratedRecipeIds: ratedRecipeIds))
+              .toList() ??
+          [],
+    );
+  }
 
   List<MealPlanEntry> entriesForDate(DateTime date) => entries
       .where((e) =>
@@ -105,35 +107,36 @@ class MealPlanEntry {
     required this.components,
   });
 
-  factory MealPlanEntry.fromJson(Map<String, dynamic> json) => MealPlanEntry(
-        id: json['id'] as String,
-        mealPlanId: json['meal_plan_id'] as String,
-        mealType: json['meal_type'] as String,
-        scheduledDate: DateTime.parse(json['scheduled_date'] as String),
-        servings: (json['servings'] as num?)?.toDouble() ?? 1.0,
-        isConsumed: (json['is_consumed'] as bool?) ?? false,
-        isRated: ((json['meal_consumption'] as List<dynamic>?) ?? [])
-            .any((c) => (c as Map<String, dynamic>)['rating'] != null),
-        isCustomMeal: (json['is_custom_meal'] as bool?) ?? false,
-        customMealName: json['custom_meal_name'] as String?,
-        customCalories: (json['custom_calories'] as num?)?.toDouble(),
-        customProteinG: (json['custom_protein_g'] as num?)?.toDouble(),
-        customCarbsG: (json['custom_carbs_g'] as num?)?.toDouble(),
-        customFatG: (json['custom_fat_g'] as num?)?.toDouble(),
-        caloriesComputed: (json['calories_computed'] as num?)?.toDouble(),
-        proteinGComputed: (json['protein_g_computed'] as num?)?.toDouble(),
-        carbsGComputed: (json['carbs_g_computed'] as num?)?.toDouble(),
-        fatGComputed: (json['fat_g_computed'] as num?)?.toDouble(),
-        ingredients: (json['meal_ingredient'] as List<dynamic>?)
-                ?.map((e) => MealIngredient.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-        components: (json['meal_plan_entry_component'] as List<dynamic>?)
-                ?.map((e) =>
-                    MealPlanEntryComponent.fromJson(e as Map<String, dynamic>))
-                .toList() ??
-            [],
-      );
+  factory MealPlanEntry.fromJson(Map<String, dynamic> json, {Set<String> ratedRecipeIds = const {}}) {
+    final components = (json['meal_plan_entry_component'] as List<dynamic>?)
+            ?.map((e) => MealPlanEntryComponent.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        [];
+    return MealPlanEntry(
+      id: json['id'] as String,
+      mealPlanId: json['meal_plan_id'] as String,
+      mealType: json['meal_type'] as String,
+      scheduledDate: DateTime.parse(json['scheduled_date'] as String),
+      servings: (json['servings'] as num?)?.toDouble() ?? 1.0,
+      isConsumed: (json['is_consumed'] as bool?) ?? false,
+      isRated: components.any((c) => ratedRecipeIds.contains(c.recipeId)),
+      isCustomMeal: (json['is_custom_meal'] as bool?) ?? false,
+      customMealName: json['custom_meal_name'] as String?,
+      customCalories: (json['custom_calories'] as num?)?.toDouble(),
+      customProteinG: (json['custom_protein_g'] as num?)?.toDouble(),
+      customCarbsG: (json['custom_carbs_g'] as num?)?.toDouble(),
+      customFatG: (json['custom_fat_g'] as num?)?.toDouble(),
+      caloriesComputed: (json['calories_computed'] as num?)?.toDouble(),
+      proteinGComputed: (json['protein_g_computed'] as num?)?.toDouble(),
+      carbsGComputed: (json['carbs_g_computed'] as num?)?.toDouble(),
+      fatGComputed: (json['fat_g_computed'] as num?)?.toDouble(),
+      ingredients: (json['meal_ingredient'] as List<dynamic>?)
+              ?.map((e) => MealIngredient.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      components: components,
+    );
+  }
 
   // Display helpers — derived from the base component (first with role='base').
   MealPlanEntryComponent? get _base =>
