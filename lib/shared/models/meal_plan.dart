@@ -359,6 +359,26 @@ class CookingSession {
 
   int get portionsAvailable => totalPortions - portionsUsed;
   bool get hasAvailablePortions => portionsAvailable > 0;
+
+  CookingSession copyWith({
+    bool? isCooked,
+    int? portionsUsed,
+  }) =>
+      CookingSession(
+        id: id,
+        userId: userId,
+        mealPlanId: mealPlanId,
+        recipeId: recipeId,
+        recipeTitle: recipeTitle,
+        recipeThumbnail: recipeThumbnail,
+        plannedDate: plannedDate,
+        totalPortions: totalPortions,
+        portionsUsed: portionsUsed ?? this.portionsUsed,
+        isCooked: isCooked ?? this.isCooked,
+        scaleFactor: scaleFactor,
+        notes: notes,
+        ingredients: ingredients,
+      );
 }
 
 // ---------------------------------------------------------------------------

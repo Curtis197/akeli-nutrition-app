@@ -92,7 +92,7 @@ class BatchCookingPage extends ConsumerWidget {
                   return _CookingSessionCard(
                     session: session,
                     onToggleCooked: () => ref
-                        .read(cookingSessionNotifierProvider.notifier)
+                        .read(cookingSessionsProvider.notifier)
                         .markCooked(session.id, isCooked: !session.isCooked),
                   );
                 },

@@ -65,37 +65,27 @@ serve(async (req) => {
       return err("meal_not_consumed", 403);
     }
 
-    logger.debug("[STEP 3] Update meal_consumption rating columns");
+    logger.debug("[STEP 3] Upsert rating and comment into recipe_comment");
     const admin = serviceClient();
-    logRLSCheck(logger, "meal_consumption", "UPDATE", user.id);
-    const { error: updateError } = await admin
-      .from("meal_consumption")
-      .update({
-        rating,
-        rating_taste: rating_taste ?? null,
-        rating_ease: rating_ease ?? null,
-        rating_satiety: rating_satiety ?? null,
-      })
-      .eq("meal_plan_entry_id", meal_plan_entry_id)
-      .eq("user_id", user.id);
-    logQueryResult(logger, "meal_consumption", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
-
-    if (updateError) throw updateError;
-
-    if (comment && comment.trim().length > 0) {
-      logger.debug("[STEP 4] Insert comment into recipe_comment");
-      logRLSCheck(logger, "recipe_comment", "INSERT", user.id);
-      const { error: commentError } = await admin
-        .from("recipe_comment")
-        .insert({
+    logRLSCheck(logger, "recipe_comment", "UPSERT", user.id);
+    const { error: upsertError } = await admin
+      .from("recipe_comment")
+      .upsert(
+        {
           recipe_id: entry.recipe_id,
           user_id: user.id,
-          content: comment.trim(),
-        });
-      logQueryResult(logger, "recipe_comment", "INSERT", commentError ? 0 : 1, commentError ?? undefined);
-      
-      if (commentError) throw commentError;
-    }
+          rating,
+          rating_taste: rating_taste ?? null,
+          rating_ease: rating_ease ?? null,
+          rating_satiety: rating_satiety ?? null,
+          content: comment && comment.trim().length > 0 ? comment.trim() : null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id, recipe_id" }
+      );
+    logQueryResult(logger, "recipe_comment", "UPSERT", upsertError ? 0 : 1, upsertError ?? undefined);
+
+    if (upsertError) throw upsertError;
 
     logger.info("✅ EXIT | status: 200 | duration: " + (Date.now() - start) + "ms");
     return ok({ rated: true });

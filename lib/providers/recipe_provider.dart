@@ -158,7 +158,7 @@ final recipeDetailProvider =
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, video_url, ingredient_ids, timer_seconds, sort_order), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
         .maybeSingle();
 

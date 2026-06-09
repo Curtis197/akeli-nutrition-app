@@ -21,45 +21,10 @@ class RecipeCommentsSheet extends ConsumerStatefulWidget {
 }
 
 class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
-  final _commentController = TextEditingController();
-  bool _isPosting = false;
-
   @override
   void initState() {
     super.initState();
     timeago.setLocaleMessages('fr', timeago.FrMessages());
-  }
-
-  @override
-  void dispose() {
-    _commentController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _postComment() async {
-    final content = _commentController.text.trim();
-    if (content.isEmpty) return;
-
-    setState(() => _isPosting = true);
-
-    try {
-      await ref
-          .read(recipeCommentNotifierProvider(widget.recipeId).notifier)
-          .postComment(content);
-      
-      _commentController.clear();
-      FocusManager.instance.primaryFocus?.unfocus();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur lors de l'ajout du commentaire.")),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isPosting = false);
-      }
-    }
   }
 
   @override
@@ -146,48 +111,6 @@ class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _commentController,
-                  decoration: InputDecoration(
-                    hintText: 'Ajouter un commentaire...',
-                    filled: true,
-                    fillColor: AkeliColors.surfaceContainerHigh,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _postComment(),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                decoration: const BoxDecoration(
-                  color: AkeliColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  onPressed: _isPosting ? null : _postComment,
-                  icon: _isPosting
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: AkeliColors.onPrimary,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Icon(Icons.send_rounded, color: AkeliColors.onPrimary),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -233,14 +156,29 @@ class _CommentTile extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                comment.content,
-                style: const TextStyle(
-                  color: AkeliColors.onSurface,
-                  height: 1.4,
+              if (comment.rating != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: List.generate(
+                    5,
+                    (index) => Icon(
+                      index < comment.rating! ? Icons.star_rounded : Icons.star_border_rounded,
+                      size: 16,
+                      color: Colors.amber,
+                    ),
+                  ),
                 ),
-              ),
+              ],
+              if (comment.content != null && comment.content!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  comment.content!,
+                  style: const TextStyle(
+                    color: AkeliColors.onSurface,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

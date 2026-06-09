@@ -372,57 +372,52 @@ final mealConsumptionProvider =
 // Cooking sessions — for the active meal plan
 // ---------------------------------------------------------------------------
 
-final cookingSessionsProvider =
-    FutureProvider.autoDispose<List<CookingSession>>((ref) async {
-  appLogger.provider('cookingSessionsProvider build()');
-  ref.onDispose(() => appLogger.provider('cookingSessionsProvider disposed'));
-
-  final plan = await ref.watch(activeMealPlanProvider.future);
-  if (plan == null) {
-    appLogger.provider('cookingSessionsProvider EARLY RETURN | reason: no active meal plan');
-    return [];
-  }
-
-  appLogger.provider('cookingSessionsProvider | mealPlanId: ${plan.id}');
-  appLogger.db('BEFORE | table: cooking_session | op: SELECT with recipe join | mealPlanId: ${plan.id}');
-
-  final client = ref.watch(supabaseClientProvider);
-  try {
-    final data = await client
-        .from('cooking_session')
-        .select('*, recipe(id, title, cover_image_url), cooking_session_ingredient(*)')
-        .eq('meal_plan_id', plan.id)
-        .order('planned_date');
-
-    appLogger.db('AFTER | table: cooking_session | rows: ${data.length} | mealPlanId: ${plan.id}');
-    if (data.isEmpty) {
-      appLogger.rls('Zero rows | table: cooking_session | mealPlanId: ${plan.id} | possible RLS block');
-    }
-    appLogger.provider('cookingSessionsProvider → data | sessions: ${data.length}');
-    return data.map((e) => CookingSession.fromJson(e)).toList();
-  } on PostgrestException catch (e, st) {
-    if (e.code == '42501') {
-      appLogger.rls('Permission denied | table: cooking_session | mealPlanId: ${plan.id}', error: e, stackTrace: st);
-    } else {
-      appLogger.db('ERROR | table: cooking_session | code: ${e.code}', error: e, stackTrace: st);
-    }
-    appLogger.provider('cookingSessionsProvider → error | ${e.message}');
-    rethrow;
-  } catch (e, st) {
-    appLogger.db('ERROR | table: cooking_session | unexpected: $e', error: e, stackTrace: st);
-    appLogger.provider('cookingSessionsProvider → error | $e');
-    rethrow;
-  }
-});
-
-class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
+class CookingSessionsNotifier extends AutoDisposeAsyncNotifier<List<CookingSession>> {
   final _logger = appLogger;
 
   @override
-  FutureOr<void> build() {
-    _logger.provider('CookingSessionNotifier build()');
-    ref.onDispose(() => _logger.provider('CookingSessionNotifier disposed'));
+  Future<List<CookingSession>> build() async {
+    _logger.provider('CookingSessionsNotifier build()');
+    ref.onDispose(() => _logger.provider('CookingSessionsNotifier disposed'));
+
+    final plan = await ref.watch(activeMealPlanProvider.future);
+    if (plan == null) {
+      _logger.provider('CookingSessionsNotifier EARLY RETURN | reason: no active meal plan');
+      return [];
+    }
+
+    _logger.provider('CookingSessionsNotifier | mealPlanId: ${plan.id}');
+    _logger.db('BEFORE | table: cooking_session | op: SELECT with recipe join | mealPlanId: ${plan.id}');
+
+    final client = ref.watch(supabaseClientProvider);
+    try {
+      final data = await client
+          .from('cooking_session')
+          .select('*, recipe(id, title, cover_image_url), cooking_session_ingredient(*)')
+          .eq('meal_plan_id', plan.id)
+          .order('planned_date');
+
+      _logger.db('AFTER | table: cooking_session | rows: ${data.length} | mealPlanId: ${plan.id}');
+      if (data.isEmpty) {
+        _logger.rls('Zero rows | table: cooking_session | mealPlanId: ${plan.id} | possible RLS block');
+      }
+      _logger.provider('CookingSessionsNotifier → data | sessions: ${data.length}');
+      return data.map((e) => CookingSession.fromJson(e)).toList();
+    } on PostgrestException catch (e, st) {
+      if (e.code == '42501') {
+        _logger.rls('Permission denied | table: cooking_session | mealPlanId: ${plan.id}', error: e, stackTrace: st);
+      } else {
+        _logger.db('ERROR | table: cooking_session | code: ${e.code}', error: e, stackTrace: st);
+      }
+      _logger.provider('CookingSessionsNotifier → error | ${e.message}');
+      rethrow;
+    } catch (e, st) {
+      _logger.db('ERROR | table: cooking_session | unexpected: $e', error: e, stackTrace: st);
+      _logger.provider('CookingSessionsNotifier → error | $e');
+      rethrow;
+    }
   }
+
 
   Future<void> create({
     required String mealPlanId,
@@ -436,38 +431,32 @@ class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
 
     _logger.userAction('Create cooking session', metadata: {'recipeId': recipeId, 'plannedDate': plannedDate.toIso8601String()});
     _logger.db('BEFORE | table: cooking_session | op: INSERT | userId: ${user.id} | recipeId: $recipeId');
-    _logger.provider('CookingSessionNotifier → loading (create)');
 
     final client = ref.read(supabaseClientProvider);
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      try {
-        await client.from('cooking_session').insert({
-          'user_id': user.id,
-          'meal_plan_id': mealPlanId,
-          'recipe_id': recipeId,
-          'planned_date':
-              '${plannedDate.year}-${plannedDate.month.toString().padLeft(2, '0')}-${plannedDate.day.toString().padLeft(2, '0')}',
-          'total_portions': totalPortions,
-          if (notes != null) 'notes': notes,
-        });
-        _logger.db('AFTER | table: cooking_session | op: INSERT | success');
-        _logger.provider('CookingSessionNotifier → data (create success)');
-      } on PostgrestException catch (e, st) {
-        if (e.code == '42501') {
-          _logger.rls('Permission denied | table: cooking_session | INSERT | userId: ${user.id}', error: e, stackTrace: st);
-        } else {
-          _logger.db('ERROR | table: cooking_session | INSERT | code: ${e.code}', error: e, stackTrace: st);
-        }
-        _logger.provider('CookingSessionNotifier → error (create)');
-        rethrow;
-      } catch (e, st) {
-        _logger.db('ERROR | table: cooking_session | INSERT | unexpected: $e', error: e, stackTrace: st);
-        _logger.provider('CookingSessionNotifier → error (create unexpected)');
-        rethrow;
+    
+    try {
+      await client.from('cooking_session').insert({
+        'user_id': user.id,
+        'meal_plan_id': mealPlanId,
+        'recipe_id': recipeId,
+        'planned_date':
+            '${plannedDate.year}-${plannedDate.month.toString().padLeft(2, '0')}-${plannedDate.day.toString().padLeft(2, '0')}',
+        'total_portions': totalPortions,
+        if (notes != null) 'notes': notes,
+      });
+      _logger.db('AFTER | table: cooking_session | op: INSERT | success');
+      ref.invalidateSelf();
+    } on PostgrestException catch (e, st) {
+      if (e.code == '42501') {
+        _logger.rls('Permission denied | table: cooking_session | INSERT | userId: ${user.id}', error: e, stackTrace: st);
+      } else {
+        _logger.db('ERROR | table: cooking_session | INSERT | code: ${e.code}', error: e, stackTrace: st);
       }
-    });
-    if (state is AsyncData) ref.invalidate(cookingSessionsProvider);
+      rethrow;
+    } catch (e, st) {
+      _logger.db('ERROR | table: cooking_session | INSERT | unexpected: $e', error: e, stackTrace: st);
+      rethrow;
+    }
   }
 
   Future<void> markCooked(String sessionId, {required bool isCooked}) async {
@@ -475,37 +464,54 @@ class CookingSessionNotifier extends AutoDisposeAsyncNotifier<void> {
     if (user == null) return;
 
     _logger.userAction('Mark cooking session cooked', metadata: {'sessionId': sessionId, 'isCooked': isCooked});
-    _logger.db('BEFORE | table: cooking_session | op: UPDATE is_cooked=$isCooked | sessionId: $sessionId');
-    _logger.provider('CookingSessionNotifier → loading (markCooked)');
+    
+    // Optimistic UI update
+    final previousState = state.valueOrNull;
+    if (previousState != null) {
+      state = AsyncData([
+        for (final session in previousState)
+          if (session.id == sessionId)
+            session.copyWith(isCooked: isCooked)
+          else
+            session
+      ]);
+    }
 
+    _logger.db('BEFORE | table: cooking_session | op: UPDATE is_cooked=$isCooked | sessionId: $sessionId');
     final client = ref.read(supabaseClientProvider);
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      try {
-        await client
-            .from('cooking_session')
-            .update({'is_cooked': isCooked})
-            .eq('id', sessionId)
-            .eq('user_id', user.id);
-        _logger.db('AFTER | table: cooking_session | op: UPDATE is_cooked=$isCooked | success');
-        _logger.provider('CookingSessionNotifier → data (markCooked success)');
-      } on PostgrestException catch (e, st) {
-        if (e.code == '42501') {
-          _logger.rls('Permission denied | table: cooking_session | UPDATE | userId: ${user.id}', error: e, stackTrace: st);
-        } else {
-          _logger.db('ERROR | table: cooking_session | UPDATE | code: ${e.code}', error: e, stackTrace: st);
-        }
-        _logger.provider('CookingSessionNotifier → error (markCooked)');
-        rethrow;
+
+    try {
+      await client
+          .from('cooking_session')
+          .update({'is_cooked': isCooked})
+          .eq('id', sessionId)
+          .eq('user_id', user.id);
+      _logger.db('AFTER | table: cooking_session | op: UPDATE is_cooked=$isCooked | success');
+    } on PostgrestException catch (e, st) {
+      if (e.code == '42501') {
+        _logger.rls('Permission denied | table: cooking_session | UPDATE | userId: ${user.id}', error: e, stackTrace: st);
+      } else {
+        _logger.db('ERROR | table: cooking_session | UPDATE | code: ${e.code}', error: e, stackTrace: st);
       }
-    });
-    if (state is AsyncData) ref.invalidate(cookingSessionsProvider);
+      // Revert optimistic update
+      if (previousState != null) {
+        state = AsyncData(previousState);
+      }
+      rethrow;
+    } catch (e, st) {
+      _logger.db('ERROR | table: cooking_session | UPDATE | unexpected: $e', error: e, stackTrace: st);
+      // Revert optimistic update
+      if (previousState != null) {
+        state = AsyncData(previousState);
+      }
+      rethrow;
+    }
   }
 }
 
-final cookingSessionNotifierProvider =
-    AsyncNotifierProvider.autoDispose<CookingSessionNotifier, void>(
-        CookingSessionNotifier.new);
+final cookingSessionsProvider =
+    AsyncNotifierProvider.autoDispose<CookingSessionsNotifier, List<CookingSession>>(
+        CookingSessionsNotifier.new);
 
 // ---------------------------------------------------------------------------
 // Personal Meal Swap
