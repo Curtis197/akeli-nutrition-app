@@ -1,0 +1,40 @@
+const fs = require('fs');
+
+const usersSql = `
+-- Create users needed for foreign key constraints
+INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
+VALUES 
+('00000000-0000-0000-0000-000000000000', '1a1b225a-1328-4d58-976f-253574410c6f', 'authenticated', 'authenticated', 'user1@example.com', crypt('password', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+('00000000-0000-0000-0000-000000000000', 'f1414791-8f57-4bf4-a730-42f3c89dad95', 'authenticated', 'authenticated', 'test@client.com', crypt('jehojada', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+VALUES
+('1a1b225a-1328-4d58-976f-253574410c6f', '1a1b225a-1328-4d58-976f-253574410c6f', '1a1b225a-1328-4d58-976f-253574410c6f', format('{"sub":"%s","email":"%s"}', '1a1b225a-1328-4d58-976f-253574410c6f', 'user1@example.com')::jsonb, 'email', now(), now(), now()),
+('f1414791-8f57-4bf4-a730-42f3c89dad95', 'f1414791-8f57-4bf4-a730-42f3c89dad95', 'f1414791-8f57-4bf4-a730-42f3c89dad95', format('{"sub":"%s","email":"%s"}', 'f1414791-8f57-4bf4-a730-42f3c89dad95', 'test@client.com')::jsonb, 'email', now(), now(), now())
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.user_profile (id, username, updated_at)
+VALUES 
+('1a1b225a-1328-4d58-976f-253574410c6f', 'user1', now()),
+('f1414791-8f57-4bf4-a730-42f3c89dad95', 'testuser', now())
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.creator (id, display_name, recipe_count)
+VALUES 
+('1a1b225a-1328-4d58-976f-253574410c6f', 'User 1', 0),
+('f1414791-8f57-4bf4-a730-42f3c89dad95', 'Test Client', 0)
+ON CONFLICT DO NOTHING;
+
+`;
+
+let content = fs.readFileSync('supabase/seed.sql', 'utf8');
+
+// Strip any existing injections (anything before 'SET standard_conforming_strings')
+const actualSeedStart = content.indexOf('SET standard_conforming_strings');
+if (actualSeedStart !== -1) {
+  content = content.substring(actualSeedStart);
+}
+
+fs.writeFileSync('supabase/seed.sql', usersSql + content, 'utf8');
+console.log('Fully injected all users and creators into seed.sql');

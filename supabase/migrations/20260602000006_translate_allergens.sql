@@ -1,0 +1,21 @@
+-- Translate allergens to French
+UPDATE allergen SET label = 'Fruits à coque' WHERE slug = 'nuts';
+UPDATE allergen SET label = 'Arachides' WHERE slug = 'peanuts';
+UPDATE allergen SET label = 'Produits laitiers & Lactose' WHERE slug = 'dairy';
+UPDATE allergen SET label = 'Gluten' WHERE slug = 'gluten';
+UPDATE allergen SET label = 'Œufs' WHERE slug = 'eggs';
+UPDATE allergen SET label = 'Crustacés' WHERE slug = 'shellfish';
+UPDATE allergen SET label = 'Poisson' WHERE slug = 'fish';
+UPDATE allergen SET label = 'Soja' WHERE slug = 'soy';
+UPDATE allergen SET label = 'Sésame' WHERE slug = 'sesame';
+UPDATE allergen SET label = 'Fruits rouges' WHERE slug = 'berries';
+UPDATE allergen SET label = 'Agrumes' WHERE slug = 'citrus';
+UPDATE allergen SET label = 'Solanacées' WHERE slug = 'nightshades';
+UPDATE allergen SET label = 'Fruits à noyau' WHERE slug = 'stone_fruits';
+UPDATE allergen SET label = 'Légumineuses' WHERE slug = 'legumes';
+UPDATE allergen SET label = 'Maïs' WHERE slug = 'corn';
+UPDATE allergen SET label = 'Sulfites' WHERE slug = 'sulfites';
+UPDATE allergen SET label = 'Moutarde' WHERE slug = 'mustard';
+UPDATE allergen SET label = 'Céleri' WHERE slug = 'celery';
+UPDATE allergen SET label = 'Lupin' WHERE slug = 'lupin';
+UPDATE allergen SET label = 'Mollusques' WHERE slug = 'molluscs';
