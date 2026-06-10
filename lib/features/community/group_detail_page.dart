@@ -268,12 +268,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
         },
       );
       _logger.edge('remove-group-member', 'AFTER | success');
+      if (!context.mounted) return;
       ref.invalidate(groupMembersProvider(widget.groupId));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Membre exclu du groupe')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Membre exclu du groupe')),
+      );
     } on FunctionException catch (e, st) {
       _logger.edge('remove-group-member',
           'ERROR | status: ${e.status} | ${e.reasonPhrase}',
