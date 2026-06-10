@@ -42,16 +42,6 @@ class AkeliChatBubble extends ConsumerWidget {
               isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (senderName != null) ...[
-              Text(
-                senderName!,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: AkeliColors.primary,
-                    ),
-              ),
-              const SizedBox(height: 2),
-            ],
             _buildContent(context, ref),
             const SizedBox(height: 2),
             Row(
@@ -77,9 +67,9 @@ class AkeliChatBubble extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref) {
     return switch (messageType) {
-      'image'        => _ImageBubble(url: message, isSent: isSent),
-      'recipe_share' => _RecipeBubble(recipeId: recipeId ?? message, isSent: isSent, ref: ref, context: context),
-      _              => _TextBubble(text: message, isSent: isSent),
+      'image'        => _ImageBubble(url: message, isSent: isSent, senderName: senderName),
+      'recipe_share' => _RecipeBubble(recipeId: recipeId ?? message, isSent: isSent, ref: ref, context: context, senderName: senderName),
+      _              => _TextBubble(text: message, isSent: isSent, senderName: senderName),
     };
   }
 }
@@ -89,19 +79,36 @@ class AkeliChatBubble extends ConsumerWidget {
 class _TextBubble extends StatelessWidget {
   final String text;
   final bool isSent;
+  final String? senderName;
 
-  const _TextBubble({required this.text, required this.isSent});
+  const _TextBubble({required this.text, required this.isSent, this.senderName});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: _bubbleDecoration(isSent),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AkeliColors.textPrimary,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (senderName != null) ...[
+            Text(
+              senderName!,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AkeliColors.primary,
+                  ),
             ),
+            const SizedBox(height: 4),
+          ],
+          Text(
+            text,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AkeliColors.textPrimary,
+                ),
+          ),
+        ],
       ),
     );
   }
@@ -112,29 +119,50 @@ class _TextBubble extends StatelessWidget {
 class _ImageBubble extends StatelessWidget {
   final String url;
   final bool isSent;
+  final String? senderName;
 
-  const _ImageBubble({required this.url, required this.isSent});
+  const _ImageBubble({required this.url, required this.isSent, this.senderName});
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: _bubbleBorderRadius(isSent),
-      child: CachedNetworkImage(
-        imageUrl: url,
-        width: 220,
-        fit: BoxFit.cover,
-        placeholder: (_, __) => Container(
-          width: 220,
-          height: 160,
-          color: AkeliColors.surfaceContainer,
-          child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-        ),
-        errorWidget: (_, __, ___) => Container(
-          width: 220,
-          height: 100,
-          color: AkeliColors.surfaceContainer,
-          child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (senderName != null)
+            Container(
+              width: double.infinity,
+              color: AkeliColors.surfaceContainer,
+              padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+              child: Text(
+                senderName!,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: AkeliColors.primary,
+                ),
+              ),
+            ),
+          CachedNetworkImage(
+            imageUrl: url,
+            width: 220,
+            fit: BoxFit.cover,
+            placeholder: (_, __) => Container(
+              width: 220,
+              height: 160,
+              color: AkeliColors.surfaceContainer,
+              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+            errorWidget: (_, __, ___) => Container(
+              width: 220,
+              height: 100,
+              color: AkeliColors.surfaceContainer,
+              child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -147,12 +175,14 @@ class _RecipeBubble extends StatelessWidget {
   final bool isSent;
   final WidgetRef ref;
   final BuildContext context;
+  final String? senderName;
 
   const _RecipeBubble({
     required this.recipeId,
     required this.isSent,
     required this.ref,
     required this.context,
+    this.senderName,
   });
 
   @override
@@ -192,6 +222,18 @@ class _RecipeBubble extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (senderName != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                    child: Text(
+                      senderName!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: AkeliColors.primary,
+                      ),
+                    ),
+                  ),
                 if (recipe.thumbnailUrl != null)
                   CachedNetworkImage(
                     imageUrl: recipe.thumbnailUrl!,

@@ -96,9 +96,16 @@ class GroupMember {
 
   factory GroupMember.fromJson(Map<String, dynamic> json) {
     final profile = json['user_profile'] as Map<String, dynamic>?;
+    final firstName = (profile?['first_name'] as String? ?? '').trim();
+    final username = (profile?['username'] as String? ?? '').trim();
+    final displayName = firstName.isNotEmpty
+        ? firstName
+        : username.isNotEmpty
+            ? username
+            : 'Utilisateur';
     return GroupMember(
       userId: json['user_id'] as String,
-      displayName: profile?['first_name'] as String? ?? 'Utilisateur',
+      displayName: displayName,
       avatarUrl: profile?['avatar_url'] as String?,
       role: json['role'] as String? ?? 'member',
       joinedAt: DateTime.parse(json['joined_at'] as String),
@@ -403,7 +410,7 @@ final groupMembersProvider =
     final rows = await client
         .from('group_member')
         .select(
-            'user_id, role, joined_at, user_profile:user_id(first_name, avatar_url)')
+            'user_id, role, joined_at, user_profile:user_id(first_name, username, avatar_url)')
         .eq('group_id', groupId)
         .order('joined_at', ascending: true) as List<dynamic>;
 
@@ -488,7 +495,7 @@ final conversationParticipantNamesProvider =
   try {
     final rows = await client
         .from('conversation_participant')
-        .select('user_id, user_profile:user_id(first_name)')
+        .select('user_id, user_profile:user_id(first_name, username)')
         .eq('conversation_id', conversationId) as List<dynamic>;
 
     logger.db('AFTER | table: conversation_participant | rows: ${rows.length}');
@@ -497,8 +504,10 @@ final conversationParticipantNamesProvider =
     for (final row in rows.cast<Map<String, dynamic>>()) {
       final userId = row['user_id'] as String;
       final profile = row['user_profile'] as Map<String, dynamic>?;
-      final name = profile?['first_name'] as String?;
-      if (name != null && name.isNotEmpty) {
+      final firstName = (profile?['first_name'] as String? ?? '').trim();
+      final username = (profile?['username'] as String? ?? '').trim();
+      final name = firstName.isNotEmpty ? firstName : username;
+      if (name.isNotEmpty) {
         map[userId] = name;
       }
     }

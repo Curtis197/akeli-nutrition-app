@@ -32,8 +32,9 @@ serve(async (req) => {
     logRLSCheck(logger, "meal_plan_entry+meal_plan", "SELECT", "cron");
     const { data: entries, error: entriesError } = await admin
       .from("meal_plan_entry")
-      .select("meal_plan!inner(user_id)")
-      .eq("scheduled_date", today);
+      .select("meal_plan!inner(user_id, is_active)")
+      .eq("scheduled_date", today)
+      .eq("meal_plan.is_active", true);
     logQueryResult(logger, "meal_plan_entry+meal_plan", "SELECT", entries?.length ?? 0, entriesError ?? undefined);
 
     if (entriesError) {

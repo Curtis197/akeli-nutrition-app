@@ -160,6 +160,11 @@ class _CookingModePageState extends State<CookingModePage> {
           },
           child: OrientationBuilder(
             builder: (context, orientation) {
+              if (orientation == Orientation.portrait && _infoOpen) {
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => setState(() => _infoOpen = false),
+                );
+              }
               if (orientation == Orientation.landscape) {
                 return _LandscapeBody(
                   recipe: widget.recipe,

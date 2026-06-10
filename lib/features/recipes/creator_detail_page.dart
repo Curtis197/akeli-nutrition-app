@@ -135,38 +135,37 @@ class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
                   );
                 }
                 return SliverPadding(
-                  padding: const EdgeInsets.all(AkeliSpacing.md),
-                  sliver: SliverGrid.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: AkeliSpacing.md,
-                      mainAxisSpacing: AkeliSpacing.md,
-                      childAspectRatio: 0.68,
-                    ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AkeliSpacing.md,
+                    vertical: AkeliSpacing.sm,
+                  ),
+                  sliver: SliverList.builder(
                     itemCount: recipes.length,
                     itemBuilder: (context, index) {
                       final recipe = recipes[index];
-                      return AkeliRecipeCard(
-                        hasImage: true,
-                        title: recipe.title,
-                        calories: recipe.calories?.toInt() ?? 0,
-                        rating: recipe.averageRating,
-                        likes: recipe.likeCount,
-                        comments: recipe.commentCount,
-                        saves: recipe.saveCount,
-                        imageUrl: recipe.thumbnailUrl,
-                        region: recipe.regionId != null
-                            ? regionNames[recipe.regionId!] ?? recipe.regionId
-                            : null,
-                        tags: recipe.tagIds.take(2).toList(),
-                        onTap: () {
-                          _logger.userAction('Recipe tapped from creator page',
-                              screen: 'CreatorDetailPage',
-                              metadata: {'recipeId': recipe.id});
-                          context.push(AkeliRoutes.recipeDetailPath(recipe.id),
-                              extra: TrackingSource.feed);
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AkeliSpacing.md),
+                        child: AkeliRecipeCard(
+                          horizontal: true,
+                          title: recipe.title,
+                          calories: recipe.calories?.toInt() ?? 0,
+                          rating: recipe.averageRating,
+                          likes: recipe.likeCount,
+                          comments: recipe.commentCount,
+                          saves: recipe.saveCount,
+                          imageUrl: recipe.thumbnailUrl,
+                          region: recipe.regionId != null
+                              ? regionNames[recipe.regionId!] ?? recipe.regionId
+                              : null,
+                          tags: recipe.tagIds.take(2).toList(),
+                          onTap: () {
+                            _logger.userAction('Recipe tapped from creator page',
+                                screen: 'CreatorDetailPage',
+                                metadata: {'recipeId': recipe.id});
+                            context.push(AkeliRoutes.recipeDetailPath(recipe.id),
+                                extra: TrackingSource.feed);
+                          },
+                        ),
                       );
                     },
                   ),
