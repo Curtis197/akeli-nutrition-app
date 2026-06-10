@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -175,6 +176,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
                   isAdmin: isAdmin,
                   membersAsync: membersAsync,
                   onDmTap: (member) => _onDmTap(context, member),
+                  onExcludeTap: (member) => _onExcludeTap(context, member),
                 ),
                 _ImagesTab(groupId: widget.groupId),
                 _RecipesTab(groupId: widget.groupId),
@@ -224,6 +226,84 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
       }
     }
   }
+
+  Future<void> _onExcludeTap(BuildContext context, GroupMember member) async {
+    _logger.userAction('Exclude member tapped',
+        screen: 'GroupDetailPage',
+        metadata: {'targetUserId': member.userId});
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Exclure ${member.displayName} ?'),
+        content: const Text(
+            'Cette personne perdra l\'accès au groupe et au chat de groupe.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
+            child: const Text('Exclure'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final client = ref.read(supabaseClientProvider);
+    _logger.edge('remove-group-member',
+        'BEFORE | groupId: ${widget.groupId} | target: ${member.userId}');
+
+    try {
+      await client.functions.invoke(
+        'remove-group-member',
+        body: {
+          'group_id': widget.groupId,
+          'target_user_id': member.userId,
+        },
+      );
+      _logger.edge('remove-group-member', 'AFTER | success');
+      ref.invalidate(groupMembersProvider(widget.groupId));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Membre exclu du groupe')),
+        );
+      }
+    } on FunctionException catch (e, st) {
+      _logger.edge('remove-group-member',
+          'ERROR | status: ${e.status} | ${e.reasonPhrase}',
+          error: e, stackTrace: st);
+      if (!context.mounted) return;
+      if (e.status == 401) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Vous n'êtes plus administrateur de ce groupe")),
+        );
+      } else if (e.status == 404) {
+        // Target already removed — treat as success
+        ref.invalidate(groupMembersProvider(widget.groupId));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Membre exclu du groupe')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Une erreur est survenue. Veuillez réessayer.')),
+        );
+      }
+    } catch (e, st) {
+      _logger.edge('remove-group-member', 'ERROR | $e', error: e, stackTrace: st);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Une erreur est survenue. Veuillez réessayer.')),
+      );
+    }
+  }
 }
 
 // ── Tab 0 — Members ───────────────────────────────────────────────────────────
@@ -234,6 +314,7 @@ class _MembersTab extends ConsumerWidget {
   final bool isAdmin;
   final AsyncValue<List<GroupMember>> membersAsync;
   final void Function(GroupMember) onDmTap;
+  final void Function(GroupMember) onExcludeTap;
 
   const _MembersTab({
     required this.groupId,
@@ -241,6 +322,7 @@ class _MembersTab extends ConsumerWidget {
     required this.isAdmin,
     required this.membersAsync,
     required this.onDmTap,
+    required this.onExcludeTap,
   });
 
   @override
@@ -283,6 +365,7 @@ class _MembersTab extends ConsumerWidget {
                         metadata: {'targetUserId': member.userId});
                     context.push(AkeliRoutes.userProfilePath(member.userId));
                   },
+                  onExcludeTap: isAdmin && !isMe ? () => onExcludeTap(member) : null,
                 );
               }).toList(),
             );
@@ -704,12 +787,14 @@ class _MemberRow extends StatelessWidget {
   final bool isMe;
   final VoidCallback onDmTap;
   final VoidCallback onProfileTap;
+  final VoidCallback? onExcludeTap;
 
   const _MemberRow({
     required this.member,
     required this.isMe,
     required this.onDmTap,
     required this.onProfileTap,
+    this.onExcludeTap,
   });
 
   @override
@@ -730,17 +815,32 @@ class _MemberRow extends StatelessWidget {
             ),
             const SizedBox(width: AkeliSpacing.md),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(member.displayName,
-                      style: Theme.of(context).textTheme.titleSmall),
-                  Text(
-                    member.role == 'admin' ? 'Admin' : 'Membre',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AkeliColors.onSurfaceVariant,
-                        ),
+                  Flexible(
+                    child: Text(
+                      member.displayName,
+                      style: Theme.of(context).textTheme.titleSmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  if (member.role == 'admin') ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AkeliColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'Admin',
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: AkeliColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -750,6 +850,28 @@ class _MemberRow extends StatelessWidget {
                 color: AkeliColors.primary,
                 tooltip: 'Message privé',
                 onPressed: onDmTap,
+              ),
+            if (onExcludeTap != null)
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert_rounded, color: AkeliColors.textSecondary),
+                onSelected: (value) {
+                  if (value == 'exclude') onExcludeTap!();
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: 'exclude',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person_remove_outlined, color: AkeliColors.error, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          'Exclure du groupe',
+                          style: TextStyle(color: AkeliColors.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
           ],
         ),
