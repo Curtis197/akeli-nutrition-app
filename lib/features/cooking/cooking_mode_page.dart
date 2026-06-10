@@ -631,6 +631,77 @@ class _LandscapeInfoPanel extends StatelessWidget {
   }
 }
 
+class _LandscapeMediaCenter extends StatelessWidget {
+  final RecipeStep step;
+  final int? remainingSeconds;
+  final bool timerRunning;
+  final VoidCallback onTimerToggle;
+
+  const _LandscapeMediaCenter({
+    required this.step,
+    this.remainingSeconds,
+    required this.timerRunning,
+    required this.onTimerToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          step.videoUrl != null
+              ? RecipeVideoCard(
+                  videoUrl: step.videoUrl!,
+                  thumbnailUrl: step.imageUrl)
+              : CachedNetworkImage(
+                  imageUrl: step.imageUrl!,
+                  fit: BoxFit.cover),
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: [0.0, 0.45, 1.0],
+                  colors: [Colors.transparent, Colors.transparent, Colors.black87],
+                ),
+              ),
+              padding: const EdgeInsets.fromLTRB(12, 40, 12, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Text(
+                      step.instruction,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        height: 1.4,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  if (remainingSeconds != null) ...[
+                    const SizedBox(width: 8),
+                    _TimerPill(
+                      remainingSeconds: remainingSeconds!,
+                      isRunning: timerRunning,
+                      onToggle: onTimerToggle,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _LandscapeTextCenter extends StatelessWidget {
   final String instruction;
   final int? remainingSeconds;
