@@ -125,21 +125,25 @@ class AkeliMealCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Consumption Toggle
-                    GestureDetector(
-                      onTap: onConsumedToggle,
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: isConsumed ? AkeliColors.success : Colors.white.withValues(alpha: 0.8),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2),
+                    if (onConsumedToggle != null)
+                      GestureDetector(
+                        onTap: onConsumedToggle,
+                        child: Container(
+                          key: const Key('consumed-toggle'),
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: isConsumed ? AkeliColors.success : Colors.white.withValues(alpha: 0.8),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: isConsumed
+                              ? const Icon(Icons.check, size: 20, color: Colors.white)
+                              : null,
                         ),
-                        child: isConsumed
-                            ? const Icon(Icons.check, size: 20, color: Colors.white)
-                            : null,
-                      ),
-                    ),
+                      )
+                    else
+                      const SizedBox(width: 32, height: 32),
                     // Meal Type Badge
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
