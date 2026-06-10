@@ -102,7 +102,6 @@ void main() {
     });
 
     testWidgets('shows timer pill in landscape when step has duration', (tester) async {
-      // NOTE: passes via portrait _TimerWidget until OrientationBuilder is wired (Task 8)
       _setLandscape(tester);
       addTearDown(() => _resetView(tester));
 
@@ -118,7 +117,6 @@ void main() {
     });
 
     testWidgets('no timer pill in landscape when step has no duration', (tester) async {
-      // NOTE: passes via portrait conditional until OrientationBuilder is wired (Task 8)
       _setLandscape(tester);
       addTearDown(() => _resetView(tester));
 
@@ -191,18 +189,18 @@ void main() {
       ));
       await tester.pump();
 
-      // Panel closed — ingredient names not visible
-      expect(find.text('Oignons  2 pcs'), findsNothing);
+      // Panel closed — ingredient names not visible/hittable
+      expect(find.text('Oignons  2 pcs').hitTestable(), findsNothing);
 
       // Open
       await tester.tap(find.byIcon(Icons.info_outline_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Oignons  2 pcs'), findsOneWidget);
+      expect(find.text('Oignons  2 pcs').hitTestable(), findsOneWidget);
 
       // Close
       await tester.tap(find.byIcon(Icons.info_outline_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Oignons  2 pcs'), findsNothing);
+      expect(find.text('Oignons  2 pcs').hitTestable(), findsNothing);
     });
 
     testWidgets('info panel closes when navigating to next step', (tester) async {
@@ -217,12 +215,12 @@ void main() {
       // Open panel
       await tester.tap(find.byIcon(Icons.info_outline_rounded));
       await tester.pumpAndSettle();
-      expect(find.text('Oignons  2 pcs'), findsOneWidget);
+      expect(find.text('Oignons  2 pcs').hitTestable(), findsOneWidget);
 
       // Navigate
       await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
       await tester.pumpAndSettle();
-      expect(find.text('Oignons  2 pcs'), findsNothing);
+      expect(find.text('Oignons  2 pcs').hitTestable(), findsNothing);
     });
   });
 

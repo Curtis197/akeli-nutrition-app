@@ -804,19 +804,21 @@ class _LandscapeCenter extends StatelessWidget {
           bottom: 0,
           right: 0,
           width: infoOpen ? panelWidth : 0,
-          child: Visibility(
-            visible: infoOpen,
+          child: ClipRect(
             child: OverflowBox(
               maxWidth: panelWidth,
               alignment: Alignment.centerRight,
-              child: SizedBox(
-                width: panelWidth,
-                child: _LandscapeInfoPanel(
-                  instruction: step.instruction,
-                  ingredients: stepIngredients,
-                  checked: checked,
-                  onTap: onIngredientTap,
-                  onLongPress: onIngredientLongPress,
+              child: Opacity(
+                opacity: infoOpen ? 1.0 : 0.0,
+                child: SizedBox(
+                  width: panelWidth,
+                  child: _LandscapeInfoPanel(
+                    instruction: step.instruction,
+                    ingredients: stepIngredients,
+                    checked: checked,
+                    onTap: onIngredientTap,
+                    onLongPress: onIngredientLongPress,
+                  ),
                 ),
               ),
             ),
