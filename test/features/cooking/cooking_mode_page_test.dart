@@ -124,5 +124,100 @@ void main() {
 
       expect(find.text('03:00'), findsNothing);
     });
+
+    testWidgets('chevron-right icon advances to next step', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(CookingModePage(recipe: _recipe())));
+      await tester.pump();
+
+      expect(find.text('Étape 1 / 3'), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
+      await tester.pump();
+      expect(find.text('Étape 2 / 3'), findsOneWidget);
+    });
+
+    testWidgets('chevron-left icon goes to previous step', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(), initialStepIndex: 1),
+      ));
+      await tester.pump();
+
+      await tester.tap(find.byIcon(Icons.chevron_left_rounded).first);
+      await tester.pump();
+      expect(find.text('Étape 1 / 3'), findsOneWidget);
+    });
+
+    testWidgets('last step shows check icon instead of chevron', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(stepCount: 1)),
+      ));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
+    });
+
+    testWidgets('info icon hidden when step has no ingredients', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(withIngredients: false)),
+      ));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.info_outline_rounded), findsNothing);
+    });
+
+    testWidgets('tapping info icon opens and closes the panel', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(withIngredients: true)),
+      ));
+      await tester.pump();
+
+      // Panel closed — ingredient names not visible
+      expect(find.text('Oignons  2 pcs'), findsNothing);
+
+      // Open
+      await tester.tap(find.byIcon(Icons.info_outline_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Oignons  2 pcs'), findsOneWidget);
+
+      // Close
+      await tester.tap(find.byIcon(Icons.info_outline_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Oignons  2 pcs'), findsNothing);
+    });
+
+    testWidgets('info panel closes when navigating to next step', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(withIngredients: true)),
+      ));
+      await tester.pump();
+
+      // Open panel
+      await tester.tap(find.byIcon(Icons.info_outline_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('Oignons  2 pcs'), findsOneWidget);
+
+      // Navigate
+      await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
+      await tester.pumpAndSettle();
+      expect(find.text('Oignons  2 pcs'), findsNothing);
+    });
   });
 }

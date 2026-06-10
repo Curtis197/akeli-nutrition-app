@@ -827,3 +827,148 @@ class _LandscapeTextCenter extends StatelessWidget {
     );
   }
 }
+
+class _SideNavIcon extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool filled;
+  final bool enabled;
+
+  const _SideNavIcon({
+    required this.icon,
+    required this.onTap,
+    required this.filled,
+    required this.enabled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: filled
+              ? AkeliColors.primary
+              : AkeliColors.surfaceContainerHigh
+                  .withValues(alpha: enabled ? 1.0 : 0.3),
+        ),
+        child: Icon(
+          icon,
+          color: filled
+              ? AkeliColors.onPrimary
+              : AkeliColors.onSurface
+                  .withValues(alpha: enabled ? 1.0 : 0.3),
+          size: 22,
+        ),
+      ),
+    );
+  }
+}
+
+class _LandscapeBody extends StatelessWidget {
+  final Recipe recipe;
+  final int currentStepIndex;
+  final int timerSeconds;
+  final bool timerRunning;
+  final bool infoOpen;
+  final Set<String> checkedIngredients;
+  final List<RecipeIngredient> stepIngredients;
+  final VoidCallback onClose;
+  final VoidCallback onTimerToggle;
+  final VoidCallback onPrev;
+  final VoidCallback onNext;
+  final VoidCallback onInfoToggle;
+  final ValueChanged<RecipeIngredient> onIngredientTap;
+  final ValueChanged<RecipeIngredient> onIngredientLongPress;
+
+  const _LandscapeBody({
+    required this.recipe,
+    required this.currentStepIndex,
+    required this.timerSeconds,
+    required this.timerRunning,
+    required this.infoOpen,
+    required this.checkedIngredients,
+    required this.stepIngredients,
+    required this.onClose,
+    required this.onTimerToggle,
+    required this.onPrev,
+    required this.onNext,
+    required this.onInfoToggle,
+    required this.onIngredientTap,
+    required this.onIngredientLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final totalSteps = recipe.steps.length;
+    final isFirst = currentStepIndex == 0;
+    final isLast = currentStepIndex == totalSteps - 1;
+    final step = recipe.steps[currentStepIndex];
+    final hasIngredients = stepIngredients.isNotEmpty;
+
+    return Column(
+      children: [
+        _TopBar(
+          current: currentStepIndex + 1,
+          total: totalSteps,
+          onClose: onClose,
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            child: Row(
+              children: [
+                _SideNavIcon(
+                  icon: Icons.chevron_left_rounded,
+                  onTap: onPrev,
+                  filled: false,
+                  enabled: !isFirst,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: _LandscapeCenter(
+                    step: step,
+                    stepIngredients: stepIngredients,
+                    checked: checkedIngredients,
+                    timerSeconds: timerSeconds,
+                    timerRunning: timerRunning,
+                    infoOpen: infoOpen,
+                    onTimerToggle: onTimerToggle,
+                    onIngredientTap: onIngredientTap,
+                    onIngredientLongPress: onIngredientLongPress,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _SideNavIcon(
+                      icon: isLast
+                          ? Icons.check_rounded
+                          : Icons.chevron_right_rounded,
+                      onTap: onNext,
+                      filled: true,
+                      enabled: true,
+                    ),
+                    if (hasIngredients) ...[
+                      const SizedBox(height: 8),
+                      _SideNavIcon(
+                        icon: Icons.info_outline_rounded,
+                        onTap: onInfoToggle,
+                        filled: infoOpen,
+                        enabled: true,
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
