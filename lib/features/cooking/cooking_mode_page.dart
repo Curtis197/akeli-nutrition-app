@@ -33,6 +33,7 @@ class _CookingModePageState extends State<CookingModePage> {
   bool _timerRunning = false;
   Timer? _timer;
   final Set<String> _checkedIngredients = {};
+  bool _infoOpen = false;
 
   RecipeStep get _currentStep =>
       widget.recipe.steps[_currentStepIndex];
@@ -107,6 +108,7 @@ class _CookingModePageState extends State<CookingModePage> {
         metadata: {'from': _currentStepIndex + 1, 'to': index + 1});
     setState(() {
       _currentStepIndex = index;
+      _infoOpen = false;
       _resetTimer();
     });
   }
