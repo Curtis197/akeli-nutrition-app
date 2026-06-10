@@ -500,8 +500,8 @@ class _TimerPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final m = remainingSeconds ~/ 60;
-    final s = remainingSeconds % 60;
+    final minutes = remainingSeconds ~/ 60;
+    final seconds = remainingSeconds % 60;
     return GestureDetector(
       onTap: onToggle,
       child: Container(
@@ -517,7 +517,7 @@ class _TimerPill extends StatelessWidget {
                 size: 14, color: AkeliColors.primary),
             const SizedBox(width: 4),
             Text(
-              '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}',
+              '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
               style: GoogleFonts.inter(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

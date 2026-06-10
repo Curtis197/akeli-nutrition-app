@@ -97,6 +97,7 @@ void main() {
     });
 
     testWidgets('shows timer pill in landscape when step has duration', (tester) async {
+      // NOTE: passes via portrait _TimerWidget until OrientationBuilder is wired (Task 8)
       _setLandscape(tester);
       addTearDown(() => _resetView(tester));
 
@@ -112,6 +113,7 @@ void main() {
     });
 
     testWidgets('no timer pill in landscape when step has no duration', (tester) async {
+      // NOTE: passes via portrait conditional until OrientationBuilder is wired (Task 8)
       _setLandscape(tester);
       addTearDown(() => _resetView(tester));
 
