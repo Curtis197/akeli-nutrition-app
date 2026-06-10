@@ -606,7 +606,7 @@ class _LandscapeInfoPanel extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${ing.name}  ${ing.quantity.toStringAsFixed(ing.quantity == ing.quantity.truncate() ? 0 : 1)} ${ing.unit}',
+                            '${ing.name}  ${ing.quantity.toStringAsFixed((ing.quantity - ing.quantity.truncate()).abs() < 0.001 ? 0 : 1)} ${ing.unit}',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: isChecked
