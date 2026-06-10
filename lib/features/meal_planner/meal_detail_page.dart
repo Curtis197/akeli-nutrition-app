@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:akeli/core/date_utils.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
@@ -123,6 +124,9 @@ class _MealDetailBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     appLogger.provider('MealDetailBody build() | mealId: ${entry.id}');
+
+    final isFuture = isFutureMeal(entry.scheduledDate);
+    if (isFuture) appLogger.provider('MealDetailBody | future meal guard | mealId: ${entry.id} | scheduledDate: ${entry.scheduledDate}');
 
     final topPadding = MediaQuery.of(context).padding.top;
 
@@ -256,55 +260,59 @@ class _MealDetailBody extends ConsumerWidget {
                           ],
                         ),
 
-                        // Consumed check
-                        const SizedBox(height: 20),
-                        GestureDetector(
-                          onTap: isConsumeLoading ? null : onConsume,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: entry.isConsumed
-                                  ? AkeliColors.secondaryContainer
-                                  : AkeliColors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                            ),
-                            child: Row(
-                              children: [
-                                isConsumeLoading
-                                    ? const SizedBox(
-                                        width: 22, height: 22,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
-                                      )
-                                    : Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          color: entry.isConsumed ? AkeliColors.primary : Colors.transparent,
-                                          border: Border.all(
-                                            color: entry.isConsumed ? AkeliColors.primary : AkeliColors.outline,
-                                            width: 2,
+                        // Consumed check — hidden for future meals
+                        if (!isFuture) ...[
+                          const SizedBox(height: 20),
+                          GestureDetector(
+                            key: const Key('consume-row'),
+                            onTap: isConsumeLoading ? null : onConsume,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: entry.isConsumed
+                                    ? AkeliColors.secondaryContainer
+                                    : AkeliColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(AkeliRadius.md),
+                              ),
+                              child: Row(
+                                children: [
+                                  isConsumeLoading
+                                      ? const SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : Container(
+                                          width: 22,
+                                          height: 22,
+                                          decoration: BoxDecoration(
+                                            color: entry.isConsumed ? AkeliColors.primary : Colors.transparent,
+                                            border: Border.all(
+                                              color: entry.isConsumed ? AkeliColors.primary : AkeliColors.outline,
+                                              width: 2,
+                                            ),
+                                            borderRadius: BorderRadius.circular(5),
                                           ),
-                                          borderRadius: BorderRadius.circular(5),
+                                          child: entry.isConsumed
+                                              ? const Icon(Icons.check, color: Colors.white, size: 13)
+                                              : null,
                                         ),
-                                        child: entry.isConsumed
-                                            ? const Icon(Icons.check, color: Colors.white, size: 13)
-                                            : null,
-                                      ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  entry.isConsumed ? 'Repas consommé' : 'Marquer comme consommé',
-                                  style: GoogleFonts.inter(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14,
-                                    color: entry.isConsumed
-                                        ? AkeliColors.onSecondaryContainer
-                                        : AkeliColors.onSurface,
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    entry.isConsumed ? 'Repas consommé' : 'Marquer comme consommé',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: entry.isConsumed
+                                          ? AkeliColors.onSecondaryContainer
+                                          : AkeliColors.onSurface,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
-                        ),
+                        ],
 
                         const SizedBox(height: 24),
                         const Divider(color: AkeliColors.surfaceContainerHighest, height: 1),
