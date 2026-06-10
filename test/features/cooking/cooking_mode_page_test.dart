@@ -16,6 +16,11 @@ void _setLandscape(WidgetTester tester) {
   tester.view.devicePixelRatio = 1.0;
 }
 
+void _setPortrait(WidgetTester tester) {
+  tester.view.physicalSize = const Size(400, 800);
+  tester.view.devicePixelRatio = 1.0;
+}
+
 void _resetView(WidgetTester tester) {
   tester.view.resetPhysicalSize();
   tester.view.resetDevicePixelRatio();
@@ -218,6 +223,31 @@ void main() {
       await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
       await tester.pumpAndSettle();
       expect(find.text('Oignons  2 pcs'), findsNothing);
+    });
+  });
+
+  group('CookingModePage portrait', () {
+    testWidgets('portrait layout shows Suivant and Précédent buttons', (tester) async {
+      _setPortrait(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(CookingModePage(recipe: _recipe())));
+      await tester.pump();
+
+      expect(find.text('Suivant'), findsOneWidget);
+      expect(find.text('Précédent'), findsOneWidget);
+    });
+
+    testWidgets('portrait last step shows Terminer button', (tester) async {
+      _setPortrait(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(stepCount: 1)),
+      ));
+      await tester.pump();
+
+      expect(find.text('Terminer'), findsOneWidget);
     });
   });
 }

@@ -158,97 +158,146 @@ class _CookingModePageState extends State<CookingModePage> {
               _goToStep(_currentStepIndex - 1);
             }
           },
-          child: Column(
-            children: [
-              _TopBar(
-                current: _currentStepIndex + 1,
-                total: totalSteps,
-                onClose: () {
-                  _logger.userAction('Cooking mode closed',
-                      screen: 'CookingModePage',
-                      metadata: {'atStep': _currentStepIndex + 1});
-                  context.pop();
-                },
-              ),
-              Expanded(
-                flex: 5,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 16),
-                  child: Center(
-                    child: Text(
-                      step.instruction,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 22,
-                        height: 1.5,
-                        color: AkeliColors.onSurface,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              if (step.videoUrl != null || step.imageUrl != null)
-                Flexible(
-                  flex: 3,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24),
-                    child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(AkeliRadius.xl),
-                      child: step.videoUrl != null
-                          ? RecipeVideoCard(
-                              videoUrl: step.videoUrl!,
-                              thumbnailUrl: step.imageUrl)
-                          : CachedNetworkImage(
-                              imageUrl: step.imageUrl!,
-                              fit: BoxFit.cover,
-                              width: double.infinity),
-                    ),
-                  ),
-                ),
-              if (step.durationMin != null)
-                _TimerWidget(
-                  totalSeconds: step.durationMin! * 60,
-                  remainingSeconds: _timerSeconds,
-                  isRunning: _timerRunning,
-                  onToggle: _toggleTimer,
-                ),
-              if (_stepIngredients.isNotEmpty)
-                _IngredientStrip(
-                  ingredients: _stepIngredients,
-                  checked: _checkedIngredients,
-                  onTap: (ing) =>
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              if (orientation == Orientation.landscape) {
+                return _LandscapeBody(
+                  recipe: widget.recipe,
+                  currentStepIndex: _currentStepIndex,
+                  timerSeconds: _timerSeconds,
+                  timerRunning: _timerRunning,
+                  infoOpen: _infoOpen,
+                  checkedIngredients: _checkedIngredients,
+                  stepIngredients: _stepIngredients,
+                  onClose: () {
+                    _logger.userAction('Cooking mode closed',
+                        screen: 'CookingModePage',
+                        metadata: {'atStep': _currentStepIndex + 1});
+                    context.pop();
+                  },
+                  onTimerToggle: _toggleTimer,
+                  onPrev: () => _goToStep(_currentStepIndex - 1),
+                  onNext: isLast
+                      ? () {
+                          _logger.userAction('Cooking mode completed',
+                              screen: 'CookingModePage',
+                              metadata: {'recipeId': widget.recipe.id});
+                          context.pop();
+                        }
+                      : () => _goToStep(_currentStepIndex + 1),
+                  onInfoToggle: () => setState(() => _infoOpen = !_infoOpen),
+                  onIngredientTap: (ing) =>
                       IngredientDetailSheet.show(context, ing),
-                  onLongPress: (ing) {
+                  onIngredientLongPress: (ing) {
                     _logger.userAction('Ingredient checked',
                         screen: 'CookingModePage',
                         metadata: {'ingredientId': ing.ingredientId});
                     setState(() {
-                      if (_checkedIngredients
-                          .contains(ing.ingredientId)) {
+                      if (_checkedIngredients.contains(ing.ingredientId)) {
                         _checkedIngredients.remove(ing.ingredientId);
                       } else {
                         _checkedIngredients.add(ing.ingredientId);
                       }
                     });
                   },
-                ),
-              _NavButtons(
-                isFirst: _currentStepIndex == 0,
-                isLast: isLast,
-                onPrev: () => _goToStep(_currentStepIndex - 1),
-                onNext: isLast
-                    ? () {
-                        _logger.userAction('Cooking mode completed',
+                );
+              }
+              // ── portrait (unchanged) ─────────────────────────────────────────
+              return Column(
+                children: [
+                  _TopBar(
+                    current: _currentStepIndex + 1,
+                    total: totalSteps,
+                    onClose: () {
+                      _logger.userAction('Cooking mode closed',
+                          screen: 'CookingModePage',
+                          metadata: {'atStep': _currentStepIndex + 1});
+                      context.pop();
+                    },
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      child: Center(
+                        child: Text(
+                          step.instruction,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 22,
+                            height: 1.5,
+                            color: AkeliColors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (step.videoUrl != null || step.imageUrl != null)
+                    Flexible(
+                      flex: 3,
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 24),
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(AkeliRadius.xl),
+                          child: step.videoUrl != null
+                              ? RecipeVideoCard(
+                                  videoUrl: step.videoUrl!,
+                                  thumbnailUrl: step.imageUrl)
+                              : CachedNetworkImage(
+                                  imageUrl: step.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity),
+                        ),
+                      ),
+                    ),
+                  if (step.durationMin != null)
+                    _TimerWidget(
+                      totalSeconds: step.durationMin! * 60,
+                      remainingSeconds: _timerSeconds,
+                      isRunning: _timerRunning,
+                      onToggle: _toggleTimer,
+                    ),
+                  if (_stepIngredients.isNotEmpty)
+                    _IngredientStrip(
+                      ingredients: _stepIngredients,
+                      checked: _checkedIngredients,
+                      onTap: (ing) =>
+                          IngredientDetailSheet.show(context, ing),
+                      onLongPress: (ing) {
+                        _logger.userAction('Ingredient checked',
                             screen: 'CookingModePage',
-                            metadata: {'recipeId': widget.recipe.id});
-                        context.pop();
-                      }
-                    : () => _goToStep(_currentStepIndex + 1),
-              ),
-            ],
+                            metadata: {'ingredientId': ing.ingredientId});
+                        setState(() {
+                          if (_checkedIngredients
+                              .contains(ing.ingredientId)) {
+                            _checkedIngredients
+                                .remove(ing.ingredientId);
+                          } else {
+                            _checkedIngredients
+                                .add(ing.ingredientId);
+                          }
+                        });
+                      },
+                    ),
+                  _NavButtons(
+                    isFirst: _currentStepIndex == 0,
+                    isLast: isLast,
+                    onPrev: () => _goToStep(_currentStepIndex - 1),
+                    onNext: isLast
+                        ? () {
+                            _logger.userAction('Cooking mode completed',
+                                screen: 'CookingModePage',
+                                metadata: {'recipeId': widget.recipe.id});
+                            context.pop();
+                          }
+                        : () => _goToStep(_currentStepIndex + 1),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -755,17 +804,20 @@ class _LandscapeCenter extends StatelessWidget {
           bottom: 0,
           right: 0,
           width: infoOpen ? panelWidth : 0,
-          child: OverflowBox(
-            maxWidth: panelWidth,
-            alignment: Alignment.centerRight,
-            child: SizedBox(
-              width: panelWidth,
-              child: _LandscapeInfoPanel(
-                instruction: step.instruction,
-                ingredients: stepIngredients,
-                checked: checked,
-                onTap: onIngredientTap,
-                onLongPress: onIngredientLongPress,
+          child: Visibility(
+            visible: infoOpen,
+            child: OverflowBox(
+              maxWidth: panelWidth,
+              alignment: Alignment.centerRight,
+              child: SizedBox(
+                width: panelWidth,
+                child: _LandscapeInfoPanel(
+                  instruction: step.instruction,
+                  ingredients: stepIngredients,
+                  checked: checked,
+                  onTap: onIngredientTap,
+                  onLongPress: onIngredientLongPress,
+                ),
               ),
             ),
           ),
