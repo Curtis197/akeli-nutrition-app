@@ -253,6 +253,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
     );
 
     if (confirmed != true) return;
+    if (!context.mounted) return;
 
     final client = ref.read(supabaseClientProvider);
     _logger.edge('remove-group-member',
