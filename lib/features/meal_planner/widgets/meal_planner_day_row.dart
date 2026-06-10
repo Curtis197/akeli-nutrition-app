@@ -77,10 +77,6 @@ class MealPlannerDayRow extends StatelessWidget {
   }
 
   Widget _buildMealList(BuildContext context) {
-    final isFuture = isFutureMeal(date);
-    if (isFuture) {
-      appLogger.provider('MealPlannerDayRow | future date guard | date: $_formattedDate | toggle hidden');
-    }
     return SizedBox(
       height: 270,
       child: ListView.builder(
@@ -91,6 +87,10 @@ class MealPlannerDayRow extends StatelessWidget {
         clipBehavior: Clip.none,
         itemBuilder: (context, index) {
           final entry = entries[index];
+          final isFuture = isFutureMeal(entry.scheduledDate);
+          if (isFuture) {
+            appLogger.provider('MealPlannerDayRow | future date guard | entryId: ${entry.id} | scheduledDate: ${entry.scheduledDate}');
+          }
           return AkeliMealCard(
             title: entry.recipeTitle ?? '',
             mealType: entry.mealType,

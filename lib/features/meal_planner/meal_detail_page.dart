@@ -518,6 +518,7 @@ class _MealDetailBody extends ConsumerWidget {
                         );
                       },
                     ),
+                    if (!isFuture) ...[
                     const SizedBox(height: 12),
                     _ActionButton(
                       icon: entry.isConsumed && entry.isRated
@@ -544,6 +545,7 @@ class _MealDetailBody extends ConsumerWidget {
                             }
                           : null,
                     ),
+                    ], // end if (!isFuture) rating button
                     if (entry.recipeId != null && !entry.isCustomMeal) ...[
                       const SizedBox(height: 16),
                       TextButton.icon(
