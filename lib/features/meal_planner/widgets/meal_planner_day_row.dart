@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/logger.dart';
 import '../../../core/theme.dart';
+import '../../../core/date_utils.dart';
 import '../../../shared/models/meal_plan.dart';
 import '../../../shared/widgets/meal_card.dart';
 
@@ -69,37 +70,47 @@ class MealPlannerDayRow extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           // Horizontal Meal List
-          SizedBox(
-            height: 270,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: entries.length,
-              clipBehavior: Clip.none,
-              itemBuilder: (context, index) {
-                final entry = entries[index];
-                return AkeliMealCard(
-                  title: entry.recipeTitle ?? '',
-                  mealType: entry.mealType,
-                  calories: entry.calories,
-                  duration: entry.totalTimeMin,
-                  imageUrl: entry.recipeThumbnail,
-                  isPlanner: true,
-                  isConsumed: entry.isConsumed,
-                  onTap: () {
-                    appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id});
-                    onRecipeTap?.call(entry.id);
-                  },
-                  onConsumedToggle: () {
-                      appLogger.userAction('Meal card consumed toggle', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id, 'wasConsumed': entry.isConsumed});
-                      onConsumedToggle?.call(entry.id);
-                  },
-                );
-              },
-            ),
-          ),
+          _buildMealList(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMealList(BuildContext context) {
+    final isFuture = isFutureMeal(date);
+    if (isFuture) {
+      appLogger.provider('MealPlannerDayRow | future date guard | date: $_formattedDate | toggle hidden');
+    }
+    return SizedBox(
+      height: 270,
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: entries.length,
+        clipBehavior: Clip.none,
+        itemBuilder: (context, index) {
+          final entry = entries[index];
+          return AkeliMealCard(
+            title: entry.recipeTitle ?? '',
+            mealType: entry.mealType,
+            calories: entry.calories,
+            duration: entry.totalTimeMin,
+            imageUrl: entry.recipeThumbnail,
+            isPlanner: true,
+            isConsumed: entry.isConsumed,
+            onTap: () {
+              appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id});
+              onRecipeTap?.call(entry.id);
+            },
+            onConsumedToggle: isFuture
+                ? null
+                : () {
+                    appLogger.userAction('Meal card consumed toggle', screen: 'MealPlannerDayRow', metadata: {'entryId': entry.id, 'wasConsumed': entry.isConsumed});
+                    onConsumedToggle?.call(entry.id);
+                  },
+          );
+        },
       ),
     );
   }
