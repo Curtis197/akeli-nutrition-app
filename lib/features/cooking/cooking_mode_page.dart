@@ -486,3 +486,55 @@ class _NavButtons extends StatelessWidget {
     );
   }
 }
+
+class _TimerPill extends StatelessWidget {
+  final int remainingSeconds;
+  final bool isRunning;
+  final VoidCallback onToggle;
+
+  const _TimerPill({
+    required this.remainingSeconds,
+    required this.isRunning,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final m = remainingSeconds ~/ 60;
+    final s = remainingSeconds % 60;
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainer,
+          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.timer_outlined,
+                size: 14, color: AkeliColors.primary),
+            const SizedBox(width: 4),
+            Text(
+              '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}',
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AkeliColors.onSurface,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              isRunning
+                  ? Icons.pause_rounded
+                  : Icons.play_arrow_rounded,
+              size: 14,
+              color: AkeliColors.primary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

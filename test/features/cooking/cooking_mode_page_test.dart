@@ -95,5 +95,32 @@ void main() {
 
       expect(find.text('Étape 1 / 3'), findsOneWidget);
     });
+
+    testWidgets('shows timer pill in landscape when step has duration', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(withTimer: true)),
+      ));
+      await tester.pump();
+
+      // Timer pill displays MM:SS format
+      expect(find.text('03:00'), findsOneWidget);
+      // Play icon present (timer not yet running)
+      expect(find.byIcon(Icons.play_arrow_rounded), findsWidgets);
+    });
+
+    testWidgets('no timer pill in landscape when step has no duration', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(recipe: _recipe(withTimer: false)),
+      ));
+      await tester.pump();
+
+      expect(find.text('03:00'), findsNothing);
+    });
   });
 }
