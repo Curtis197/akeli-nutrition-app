@@ -702,6 +702,79 @@ class _LandscapeMediaCenter extends StatelessWidget {
   }
 }
 
+class _LandscapeCenter extends StatelessWidget {
+  final RecipeStep step;
+  final List<RecipeIngredient> stepIngredients;
+  final Set<String> checked;
+  final int timerSeconds;
+  final bool timerRunning;
+  final bool infoOpen;
+  final VoidCallback onTimerToggle;
+  final ValueChanged<RecipeIngredient> onIngredientTap;
+  final ValueChanged<RecipeIngredient> onIngredientLongPress;
+
+  const _LandscapeCenter({
+    required this.step,
+    required this.stepIngredients,
+    required this.checked,
+    required this.timerSeconds,
+    required this.timerRunning,
+    required this.infoOpen,
+    required this.onTimerToggle,
+    required this.onIngredientTap,
+    required this.onIngredientLongPress,
+  });
+
+  bool get _hasMedia => step.videoUrl != null || step.imageUrl != null;
+
+  @override
+  Widget build(BuildContext context) {
+    final panelWidth = MediaQuery.of(context).size.width * 0.38;
+
+    final center = _hasMedia
+        ? _LandscapeMediaCenter(
+            step: step,
+            remainingSeconds: step.durationMin != null ? timerSeconds : null,
+            timerRunning: timerRunning,
+            onTimerToggle: onTimerToggle,
+          )
+        : _LandscapeTextCenter(
+            instruction: step.instruction,
+            remainingSeconds: step.durationMin != null ? timerSeconds : null,
+            timerRunning: timerRunning,
+            onTimerToggle: onTimerToggle,
+          );
+
+    return Stack(
+      children: [
+        Positioned.fill(child: center),
+        AnimatedPositioned(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOut,
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: infoOpen ? panelWidth : 0,
+          child: OverflowBox(
+            maxWidth: panelWidth,
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: panelWidth,
+              child: _LandscapeInfoPanel(
+                instruction: step.instruction,
+                ingredients: stepIngredients,
+                checked: checked,
+                onTap: onIngredientTap,
+                onLongPress: onIngredientLongPress,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _LandscapeTextCenter extends StatelessWidget {
   final String instruction;
   final int? remainingSeconds;
