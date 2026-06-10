@@ -57,6 +57,7 @@ serve(async (req) => {
       .eq("role", "admin")
       .maybeSingle();
     logQueryResult(logger, "group_member", "SELECT", membership ? 1 : 0, memberError ?? undefined);
+    if (memberError) throw memberError;
 
     if (!membership) {
       logger.warn("EARLY RETURN | reason: caller not an admin | group_id: " + group_id);
@@ -72,6 +73,7 @@ serve(async (req) => {
       .eq("user_id", target_user_id)
       .maybeSingle();
     logQueryResult(logger, "group_member", "SELECT", targetMembership ? 1 : 0, targetError ?? undefined);
+    if (targetError) throw targetError;
 
     if (!targetMembership) {
       logger.warn("EARLY RETURN | reason: target not a member | target: " + target_user_id);
@@ -86,6 +88,7 @@ serve(async (req) => {
       .eq("id", group_id)
       .maybeSingle();
     logQueryResult(logger, "community_group", "SELECT", group ? 1 : 0, groupError ?? undefined);
+    if (groupError) throw groupError;
     const groupName = group?.name ?? "Groupe";
 
     logger.debug("[STEP 6] Delete from group_member");
@@ -107,6 +110,7 @@ serve(async (req) => {
       .eq("community_group_id", group_id)
       .maybeSingle();
     logQueryResult(logger, "conversation", "SELECT", conversation ? 1 : 0, convError ?? undefined);
+    if (convError) throw convError;
 
     if (conversation) {
       logger.debug("[STEP 8] Delete from conversation_participant | convId: " + conversation.id);
