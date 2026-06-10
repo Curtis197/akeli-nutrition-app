@@ -32,13 +32,13 @@ Recipe _recipe({
           const RecipeIngredient(
               ingredientId: 'i1',
               name: 'Oignons',
-              quantity: 2,
+              quantity: 2.0,
               unit: 'pcs',
               isOptional: false),
           const RecipeIngredient(
               ingredientId: 'i2',
               name: 'Huile',
-              quantity: 2,
+              quantity: 2.0,
               unit: 'cs',
               isOptional: false),
         ]
