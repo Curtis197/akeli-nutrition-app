@@ -538,3 +538,56 @@ class _TimerPill extends StatelessWidget {
     );
   }
 }
+
+class _LandscapeTextCenter extends StatelessWidget {
+  final String instruction;
+  final int? remainingSeconds;
+  final bool timerRunning;
+  final VoidCallback onTimerToggle;
+
+  const _LandscapeTextCenter({
+    required this.instruction,
+    this.remainingSeconds,
+    required this.timerRunning,
+    required this.onTimerToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AkeliRadius.xl),
+      child: ColoredBox(
+        color: AkeliColors.surfaceContainerLow,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  instruction,
+                  textAlign: TextAlign.center,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: AkeliColors.onSurface,
+                  ),
+                ),
+              ),
+              if (remainingSeconds != null) ...[
+                const SizedBox(height: 10),
+                _TimerPill(
+                  remainingSeconds: remainingSeconds!,
+                  isRunning: timerRunning,
+                  onToggle: onTimerToggle,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
