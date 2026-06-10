@@ -539,6 +539,98 @@ class _TimerPill extends StatelessWidget {
   }
 }
 
+class _LandscapeInfoPanel extends StatelessWidget {
+  final String instruction;
+  final List<RecipeIngredient> ingredients;
+  final Set<String> checked;
+  final ValueChanged<RecipeIngredient> onTap;
+  final ValueChanged<RecipeIngredient> onLongPress;
+
+  const _LandscapeInfoPanel({
+    required this.instruction,
+    required this.ingredients,
+    required this.checked,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainer,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(AkeliRadius.xl),
+          bottomLeft: Radius.circular(AkeliRadius.xl),
+        ),
+      ),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              instruction,
+              style: GoogleFonts.plusJakartaSans(
+                fontSize: 12,
+                height: 1.5,
+                color: AkeliColors.onSurface,
+              ),
+            ),
+            if (ingredients.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Divider(
+                color: AkeliColors.outline.withValues(alpha: 0.3),
+                height: 1,
+              ),
+              const SizedBox(height: 10),
+              ...ingredients.map((ing) {
+                final isChecked = checked.contains(ing.ingredientId);
+                return GestureDetector(
+                  onTap: () => onTap(ing),
+                  onLongPress: () => onLongPress(ing),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isChecked
+                                ? AkeliColors.outline
+                                : AkeliColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${ing.name}  ${ing.quantity.toStringAsFixed(ing.quantity == ing.quantity.truncate() ? 0 : 1)} ${ing.unit}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: isChecked
+                                  ? AkeliColors.onSurfaceVariant
+                                  : AkeliColors.onSurface,
+                              decoration: isChecked
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _LandscapeTextCenter extends StatelessWidget {
   final String instruction;
   final int? remainingSeconds;
