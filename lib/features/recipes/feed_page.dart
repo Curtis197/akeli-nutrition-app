@@ -30,9 +30,11 @@ List<Creator> filterAndSortCreators(
 }) {
   var list = all.where((c) {
     if (query.isNotEmpty &&
-        !c.displayName.toLowerCase().contains(query.toLowerCase())) return false;
-    if (regionId != null && c.regionId != regionId) return false;
-    if (specialty != null && !c.specialties.contains(specialty)) return false;
+        !c.displayName.toLowerCase().contains(query.toLowerCase())) {
+      return false;
+    }
+    if (regionId != null && c.regionId != regionId) { return false; }
+    if (specialty != null && !c.specialties.contains(specialty)) { return false; }
     return true;
   }).toList();
 
@@ -98,7 +100,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
 
   bool get _hasActiveCreatorFilter =>
-      _creatorsRegionId != null || _creatorsSpecialty != null || _creatorsOrderBy != null;
+      _creatorsRegionId != null || _creatorsSpecialty != null;
 
   List<Creator> get _filteredCreators => filterAndSortCreators(
         _creators,
@@ -1082,6 +1084,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         if (displayList.isEmpty) {
           final isFiltered = _creatorsQuery.isNotEmpty || _hasActiveCreatorFilter;
           return SliverFillRemaining(
+            hasScrollBody: false,
             child: EmptyState(
               icon: Icons.person_rounded,
               title: isFiltered
@@ -1230,11 +1233,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           const SizedBox(width: 8),
                         ],
                         TextButton(
-                          onPressed: () => setState(() {
-                            _creatorsRegionId  = null;
-                            _creatorsSpecialty = null;
-                            _creatorsOrderBy   = null;
-                          }),
+                          onPressed: () {
+                            _creatorsSearchCtrl.clear();
+                            setState(() {
+                              _creatorsQuery     = '';
+                              _creatorsRegionId  = null;
+                              _creatorsSpecialty = null;
+                              _creatorsOrderBy   = null;
+                            });
+                          },
                           child: const Text('Tout effacer',
                               style: TextStyle(fontSize: 13)),
                         ),
