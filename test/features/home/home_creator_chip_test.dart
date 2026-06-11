@@ -38,12 +38,14 @@ void main() {
         HomeCreatorChip(creator: _creator, onTap: () => tapped = true),
       ));
       await tester.tap(find.byType(HomeCreatorChip));
+      await tester.pump();
       expect(tapped, isTrue);
     });
 
     testWidgets('does not throw when onTap is null', (tester) async {
       await tester.pumpWidget(_wrap(HomeCreatorChip(creator: _creator)));
       await tester.tap(find.byType(HomeCreatorChip));
+      await tester.pump();
       // no exception
     });
   });
