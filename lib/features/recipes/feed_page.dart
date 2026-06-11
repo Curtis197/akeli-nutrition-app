@@ -628,6 +628,29 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     );
   }
 
+  void _showCreatorSortSheet(BuildContext context) {
+    _logger.userAction('Creator sort sheet opened', screen: 'FeedPage');
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AkeliColors.surface,
+      builder: (_) => _FilterSheet<String>(
+        title: 'Trier par',
+        options: const [
+          MapEntry(null, 'Personnalisé'),
+          MapEntry('rating', 'Mieux notés'),
+          MapEntry('fans', 'Plus de fans'),
+          MapEntry('recipes', 'Plus de recettes'),
+        ],
+        selectedKey: _creatorsOrderBy,
+        onSelect: (key) {
+          _logger.userAction('Creator sort changed', screen: 'FeedPage',
+              metadata: {'orderBy': key});
+          setState(() => _creatorsOrderBy = key);
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSearching = _searchQuery.length >= 2;
