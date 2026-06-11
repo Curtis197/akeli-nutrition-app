@@ -87,8 +87,26 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   bool _loadingMoreCreators = false;
   final Set<String> _seenCreatorIds = {};
 
+  // ---- Creator search/filter/sort ----
+  final _creatorsSearchCtrl = TextEditingController();
+  String  _creatorsQuery    = '';
+  String? _creatorsRegionId;
+  String? _creatorsSpecialty;
+  String? _creatorsOrderBy;
+
   bool get _hasActiveFilter =>
       _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
+
+  bool get _hasActiveCreatorFilter =>
+      _creatorsRegionId != null || _creatorsSpecialty != null || _creatorsOrderBy != null;
+
+  List<Creator> get _filteredCreators => filterAndSortCreators(
+        _creators,
+        query: _creatorsQuery,
+        regionId: _creatorsRegionId,
+        specialty: _creatorsSpecialty,
+        orderBy: _creatorsOrderBy,
+      );
 
   static const _pageSize = 20;
 
@@ -101,6 +119,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _creatorsSearchCtrl.dispose();
     _logger.provider('FeedPage disposed');
     super.dispose();
   }
@@ -300,6 +319,21 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         'likes' => 'Populaire',
         'created_at' => 'Plus récent',
         _ => 'Trier ▾',
+      };
+
+  String _creatorsRegionLabel() {
+    if (_creatorsRegionId == null) return 'Région';
+    final names = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
+    return names[_creatorsRegionId] ?? _creatorsRegionId!;
+  }
+
+  String _creatorsSpecialtyLabel() => _creatorsSpecialty ?? 'Spécialité';
+
+  String _creatorsSortLabel() => switch (_creatorsOrderBy) {
+        'rating'  => 'Mieux notés',
+        'fans'    => 'Plus de fans',
+        'recipes' => 'Plus de recettes',
+        _         => 'Tri',
       };
 
   void _showCombinedFilterSheet(BuildContext context) {
