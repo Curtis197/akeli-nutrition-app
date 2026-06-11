@@ -530,6 +530,104 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     );
   }
 
+  static const _creatorSpecialties = [
+    'Cuisine traditionnelle',
+    'Cuisine fusion',
+    'Cuisine végétarienne',
+    'Pâtisserie',
+    'Street food',
+  ];
+
+  void _showCreatorFilterSheet(BuildContext context, Map<String, String> regionNames) {
+    _logger.userAction('Creator filter sheet opened', screen: 'FeedPage');
+    String? tempRegion    = _creatorsRegionId;
+    String? tempSpecialty = _creatorsSpecialty;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AkeliColors.surface,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AkeliSpacing.md),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Filtres', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                        IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Text('Région', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Toutes'),
+                          selected: tempRegion == null,
+                          onSelected: (_) => setModalState(() => tempRegion = null),
+                        ),
+                        ...regionNames.entries.map((e) => ChoiceChip(
+                          label: Text(e.value),
+                          selected: tempRegion == e.key,
+                          onSelected: (_) => setModalState(() => tempRegion = e.key),
+                        )),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text('Spécialité', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Toutes'),
+                          selected: tempSpecialty == null,
+                          onSelected: (_) => setModalState(() => tempSpecialty = null),
+                        ),
+                        ..._creatorSpecialties.map((s) => ChoiceChip(
+                          label: Text(s),
+                          selected: tempSpecialty == s,
+                          onSelected: (_) => setModalState(() => tempSpecialty = s),
+                        )),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {
+                          _logger.userAction('Creator filter applied', screen: 'FeedPage',
+                              metadata: {'regionId': tempRegion, 'specialty': tempSpecialty});
+                          setState(() {
+                            _creatorsRegionId  = tempRegion;
+                            _creatorsSpecialty = tempSpecialty;
+                          });
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Appliquer les filtres'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isSearching = _searchQuery.length >= 2;
