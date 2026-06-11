@@ -1,0 +1,119 @@
+<h2>Landscape layout — which approach?</h2>
+<p class="subtitle">The current vertical column overflows in landscape. Pick the layout that feels right for cooking mode.</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;border-radius:8px;">
+      <!-- Phone landscape shell -->
+      <div style="background:#0f0f1a;border-radius:6px;padding:6px;font-family:sans-serif;color:#eee;">
+        <!-- Top bar -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;background:#1e1e30;padding:4px 8px;border-radius:4px;">
+          <span style="font-size:9px;color:#a0a0c0;">Étape 2 / 4</span>
+          <div style="flex:1;height:3px;background:#333;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+          <span style="font-size:9px;color:#888;">✕</span>
+        </div>
+        <!-- Two-column body -->
+        <div style="display:flex;gap:6px;height:100px;">
+          <!-- Left: instruction + ingredients -->
+          <div style="flex:1;background:#141424;border-radius:4px;padding:6px;display:flex;flex-direction:column;justify-content:space-between;">
+            <p style="font-size:9px;line-height:1.5;color:#ddd;margin:0;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
+              <span style="background:#252540;border-radius:8px;padding:2px 6px;font-size:7px;color:#ccc;">Oignons</span>
+              <span style="background:#252540;border-radius:8px;padding:2px 6px;font-size:7px;color:#ccc;">Huile</span>
+            </div>
+          </div>
+          <!-- Right: media + timer + nav -->
+          <div style="flex:1;display:flex;flex-direction:column;gap:4px;">
+            <div style="flex:1;background:#252540;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+              <span style="font-size:18px;">🎬</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#141424;border-radius:4px;padding:3px 6px;">
+              <span style="font-size:9px;color:#a0c0ff;">⏱ 03:00</span>
+              <div style="display:flex;gap:4px;">
+                <div style="background:#252540;border-radius:4px;padding:2px 8px;font-size:8px;color:#aaa;">◀ Préc</div>
+                <div style="background:#7c3aed;border-radius:4px;padding:2px 8px;font-size:8px;color:#fff;">Suiv ▶</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Two-column split</h3>
+      <p>Left: instruction + ingredients. Right: media + timer + nav buttons. Uses horizontal space fully. All content visible at once.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;border-radius:8px;">
+      <div style="background:#0f0f1a;border-radius:6px;padding:6px;font-family:sans-serif;color:#eee;">
+        <!-- Top bar -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:#1e1e30;padding:3px 8px;border-radius:4px;">
+          <span style="font-size:8px;color:#a0a0c0;">Étape 2 / 4</span>
+          <div style="flex:1;height:2px;background:#333;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+          <span style="font-size:8px;color:#888;">✕</span>
+        </div>
+        <!-- Compact single column -->
+        <div style="height:110px;display:flex;flex-direction:column;justify-content:space-between;">
+          <p style="font-size:9px;line-height:1.4;color:#ddd;margin:0;overflow:hidden;max-height:42px;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+          <!-- Timer + ingredients in a row -->
+          <div style="display:flex;align-items:center;gap:6px;background:#141424;padding:4px 6px;border-radius:4px;">
+            <div style="background:#252540;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#a0c0ff;">3:00</div>
+            <div style="display:flex;gap:3px;flex:1;overflow:hidden;">
+              <span style="background:#252540;border-radius:8px;padding:2px 5px;font-size:7px;color:#ccc;">Oignons</span>
+              <span style="background:#252540;border-radius:8px;padding:2px 5px;font-size:7px;color:#ccc;">Huile</span>
+              <span style="font-size:7px;color:#777;align-self:center;">+2</span>
+            </div>
+          </div>
+          <!-- Nav row -->
+          <div style="display:flex;gap:4px;">
+            <div style="flex:1;border:1px solid #444;border-radius:4px;padding:3px;text-align:center;font-size:8px;color:#aaa;">◀ Précédent</div>
+            <div style="flex:2;background:#7c3aed;border-radius:4px;padding:3px;text-align:center;font-size:8px;color:#fff;">Suivant ▶</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Compact single column</h3>
+      <p>Same structure as portrait but tightened: smaller text, timer + ingredients combined into one compact row, media hidden in landscape.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;border-radius:8px;">
+      <div style="background:#0f0f1a;border-radius:6px;padding:6px;font-family:sans-serif;color:#eee;position:relative;">
+        <!-- Top bar -->
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;background:#1e1e30;padding:3px 8px;border-radius:4px;">
+          <span style="font-size:8px;color:#a0a0c0;">Étape 2 / 4</span>
+          <div style="flex:1;height:2px;background:#333;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+          <span style="font-size:8px;color:#888;">✕</span>
+        </div>
+        <!-- Scrollable instruction takes most space -->
+        <div style="height:80px;overflow:hidden;background:#141424;border-radius:4px;padding:6px;margin-bottom:4px;">
+          <p style="font-size:10px;line-height:1.5;color:#ddd;margin:0;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides, environ 3 minutes à feu moyen.</p>
+        </div>
+        <!-- Bottom bar: nav + floating actions -->
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="flex:1;border:1px solid #444;border-radius:4px;padding:3px;text-align:center;font-size:8px;color:#aaa;">◀ Préc</div>
+          <div style="flex:2;background:#7c3aed;border-radius:4px;padding:3px;text-align:center;font-size:8px;color:#fff;">Suiv ▶</div>
+          <!-- Floating action buttons -->
+          <div style="display:flex;gap:3px;">
+            <div style="background:#252540;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:9px;">⏱</div>
+            <div style="background:#252540;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:9px;">🥕</div>
+          </div>
+        </div>
+        <!-- Floating timer badge -->
+        <div style="position:absolute;top:30px;right:8px;background:#7c3aed;border-radius:6px;padding:2px 5px;font-size:8px;color:#fff;">3:00 ▶</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Instruction-first + floating actions</h3>
+      <p>Instruction text fills available space. Timer floats as a badge. Ingredients accessible via a button. Nav stays at bottom. Maximum reading space.</p>
+    </div>
+  </div>
+
+</div>

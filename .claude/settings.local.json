@@ -6,7 +6,11 @@
       "Bash(gh api *)",
       "Bash(python -c \"import sys,json,base64; sys.stdout.buffer.write\\(base64.b64decode\\(json.load\\(sys.stdin\\)['content']\\)\\)\")",
       "Bash(railway status *)",
-      "Bash(railway login *)"
+      "Bash(railway login *)",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(flutter test *)",
+      "Bash(git stash *)"
     ]
   }
 }

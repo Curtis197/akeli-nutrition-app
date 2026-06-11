@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Cooking Mode — Section Header Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: system-ui, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Controls ── */
+  #controls {
+    width: 300px; min-width: 300px; background: #1a1a1a; border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 { font-size: 13px; font-weight: 600; color: #888; letter-spacing: .8px; text-transform: uppercase; padding: 20px 20px 8px; }
+  .group { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .group label { font-size: 12px; color: #aaa; display: flex; justify-content: space-between; }
+  .group label span { color: #e0e0e0; font-weight: 600; }
+
+  .mode-btn {
+    background: #222; border: 1px solid #333; border-radius: 8px; color: #ccc;
+    padding: 10px 12px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.5;
+    transition: all .15s;
+  }
+  .mode-btn.active { background: #2a3a5c; border-color: #4a7afc; color: #fff; }
+  .mode-btn strong { display: block; font-size: 13px; margin-bottom: 2px; }
+  .mode-btn .badge-bad  { color: #f87171; font-size: 11px; }
+  .mode-btn .badge-good { color: #4ade80; font-size: 11px; }
+
+  .nav-row { display: flex; gap: 8px; }
+  .nav-row button {
+    flex: 1; background: #222; border: 1px solid #333; border-radius: 8px;
+    color: #ccc; padding: 8px; cursor: pointer; font-size: 12px; transition: all .15s;
+  }
+  .nav-row button:hover:not(:disabled) { background: #2a2a2a; border-color: #555; }
+  .nav-row button:disabled { opacity: .3; cursor: default; }
+
+  /* ── Right pane ── */
+  #right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Phone frame ── */
+  #preview-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 24px; overflow: hidden;
+  }
+  .phone {
+    width: 375px; height: 720px; background: #121212; border-radius: 40px;
+    border: 8px solid #333; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0,0,0,.8); position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── Inside the phone — cooking mode ── */
+  .top-bar {
+    display: flex; align-items: center; padding: 14px 16px 8px; gap: 12px;
+    background: #121212; flex-shrink: 0;
+  }
+  .step-label { font-size: 14px; font-weight: 600; color: #e0e0e0; white-space: nowrap; }
+  .progress-track { flex: 1; height: 5px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #4CAF50; border-radius: 3px; transition: width .3s; }
+  .close-btn { width: 28px; height: 28px; background: none; border: none; color: #888; font-size: 18px; cursor: pointer; flex-shrink: 0; }
+
+  .step-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 0 20px 0; }
+
+  /* section badge */
+  .section-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(76,175,80,.12); border: 1px solid rgba(76,175,80,.3);
+    border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600;
+    color: #4CAF50; margin-bottom: 10px; align-self: flex-start;
+  }
+
+  /* instruction text */
+  .instruction {
+    font-size: 20px; font-weight: 600; line-height: 1.5; color: #e8e8e8;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 8px 0;
+  }
+  .instruction.empty { color: #444; font-style: italic; font-size: 15px; }
+
+  /* step image */
+  .step-img {
+    width: 100%; height: 160px; border-radius: 14px; object-fit: cover;
+    margin-top: 8px; flex-shrink: 0;
+  }
+  .step-img-placeholder {
+    width: 100%; height: 160px; border-radius: 14px; background: #1e1e1e;
+    margin-top: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    color: #333; font-size: 12px;
+  }
+
+  /* section-header full slide (Option B) */
+  .section-slide {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; padding: 24px;
+  }
+  .section-slide .icon { font-size: 48px; }
+  .section-slide h2 { font-size: 24px; font-weight: 700; color: #e8e8e8; text-align: center; }
+  .section-slide .sub { font-size: 13px; color: #888; text-align: center; }
+  .section-slide .start-btn {
+    background: #4CAF50; color: #fff; border: none; border-radius: 12px;
+    padding: 12px 32px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
+  }
+
+  /* nav buttons inside phone */
+  .phone-nav {
+    display: flex; gap: 10px; padding: 12px 20px 16px; flex-shrink: 0;
+  }
+  .phone-nav .prev-btn {
+    flex: 1; background: none; border: 1px solid #333; border-radius: 12px;
+    color: #aaa; font-size: 14px; padding: 12px; cursor: pointer;
+  }
+  .phone-nav .next-btn {
+    flex: 2; background: #4CAF50; border: none; border-radius: 12px;
+    color: #fff; font-size: 14px; font-weight: 600; padding: 12px; cursor: pointer;
+  }
+  .phone-nav .prev-btn:disabled { opacity: .3; }
+
+  /* ── Prompt output ── */
+  #prompt-area {
+    border-top: 1px solid #222; padding: 16px 20px; background: #141414;
+    display: flex; flex-direction: column; gap: 8px; max-height: 140px;
+  }
+  #prompt-area h3 { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .8px; }
+  #prompt-text { font-size: 13px; color: #bbb; line-height: 1.6; flex: 1; }
+  #copy-btn {
+    align-self: flex-end; background: #222; border: 1px solid #333; border-radius: 6px;
+    color: #aaa; font-size: 12px; padding: 5px 14px; cursor: pointer; transition: all .15s;
+  }
+  #copy-btn:hover { background: #2a2a2a; color: #e0e0e0; }
+</style>
+</head>
+<body>
+
+<!-- ── Controls ── -->
+<div id="controls">
+  <h2>Mode d'affichage</h2>
+  <div class="group">
+    <button class="mode-btn active" onclick="setMode('current')" id="btn-current">
+      <strong>État actuel 🐛</strong>
+      <span class="badge-bad">Section headers = étapes vides</span>
+      Les lignes is_section_header sont parsées comme des étapes normales avec instruction = "".
+    </button>
+    <button class="mode-btn" onclick="setMode('option-a')" id="btn-option-a">
+      <strong>Option A — Badge de section ✅</strong>
+      <span class="badge-good">Recommandé</span>
+      Filtre les headers du step count. Affiche le titre de section comme badge vert au-dessus de l'instruction.
+    </button>
+    <button class="mode-btn" onclick="setMode('option-b')" id="btn-option-b">
+      <strong>Option B — Slide de transition</strong>
+      <span class="badge-good">Plus visuel</span>
+      Les sections sont des slides dédiés avec titre centré + bouton "Commencer".
+    </button>
+  </div>
+
+  <h2>Navigation</h2>
+  <div class="group">
+    <div class="nav-row">
+      <button id="ctrl-prev" onclick="prevStep()">← Précédent</button>
+      <button id="ctrl-next" onclick="nextStep()">Suivant →</button>
+    </div>
+    <label>Étape <span id="lbl-step">1</span></label>
+  </div>
+
+  <h2>Recette</h2>
+  <div class="group">
+    <label style="flex-direction:column;gap:4px;">
+      <span style="color:#e0e0e0">Soupe du Pêcheur — Atiéké</span>
+      <span style="color:#555;font-size:11px">6 entrées DB · 2 section_headers · 4 steps avec images</span>
+    </label>
+  </div>
+</div>
+
+<!-- ── Right pane ── -->
+<div id="right">
+  <div id="preview-area">
+    <div class="phone">
+      <!-- Top bar -->
+      <div class="top-bar">
+        <div class="step-label" id="step-label">Étape 1 / 6</div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:16%"></div></div>
+        <button class="close-btn">✕</button>
+      </div>
+
+      <!-- Step body -->
+      <div class="step-body" id="step-body">
+        <!-- rendered by JS -->
+      </div>
+
+      <!-- Nav -->
+      <div class="phone-nav">
+        <button class="prev-btn" id="phone-prev" onclick="prevStep()">Précédent</button>
+        <button class="next-btn" id="phone-next" onclick="nextStep()">Suivant</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prompt output -->
+  <div id="prompt-area">
+    <h3>Prompt de correction</h3>
+    <div id="prompt-text"></div>
+    <button id="copy-btn" onclick="copyPrompt()">Copier</button>
+  </div>
+</div>
+
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+const DB_STEPS = [
+  { id:1, step_number:1, is_section_header:true,  title:"Pour la soupe",   content:null, image_url:null },
+  { id:2, step_number:2, is_section_header:false, title:null, content:"Mettre un oignon épluché entier, la tomate et le piment. Ajouter 500 ml d'eau. Couvrir et laisser bouillir environ 20 min.", image_url:"https://images.pexels.com/photos/2474661/pexels-photo-2474661.jpeg?auto=compress&cs=tinysrgb&w=400" },
+  { id:3, step_number:3, is_section_header:false, title:null, content:"Retirer les légumes, écraser avec l'apki, le piment sec et l'adjovan. Reverser la mixture dans la soupe.", image_url:"https://images.pexels.com/photos/4198019/pexels-photo-4198019.jpeg?auto=compress&cs=tinysrgb&w=400" },
+  { id:4, step_number:4, is_section_header:false, title:null, content:"Mijoter 10 min, ajouter le cube d'assaisonnement. Ajuster le sel. Faire mijoter 5 min et retirer du feu quand le poisson est cuit.", image_url:"https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=400" },
+  { id:5, step_number:5, is_section_header:true,  title:"Pour l'atiéké",   content:null, image_url:null },
+  { id:6, step_number:6, is_section_header:false, title:null, content:"Dans un bol, mettre l'atiéké et arroser d'un peu d'eau en mélangeant. Réchauffer 3 min au micro-onde. Servir quand les grains sont tendres.", image_url:"https://images.pexels.com/photos/4110255/pexels-photo-4110255.jpeg?auto=compress&cs=tinysrgb&w=400" },
+];
+
+// ── State ────────────────────────────────────────────────────────────────────
+const state = { mode: 'current', stepIndex: 0 };
+
+function currentSteps() {
+  if (state.mode === 'current') return DB_STEPS; // raw, unfiltered
+  if (state.mode === 'option-a') return DB_STEPS; // same data, different render
+  if (state.mode === 'option-b') return DB_STEPS; // same data, different render
+  return DB_STEPS;
+}
+
+function totalVisible() {
+  if (state.mode === 'option-a') return DB_STEPS.filter(s => !s.is_section_header).length;
+  return DB_STEPS.length;
+}
+
+function visibleIndex() {
+  if (state.mode !== 'option-a') return state.stepIndex;
+  // count non-header steps up to current index
+  return DB_STEPS.slice(0, state.stepIndex + 1).filter(s => !s.is_section_header).length;
+}
+
+function currentSectionTitle() {
+  // walk back to find the nearest section header
+  for (let i = state.stepIndex; i >= 0; i--) {
+    if (DB_STEPS[i].is_section_header) return DB_STEPS[i].title;
+  }
+  return null;
+}
+
+// ── Rendering ────────────────────────────────────────────────────────────────
+function renderPreview() {
+  const step = DB_STEPS[state.stepIndex];
+  const mode = state.mode;
+  const total = DB_STEPS.length;
+  const visIdx = state.mode === 'option-a'
+    ? DB_STEPS.slice(0, state.stepIndex + 1).filter(s => !s.is_section_header).length
+    : state.stepIndex + 1;
+  const visTotal = mode === 'option-a' ? totalVisible() : total;
+
+  // Top bar
+  document.getElementById('step-label').textContent = `Étape ${visIdx} / ${visTotal}`;
+  document.getElementById('progress-fill').style.width = `${(visIdx / visTotal) * 100}%`;
+
+  // Nav buttons
+  document.getElementById('phone-prev').disabled = state.stepIndex === 0;
+  document.getElementById('ctrl-prev').disabled = state.stepIndex === 0;
+  const isLast = state.stepIndex === DB_STEPS.length - 1;
+  document.getElementById('phone-next').textContent = isLast ? 'Terminer ✓' : 'Suivant';
+  document.getElementById('ctrl-next').disabled = isLast;
+
+  const body = document.getElementById('step-body');
+
+  // ── CURRENT (broken) ─────────────────────────────────────────────────────
+  if (mode === 'current') {
+    const instruction = step.content ?? ''; // title is ignored, content is null for headers
+    const isEmpty = instruction === '';
+    body.innerHTML = `
+      <div class="instruction ${isEmpty ? 'empty' : ''}" style="flex:1;padding-top:12px;">
+        ${isEmpty ? '(étape vide — section header ignoré)' : escHtml(instruction)}
+      </div>
+      ${step.image_url && !step.is_section_header
+        ? `<img class="step-img" src="${step.image_url}" onerror="this.style.display='none'">`
+        : (step.is_section_header ? '' : '<div class="step-img-placeholder">Pas d\'image</div>')}
+    `;
+    return;
+  }
+
+  // ── OPTION A (filter + badge) ─────────────────────────────────────────────
+  if (mode === 'option-a') {
+    if (step.is_section_header) {
+      // skip — this step doesn't exist in Option A; auto-advance for demo clarity
+      body.innerHTML = `<div class="instruction empty" style="flex:1">(section header — filtré, jamais affiché)</div>`;
+      return;
+    }
+    const sectionTitle = currentSectionTitle();
+    body.innerHTML = `
+      ${sectionTitle ? `<div class="section-badge">📂 ${escHtml(sectionTitle)}</div>` : ''}
+      <div class="instruction" style="flex:1;padding-top:4px;">${escHtml(step.content)}</div>
+      ${step.image_url
+        ? `<img class="step-img" src="${step.image_url}" onerror="this.style.display='none'">`
+        : '<div class="step-img-placeholder">Pas d\'image</div>'}
+    `;
+    return;
+  }
+
+  // ── OPTION B (section slide) ──────────────────────────────────────────────
+  if (mode === 'option-b') {
+    if (step.is_section_header) {
+      body.innerHTML = `
+        <div class="section-slide">
+          <div class="icon">${step.title.includes('atiéké') ? '🍚' : '🍲'}</div>
+          <h2>${escHtml(step.title)}</h2>
+          <p class="sub">Cette section comporte ${countSectionSteps(state.stepIndex)} étape(s)</p>
+          <button class="start-btn" onclick="nextStep()">Commencer →</button>
+        </div>
+      `;
+      return;
+    }
+    const sectionTitle = currentSectionTitle();
+    body.innerHTML = `
+      ${sectionTitle ? `<div class="section-badge">📂 ${escHtml(sectionTitle)}</div>` : ''}
+      <div class="instruction" style="flex:1;padding-top:4px;">${escHtml(step.content)}</div>
+      ${step.image_url
+        ? `<img class="step-img" src="${step.image_url}" onerror="this.style.display='none'">`
+        : '<div class="step-img-placeholder">Pas d\'image</div>'}
+    `;
+    return;
+  }
+}
+
+function countSectionSteps(headerIdx) {
+  let count = 0;
+  for (let i = headerIdx + 1; i < DB_STEPS.length; i++) {
+    if (DB_STEPS[i].is_section_header) break;
+    count++;
+  }
+  return count;
+}
+
+// ── Prompt ────────────────────────────────────────────────────────────────────
+function updatePrompt() {
+  const el = document.getElementById('prompt-text');
+  if (state.mode === 'current') {
+    el.textContent = 'État actuel — bug : RecipeStep.fromJson lit content ?? "" et ignore title. Les 2 section headers (étapes 1 et 5) s\'affichent comme des étapes vides. Le compteur "Étape X/6" inclut ces blancs. Rien dans le modèle ne mappe is_section_header ou title.';
+  } else if (state.mode === 'option-a') {
+    el.textContent = 'Implémente Option A : dans RecipeStep.fromJson, ajoute isSectionHeader et sectionTitle. Dans CookingModePage, filtre les steps is_section_header de la liste visible. Affiche le titre de la section courante comme badge vert (ex: "📂 Pour la soupe") au-dessus de l\'instruction. Le compteur affiche Étape 1/4 au lieu de 1/6.';
+  } else {
+    el.textContent = 'Implémente Option B : garde tous les steps dans la liste. Pour is_section_header=true, affiche un slide plein écran avec le titre centré + icône + bouton "Commencer". Pour les autres steps, affiche le badge de section en petit comme Option A. Le compteur compte toujours 6 étapes.';
+  }
+}
+
+// ── Controls ─────────────────────────────────────────────────────────────────
+function setMode(m) {
+  state.mode = m;
+  state.stepIndex = 0;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + m).classList.add('active');
+  updateAll();
+}
+
+function prevStep() {
+  if (state.stepIndex > 0) { state.stepIndex--; updateAll(); }
+}
+function nextStep() {
+  if (state.stepIndex < DB_STEPS.length - 1) { state.stepIndex++; updateAll(); }
+}
+
+function updateAll() {
+  document.getElementById('lbl-step').textContent = state.stepIndex + 1;
+  renderPreview();
+  updatePrompt();
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyPrompt() {
+  const t = document.getElementById('prompt-text').textContent;
+  navigator.clipboard.writeText(t).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copié !';
+    setTimeout(() => btn.textContent = 'Copier', 1500);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+updateAll();
+</script>
+</body>
+</html>

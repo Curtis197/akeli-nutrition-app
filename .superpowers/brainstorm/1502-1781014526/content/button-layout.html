@@ -1,0 +1,124 @@
+<h2>Two-button layout — which approach?</h2>
+<p class="subtitle">How should the Comments and Review buttons appear on the meal detail page?</p>
+
+<div class="cards">
+
+  <!-- Option A -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#0f0f0f;">
+      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">ACTIONS</div>
+
+      <!-- Consumed row -->
+      <div style="background:#1a2e1a;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:20px;height:20px;background:#4ade80;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+          <span style="color:white;font-size:12px;">✓</span>
+        </div>
+        <span style="color:#4ade80;font-size:14px;font-weight:600;">Repas consommé</span>
+        <span style="color:#4ade80;font-size:11px;margin-left:auto;opacity:0.7;">Annuler</span>
+      </div>
+
+      <!-- Two buttons side-by-side -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <div style="background:#1c1c1e;border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <span style="font-size:20px;">💬</span>
+          <span style="color:#e0e0e0;font-size:12px;font-weight:600;text-align:center;">Commentaires</span>
+          <span style="color:#888;font-size:10px;">Toujours actif</span>
+        </div>
+        <div style="background:#1c1c1e;border-radius:10px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <span style="font-size:20px;">⭐</span>
+          <span style="color:#e0e0e0;font-size:12px;font-weight:600;text-align:center;">Votre avis</span>
+          <span style="color:#f59e0b;font-size:10px;">★★★★☆ existant</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Two columns, always visible</h3>
+      <p>Comments always active. Rating shows existing stars when rated. Consumed row has a small "Annuler" link.</p>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#0f0f0f;">
+      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">ACTIONS</div>
+
+      <!-- Consumed row with undo -->
+      <div style="background:#1a2e1a;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:20px;height:20px;background:#4ade80;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+          <span style="color:white;font-size:12px;">✓</span>
+        </div>
+        <span style="color:#4ade80;font-size:14px;font-weight:600;">Repas consommé</span>
+        <div style="margin-left:auto;background:#2a1a1a;border-radius:6px;padding:4px 8px;">
+          <span style="color:#f87171;font-size:11px;font-weight:600;">Annuler</span>
+        </div>
+      </div>
+
+      <!-- Full-width comments -->
+      <div style="background:#1c1c1e;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <span style="font-size:18px;">💬</span>
+        <div>
+          <div style="color:#e0e0e0;font-size:13px;font-weight:600;">Commentaires</div>
+          <div style="color:#888;font-size:11px;">Voir les avis de la communauté</div>
+        </div>
+        <span style="color:#666;margin-left:auto;">›</span>
+      </div>
+
+      <!-- Full-width rating — shows state -->
+      <div style="background:#1c1c1e;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:18px;">⭐</span>
+        <div>
+          <div style="color:#e0e0e0;font-size:13px;font-weight:600;">Modifier votre avis</div>
+          <div style="color:#f59e0b;font-size:11px;">★★★★☆ · votre note actuelle</div>
+        </div>
+        <span style="color:#666;margin-left:auto;">›</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Full-width stacked rows</h3>
+      <p>Both buttons full-width. Rating row shows "Laisser un avis" or "Modifier votre avis" + current stars depending on state. Undo is a distinct red pill.</p>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding:20px;background:#0f0f0f;">
+      <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">ACTIONS</div>
+
+      <!-- Consumed row with undo icon -->
+      <div style="background:#1a2e1a;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:20px;height:20px;background:#4ade80;border-radius:4px;display:flex;align-items:center;justify-content:center;">
+          <span style="color:white;font-size:12px;">✓</span>
+        </div>
+        <span style="color:#4ade80;font-size:14px;font-weight:600;">Repas consommé</span>
+        <div style="margin-left:auto;width:28px;height:28px;background:rgba(255,255,255,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <span style="color:#aaa;font-size:14px;">↺</span>
+        </div>
+      </div>
+
+      <!-- 3-column grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div style="background:#1c1c1e;border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <span style="font-size:18px;">🍽️</span>
+          <span style="color:#e0e0e0;font-size:10px;font-weight:600;text-align:center;">Recette</span>
+        </div>
+        <div style="background:#1c1c1e;border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;">
+          <span style="font-size:18px;">💬</span>
+          <span style="color:#e0e0e0;font-size:10px;font-weight:600;text-align:center;">Avis</span>
+          <span style="color:#888;font-size:9px;">12</span>
+        </div>
+        <div style="background:#2a2000;border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;border:1px solid #f59e0b44;">
+          <span style="font-size:18px;">⭐</span>
+          <span style="color:#f59e0b;font-size:10px;font-weight:600;text-align:center;">Note</span>
+          <span style="color:#f59e0b;font-size:9px;">4/5</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — 3-column grid (compact)</h3>
+      <p>Recipe, Comments, Rating as compact tiles. Rating tile highlights amber when rated. Undo is an icon button on the consumed row. Works well if there are already other action tiles.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click your preferred option, then reply in the terminal.</p>

@@ -1,0 +1,121 @@
+<h2>Media-first landscape layout</h2>
+<p class="subtitle">When media exists it fills center stage. When no media, instruction text fills the center instead.</p>
+
+<div class="split">
+
+  <!-- With media -->
+  <div class="mockup">
+    <div class="mockup-header">Step WITH image / video</div>
+    <div class="mockup-body" style="background:#0f0f1a;border-radius:8px;padding:8px;font-family:sans-serif;color:#eee;">
+      <!-- Top bar -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:3px 8px;background:#1e1e30;border-radius:4px;">
+        <span style="font-size:8px;color:#a0a0c0;">Étape 2 / 4</span>
+        <div style="flex:1;height:3px;background:#2a2a40;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+        <span style="font-size:8px;color:#666;">✕</span>
+      </div>
+      <!-- Main row -->
+      <div style="display:flex;align-items:center;gap:8px;height:130px;">
+        <!-- Left arrow -->
+        <div style="width:36px;height:36px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;flex-shrink:0;">‹</div>
+
+        <!-- Media fills center — text overlay at bottom -->
+        <div style="flex:1;height:100%;border-radius:8px;background:#252540;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <!-- Fake media -->
+          <span style="font-size:36px;opacity:0.6;">🎬</span>
+          <!-- Bottom overlay: text + info + timer -->
+          <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent, rgba(0,0,0,0.85));padding:8px 10px 6px;">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px;">
+              <p style="font-size:8px;line-height:1.4;color:#eee;margin:0;flex:1;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+                <div style="background:rgba(124,58,237,0.9);border-radius:12px;padding:2px 7px;display:flex;align-items:center;gap:3px;">
+                  <span style="font-size:8px;color:#fff;">⏱ 03:00</span>
+                  <span style="font-size:8px;color:#ddd;">▶</span>
+                </div>
+                <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;">ℹ</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right arrow -->
+        <div style="width:36px;height:36px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Without media -->
+  <div class="mockup">
+    <div class="mockup-header">Step WITHOUT media (text-only)</div>
+    <div class="mockup-body" style="background:#0f0f1a;border-radius:8px;padding:8px;font-family:sans-serif;color:#eee;">
+      <!-- Top bar -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:3px 8px;background:#1e1e30;border-radius:4px;">
+        <span style="font-size:8px;color:#a0a0c0;">Étape 1 / 4</span>
+        <div style="flex:1;height:3px;background:#2a2a40;border-radius:2px;overflow:hidden;"><div style="width:25%;height:100%;background:#7c3aed;"></div></div>
+        <span style="font-size:8px;color:#666;">✕</span>
+      </div>
+      <!-- Main row -->
+      <div style="display:flex;align-items:center;gap:8px;height:130px;">
+        <!-- Left arrow -->
+        <div style="width:36px;height:36px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:18px;color:#444;flex-shrink:0;">‹</div>
+
+        <!-- Text fills center -->
+        <div style="flex:1;height:100%;border-radius:8px;background:#141424;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;text-align:center;position:relative;">
+          <p style="font-size:12px;line-height:1.6;color:#eee;margin:0;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+          <div style="display:inline-flex;align-items:center;gap:6px;background:#1e1e30;border-radius:16px;padding:3px 12px;">
+            <span style="font-size:9px;color:#a0c0ff;">⏱</span>
+            <span style="font-size:10px;font-weight:600;color:#ddd;">03:00</span>
+            <span style="font-size:10px;color:#7c3aed;">▶</span>
+          </div>
+          <!-- Info icon bottom-right -->
+          <div style="position:absolute;bottom:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:12px;color:#a0a0c0;">ℹ</div>
+        </div>
+
+        <!-- Right arrow -->
+        <div style="width:36px;height:36px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;">›</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top:20px;">
+  <h3>Info panel (ℹ tapped) — same in both cases</h3>
+  <div class="mockup">
+    <div class="mockup-header">Side panel slides in over the center area</div>
+    <div class="mockup-body" style="background:#0f0f1a;border-radius:8px;padding:8px;font-family:sans-serif;color:#eee;">
+      <div style="display:flex;align-items:center;gap:8px;height:130px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:18px;color:#888;flex-shrink:0;">‹</div>
+        <div style="flex:1;height:100%;border-radius:8px;background:#141424;display:flex;overflow:hidden;position:relative;">
+          <!-- Dimmed content behind -->
+          <div style="flex:1;opacity:0.25;display:flex;align-items:center;justify-content:center;">
+            <span style="font-size:24px;">🎬</span>
+          </div>
+          <!-- Side panel -->
+          <div style="width:180px;background:#1e1e30;padding:10px;display:flex;flex-direction:column;gap:6px;">
+            <p style="font-size:8px;color:#a0a0c0;margin:0;text-transform:uppercase;letter-spacing:0.5px;">Ingrédients</p>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <div style="display:flex;align-items:center;gap:5px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#7c3aed;flex-shrink:0;"></div>
+                <span style="font-size:9px;color:#ddd;">Oignons — 2 pcs</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#7c3aed;flex-shrink:0;"></div>
+                <span style="font-size:9px;color:#ddd;">Huile d'arachide — 2 cs</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:#444;flex-shrink:0;"></div>
+                <span style="font-size:9px;color:#666;text-decoration:line-through;">Sel — 1 cc ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;">›</div>
+          <div style="width:36px;height:36px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0;">ℹ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:12px;">Does this match what you had in mind? Let me know in the terminal.</p>

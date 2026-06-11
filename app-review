@@ -48,3 +48,49 @@ lets check the feed generator sql pgvector function.
 
 # community
 we need to enable the group creation
+
+## 4th review 
+
+# simple improvement
+
+- Each meal_type should have color that goes on title and icon to be fully recognizable
+- The home graph are not fill the cololr stay on border. The more we are close to the objectif the more we should evolve on a gradient from red to green
+- we must remove the portion from the meal detail page. 
+- the notification link return notification page instead of notification link
+- the change made on ingredient/step title don't apprear yet
+- the support page link in setting return nothing
+- We should replace the politique and confidentiality button by two link 
+- lets remove the conseil d'utilisation button
+- we should edit profile image in the setting editing bottom sheet only not in the profile page
+- let's replace "avis de la communauté" in the recipe page by "avis" 
+- let's check the filter bottom sheet the text color is broken
+- batch cooking should be rename "session de cuisine" in the app
+
+# debug
+
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────│ PostgrestException(message: column allergen_1.label does not exist, code: 42703, details: , hint: null)
+├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│ #0   package:postgrest/src/postgrest_builder.dart 359:7                                <fn>
+│ #1   package:postgrest/src/postgrest_builder.dart 241:13                               [_parseResponse]
+│ #2   package:postgrest/src/postgrest_builder.dart 198:14                               <fn>
+│ #3   package:postgrest/src/postgrest_builder.dart 238:3                                <fn>
+│ #4   package:http/src/response.dart 66:3                                               <fn>
+├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│ 2026-06-11 11:54:01.668
+├┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄│ ⛔ 📡 DB: ERROR | UserPreferencesNotifier | code: 42703
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┌──────────────────────────────────────────────────
+
+
+# new feature
+
+- the creator feed should get a search bar with filter and order
+- the recipe should normalize the cal and the macro at 100g. As every body have different portion and every recipe are calibrate for different portion. 
+    - The calorie number display on the recipe card will be the normalize number
+    - on the recipe detail page we will set a scrollable row tha would display the normalize cal and macro and the total macro of the recipe. 
+The design doesnt have to chnage that much. 
+- we need to attach recipe_ingredient to steps so the step detail in the cooking mod only display the ingredient used in the step
+- We need to add in the meal plan page the possibility each day to add a snack
+
+# evaluation 
+
+- we need to evaluate the UX of the meal and the cooking session. 
+if the meal are in the cooking session they dont need the ingredient and instruction. It can be the occasion to display other benefit of the meal
+cooking session should have a detail page. 

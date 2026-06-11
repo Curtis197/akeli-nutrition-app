@@ -1,0 +1,74 @@
+<h2>Steps with media — landscape treatment</h2>
+<p class="subtitle">Some steps have an image or video. Where should it live in landscape?</p>
+
+<div class="cards">
+
+  <!-- Option A: hidden -->
+  <div class="card" data-choice="hidden" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;border-radius:8px;">
+      <div style="background:#0f0f1a;border-radius:6px;padding:8px;font-family:sans-serif;color:#eee;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:3px 6px;background:#1e1e30;border-radius:4px;">
+          <span style="font-size:8px;color:#a0a0c0;">Étape 2 / 4</span>
+          <div style="flex:1;height:3px;background:#2a2a40;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+          <span style="font-size:8px;color:#666;">✕</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;height:90px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:14px;color:#888;">‹</div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;">
+            <p style="font-size:10px;line-height:1.6;color:#eee;margin:0;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+            <div style="display:inline-flex;align-items:center;gap:5px;background:#1e1e30;border-radius:16px;padding:3px 10px;">
+              <span style="font-size:9px;color:#a0c0ff;">⏱</span>
+              <span style="font-size:9px;font-weight:600;color:#ddd;">03:00</span>
+              <span style="font-size:9px;color:#7c3aed;">▶</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">›</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:12px;color:#a0a0c0;">ℹ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Media hidden in landscape</h3>
+      <p>Clean and focused. Image/video simply doesn't appear in landscape. Text is the star.</p>
+    </div>
+  </div>
+
+  <!-- Option B: media as left panel -->
+  <div class="card" data-choice="left-panel" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#1a1a2e;padding:12px;border-radius:8px;">
+      <div style="background:#0f0f1a;border-radius:6px;padding:8px;font-family:sans-serif;color:#eee;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:3px 6px;background:#1e1e30;border-radius:4px;">
+          <span style="font-size:8px;color:#a0a0c0;">Étape 2 / 4</span>
+          <div style="flex:1;height:3px;background:#2a2a40;border-radius:2px;overflow:hidden;"><div style="width:50%;height:100%;background:#7c3aed;"></div></div>
+          <span style="font-size:8px;color:#666;">✕</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;height:90px;">
+          <!-- Left nav arrow -->
+          <div style="width:28px;height:28px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:14px;color:#888;flex-shrink:0;">‹</div>
+          <!-- Media thumbnail (small, left of text) -->
+          <div style="width:72px;height:72px;border-radius:6px;background:#252540;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;">🎬</div>
+          <!-- Center text -->
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;">
+            <p style="font-size:9px;line-height:1.5;color:#eee;margin:0;">Faire revenir les oignons dans l'huile d'arachide jusqu'à ce qu'ils soient translucides.</p>
+            <div style="display:inline-flex;align-items:center;gap:5px;background:#1e1e30;border-radius:16px;padding:2px 8px;">
+              <span style="font-size:8px;color:#a0c0ff;">⏱</span>
+              <span style="font-size:9px;font-weight:600;color:#ddd;">03:00 ▶</span>
+            </div>
+          </div>
+          <!-- Right icons -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div style="width:28px;height:28px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;">›</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#252540;display:flex;align-items:center;justify-content:center;font-size:11px;color:#a0a0c0;">ℹ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Small media thumbnail beside text</h3>
+      <p>A compact thumbnail sits left of the instruction. Tappable to expand. Steps without media show no thumbnail.</p>
+    </div>
+  </div>
+
+</div>
