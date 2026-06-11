@@ -401,10 +401,9 @@ class _RecipeContent extends StatelessWidget {
                               label: _difficultyLabel(recipe.difficulty),
                             ),
                             _QuickInfo(
-                              icon: Icons.local_fire_department,
+                              icon: Icons.restaurant_menu,
                               iconColor: AkeliColors.primary,
-                              label: '${recipe.calories ?? 0} kcal',
-                              isBold: true,
+                              label: '${recipe.servings} portions',
                             ),
                           ],
                         ),
@@ -412,39 +411,11 @@ class _RecipeContent extends StatelessWidget {
                         const Divider(
                             color: AkeliColors.surfaceContainerHighest,
                             height: 1),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
-                        // Macros
-                        Row(
-                          children: [
-                            Expanded(
-                                child: _MacroBox(
-                                    label: 'PROTÉINES',
-                                    value: '${recipe.proteinG ?? 0}g')),
-                            const SizedBox(width: 12),
-                            Expanded(
-                                child: _MacroBox(
-                                    label: 'GLUCIDES',
-                                    value: '${recipe.carbsG ?? 0}g')),
-                            const SizedBox(width: 12),
-                            Expanded(
-                                child: _MacroBox(
-                                    label: 'LIPIDES',
-                                    value: '${recipe.fatG ?? 0}g')),
-                          ],
-                        ),
+                        // Macro nutrition scrollable row
+                        _MacroNutritionRow(recipe: recipe),
                         const SizedBox(height: 24),
-
-                        // Tags
-                        const Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _TagChip(label: 'Sans gluten'),
-                            _TagChip(label: 'Riche en protéines'),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
 
                         // Primary Action
                         Container(
@@ -701,6 +672,8 @@ class _RecipeContent extends StatelessWidget {
                           int contentNum = 0;
                           return recipe.steps.map((step) {
                             if (step.isSectionHeader) {
+                              appLogger.provider(
+                                  'RecipeDetailPage | section header | step: ${step.stepNumber} | title: "${step.sectionTitle}"');
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 16, top: 4),
                                 child: Row(children: [
@@ -821,13 +794,11 @@ class _QuickInfo extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String label;
-  final bool isBold;
 
   const _QuickInfo({
     required this.icon,
     required this.iconColor,
     required this.label,
-    this.isBold = false,
   });
 
   @override
@@ -840,7 +811,6 @@ class _QuickInfo extends StatelessWidget {
           label,
           style: GoogleFonts.inter(
             fontSize: 14,
-            fontWeight: isBold ? FontWeight.w600 : FontWeight.w400,
             color: AkeliColors.onSurfaceVariant,
           ),
         ),
@@ -849,39 +819,37 @@ class _QuickInfo extends StatelessWidget {
   }
 }
 
-class _MacroBox extends StatelessWidget {
-  final String label;
-  final String value;
+// Scrollable row showing per-100g (when computable) and total recipe macros.
+class _MacroNutritionRow extends StatelessWidget {
+  final Recipe recipe;
 
-  const _MacroBox({required this.label, required this.value});
+  const _MacroNutritionRow({required this.recipe});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AkeliRadius.md),
-      ),
-      child: Column(
+    final has100g = recipe.calories100g != null;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AkeliColors.onSurfaceVariant,
-              letterSpacing: 1.0,
+          if (has100g) ...[
+            _MacroPanel(
+              title: 'POUR 100G',
+              calories: recipe.calories100g!,
+              proteinG: recipe.protein100g ?? 0,
+              carbsG: recipe.carbs100g ?? 0,
+              fatG: recipe.fat100g ?? 0,
+              highlight: true,
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: AkeliColors.primary,
-            ),
+            const SizedBox(width: 12),
+          ],
+          _MacroPanel(
+            title: has100g ? 'RECETTE TOTALE' : 'PAR PORTION',
+            calories: has100g ? (recipe.calories ?? 0) : (recipe.caloriesPerServing ?? 0),
+            proteinG: has100g ? (recipe.proteinG ?? 0) : (recipe.proteinPerServing ?? 0),
+            carbsG: has100g ? (recipe.carbsG ?? 0) : (recipe.carbsPerServing ?? 0),
+            fatG: has100g ? (recipe.fatG ?? 0) : (recipe.fatPerServing ?? 0),
+            highlight: !has100g,
           ),
         ],
       ),
@@ -889,27 +857,108 @@ class _MacroBox extends StatelessWidget {
   }
 }
 
-class _TagChip extends StatelessWidget {
-  final String label;
+class _MacroPanel extends StatelessWidget {
+  final String title;
+  final double calories;
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+  final bool highlight;
 
-  const _TagChip({required this.label});
+  const _MacroPanel({
+    required this.title,
+    required this.calories,
+    required this.proteinG,
+    required this.carbsG,
+    required this.fatG,
+    required this.highlight,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainer,
-        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        color: highlight
+            ? AkeliColors.primary.withValues(alpha: 0.06)
+            : AkeliColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        border: highlight
+            ? Border.all(color: AkeliColors.primary.withValues(alpha: 0.2))
+            : null,
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: AkeliColors.onSurfaceVariant,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: highlight ? AkeliColors.primary : AkeliColors.onSurfaceVariant,
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              _MacroCell(label: 'Calories', value: '${calories.toInt()}', unit: 'kcal'),
+              const SizedBox(width: 16),
+              _MacroCell(label: 'Protéines', value: '${proteinG.toInt()}', unit: 'g'),
+              const SizedBox(width: 16),
+              _MacroCell(label: 'Glucides', value: '${carbsG.toInt()}', unit: 'g'),
+              const SizedBox(width: 16),
+              _MacroCell(label: 'Lipides', value: '${fatG.toInt()}', unit: 'g'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MacroCell extends StatelessWidget {
+  final String label;
+  final String value;
+  final String unit;
+
+  const _MacroCell({required this.label, required this.value, required this.unit});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            color: AkeliColors.onSurfaceVariant,
+          ),
         ),
-      ),
+        const SizedBox(height: 2),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AkeliColors.onSurface,
+                ),
+              ),
+              TextSpan(
+                text: ' $unit',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  color: AkeliColors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

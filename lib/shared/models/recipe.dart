@@ -73,6 +73,38 @@ class Recipe {
 
   int get totalTimeMin => prepTimeMin + cookTimeMin;
 
+  // Per-serving helpers (for card display — normalises across different portion sizes)
+  double? get caloriesPerServing => servings > 0 && calories != null ? calories! / servings : calories;
+  double? get proteinPerServing  => servings > 0 && proteinG  != null ? proteinG!  / servings : proteinG;
+  double? get carbsPerServing    => servings > 0 && carbsG    != null ? carbsG!    / servings : carbsG;
+  double? get fatPerServing      => servings > 0 && fatG      != null ? fatG!      / servings : fatG;
+
+  // Total ingredient weight in grams (g + ml units only, best-effort).
+  double get totalWeightG => ingredients
+      .where((i) => i.unit == 'g' || i.unit == 'ml')
+      .fold(0.0, (s, i) => s + i.quantity);
+
+  // Per-100g helpers — only meaningful when ingredients are loaded.
+  double? get calories100g {
+    final w = totalWeightG;
+    return (w > 0 && calories != null) ? calories! / w * 100 : null;
+  }
+
+  double? get protein100g {
+    final w = totalWeightG;
+    return (w > 0 && proteinG != null) ? proteinG! / w * 100 : null;
+  }
+
+  double? get carbs100g {
+    final w = totalWeightG;
+    return (w > 0 && carbsG != null) ? carbsG! / w * 100 : null;
+  }
+
+  double? get fat100g {
+    final w = totalWeightG;
+    return (w > 0 && fatG != null) ? fatG! / w * 100 : null;
+  }
+
   factory Recipe.fromJson(Map<String, dynamic> json) {
     appLogger.db('Recipe.fromJson | id: ${json['id']}');
     final macro = json['recipe_macro'] as Map<String, dynamic>?;
