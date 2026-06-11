@@ -1027,8 +1027,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             ),
           ),
-        if (_tabIndex != 0)
+        if (_tabIndex != 0) ...[
+          _buildCreatorSearchControls(regionNames),
           _buildCreateursSliver(regionNames),
+        ],
         if (_tabIndex != 0 && _creators.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
@@ -1073,14 +1075,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           });
         }
 
-        final displayList = _creators;
+        final displayList = _filteredCreators;
 
         if (displayList.isEmpty) {
-          return const SliverFillRemaining(
+          final isFiltered = _creatorsQuery.isNotEmpty || _hasActiveCreatorFilter;
+          return SliverFillRemaining(
             child: EmptyState(
               icon: Icons.person_rounded,
-              title: 'Aucun créateur disponible',
-              subtitle: 'Les créateurs apparaîtront ici.',
+              title: isFiltered
+                  ? 'Aucun créateur trouvé'
+                  : 'Aucun créateur disponible',
+              subtitle: isFiltered
+                  ? 'Essayez d\'autres termes ou réinitialisez les filtres.'
+                  : 'Les créateurs apparaîtront ici.',
             ),
           );
         }
@@ -1107,6 +1114,135 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           ),
         );
       },
+    );
+  }
+  Widget _buildCreatorSearchControls(Map<String, String> regionNames) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+            AkeliSpacing.md, AkeliSpacing.sm, AkeliSpacing.md, 0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Search row: text field + filter icon + sort icon
+            Row(
+              children: [
+                Expanded(
+                  child: SearchBar(
+                    controller: _creatorsSearchCtrl,
+                    hintText: 'Rechercher un créateur…',
+                    leading: const Icon(Icons.search_rounded),
+                    trailing: _creatorsQuery.isNotEmpty
+                        ? [
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () {
+                                _creatorsSearchCtrl.clear();
+                                setState(() => _creatorsQuery = '');
+                              },
+                            )
+                          ]
+                        : null,
+                    onChanged: (v) {
+                      _logger.userAction('Creators search query changed',
+                          screen: 'FeedPage', metadata: {'query': v});
+                      setState(() => _creatorsQuery = v);
+                    },
+                    elevation: const WidgetStatePropertyAll(0),
+                    padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(horizontal: 12)),
+                    constraints:
+                        const BoxConstraints(minHeight: 48, maxHeight: 48),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _hasActiveCreatorFilter
+                        ? AkeliColors.primaryContainer
+                        : AkeliColors.surfaceContainerLow,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.tune_rounded),
+                    color: _hasActiveCreatorFilter
+                        ? AkeliColors.onPrimaryContainer
+                        : AkeliColors.onSurfaceVariant,
+                    onPressed: () =>
+                        _showCreatorFilterSheet(context, regionNames),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: _creatorsOrderBy != null
+                        ? AkeliColors.primaryContainer
+                        : AkeliColors.surfaceContainerLow,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.sort_rounded),
+                    color: _creatorsOrderBy != null
+                        ? AkeliColors.onPrimaryContainer
+                        : AkeliColors.onSurfaceVariant,
+                    onPressed: () => _showCreatorSortSheet(context),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Active filter chips row
+            SizedBox(
+              height: _hasActiveCreatorFilter ? 36 : 0,
+              child: !_hasActiveCreatorFilter
+                  ? const SizedBox.shrink()
+                  : ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        if (_creatorsRegionId != null) ...[
+                          _ActiveFilterChip(
+                            label: _creatorsRegionLabel(),
+                            onDeleted: () =>
+                                setState(() => _creatorsRegionId = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_creatorsSpecialty != null) ...[
+                          _ActiveFilterChip(
+                            label: _creatorsSpecialtyLabel(),
+                            onDeleted: () =>
+                                setState(() => _creatorsSpecialty = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        if (_creatorsOrderBy != null) ...[
+                          _ActiveFilterChip(
+                            label: _creatorsSortLabel(),
+                            onDeleted: () =>
+                                setState(() => _creatorsOrderBy = null),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                        TextButton(
+                          onPressed: () => setState(() {
+                            _creatorsRegionId  = null;
+                            _creatorsSpecialty = null;
+                            _creatorsOrderBy   = null;
+                          }),
+                          child: const Text('Tout effacer',
+                              style: TextStyle(fontSize: 13)),
+                        ),
+                      ],
+                    ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }
