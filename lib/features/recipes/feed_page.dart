@@ -1054,9 +1054,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     return creatorsAsync.when(
       loading: () => const SliverFillRemaining(
+        hasScrollBody: false,
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (err, _) => SliverFillRemaining(
+        hasScrollBody: false,
         child: ErrorState(
           message: err.toString(),
           onRetry: () => ref.invalidate(creatorsListProvider),
@@ -1194,7 +1196,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            if (_hasActiveCreatorFilter) const SizedBox(height: 8),
             // Active filter chips row
             SizedBox(
               height: _hasActiveCreatorFilter ? 36 : 0,
@@ -1239,7 +1241,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
             ),
-            const SizedBox(height: 8),
+            if (_hasActiveCreatorFilter) const SizedBox(height: 8),
           ],
         ),
       ),
