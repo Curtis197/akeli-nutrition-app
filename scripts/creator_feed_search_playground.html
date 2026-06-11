@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Créateurs Tab — Search & Filter Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: system-ui, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Controls ── */
+  #controls {
+    width: 300px; min-width: 300px; background: #1a1a1a; border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto; padding-bottom: 24px;
+  }
+  #controls h2 { font-size: 11px; font-weight: 600; color: #666; letter-spacing: .8px; text-transform: uppercase; padding: 20px 16px 8px; }
+  .group { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .group label { font-size: 12px; color: #aaa; }
+
+  .mode-btn {
+    background: #222; border: 1px solid #333; border-radius: 8px; color: #ccc;
+    padding: 10px 12px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.5;
+    transition: all .15s;
+  }
+  .mode-btn:hover { background: #252525; }
+  .mode-btn.active { background: #1e2d1e; border-color: #4CAF50; color: #fff; }
+  .mode-btn strong { display: block; font-size: 13px; margin-bottom: 3px; }
+  .badge-bad  { color: #f87171; font-size: 11px; }
+  .badge-good { color: #4ade80; font-size: 11px; }
+  .badge-info { color: #60a5fa; font-size: 11px; }
+
+  .state-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .state-chip {
+    background: #222; border: 1px solid #333; border-radius: 20px; color: #aaa;
+    padding: 5px 12px; font-size: 11px; cursor: pointer; transition: all .15s;
+  }
+  .state-chip:hover { border-color: #555; }
+  .state-chip.active { background: #1e2d1e; border-color: #4CAF50; color: #4ade80; }
+
+  /* ── Right pane ── */
+  #right { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 24px; }
+
+  /* ── Phone frame ── */
+  .phone {
+    width: 375px; height: 720px; background: #f5f5f0; border-radius: 40px;
+    border: 8px solid #333; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0,0,0,.8); position: relative; flex-shrink: 0;
+  }
+  .phone-label {
+    text-align: center; font-size: 11px; color: #555; margin-top: 10px; letter-spacing: .5px; text-transform: uppercase;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    height: 28px; background: #fff; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 16px; font-size: 11px; font-weight: 600; color: #1a1a1a; flex-shrink: 0;
+  }
+
+  /* ── App bar ── */
+  .app-bar {
+    background: #fff; padding: 8px 16px 0; flex-shrink: 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .app-bar-title { font-size: 20px; font-weight: 700; color: #1a1a1a; padding-bottom: 8px; }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex; background: #fff; border-bottom: 1px solid #e8e8e8; flex-shrink: 0;
+  }
+  .tab {
+    flex: 1; text-align: center; padding: 10px 4px 9px; font-size: 13px; font-weight: 600;
+    color: #999; cursor: pointer; position: relative;
+  }
+  .tab.active { color: #4CAF50; }
+  .tab.active::after {
+    content: ''; position: absolute; bottom: 0; left: 20%; right: 20%;
+    height: 2.5px; background: #4CAF50; border-radius: 2px;
+  }
+
+  /* ── Search area ── */
+  .search-area { padding: 10px 12px 0; background: #f5f5f0; flex-shrink: 0; }
+
+  .search-row { display: flex; gap: 8px; align-items: center; }
+  .search-bar {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    background: #fff; border: 1.5px solid #e8e8e8; border-radius: 12px;
+    padding: 9px 12px; font-size: 13px; color: #999;
+  }
+  .search-bar.active { border-color: #4CAF50; color: #1a1a1a; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid #e8e8e8;
+    background: #fff; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; font-size: 16px;
+  }
+  .icon-btn.active { background: #e8f5e9; border-color: #4CAF50; }
+
+  /* ── Sort pills (option B) ── */
+  .sort-pills {
+    display: flex; gap: 6px; padding: 8px 12px 0; overflow-x: auto; flex-shrink: 0; background: #f5f5f0;
+  }
+  .sort-pills::-webkit-scrollbar { display: none; }
+  .sort-pill {
+    white-space: nowrap; border: 1.5px solid #e8e8e8; border-radius: 20px;
+    padding: 5px 12px; font-size: 11px; font-weight: 600; color: #666; cursor: pointer;
+    background: #fff;
+  }
+  .sort-pill.active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+
+  /* ── Active filter chips ── */
+  .filter-chips {
+    display: flex; gap: 6px; padding: 8px 12px 0; overflow-x: auto; flex-shrink: 0; background: #f5f5f0;
+  }
+  .filter-chips::-webkit-scrollbar { display: none; }
+  .fchip {
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 20px;
+    padding: 4px 10px; font-size: 11px; font-weight: 600; color: #2e7d32;
+  }
+  .fchip .x { color: #66bb6a; font-size: 13px; line-height: 1; }
+
+  /* ── Spacer below search controls ── */
+  .search-bottom-pad { height: 8px; background: #f5f5f0; flex-shrink: 0; }
+
+  /* ── Creator list ── */
+  .creator-list { flex: 1; overflow-y: auto; padding: 4px 0 16px; }
+  .creator-list::-webkit-scrollbar { display: none; }
+
+  /* ── Creator card ── */
+  .creator-card {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: #fff; border-radius: 16px; border: 1px solid rgba(0,0,0,.07);
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    margin: 6px 12px; padding: 12px 12px 12px 12px;
+  }
+  .creator-avatar {
+    width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: #fff;
+  }
+  .creator-body { flex: 1; }
+  .creator-name-row { display: flex; align-items: center; gap: 6px; }
+  .creator-name { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+  .region-chip {
+    background: rgba(76,175,80,.15); border-radius: 20px; padding: 2px 8px;
+    font-size: 10px; font-weight: 600; color: #388E3C;
+  }
+  .creator-bio { font-size: 12px; color: #777; margin-top: 3px; line-height: 1.4; max-height: 32px; overflow: hidden; }
+  .creator-meta { font-size: 11px; color: #aaa; margin-top: 6px; }
+  .chevron { color: #bbb; font-size: 20px; align-self: center; flex-shrink: 0; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; color: #bbb; font-size: 13px; text-align: center; padding: 40px 24px;
+  }
+  .empty-state .icon { font-size: 44px; opacity: .35; }
+  .empty-state strong { color: #888; }
+
+  /* ── Bottom sheet overlay ── */
+  .sheet-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,.4);
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+  .sheet {
+    background: #fff; border-radius: 20px 20px 0 0; padding: 16px 16px 24px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  .sheet-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 14px; }
+  .sheet-title { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 14px; }
+  .sheet-section { font-size: 13px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; margin-top: 10px; }
+  .sheet-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+  .sch {
+    border: 1.5px solid #e8e8e8; border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; color: #444; cursor: pointer;
+  }
+  .sch.sel { background: #1a1a1a; border-color: #1a1a1a; color: #fff; }
+  .sheet-apply {
+    margin-top: 16px; background: #4CAF50; color: #fff; border: none; border-radius: 14px;
+    padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; width: 100%;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Controls ── -->
+<div id="controls">
+  <h2>Option de layout</h2>
+  <div class="group">
+    <button class="mode-btn active" onclick="setMode('current')" id="btn-current">
+      <strong>État actuel</strong>
+      <span class="badge-bad">Pas de recherche ni de filtres</span>
+      Liste simple de créateurs, ordre personnalisé par RPC. Aucune interaction.
+    </button>
+    <button class="mode-btn" onclick="setMode('search-icons')" id="btn-search-icons">
+      <strong>Option A — Barre + icônes</strong>
+      <span class="badge-good">Recommandé</span>
+      Barre de recherche + bouton filtre 🎚 + bouton tri 🔃. Compact, même pattern que l'onglet Recettes.
+    </button>
+    <button class="mode-btn" onclick="setMode('search-pills')" id="btn-search-pills">
+      <strong>Option B — Barre + pills de tri</strong>
+      <span class="badge-info">Alternatif</span>
+      Barre de recherche + rangée scrollable de pills de tri (Note, Fans, Recettes).
+    </button>
+  </div>
+
+  <h2>État de l'UI</h2>
+  <div class="group">
+    <div class="state-row">
+      <button class="state-chip active" onclick="setUiState('idle')"       id="chip-idle">Vide</button>
+      <button class="state-chip"        onclick="setUiState('searching')"  id="chip-searching">Recherche</button>
+      <button class="state-chip"        onclick="setUiState('filtered')"   id="chip-filtered">Filtres actifs</button>
+      <button class="state-chip"        onclick="setUiState('sheet')"      id="chip-sheet">Filtre ouvert</button>
+      <button class="state-chip"        onclick="setUiState('no-results')" id="chip-no-results">Aucun résultat</button>
+    </div>
+  </div>
+
+  <h2>Notes d'implémentation</h2>
+  <div class="group">
+    <label style="line-height:1.8;color:#555;font-size:11px;">
+      Le provider actuel (<code style="color:#888">creatorsListProvider</code>) appelle le RPC
+      <code style="color:#888">generate_creators_personalized</code>, puis filtre côté Supabase.<br><br>
+      Pour Option A/B, on ajoute un <code style="color:#888">creatorsFilteredProvider</code> qui
+      accepte <code style="color:#888">query + specialty + orderBy</code>.<br><br>
+      Filtre par région = <code style="color:#888">heritage_region</code> (colonne <code style="color:#888">creator</code>).<br>
+      Filtre par spécialité = tableau <code style="color:#888">specialties</code> (array Postgres, <code style="color:#888">@&gt;</code>).<br>
+      Tri : <code style="color:#888">average_rating / fan_count / recipe_count</code>.
+    </label>
+  </div>
+</div>
+
+<!-- ── Right pane ── -->
+<div id="right">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <div class="phone" id="phone-main">
+      <!-- rendered by JS -->
+    </div>
+    <div class="phone-label" id="phone-label">État actuel</div>
+  </div>
+</div>
+
+<script>
+// ── Mock data ─────────────────────────────────────────────────────────────────
+const CREATORS = [
+  { initials:'AM', color:'#4CAF50', name:'Aminata Mbaye',   region:'Sénégal',      bio:'Spécialiste de la cuisine sénégalaise traditionnelle.', recipes:24, specialty:'Cuisine traditionnelle' },
+  { initials:'FK', color:'#FF7043', name:'Fatou Konaté',    region:'Mali',          bio:'Recettes familiales du Mali avec des ingrédients locaux.', recipes:17, specialty:'Cuisine familiale' },
+  { initials:'GN', color:'#7E57C2', name:'Grace Nkosi',     region:'Cameroun',      bio:'Fusion afro-moderne. Ndolé, arachides, plantain.',           recipes:31, specialty:'Cuisine fusion' },
+  { initials:'KD', color:'#26A69A', name:'Kofi Diallo',     region:'Côte d\'Ivoire',bio:'Cuisine ivoirienne : kedjenou, attieke, alloco.',            recipes:12, specialty:'Cuisine ivoirienne' },
+  { initials:'AB', color:'#EF5350', name:'Aïssatou Ba',     region:'Guinée',        bio:'Recettes guinéennes, soupe kandja et autres plats du terroir.', recipes:9, specialty:'Cuisine traditionnelle' },
+];
+
+const SEARCH_RESULTS = [
+  { initials:'AM', color:'#4CAF50', name:'Aminata Mbaye', region:'Sénégal', bio:'Spécialiste de la cuisine sénégalaise traditionnelle.', recipes:24, specialty:'Cuisine traditionnelle' },
+  { initials:'AB', color:'#EF5350', name:'Aïssatou Ba',   region:'Guinée',  bio:'Recettes guinéennes, soupe kandja et autres plats du terroir.', recipes:9, specialty:'Cuisine traditionnelle' },
+];
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let mode    = 'current';
+let uiState = 'idle';
+
+function setMode(m) {
+  mode = m;
+  ['current','search-icons','search-pills'].forEach(id => {
+    document.getElementById('btn-' + id)?.classList.toggle('active', id === m);
+  });
+  render();
+}
+
+function setUiState(s) {
+  uiState = s;
+  ['idle','searching','filtered','sheet','no-results'].forEach(id => {
+    document.getElementById('chip-' + id)?.classList.toggle('active', id === s);
+  });
+  render();
+}
+
+// ── Render helpers ─────────────────────────────────────────────────────────────
+
+function statusBar() {
+  return `<div class="status-bar"><span>9:41</span><span>●●●</span></div>`;
+}
+
+function appBar() {
+  return `<div class="app-bar"><div class="app-bar-title">Découvrir</div></div>`;
+}
+
+function tabBar() {
+  return `
+  <div class="tab-bar">
+    <div class="tab">Recommandé</div>
+    <div class="tab active">Créateurs</div>
+    <div class="tab">Tendances</div>
+  </div>`;
+}
+
+function creatorCard(c) {
+  return `
+  <div class="creator-card">
+    <div class="creator-avatar" style="background:${c.color}">${c.initials}</div>
+    <div class="creator-body">
+      <div class="creator-name-row">
+        <span class="creator-name">${c.name}</span>
+        <span class="region-chip">${c.region}</span>
+      </div>
+      <div class="creator-bio">${c.bio}</div>
+      <div class="creator-meta">${c.recipes} recette${c.recipes !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="chevron">›</div>
+  </div>`;
+}
+
+function creatorList(data) {
+  if (!data.length) {
+    return `<div class="empty-state">
+      <div class="icon">👤</div>
+      <strong>Aucun créateur trouvé</strong>
+      <span>Essayez un autre terme ou réinitialisez les filtres.</span>
+    </div>`;
+  }
+  return `<div class="creator-list">${data.map(creatorCard).join('')}</div>`;
+}
+
+function filterSheet() {
+  return `
+  <div class="sheet-overlay">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">Filtrer et trier</div>
+      <div class="sheet-section">Région</div>
+      <div class="sheet-chips">
+        <span class="sch">Sénégal</span><span class="sch sel">Mali</span>
+        <span class="sch">Cameroun</span><span class="sch">Côte d'Ivoire</span>
+        <span class="sch">Guinée</span><span class="sch">Bénin</span>
+      </div>
+      <div class="sheet-section">Spécialité</div>
+      <div class="sheet-chips">
+        <span class="sch sel">Cuisine traditionnelle</span>
+        <span class="sch">Cuisine fusion</span><span class="sch">Cuisine végétarienne</span>
+      </div>
+      <div class="sheet-section">Trier par</div>
+      <div class="sheet-chips">
+        <span class="sch">Note</span><span class="sch sel">Fans</span><span class="sch">Recettes</span>
+      </div>
+      <button class="sheet-apply">Appliquer</button>
+    </div>
+  </div>`;
+}
+
+// ── Main render ────────────────────────────────────────────────────────────────
+
+function render() {
+  const phone = document.getElementById('phone-main');
+  const label = document.getElementById('phone-label');
+
+  const searchActive   = uiState === 'searching';
+  const filtersActive  = uiState === 'filtered';
+  const sheetOpen      = uiState === 'sheet';
+  const noResults      = uiState === 'no-results';
+  const data           = (searchActive || noResults) ? (noResults ? [] : SEARCH_RESULTS) : CREATORS;
+
+  // --- current (no search) ---
+  if (mode === 'current') {
+    label.textContent = 'État actuel — onglet Créateurs';
+    phone.innerHTML = `
+      ${statusBar()}
+      ${appBar()}
+      ${tabBar()}
+      ${creatorList(CREATORS)}
+    `;
+    return;
+  }
+
+  // --- Option A: search + icon buttons ---
+  if (mode === 'search-icons') {
+    label.textContent = 'Option A — Barre + icônes';
+
+    let searchArea = `
+    <div class="search-area">
+      <div class="search-row">
+        <div class="search-bar ${searchActive ? 'active' : ''}">
+          <svg width="14" height="14" fill="none" stroke="${searchActive ? '#4CAF50' : '#aaa'}" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          ${searchActive ? '<span style="color:#1a1a1a;font-size:13px">Aminata</span>' : 'Rechercher un créateur…'}
+        </div>
+        <div class="icon-btn ${filtersActive || sheetOpen ? 'active' : ''}">🎚</div>
+        <div class="icon-btn">🔃</div>
+      </div>
+    </div>`;
+
+    let chipRow = '';
+    if (filtersActive) {
+      chipRow = `
+      <div class="filter-chips">
+        <div class="fchip">Mali <span class="x">×</span></div>
+        <div class="fchip">Cuisine traditionnelle <span class="x">×</span></div>
+        <div class="fchip">Trié: Fans <span class="x">×</span></div>
+      </div>`;
+    }
+
+    phone.innerHTML = `
+      ${statusBar()}
+      ${appBar()}
+      ${tabBar()}
+      ${searchArea}
+      ${chipRow}
+      <div class="search-bottom-pad"></div>
+      ${creatorList(data)}
+      ${sheetOpen ? filterSheet() : ''}
+    `;
+    return;
+  }
+
+  // --- Option B: search + sort pills ---
+  if (mode === 'search-pills') {
+    label.textContent = 'Option B — Barre + pills de tri';
+
+    let searchArea = `
+    <div class="search-area">
+      <div class="search-row">
+        <div class="search-bar ${searchActive ? 'active' : ''}">
+          <svg width="14" height="14" fill="none" stroke="${searchActive ? '#4CAF50' : '#aaa'}" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          ${searchActive ? '<span style="color:#1a1a1a;font-size:13px">Aminata</span>' : 'Rechercher un créateur…'}
+        </div>
+        <div class="icon-btn ${filtersActive || sheetOpen ? 'active' : ''}">🎚</div>
+      </div>
+    </div>`;
+
+    let pillRow = `
+    <div class="sort-pills">
+      <span class="sort-pill active">Personnalisé</span>
+      <span class="sort-pill">Mieux notés</span>
+      <span class="sort-pill">Plus de fans</span>
+      <span class="sort-pill">Plus de recettes</span>
+    </div>`;
+
+    let chipRow = '';
+    if (filtersActive) {
+      chipRow = `
+      <div class="filter-chips">
+        <div class="fchip">Mali <span class="x">×</span></div>
+        <div class="fchip">Cuisine traditionnelle <span class="x">×</span></div>
+      </div>`;
+    }
+
+    phone.innerHTML = `
+      ${statusBar()}
+      ${appBar()}
+      ${tabBar()}
+      ${searchArea}
+      ${pillRow}
+      ${chipRow}
+      <div class="search-bottom-pad"></div>
+      ${creatorList(data)}
+      ${sheetOpen ? filterSheet() : ''}
+    `;
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
