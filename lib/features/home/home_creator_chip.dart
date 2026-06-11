@@ -51,7 +51,7 @@ class HomeCreatorChip extends StatelessWidget {
   Widget _avatar() {
     if (creator.avatarUrl != null && creator.avatarUrl!.isNotEmpty) {
       return CircleAvatar(
-        radius: 28,
+        radius: 32,
         backgroundImage: CachedNetworkImageProvider(creator.avatarUrl!),
       );
     }
@@ -59,7 +59,7 @@ class HomeCreatorChip extends StatelessWidget {
         ? creator.displayName[0].toUpperCase()
         : '?';
     return CircleAvatar(
-      radius: 28,
+      radius: 32,
       backgroundColor: AkeliColors.primaryContainer,
       child: Text(
         initial,
