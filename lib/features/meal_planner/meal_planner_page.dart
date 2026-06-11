@@ -8,6 +8,7 @@ import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';
+import 'widgets/snack_picker_sheet.dart';
 
 class MealPlannerPage extends ConsumerWidget {
   const MealPlannerPage({super.key});
@@ -135,6 +136,7 @@ class MealPlannerPage extends ConsumerWidget {
                         final isConsumed = plan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
                         ref.read(mealConsumptionProvider.notifier).toggleConsumption(entryId, isCurrentlyConsumed: isConsumed);
                       },
+                      onAddSnack: () => _addSnack(context, ref, plan.id, date),
                     );
                   },
                   childCount: dayKeys.length,
@@ -157,6 +159,42 @@ class MealPlannerPage extends ConsumerWidget {
         child: const Icon(Icons.auto_awesome, color: Colors.white),
       ),
     );
+  }
+
+  Future<void> _addSnack(BuildContext context, WidgetRef ref, String mealPlanId, DateTime date) async {
+    appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage', metadata: {'date': date.toIso8601String()});
+    final recipeId = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const SnackPickerSheet(),
+    );
+    if (recipeId == null || !context.mounted) return;
+    try {
+      await ref.read(snackEntryProvider.notifier).addSnack(
+        mealPlanId: mealPlanId,
+        recipeId: recipeId,
+        scheduledDate: date,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Collation ajoutée !'),
+            backgroundColor: AkeliColors.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      appLogger.edge('add-snack', 'ERROR | $e', error: e);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $e'),
+            backgroundColor: AkeliColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {

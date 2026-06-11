@@ -765,3 +765,84 @@ class RatingNotifier extends AutoDisposeAsyncNotifier<void> {
 
 final ratingProvider =
     AsyncNotifierProvider.autoDispose<RatingNotifier, void>(RatingNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Add snack entry — inserts a new snack meal_plan_entry for a specific date
+// ---------------------------------------------------------------------------
+
+class SnackEntryNotifier extends AutoDisposeAsyncNotifier<void> {
+  final _logger = appLogger;
+
+  @override
+  FutureOr<void> build() {
+    _logger.provider('SnackEntryNotifier build()');
+    ref.onDispose(() => _logger.provider('SnackEntryNotifier disposed'));
+  }
+
+  Future<void> addSnack({
+    required String mealPlanId,
+    required String recipeId,
+    required DateTime scheduledDate,
+  }) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('Add snack entry', metadata: {'mealPlanId': mealPlanId, 'recipeId': recipeId});
+    _logger.provider('SnackEntryNotifier → loading (addSnack)');
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final dateStr =
+          '${scheduledDate.year}-${scheduledDate.month.toString().padLeft(2, '0')}-${scheduledDate.day.toString().padLeft(2, '0')}';
+      try {
+        _logger.db('BEFORE | table: meal_plan_entry | op: INSERT | meal_type: snack | mealPlanId: $mealPlanId | date: $dateStr');
+        final entryData = await client
+            .from('meal_plan_entry')
+            .insert({
+              'meal_plan_id': mealPlanId,
+              'meal_type': 'snack',
+              'scheduled_date': dateStr,
+              'servings': 1.0,
+              'is_consumed': false,
+              'is_custom_meal': false,
+            })
+            .select('id')
+            .single();
+        final entryId = entryData['id'] as String;
+        _logger.db('AFTER | table: meal_plan_entry | op: INSERT | entryId: $entryId');
+
+        _logger.db('BEFORE | table: meal_plan_entry_component | op: INSERT | role: base | recipeId: $recipeId');
+        await client.from('meal_plan_entry_component').insert({
+          'meal_plan_entry_id': entryId,
+          'recipe_id': recipeId,
+          'role': 'base',
+          'consumption_weight': 1.0,
+        });
+        _logger.db('AFTER | table: meal_plan_entry_component | op: INSERT | success');
+        _logger.provider('SnackEntryNotifier → data (addSnack success)');
+      } on PostgrestException catch (e, st) {
+        if (e.code == '42501') {
+          _logger.rls('Permission denied | table: meal_plan_entry | INSERT | userId: ${user.id}', error: e, stackTrace: st);
+        } else {
+          _logger.db('ERROR | table: meal_plan_entry | INSERT | code: ${e.code}', error: e, stackTrace: st);
+        }
+        _logger.provider('SnackEntryNotifier → error | ${e.message}');
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | meal_plan_entry INSERT | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('SnackEntryNotifier → error | $e');
+        rethrow;
+      }
+    });
+
+    if (state is AsyncData) {
+      _logger.provider('SnackEntryNotifier → invalidating activeMealPlanProvider');
+      ref.invalidate(activeMealPlanProvider);
+    }
+  }
+}
+
+final snackEntryProvider =
+    AsyncNotifierProvider.autoDispose<SnackEntryNotifier, void>(
+        SnackEntryNotifier.new);

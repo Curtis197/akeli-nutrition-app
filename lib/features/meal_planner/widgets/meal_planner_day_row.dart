@@ -10,6 +10,7 @@ class MealPlannerDayRow extends StatelessWidget {
   final List<MealPlanEntry> entries;
   final Function(String entryId)? onRecipeTap;
   final Function(String entryId)? onConsumedToggle;
+  final VoidCallback? onAddSnack;
 
   const MealPlannerDayRow({
     super.key,
@@ -17,6 +18,7 @@ class MealPlannerDayRow extends StatelessWidget {
     required this.entries,
     this.onRecipeTap,
     this.onConsumedToggle,
+    this.onAddSnack,
   });
 
   static const _dayNames = [
@@ -71,7 +73,29 @@ class MealPlannerDayRow extends StatelessWidget {
           const SizedBox(height: 16),
           // Horizontal Meal List
           _buildMealList(context),
+          const SizedBox(height: 12),
+          _buildAddSnackButton(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAddSnackButton(BuildContext context) {
+    final hasSnack = entries.any((e) => e.mealType == 'snack');
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: OutlinedButton.icon(
+        onPressed: onAddSnack,
+        icon: const Icon(Icons.add, size: 16),
+        label: Text(hasSnack ? 'Ajouter une autre collation' : 'Ajouter une collation'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AkeliColors.primary,
+          side: BorderSide(color: AkeliColors.primary.withValues(alpha: 0.5)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.md)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
