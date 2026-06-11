@@ -67,9 +67,12 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
           .map((r) => (r as Map<String, dynamic>)['creator_id'] as String)
           .toSet();
     } on PostgrestException catch (e, st) {
-      _logger.db('ERROR | table: fan_subscription | code: ${e.code} | ${e.message}',
-          error: e, stackTrace: st);
-      // non-fatal — proceed with empty fan set (filter becomes a no-op)
+      if (e.code == '42501') {
+        _logger.rls('Permission denied | table: fan_subscription | userId: ${user.id}', error: e, stackTrace: st);
+      } else {
+        _logger.db('ERROR | table: fan_subscription | code: ${e.code} | ${e.message}', error: e, stackTrace: st);
+      }
+      // non-fatal — proceed with empty fan set (strip degrades to showing all creators)
     }
 
     // Step 4: re-apply RPC order (IN clause doesn't preserve order)

@@ -643,6 +643,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                               key: ValueKey(creator.id),
                               creator: creator,
                               onTap: () {
+                                _logger.userAction(
+                                  'Creator chip tapped',
+                                  screen: 'HomePage',
+                                  metadata: {'creatorId': creator.id},
+                                );
                                 context.go('/creator/${creator.id}');
                               },
                             ),
