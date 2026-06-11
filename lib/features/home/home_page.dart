@@ -45,6 +45,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
+  static List<Color> _progressGradient(double progress) {
+    if (progress < 0.4) return [const Color(0xFFE53935), const Color(0xFFFF7043)];
+    if (progress < 0.7) return [const Color(0xFFFF7043), const Color(0xFFFFCA28)];
+    return [const Color(0xFF4CAF50), const Color(0xFF8BC34A)];
+  }
+
   static String _ps(AsyncValue<dynamic> v) => v.when(
         data: (d) {
           if (d == null) return 'data(null)';
@@ -212,10 +218,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                             value: '0',
                                             unit: '%',
                                             progress: 0,
-                                            gradientColors: const [
-                                              AkeliColors.primary,
-                                              AkeliColors.primaryContainer
-                                            ],
+                                            gradientColors: _progressGradient(0),
                                           );
                                         }
 
@@ -240,24 +243,18 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           value: '${(progress * 100).toInt()}',
                                           unit: '%',
                                           progress: progress,
-                                          gradientColors: const [
-                                            AkeliColors.primary,
-                                            AkeliColors.primaryContainer
-                                          ],
+                                          gradientColors: _progressGradient(progress),
                                         );
                                       },
                                       orElse: () {
                                         _logger.provider('[weight-ring] orElse (loading or error) | weightAsync: ${_ps(weightAsync)}');
-                                        return const AkeliModernMetric(
+                                        return AkeliModernMetric(
                                           label: 'Poids actuel',
                                           subtitle: '--kg → --kg',
                                           value: '0',
                                           unit: '%',
                                           progress: 0,
-                                          gradientColors: [
-                                            AkeliColors.primary,
-                                            AkeliColors.primaryContainer
-                                          ],
+                                          gradientColors: _progressGradient(0),
                                         );
                                       },
                                     ),
@@ -284,10 +281,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           value: '${(progress * 100).toInt()}',
                                           unit: '%',
                                           progress: progress,
-                                          gradientColors: const [
-                                            AkeliColors.secondary,
-                                            AkeliColors.secondaryContainer
-                                          ],
+                                          gradientColors: _progressGradient(progress),
                                         );
                                       },
                                       loading: () {
@@ -644,16 +638,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                         itemBuilder: (context, index) {
                           final creator = shown[index];
                           return Padding(
-                            key: ValueKey(creator.id),
                             padding: const EdgeInsets.only(right: 12),
                             child: HomeCreatorChip(
+                              key: ValueKey(creator.id),
                               creator: creator,
                               onTap: () {
-                                _logger.userAction(
-                                  'Creator chip tapped',
-                                  screen: 'HomePage',
-                                  metadata: {'creatorId': creator.id},
-                                );
                                 context.go('/creator/${creator.id}');
                               },
                             ),

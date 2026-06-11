@@ -52,11 +52,36 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
         .inFilter('id', orderedIds) as List<dynamic>;
     _logger.db('AFTER | table: creator | rows: ${rows.length}');
 
-    // Step 3: re-apply RPC order (IN clause doesn't preserve order)
-    final creatorMap = {
-      for (final r in rows)
-        (r as Map<String, dynamic>)['id'] as String: Creator.fromJson(r)
-    };
+    // Step 3: fetch which creators the user already fans
+    Set<String> fanIds = {};
+    try {
+      _logger.db('BEFORE | table: fan_subscription | op: SELECT IN | userId: ${user.id}');
+      final fanRows = await client
+          .from('fan_subscription')
+          .select('creator_id')
+          .inFilter('creator_id', orderedIds)
+          .eq('user_id', user.id)
+          .eq('status', 'active') as List<dynamic>;
+      _logger.db('AFTER | table: fan_subscription | rows: ${fanRows.length}');
+      fanIds = fanRows
+          .map((r) => (r as Map<String, dynamic>)['creator_id'] as String)
+          .toSet();
+    } on PostgrestException catch (e, st) {
+      _logger.db('ERROR | table: fan_subscription | code: ${e.code} | ${e.message}',
+          error: e, stackTrace: st);
+      // non-fatal — proceed with empty fan set (filter becomes a no-op)
+    }
+
+    // Step 4: re-apply RPC order (IN clause doesn't preserve order)
+    final creatorMap = <String, Creator>{};
+    for (final r in rows) {
+      final row = r as Map<String, dynamic>;
+      final id = row['id'] as String;
+      creatorMap[id] = Creator.fromJson({
+        ...row,
+        'is_my_fan_creator': fanIds.contains(id),
+      });
+    }
 
     final list = orderedIds
         .where((id) => creatorMap.containsKey(id))
