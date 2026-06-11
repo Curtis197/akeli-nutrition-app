@@ -34,6 +34,10 @@ class Recipe {
   final List<RecipeIngredient> ingredients;
   final List<RecipeStep> steps;
   final List<String> tagIds;
+  final double? calories100g;
+  final double? protein100g;
+  final double? carbs100g;
+  final double? fat100g;
   final DateTime createdAt;
 
   const Recipe({
@@ -68,6 +72,10 @@ class Recipe {
     required this.ingredients,
     required this.steps,
     required this.tagIds,
+    this.calories100g,
+    this.protein100g,
+    this.carbs100g,
+    this.fat100g,
     required this.createdAt,
   });
 
@@ -78,32 +86,6 @@ class Recipe {
   double? get proteinPerServing  => servings > 0 && proteinG  != null ? proteinG!  / servings : proteinG;
   double? get carbsPerServing    => servings > 0 && carbsG    != null ? carbsG!    / servings : carbsG;
   double? get fatPerServing      => servings > 0 && fatG      != null ? fatG!      / servings : fatG;
-
-  // Total ingredient weight in grams (g + ml units only, best-effort).
-  double get totalWeightG => ingredients
-      .where((i) => i.unit == 'g' || i.unit == 'ml')
-      .fold(0.0, (s, i) => s + i.quantity);
-
-  // Per-100g helpers — only meaningful when ingredients are loaded.
-  double? get calories100g {
-    final w = totalWeightG;
-    return (w > 0 && calories != null) ? calories! / w * 100 : null;
-  }
-
-  double? get protein100g {
-    final w = totalWeightG;
-    return (w > 0 && proteinG != null) ? proteinG! / w * 100 : null;
-  }
-
-  double? get carbs100g {
-    final w = totalWeightG;
-    return (w > 0 && carbsG != null) ? carbsG! / w * 100 : null;
-  }
-
-  double? get fat100g {
-    final w = totalWeightG;
-    return (w > 0 && fatG != null) ? fatG! / w * 100 : null;
-  }
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     appLogger.db('Recipe.fromJson | id: ${json['id']}');
@@ -150,6 +132,10 @@ class Recipe {
                 .toList() ??
             [],
         tagIds: (json['tag_ids'] as List<dynamic>?)?.cast<String>() ?? [],
+        calories100g: (macro?['calories_per_100g'] as num?)?.toDouble(),
+        protein100g:  (macro?['protein_per_100g']  as num?)?.toDouble(),
+        carbs100g:    (macro?['carbs_per_100g']    as num?)?.toDouble(),
+        fat100g:      (macro?['fat_per_100g']      as num?)?.toDouble(),
         createdAt: DateTime.parse(json['created_at'] as String),
       );
   }

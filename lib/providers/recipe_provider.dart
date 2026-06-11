@@ -101,7 +101,7 @@ final feedProvider =
     final recipeData = await client
         .from('recipe')
         .select(
-            '*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+            '*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .inFilter('id', recipeIds) as List<dynamic>;
     appLogger.db('AFTER | table: recipe | rows: ${recipeData.length}');
 
@@ -158,7 +158,7 @@ final recipeDetailProvider =
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order, ingredient_ids), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order, ingredient_ids), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
         .maybeSingle();
 
@@ -251,7 +251,7 @@ final searchRecipesProvider =
       'BEFORE | table: recipe | op: SELECT ilike+filters | query: "${params.query}" | limit: ${params.limit}');
 
   try {
-    var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').ilike('title', '%${params.query}%');
+    var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').ilike('title', '%${params.query}%');
 
     if (params.regionId != null) query = query.eq('region_id', params.regionId!);
     if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
@@ -306,7 +306,7 @@ final chatRecipePickerProvider =
   ref.onDispose(() => appLogger.provider('chatRecipePickerProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);
-  const sel = 'id, creator_id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g), like_count, average_rating, is_published, created_at';
+  const sel = 'id, creator_id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), like_count, average_rating, is_published, created_at';
 
   appLogger.db('BEFORE | table: recipe | chatRecipePicker | query: "$query"');
   try {
@@ -369,7 +369,7 @@ final userRecipesProvider =
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('creator_id', creatorId)
         .order('created_at', ascending: false)
         .limit(20) as List<dynamic>;

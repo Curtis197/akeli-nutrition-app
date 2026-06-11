@@ -124,16 +124,16 @@ class _RecipeCardState extends ConsumerState<RecipeCard> {
                       const SizedBox(height: AkeliSpacing.xs),
                       Row(
                         children: [
-                          if (widget.recipe.caloriesPerServing != null) ...[
+                          if (widget.recipe.calories100g != null) ...[
                             _MacroBadge(
-                              label: '${widget.recipe.caloriesPerServing!.toInt()} kcal/portion',
+                              label: '${widget.recipe.calories100g!.toInt()} kcal/100g',
                               color: AkeliColors.secondary,
                             ),
                             const SizedBox(width: AkeliSpacing.xs),
                           ],
-                          if (widget.recipe.proteinPerServing != null)
+                          if (widget.recipe.protein100g != null)
                             _MacroBadge(
-                              label: '${widget.recipe.proteinPerServing!.toInt()}g prot.',
+                              label: '${widget.recipe.protein100g!.toStringAsFixed(1)}g prot.',
                               color: AkeliColors.primary,
                             ),
                           const Spacer(),
