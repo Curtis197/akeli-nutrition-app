@@ -99,7 +99,7 @@ class MealPlannerPage extends ConsumerWidget {
                   _buildNavigationCard(
                     context,
                     icon: Icons.soup_kitchen_outlined,
-                    title: 'Batch Cooking',
+                    title: 'Session de cuisine',
                     onTap: () {
                       appLogger.userAction('Batch cooking card tapped', screen: 'MealPlannerPage');
                       context.push(AkeliRoutes.batchCooking);

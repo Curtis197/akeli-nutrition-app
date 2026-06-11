@@ -697,39 +697,48 @@ class _RecipeContent extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 24),
-                        ...recipe.steps.map(
-                          (step) => Padding(
+                        ...() {
+                          int contentNum = 0;
+                          return recipe.steps.map((step) {
+                            if (step.isSectionHeader) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16, top: 4),
+                                child: Row(children: [
+                                  Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    child: Text(
+                                      step.sectionTitle ?? '',
+                                      style: GoogleFonts.plusJakartaSans(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: AkeliColors.onSurfaceVariant,
+                                        letterSpacing: 0.4,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                                ]),
+                              );
+                            }
+                            contentNum++;
+                            final stepIdx = recipe.steps.indexOf(step);
+                            return Padding(
                               padding: const EdgeInsets.only(bottom: 24),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: const BoxDecoration(
-                                      color: AkeliColors.surfaceContainer,
-                                      shape: BoxShape.circle,
-                                    ),
+                                    width: 32, height: 32,
+                                    decoration: const BoxDecoration(color: AkeliColors.surfaceContainer, shape: BoxShape.circle),
                                     alignment: Alignment.center,
-                                    child: Text(
-                                      '${step.stepNumber}',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: AkeliColors.primary,
-                                      ),
-                                    ),
+                                    child: Text('$contentNum',
+                                      style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w500, color: AkeliColors.primary)),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
-                                    child: Text(
-                                      step.instruction,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 15,
-                                        height: 1.6,
-                                        color: AkeliColors.onSurface,
-                                      ),
-                                    ),
+                                    child: Text(step.instruction,
+                                      style: GoogleFonts.inter(fontSize: 15, height: 1.6, color: AkeliColors.onSurface)),
                                   ),
                                   const SizedBox(width: 8),
                                   IconButton(
@@ -738,22 +747,16 @@ class _RecipeContent extends StatelessWidget {
                                     onPressed: () {
                                       appLogger.userAction('Step tapped',
                                           screen: 'RecipeDetailPage',
-                                          metadata: {
-                                            'stepNumber': step.stepNumber
-                                          });
-                                      context.push(
-                                        '/recipe/${recipe.id}/cook',
-                                        extra: {
-                                          'recipe': recipe,
-                                          'initialStepIndex': recipe.steps.indexOf(step),
-                                        },
-                                      );
+                                          metadata: {'stepNumber': step.stepNumber});
+                                      context.push('/recipe/${recipe.id}/cook',
+                                          extra: {'recipe': recipe, 'initialStepIndex': stepIdx});
                                     },
                                   ),
                                 ],
                               ),
-                            ),
-                        ),
+                            );
+                          });
+                        }(),
                       ],
                     ),
                   ),
@@ -1028,7 +1031,7 @@ class _RatingsAndCommentsSection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Avis de la communauté',
+                  'Avis',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,

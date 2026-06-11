@@ -73,7 +73,7 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
   };
 
   static const _topics = {
-    'cuisine_africaine': 'Cuisine Africaine', 'batch_cooking': 'Batch Cooking',
+    'cuisine_africaine': 'Cuisine Africaine', 'batch_cooking': 'Session de cuisine',
     'nutrition': 'Nutrition', 'sport_forme': 'Sport & Forme',
     'perte_de_poids': 'Perte de poids', 'vegetarien': 'Végétarien', 'autre': 'Autre'
   };

@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../core/logger.dart';
 import '../../core/router.dart';
@@ -26,26 +24,6 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isUploading = false;
-  
-  Future<void> _pickAndUploadImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
-    if (pickedFile != null) {
-      setState(() => _isUploading = true);
-      try {
-        final file = File(pickedFile.path);
-        await ref.read(userProfileNotifierProvider.notifier).updateAvatar(file);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
-        }
-      } finally {
-        if (mounted) setState(() => _isUploading = false);
-      }
-    }
-  }
-  
   @override
   void initState() {
     super.initState();
@@ -190,74 +168,40 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                     child: Column(
                       children: [
                         // Avatar
-                        GestureDetector(
-                          onTap: isCurrentUser && !_isUploading ? _pickAndUploadImage : null,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                width: 120,
-                                height: 120,
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [AkeliColors.primary, AkeliColors.primaryContainer],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: AkeliColors.primary.withValues(alpha: 0.2),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    color: AkeliColors.surfaceContainerLowest,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: ClipOval(
-                                    child: AkeliAvatar(
-                                      imageUrl: displayProfile?.avatarUrl,
-                                      initials: (displayProfile?.displayName.isNotEmpty == true
-                                              ? displayProfile!.displayName[0]
-                                              : 'A')
-                                          .toUpperCase(),
-                                      size: AvatarSize.lg,
-                                    ),
-                                  ),
-                                ),
+                        Container(
+                          width: 120,
+                          height: 120,
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AkeliColors.primary.withValues(alpha: 0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
-                              if (_isUploading)
-                                Container(
-                                  width: 120,
-                                  height: 120,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.5),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(color: Colors.white),
-                                  ),
-                                ),
-                              if (isCurrentUser && !_isUploading)
-                                Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: AkeliColors.primary,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: AkeliColors.surfaceContainerLowest, width: 2),
-                                    ),
-                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                                  ),
-                                ),
                             ],
+                          ),
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              color: AkeliColors.surfaceContainerLowest,
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: AkeliAvatar(
+                                imageUrl: displayProfile?.avatarUrl,
+                                initials: (displayProfile?.displayName.isNotEmpty == true
+                                        ? displayProfile!.displayName[0]
+                                        : 'A')
+                                    .toUpperCase(),
+                                size: AvatarSize.lg,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 24),

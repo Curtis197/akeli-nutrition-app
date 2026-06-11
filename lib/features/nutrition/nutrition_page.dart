@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
@@ -108,7 +109,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
+        children: const [
           _TodayTab(),
           _WeeklyTab(),
         ],
@@ -117,121 +118,274 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   }
 }
 
-class _TodayTab extends ConsumerWidget {
+class _TodayTab extends ConsumerStatefulWidget {
+  const _TodayTab();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final todayAsync = ref.watch(todayNutritionProvider);
-    appLogger.provider('TodayTab build() | todayAsync.isLoading: ${todayAsync.isLoading}');
+  ConsumerState<_TodayTab> createState() => _TodayTabState();
+}
 
-    return todayAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => ErrorState(message: err.toString()),
-      data: (nutrition) {
-        if (nutrition == null) {
-          return const EmptyState(
-            icon: Icons.restaurant_outlined,
-            title: 'Aucune donnée aujourd\'hui',
-            subtitle: 'Consommez des repas pour voir vos données nutritionnelles.',
-          );
-        }
+class _TodayTabState extends ConsumerState<_TodayTab> {
+  late DateTime _selected;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Bilan du jour",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AkeliColors.onSurface, letterSpacing: -0.5),
-              ),
-              const SizedBox(height: 24),
-              MacroRow(
-                calories: nutrition.calories,
-                proteinG: nutrition.proteinG,
-                carbsG: nutrition.carbsG,
-                fatG: nutrition.fatG,
-              ),
-              const SizedBox(height: 24),
-              // Macro donut chart inside a beautiful card
-              _OrganicCard(
+  static DateTime _truncateToDay(DateTime d) => DateTime(d.year, d.month, d.day);
+  static DateTime get _today => _truncateToDay(DateTime.now());
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = _today;
+  }
+
+  String get _dateStr =>
+      '${_selected.year}-${_selected.month.toString().padLeft(2, '0')}-${_selected.day.toString().padLeft(2, '0')}';
+
+  bool get _isToday => _selected == _today;
+
+  String _formatLabel(DateTime d) {
+    final today = _today;
+    if (d == today) return "Aujourd'hui";
+    if (d == today.subtract(const Duration(days: 1))) return 'Hier';
+    const weekdays = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
+    const months = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.'];
+    return '${weekdays[d.weekday - 1]} ${d.day} ${months[d.month - 1]}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final nutritionAsync = ref.watch(dailyNutritionForDateProvider(_dateStr));
+    final plan = ref.watch(activeNutritionPlanProvider).valueOrNull;
+    appLogger.provider('TodayTab build() | date: $_dateStr | nutritionAsync.isLoading: ${nutritionAsync.isLoading} | plan: ${plan != null}');
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: _NavBar(
+            label: _formatLabel(_selected),
+            onPrev: () {
+              appLogger.userAction('NutritionPage today nav prev', screen: 'NutritionPage', metadata: {'from': _dateStr});
+              setState(() => _selected = _selected.subtract(const Duration(days: 1)));
+            },
+            onNext: _isToday
+                ? null
+                : () {
+                    appLogger.userAction('NutritionPage today nav next', screen: 'NutritionPage', metadata: {'from': _dateStr});
+                    setState(() => _selected = _selected.add(const Duration(days: 1)));
+                  },
+          ),
+        ),
+        Expanded(
+          child: nutritionAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, _) => ErrorState(message: err.toString()),
+            data: (nutrition) {
+              if (nutrition == null) {
+                return const EmptyState(
+                  icon: Icons.restaurant_outlined,
+                  title: 'Aucune donnée',
+                  subtitle: 'Aucune consommation enregistrée pour cette journée.',
+                );
+              }
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _MacroDonutChart(
+                    const Text(
+                      "Bilan du jour",
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AkeliColors.onSurface, letterSpacing: -0.5),
+                    ),
+                    const SizedBox(height: 24),
+                    MacroRow(
+                      calories: nutrition.calories,
                       proteinG: nutrition.proteinG,
                       carbsG: nutrition.carbsG,
                       fatG: nutrition.fatG,
                     ),
                     const SizedBox(height: 24),
-                    _MacroTargetBars(
-                      proteinG: nutrition.proteinG,
-                      carbsG: nutrition.carbsG,
-                      fatG: nutrition.fatG,
+                    _OrganicCard(
+                      child: Column(
+                        children: [
+                          _MacroDonutChart(
+                            proteinG: nutrition.proteinG,
+                            carbsG: nutrition.carbsG,
+                            fatG: nutrition.fatG,
+                          ),
+                          const SizedBox(height: 24),
+                          _MacroTargetBars(
+                            proteinG: nutrition.proteinG,
+                            carbsG: nutrition.carbsG,
+                            fatG: nutrition.fatG,
+                            targetProtG: plan?.proteinGoalG ?? 150.0,
+                            targetCarbsG: plan?.carbGoalG ?? 250.0,
+                            targetFatG: plan?.fatGoalG ?? 65.0,
+                          ),
+                        ],
+                      ),
                     ),
+                    const SizedBox(height: 24),
+                    _OrganicCard(
+                      child: _WaterTracker(
+                        waterMl: nutrition.waterMl,
+                        onAddGlass: _isToday
+                            ? () {
+                                appLogger.userAction('Add water glass tapped', screen: 'NutritionPage');
+                                ref.read(waterLogNotifierProvider.notifier).addGlass();
+                              }
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    _OrganicCard(
+                      child: _WeightTrendChart(),
+                    ),
+                    const SizedBox(height: 80),
                   ],
                 ),
-              ),
-              const SizedBox(height: 24),
-              // Water tracker inside a card
-              _OrganicCard(
-                child: _WaterTracker(waterMl: nutrition.waterMl),
-              ),
-              const SizedBox(height: 24),
-              // Weight log
-              _OrganicCard(
-                child: _WeightTrendChart(),
-              ),
-              const SizedBox(height: 80),
-            ],
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 }
 
-class _WeeklyTab extends ConsumerWidget {
+class _WeeklyTab extends ConsumerStatefulWidget {
+  const _WeeklyTab();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final weekAsync = ref.watch(weeklyNutritionProvider);
-    appLogger.provider('WeeklyTab build() | weekAsync.isLoading: ${weekAsync.isLoading}');
+  ConsumerState<_WeeklyTab> createState() => _WeeklyTabState();
+}
 
-    return weekAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => ErrorState(message: err.toString()),
-      data: (days) {
-        if (days.isEmpty) {
-          return const EmptyState(
-            icon: Icons.bar_chart_rounded,
-            title: 'Pas encore de données',
-            subtitle: 'Commencez à consommer des repas pour voir votre suivi hebdomadaire.',
-          );
-        }
+class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
+  int _weekOffset = 0;
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Calories cette semaine',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.onSurface, letterSpacing: -0.5),
-              ),
-              const SizedBox(height: 24),
-              _OrganicCard(
-                child: _WeeklyCaloriesChart(days: days),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Moyenne quotidienne',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AkeliColors.onSurface),
-              ),
-              const SizedBox(height: 16),
-              _AverageStats(days: days),
-              const SizedBox(height: 80),
-            ],
+  static DateTime _truncateToDay(DateTime d) => DateTime(d.year, d.month, d.day);
+  static DateTime get _today => _truncateToDay(DateTime.now());
+  static String _toDateStr(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  DateTime get _until => _today.subtract(Duration(days: _weekOffset * 7));
+  DateTime get _since => _until.subtract(const Duration(days: 6));
+  WeekRange get _range => (since: _toDateStr(_since), until: _toDateStr(_until));
+
+  String _formatWeekLabel() {
+    const months = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.'];
+    final s = _since;
+    final u = _until;
+    if (s.month == u.month) return '${s.day} – ${u.day} ${months[u.month - 1]}';
+    return '${s.day} ${months[s.month - 1]} – ${u.day} ${months[u.month - 1]}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final weekAsync = ref.watch(weeklyNutritionForRangeProvider(_range));
+    appLogger.provider('WeeklyTab build() | weekAsync.isLoading: ${weekAsync.isLoading} | offset: $_weekOffset');
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: _NavBar(
+            label: _formatWeekLabel(),
+            onPrev: () {
+              appLogger.userAction('NutritionPage week nav prev', screen: 'NutritionPage', metadata: {'offset': _weekOffset + 1});
+              setState(() => _weekOffset++);
+            },
+            onNext: _weekOffset == 0
+                ? null
+                : () {
+                    appLogger.userAction('NutritionPage week nav next', screen: 'NutritionPage', metadata: {'offset': _weekOffset - 1});
+                    setState(() => _weekOffset--);
+                  },
           ),
-        );
-      },
+        ),
+        Expanded(
+          child: weekAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, _) => ErrorState(message: err.toString()),
+            data: (days) {
+              if (days.isEmpty) {
+                return const EmptyState(
+                  icon: Icons.bar_chart_rounded,
+                  title: 'Pas encore de données',
+                  subtitle: 'Aucune consommation enregistrée pour cette semaine.',
+                );
+              }
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Calories cette semaine',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AkeliColors.onSurface, letterSpacing: -0.5),
+                    ),
+                    const SizedBox(height: 24),
+                    _OrganicCard(
+                      child: _WeeklyCaloriesChart(days: days),
+                    ),
+                    const SizedBox(height: 32),
+                    const Text(
+                      'Moyenne quotidienne',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AkeliColors.onSurface),
+                    ),
+                    const SizedBox(height: 16),
+                    _AverageStats(days: days),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NavBar extends StatelessWidget {
+  final String label;
+  final VoidCallback onPrev;
+  final VoidCallback? onNext;
+
+  const _NavBar({required this.label, required this.onPrev, this.onNext});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left_rounded, size: 28),
+          onPressed: onPrev,
+          color: AkeliColors.primary,
+          style: IconButton.styleFrom(
+            backgroundColor: AkeliColors.primaryContainer.withValues(alpha: 0.15),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AkeliColors.onSurface),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.chevron_right_rounded,
+            size: 28,
+            color: onNext != null ? AkeliColors.primary : AkeliColors.outlineVariant,
+          ),
+          onPressed: onNext,
+          style: IconButton.styleFrom(
+            backgroundColor: onNext != null
+                ? AkeliColors.primaryContainer.withValues(alpha: 0.15)
+                : AkeliColors.surfaceContainerLow,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -394,30 +548,31 @@ class _MacroTargetBars extends StatelessWidget {
   final double proteinG;
   final double carbsG;
   final double fatG;
+  final double targetProtG;
+  final double targetCarbsG;
+  final double targetFatG;
 
   const _MacroTargetBars({
     required this.proteinG,
     required this.carbsG,
     required this.fatG,
+    this.targetProtG = 150.0,
+    this.targetCarbsG = 250.0,
+    this.targetFatG = 65.0,
   });
-
-  // Fallback targets until healthProfileProvider exposes per-macro fields
-  static const _targetProt = 150.0;
-  static const _targetCarbs = 250.0;
-  static const _targetFat = 65.0;
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('MacroTargetBars build() | protein: $proteinG | carbs: $carbsG | fat: $fatG');
+    appLogger.d('MacroTargetBars build() | protein: $proteinG/$targetProtG | carbs: $carbsG/$targetCarbsG | fat: $fatG/$targetFatG');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildMacroBar('Protéines', proteinG, _targetProt, AkeliColors.primary),
+        _buildMacroBar('Protéines', proteinG, targetProtG, AkeliColors.primary),
         const SizedBox(height: 12),
-        _buildMacroBar('Glucides', carbsG, _targetCarbs, AkeliColors.tertiary),
+        _buildMacroBar('Glucides', carbsG, targetCarbsG, AkeliColors.tertiary),
         const SizedBox(height: 12),
-        _buildMacroBar('Lipides', fatG, _targetFat, AkeliColors.warning),
+        _buildMacroBar('Lipides', fatG, targetFatG, AkeliColors.warning),
       ],
     );
   }
@@ -449,26 +604,21 @@ class _MacroTargetBars extends StatelessWidget {
   }
 }
 
-class _WaterTracker extends StatefulWidget {
+class _WaterTracker extends StatelessWidget {
   final double waterMl;
+  final VoidCallback? onAddGlass;
 
-  const _WaterTracker({required this.waterMl});
+  const _WaterTracker({required this.waterMl, this.onAddGlass});
 
-  @override
-  State<_WaterTracker> createState() => _WaterTrackerState();
-}
-
-class _WaterTrackerState extends State<_WaterTracker> {
   static const _targetMl = 2000.0;
   static const _glassSize = 250.0;
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('WaterTracker build() | waterMl: ${widget.waterMl}');
-    final current = widget.waterMl;
-    final glasses = (current / _glassSize).floor();
+    appLogger.d('WaterTracker build() | waterMl: $waterMl');
+    final glasses = (waterMl / _glassSize).floor();
     final targetGlasses = (_targetMl / _glassSize).floor();
-    final progress = (current / _targetMl).clamp(0.0, 1.0);
+    final progress = (waterMl / _targetMl).clamp(0.0, 1.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,9 +643,31 @@ class _WaterTrackerState extends State<_WaterTracker> {
                 ),
               ],
             ),
-            Text(
-              '${current.toInt()} / ${_targetMl.toInt()} ml',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
+            Row(
+              children: [
+                Text(
+                  '${waterMl.toInt()} / ${_targetMl.toInt()} ml',
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onAddGlass,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: onAddGlass != null
+                          ? const Color(0xFF4D96FF).withValues(alpha: 0.12)
+                          : AkeliColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: onAddGlass != null ? const Color(0xFF4D96FF) : AkeliColors.outlineVariant,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -580,7 +752,9 @@ class _WeightTrendChart extends ConsumerWidget {
               );
             }
             final currentWeight = entries.first.weightKg;
-            final startingWeight = entries.last.weightKg;
+            // Use onboarding weight as origin — same logic as home page.
+            // entries.last is unreliable (same-day taps skew it vs. real start).
+            final startingWeight = healthAsync.valueOrNull?.weightKg ?? entries.last.weightKg;
             final targetWeight = healthAsync.valueOrNull?.targetWeightKg;
             
             double progress = 0.0;
@@ -854,15 +1028,13 @@ class _WeeklyCaloriesChart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     getTitlesWidget: (value, meta) {
-                      const daysStr = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+                      const letters = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
                       final idx = value.toInt();
-                      if (idx < 0 || idx >= daysStr.length) {
-                        return const SizedBox.shrink();
-                      }
+                      if (idx < 0 || idx >= days.length) return const SizedBox.shrink();
                       return Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          daysStr[idx],
+                          letters[days[idx].date.weekday - 1],
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

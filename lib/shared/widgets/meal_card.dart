@@ -35,16 +35,21 @@ class AkeliMealCard extends StatelessWidget {
 
   String get _mealTypeLabel {
     switch (mealType.toLowerCase()) {
-      case 'breakfast':
-        return 'Petit-Déjeuner';
-      case 'lunch':
-        return 'Déjeuner';
-      case 'dinner':
-        return 'Dîner';
-      case 'snack':
-        return 'Collation';
-      default:
-        return mealType;
+      case 'breakfast': return 'Petit-Déjeuner';
+      case 'lunch':     return 'Déjeuner';
+      case 'dinner':    return 'Dîner';
+      case 'snack':     return 'Collation';
+      default:          return mealType;
+    }
+  }
+
+  Color get _mealTypeColor {
+    switch (mealType.toLowerCase()) {
+      case 'breakfast': return const Color(0xFFF59E0B);
+      case 'lunch':     return const Color(0xFF22C55E);
+      case 'dinner':    return const Color(0xFF6366F1);
+      case 'snack':     return const Color(0xFFA855F7);
+      default:          return AkeliColors.primary;
     }
   }
 
@@ -148,13 +153,13 @@ class AkeliMealCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: _mealTypeColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         _mealTypeLabel.toUpperCase(),
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: Colors.white,
                           fontWeight: FontWeight.w800,
                           fontSize: 10,
                           letterSpacing: 0.5,

@@ -16,7 +16,7 @@ final ingredientDetailProvider =
     final data = await Supabase.instance.client
         .from('ingredient')
         .select(
-            'id, name_fr, name, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g, fiber_per_100g, substitution, market_notes')
+            'id, name_fr, name, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g, description_fr, image_url, tags')
         .eq('id', ingredientId)
         .maybeSingle();
 

@@ -46,6 +46,16 @@ class AkeliModernMetric extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
+                // Background Track
+                CustomPaint(
+                  size: const Size(80, 80),
+                  painter: _ProgressPainter(
+                    progress: 1.0,
+                    strokeWidth: 8,
+                    isActiveColor: false,
+                    color: AkeliColors.surfaceContainerHigh,
+                  ),
+                ),
                 ShaderMask(
                   shaderCallback: (rect) {
                     return SweepGradient(
@@ -63,16 +73,6 @@ class AkeliModernMetric extends StatelessWidget {
                       strokeWidth: 8,
                       isActiveColor: true,
                     ),
-                  ),
-                ),
-                // Background Track
-                CustomPaint(
-                  size: const Size(80, 80),
-                  painter: _ProgressPainter(
-                    progress: 1.0,
-                    strokeWidth: 8,
-                    isActiveColor: false,
-                    color: AkeliColors.surfaceContainerHigh,
                   ),
                 ),
                 // Inner Content

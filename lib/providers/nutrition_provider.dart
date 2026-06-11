@@ -36,6 +36,7 @@ class DailyNutrition {
         proteinG: (json['protein_g'] as num?)?.toDouble() ?? 0,
         carbsG: (json['carbs_g'] as num?)?.toDouble() ?? 0,
         fatG: (json['fat_g'] as num?)?.toDouble() ?? 0,
+        waterMl: (json['water_ml'] as num?)?.toDouble() ?? 0,
       );
 
   DailyNutrition operator +(DailyNutrition other) => DailyNutrition(
@@ -172,7 +173,7 @@ final weightLogProvider =
         .select()
         .eq('user_id', user.id)
         .order('created_at', ascending: false)
-        .limit(1);
+        .limit(30);
     appLogger.db('AFTER | table: weight_log | rows: ${data.length} | userId: ${user.id}');
     if (data.isEmpty) {
       // PostgREST returns [] for both empty table AND RLS-blocked rows.
@@ -249,3 +250,148 @@ class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
 final weightLogNotifierProvider =
     AsyncNotifierProvider.autoDispose<WeightLogNotifier, void>(
         WeightLogNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Water log
+// ---------------------------------------------------------------------------
+
+class WaterLogNotifier extends AutoDisposeAsyncNotifier<void> {
+  static const double glassSize = 250.0;
+  final _logger = appLogger;
+
+  @override
+  FutureOr<void> build() {
+    _logger.provider('WaterLogNotifier build()');
+    ref.onDispose(() => _logger.provider('WaterLogNotifier disposed'));
+  }
+
+  Future<void> addGlass() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final currentWater = ref.read(todayNutritionProvider).valueOrNull?.waterMl ?? 0.0;
+    final newWater = currentWater + glassSize;
+
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    _logger.userAction('Add water glass', metadata: {'currentMl': currentWater, 'newMl': newWater});
+    _logger.db('BEFORE | table: daily_nutrition_log | op: UPSERT water_ml | userId: ${user.id} | newWaterMl: $newWater');
+
+    final client = ref.read(supabaseClientProvider);
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.from('daily_nutrition_log').upsert(
+          {
+            'user_id': user.id,
+            'log_date': dateStr,
+            'water_ml': newWater,
+          },
+          onConflict: 'user_id,log_date',
+        );
+        _logger.db('AFTER | table: daily_nutrition_log | UPSERT water_ml | success | userId: ${user.id}');
+      } on PostgrestException catch (e, st) {
+        if (e.code == '42501') {
+          _logger.rls('Permission denied | table: daily_nutrition_log | UPSERT water_ml | userId: ${user.id}', error: e, stackTrace: st);
+        } else {
+          _logger.db('ERROR | table: daily_nutrition_log | UPSERT water_ml | code: ${e.code}', error: e, stackTrace: st);
+        }
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | table: daily_nutrition_log | UPSERT water_ml | unexpected: $e', error: e, stackTrace: st);
+        rethrow;
+      }
+    });
+    if (state is AsyncData) ref.invalidate(todayNutritionProvider);
+  }
+}
+
+final waterLogNotifierProvider =
+    AsyncNotifierProvider.autoDispose<WaterLogNotifier, void>(
+        WaterLogNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Parameterised providers for day/week navigation
+// ---------------------------------------------------------------------------
+
+typedef WeekRange = ({String since, String until});
+
+final dailyNutritionForDateProvider =
+    FutureProvider.autoDispose.family<DailyNutrition?, String>((ref, dateStr) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return null;
+
+  appLogger.provider('dailyNutritionForDateProvider build() | userId: ${user.id} | date: $dateStr');
+  ref.onDispose(() => appLogger.provider('dailyNutritionForDateProvider disposed | date: $dateStr'));
+  appLogger.db('BEFORE | table: daily_nutrition_log | op: SELECT | userId: ${user.id} | date: $dateStr');
+
+  final client = ref.watch(supabaseClientProvider);
+  try {
+    final data = await client
+        .from('daily_nutrition_log')
+        .select()
+        .eq('user_id', user.id)
+        .eq('log_date', dateStr)
+        .maybeSingle();
+    appLogger.db('AFTER | table: daily_nutrition_log | rows: ${data == null ? 0 : 1} | date: $dateStr');
+    if (data == null) {
+      appLogger.rls('Zero rows | table: daily_nutrition_log | userId: ${user.id} | date: $dateStr | possible RLS block or no log');
+      appLogger.provider('dailyNutritionForDateProvider → data (null) | date: $dateStr');
+      return null;
+    }
+    appLogger.provider('dailyNutritionForDateProvider → data | calories: ${data['calories']} | date: $dateStr');
+    return DailyNutrition.fromJson(data);
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: daily_nutrition_log | userId: ${user.id}', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: daily_nutrition_log | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('dailyNutritionForDateProvider → error | date: $dateStr | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: daily_nutrition_log | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('dailyNutritionForDateProvider → error | date: $dateStr | $e');
+    rethrow;
+  }
+});
+
+final weeklyNutritionForRangeProvider =
+    FutureProvider.autoDispose.family<List<DailyNutrition>, WeekRange>((ref, range) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return [];
+
+  appLogger.provider('weeklyNutritionForRangeProvider build() | userId: ${user.id} | since: ${range.since} | until: ${range.until}');
+  ref.onDispose(() => appLogger.provider('weeklyNutritionForRangeProvider disposed | since: ${range.since}'));
+  appLogger.db('BEFORE | table: daily_nutrition_log | op: SELECT range | userId: ${user.id} | since: ${range.since} | until: ${range.until}');
+
+  final client = ref.watch(supabaseClientProvider);
+  try {
+    final data = await client
+        .from('daily_nutrition_log')
+        .select()
+        .eq('user_id', user.id)
+        .gte('log_date', range.since)
+        .lte('log_date', range.until)
+        .order('log_date');
+    appLogger.db('AFTER | table: daily_nutrition_log | rows: ${data.length} | since: ${range.since} | until: ${range.until}');
+    if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: daily_nutrition_log | userId: ${user.id} | range ${range.since}–${range.until} | possible RLS block or no logs');
+    }
+    appLogger.provider('weeklyNutritionForRangeProvider → data | days: ${data.length}');
+    return data.map(DailyNutrition.fromJson).toList();
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: daily_nutrition_log | userId: ${user.id}', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: daily_nutrition_log | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('weeklyNutritionForRangeProvider → error | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: daily_nutrition_log | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('weeklyNutritionForRangeProvider → error | $e');
+    rethrow;
+  }
+});

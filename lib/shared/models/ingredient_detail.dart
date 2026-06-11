@@ -11,9 +11,9 @@ class IngredientDetail {
   final double? proteinPer100g;
   final double? carbsPer100g;
   final double? fatPer100g;
-  final double? fiberPer100g;
-  final String? substitution;
-  final String? marketNotes;
+  final String? description;
+  final String? imageUrl;
+  final List<String> tags;
 
   const IngredientDetail({
     required this.id,
@@ -22,9 +22,9 @@ class IngredientDetail {
     this.proteinPer100g,
     this.carbsPer100g,
     this.fatPer100g,
-    this.fiberPer100g,
-    this.substitution,
-    this.marketNotes,
+    this.description,
+    this.imageUrl,
+    this.tags = const [],
   });
 
   factory IngredientDetail.fromJson(Map<String, dynamic> json) {
@@ -36,9 +36,9 @@ class IngredientDetail {
       proteinPer100g: (json['protein_per_100g'] as num?)?.toDouble(),
       carbsPer100g: (json['carbs_per_100g'] as num?)?.toDouble(),
       fatPer100g: (json['fat_per_100g'] as num?)?.toDouble(),
-      fiberPer100g: (json['fiber_per_100g'] as num?)?.toDouble(),
-      substitution: json['substitution'] as String?,
-      marketNotes: json['market_notes'] as String?,
+      description: json['description_fr'] as String?,
+      imageUrl: json['image_url'] as String?,
+      tags: (json['tags'] as List<dynamic>?)?.cast<String>() ?? const [],
     );
   }
 }

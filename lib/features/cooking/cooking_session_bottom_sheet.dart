@@ -71,7 +71,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                 
                 // Title
                 Text(
-                  'Session de Batch Cooking',
+                  'Session de cuisine',
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

@@ -34,6 +34,12 @@ void handleNotificationTap(RemoteMessage message, GoRouter router) {
   } else if (type == 'conversation_request') {
     router.push(AkeliRoutes.notifications);
     return;
+  } else if (type == 'link') {
+    final route = message.data['route'] as String?;
+    if (route != null) {
+      router.push(route);
+      return;
+    }
   }
 
   // Fallback — unknown type, missing type, or missing data keys

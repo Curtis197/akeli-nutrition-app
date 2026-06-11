@@ -40,7 +40,7 @@ class BatchCookingPage extends ConsumerWidget {
           ),
         ),
         title: const Text(
-          'Batch Cooking',
+          'Session de cuisine',
           style: TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,

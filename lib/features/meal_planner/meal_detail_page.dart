@@ -247,11 +247,6 @@ class _MealDetailBody extends ConsumerWidget {
                                   : '--',
                             ),
                             _QuickInfo(
-                              icon: Icons.restaurant,
-                              iconColor: AkeliColors.accentAmber,
-                              label: '${entry.servings.toStringAsFixed(entry.servings % 1 == 0 ? 0 : 1)} portion${entry.servings > 1 ? "s" : ""}',
-                            ),
-                            _QuickInfo(
                               icon: Icons.local_fire_department,
                               iconColor: AkeliColors.primary,
                               label: '${entry.calories.toInt()} kcal',
@@ -357,14 +352,6 @@ class _MealDetailBody extends ConsumerWidget {
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                                 color: AkeliColors.onSurface,
-                              ),
-                            ),
-                            Text(
-                              '${entry.servings.toStringAsFixed(entry.servings % 1 == 0 ? 0 : 1)} portion${entry.servings > 1 ? "s" : ""}',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AkeliColors.onSurfaceVariant,
                               ),
                             ),
                           ],

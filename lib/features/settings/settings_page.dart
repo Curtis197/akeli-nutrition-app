@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -333,21 +335,44 @@ class SettingsPage extends ConsumerWidget {
                           label: 'Aide & FAQ',
                           onTap: () {
                             appLogger.userAction('Help FAQ menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.support);
                           },
                         ),
-                        _MenuItem(
-                          icon: Icons.privacy_tip_outlined,
-                          label: 'Politique de confidentialité',
-                          onTap: () {
-                            appLogger.userAction('Privacy policy menu tapped', screen: 'SettingsPage');
-                          },
-                        ),
-                        _MenuItem(
-                          icon: Icons.description_outlined,
-                          label: 'Conditions d\'utilisation',
-                          onTap: () {
-                            appLogger.userAction('Terms menu tapped', screen: 'SettingsPage');
-                          },
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                          child: Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  appLogger.userAction('Privacy policy link tapped', screen: 'SettingsPage');
+                                  context.push(AkeliRoutes.privacyPolicy);
+                                },
+                                child: const Text(
+                                  'Politique de confidentialité',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AkeliColors.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              InkWell(
+                                onTap: () {
+                                  appLogger.userAction('Terms link tapped', screen: 'SettingsPage');
+                                  context.push(AkeliRoutes.termsOfService);
+                                },
+                                child: const Text(
+                                  'Conditions d\'utilisation',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AkeliColors.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -563,7 +588,28 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
   final _nameCtrl = TextEditingController();
   final _bioCtrl = TextEditingController();
   bool _saving = false;
+  bool _isUploading = false;
   final _logger = appLogger;
+
+  Future<void> _pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() => _isUploading = true);
+      _logger.userAction('Avatar upload started', screen: 'SettingsPage');
+      try {
+        await ref.read(userProfileNotifierProvider.notifier).updateAvatar(File(pickedFile.path));
+        _logger.userAction('Avatar upload success', screen: 'SettingsPage');
+      } catch (e, st) {
+        _logger.db('ERROR | avatar upload | $e', error: e, stackTrace: st);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+        }
+      } finally {
+        if (mounted) setState(() => _isUploading = false);
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -624,6 +670,59 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: GestureDetector(
+                onTap: _isUploading ? null : _pickAndUploadImage,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 88,
+                      height: 88,
+                      decoration: const BoxDecoration(
+                        color: AkeliColors.surfaceContainerLow,
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: AkeliAvatar(
+                          imageUrl: ref.watch(userProfileProvider).valueOrNull?.avatarUrl,
+                          initials: (ref.watch(userProfileProvider).valueOrNull?.displayName.isNotEmpty == true
+                                  ? ref.watch(userProfileProvider).valueOrNull!.displayName[0]
+                                  : 'A')
+                              .toUpperCase(),
+                          size: AvatarSize.lg,
+                        ),
+                      ),
+                    ),
+                    if (_isUploading)
+                      Container(
+                        width: 88,
+                        height: 88,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Center(
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        ),
+                      ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AkeliColors.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AkeliColors.background, width: 2),
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 32),
             Container(

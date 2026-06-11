@@ -51,7 +51,7 @@ class UserPreferencesNotifier
 
       final allergensFuture = client
           .from('user_allergy')
-          .select('allergen:allergen_id ( id, slug, label )')
+          .select('allergen:allergen_id ( id, slug, label_fr, label_en )')
           .eq('user_id', user.id);
 
       final results = await Future.wait<dynamic>([

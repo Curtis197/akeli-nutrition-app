@@ -3,14 +3,20 @@ import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/ingredient_provider.dart';
 import 'package:akeli/shared/models/ingredient_detail.dart';
 import 'package:akeli/shared/models/recipe.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class IngredientDetailSheet extends ConsumerWidget {
   final RecipeIngredient ingredient;
+  final ScrollController? scrollController;
 
-  const IngredientDetailSheet({super.key, required this.ingredient});
+  const IngredientDetailSheet({
+    super.key,
+    required this.ingredient,
+    this.scrollController,
+  });
 
   static Future<void> show(BuildContext context, RecipeIngredient ingredient) {
     appLogger.userAction('IngredientDetailSheet opened',
@@ -20,7 +26,16 @@ class IngredientDetailSheet extends ConsumerWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => IngredientDetailSheet(ingredient: ingredient),
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.92,
+        expand: false,
+        builder: (_, scrollController) => IngredientDetailSheet(
+          ingredient: ingredient,
+          scrollController: scrollController,
+        ),
+      ),
     );
   }
 
@@ -30,6 +45,7 @@ class IngredientDetailSheet extends ConsumerWidget {
         'IngredientDetailSheet build() | ingredientId: ${ingredient.ingredientId}');
     final detailAsync =
         ref.watch(ingredientDetailProvider(ingredient.ingredientId));
+    final bottomPad = MediaQuery.of(context).padding.bottom + 24;
 
     return Container(
       decoration: const BoxDecoration(
@@ -37,12 +53,11 @@ class IngredientDetailSheet extends ConsumerWidget {
         borderRadius:
             BorderRadius.vertical(top: Radius.circular(AkeliRadius.xl)),
       ),
-      padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).padding.bottom + 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: ListView(
+        controller: scrollController,
+        padding: EdgeInsets.only(bottom: bottomPad),
         children: [
+          // Drag handle
           Center(
             child: Padding(
               padding: const EdgeInsets.only(top: 16, bottom: 8),
@@ -56,11 +71,29 @@ class IngredientDetailSheet extends ConsumerWidget {
               ),
             ),
           ),
+          // Hero image — full width
+          detailAsync.whenOrNull(
+            data: (detail) {
+              if (detail?.imageUrl == null) return null;
+              return CachedNetworkImage(
+                imageUrl: detail!.imageUrl!,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  height: 200,
+                  color: AkeliColors.surfaceContainerLow,
+                ),
+                errorWidget: (_, __, ___) => const SizedBox.shrink(),
+              );
+            },
+          ) ?? const SizedBox.shrink(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Name + optional badge
                 Row(
                   children: [
                     Expanded(
@@ -91,15 +124,30 @@ class IngredientDetailSheet extends ConsumerWidget {
                       ),
                   ],
                 ),
+                // Tags pills
+                detailAsync.whenOrNull(
+                  data: (detail) {
+                    if (detail == null || detail.tags.isEmpty) return null;
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: detail.tags
+                            .map((tag) => _TagPill(tag: tag))
+                            .toList(),
+                      ),
+                    );
+                  },
+                ) ?? const SizedBox.shrink(),
                 const SizedBox(height: 12),
+                // Quantity pill
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                   decoration: BoxDecoration(
-                    color:
-                        AkeliColors.accentAmber.withValues(alpha: 0.15),
-                    borderRadius:
-                        BorderRadius.circular(AkeliRadius.pill),
+                    color: AkeliColors.accentAmber.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(AkeliRadius.pill),
                   ),
                   child: Text(
                     '${ingredient.quantity.toStringAsFixed(ingredient.quantity % 1 == 0 ? 0 : 1)} ${ingredient.unit}',
@@ -127,13 +175,11 @@ class IngredientDetailSheet extends ConsumerWidget {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        if (detail.description != null)
+                          _DescriptionSection(text: detail.description!),
                         if (detail.caloriesPer100g != null ||
                             detail.proteinPer100g != null)
                           _NutritionSection(detail: detail),
-                        if (detail.substitution != null)
-                          _SubstitutionSection(text: detail.substitution!),
-                        if (detail.marketNotes != null)
-                          _MarketNotesSection(text: detail.marketNotes!),
                       ],
                     );
                   },
@@ -142,6 +188,71 @@ class IngredientDetailSheet extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TagPill extends StatelessWidget {
+  final String tag;
+  const _TagPill({required this.tag});
+
+  static const _tagColors = {
+    'high_protein': Color(0xFF2E7D32),
+    'low_fat': Color(0xFF1565C0),
+    'gluten_free': Color(0xFF6A1B9A),
+    'african_staple': Color(0xFFE65100),
+    'very_hard_to_find_eu': Color(0xFF78350F),
+  };
+
+  static const _tagLabels = {
+    'high_protein': 'Riche en protéines',
+    'low_fat': 'Pauvre en graisses',
+    'gluten_free': 'Sans gluten',
+    'african_staple': 'Aliment de base',
+    'very_hard_to_find_eu': 'Difficile à trouver en Europe',
+  };
+
+  String get _label => _tagLabels[tag] ?? tag.replaceAll('_', ' ');
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _tagColors[tag] ?? AkeliColors.primary;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        _label,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: color,
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+}
+
+class _DescriptionSection extends StatelessWidget {
+  final String text;
+  const _DescriptionSection({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          height: 1.65,
+          color: AkeliColors.onSurfaceVariant,
+        ),
       ),
     );
   }
@@ -169,7 +280,7 @@ class _NutritionSection extends StatelessWidget {
             if (detail.caloriesPer100g != null)
               Expanded(
                   child: _MacroChip(
-                      label: 'Calories',
+                      label: 'Énergie',
                       value:
                           '${detail.caloriesPer100g!.toStringAsFixed(0)} kcal')),
             if (detail.proteinPer100g != null) ...[
@@ -177,33 +288,29 @@ class _NutritionSection extends StatelessWidget {
               Expanded(
                   child: _MacroChip(
                       label: 'Protéines',
-                      value: '${detail.proteinPer100g!.toStringAsFixed(1)}g')),
+                      value: '${detail.proteinPer100g!.toStringAsFixed(1)} g')),
             ],
             if (detail.carbsPer100g != null) ...[
               const SizedBox(width: 8),
               Expanded(
                   child: _MacroChip(
                       label: 'Glucides',
-                      value: '${detail.carbsPer100g!.toStringAsFixed(1)}g')),
+                      value: '${detail.carbsPer100g!.toStringAsFixed(1)} g')),
             ],
           ],
         ),
-        if (detail.fatPer100g != null || detail.fiberPer100g != null) ...[
+        if (detail.fatPer100g != null) ...[
           const SizedBox(height: 8),
           Row(
             children: [
-              if (detail.fatPer100g != null)
-                Expanded(
-                    child: _MacroChip(
-                        label: 'Lipides',
-                        value: '${detail.fatPer100g!.toStringAsFixed(1)}g')),
-              if (detail.fiberPer100g != null) ...[
-                const SizedBox(width: 8),
-                Expanded(
-                    child: _MacroChip(
-                        label: 'Fibres',
-                        value: '${detail.fiberPer100g!.toStringAsFixed(1)}g')),
-              ],
+              Expanded(
+                  child: _MacroChip(
+                      label: 'Lipides',
+                      value: '${detail.fatPer100g!.toStringAsFixed(1)} g')),
+              const SizedBox(width: 8),
+              const Expanded(child: SizedBox()),
+              const SizedBox(width: 8),
+              const Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -245,108 +352,6 @@ class _MacroChip extends StatelessWidget {
                 color: AkeliColors.primary),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _SubstitutionSection extends StatelessWidget {
-  final String text;
-  const _SubstitutionSection({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AkeliColors.accentAmber.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AkeliRadius.lg),
-          border: Border.all(
-              color: AkeliColors.accentAmber.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.swap_horiz_rounded,
-                color: AkeliColors.accentAmber, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Substitution',
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AkeliColors.onSurface),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    text,
-                    style: GoogleFonts.inter(
-                        fontSize: 13,
-                        height: 1.5,
-                        color: AkeliColors.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MarketNotesSection extends StatelessWidget {
-  final String text;
-  const _MarketNotesSection({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AkeliColors.accentGreen.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AkeliRadius.lg),
-          border: Border.all(
-              color: AkeliColors.accentGreen.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.location_on_outlined,
-                color: AkeliColors.accentGreen, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Où trouver',
-                    style: GoogleFonts.plusJakartaSans(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AkeliColors.onSurface),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    text,
-                    style: GoogleFonts.inter(
-                        fontSize: 13,
-                        height: 1.5,
-                        color: AkeliColors.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

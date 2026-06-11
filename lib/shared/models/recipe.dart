@@ -163,6 +163,8 @@ class RecipeStep {
   final String? imageUrl;
   final String? videoUrl;
   final List<String> ingredientIds;
+  final bool isSectionHeader;
+  final String? sectionTitle;
 
   const RecipeStep({
     required this.stepNumber,
@@ -171,6 +173,8 @@ class RecipeStep {
     this.imageUrl,
     this.videoUrl,
     this.ingredientIds = const [],
+    this.isSectionHeader = false,
+    this.sectionTitle,
   });
 
   factory RecipeStep.fromJson(Map<String, dynamic> json) => RecipeStep(
@@ -187,5 +191,7 @@ class RecipeStep {
                 ?.map((e) => e.toString())
                 .toList() ??
             const [],
+        isSectionHeader: json['is_section_header'] as bool? ?? false,
+        sectionTitle: json['title'] as String?,
       );
 }
