@@ -21,6 +21,32 @@ import '../../providers/auth_provider.dart';
 import '../../shared/models/creator.dart';
 import '../../shared/models/recipe.dart';
 
+List<Creator> filterAndSortCreators(
+  List<Creator> all, {
+  String query = '',
+  String? regionId,
+  String? specialty,
+  String? orderBy,
+}) {
+  var list = all.where((c) {
+    if (query.isNotEmpty &&
+        !c.displayName.toLowerCase().contains(query.toLowerCase())) return false;
+    if (regionId != null && c.regionId != regionId) return false;
+    if (specialty != null && !c.specialties.contains(specialty)) return false;
+    return true;
+  }).toList();
+
+  if (orderBy == 'rating') {
+    list.sort((a, b) => b.averageRating.compareTo(a.averageRating));
+  } else if (orderBy == 'fans') {
+    list.sort((a, b) => b.fanCount.compareTo(a.fanCount));
+  } else if (orderBy == 'recipes') {
+    list.sort((a, b) => b.recipeCount.compareTo(a.recipeCount));
+  }
+
+  return list;
+}
+
 class FeedPage extends ConsumerStatefulWidget {
   final String? swapEntryId;
 
@@ -289,6 +315,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AkeliColors.surface,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -447,6 +474,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     _logger.userAction('Sort sheet opened', screen: 'FeedPage');
     showModalBottomSheet(
       context: context,
+      backgroundColor: AkeliColors.surface,
       builder: (_) => _FilterSheet<String>(
         title: 'Trier par',
         options: const [
