@@ -127,6 +127,150 @@ final creatorProfileProvider =
 });
 
 // ---------------------------------------------------------------------------
+// Pure aggregation — exported for testability
+// ---------------------------------------------------------------------------
+
+String currentMonthKey() {
+  final now = DateTime.now();
+  return '${now.year}-${now.month.toString().padLeft(2, '0')}';
+}
+
+List<CreatorConsumption> aggregateConsumption(
+  List<Map<String, dynamic>> rows,
+  Map<String, Creator> creatorMap,
+) {
+  if (rows.isEmpty) return [];
+  final counts = <String, int>{};
+  for (final row in rows) {
+    final id = row['creator_id'] as String?;
+    if (id == null || !creatorMap.containsKey(id)) continue;
+    counts[id] = (counts[id] ?? 0) + 1;
+  }
+  final total = counts.values.fold(0, (a, b) => a + b);
+  final result = counts.entries.map((e) {
+    final c = creatorMap[e.key]!;
+    return CreatorConsumption.fromAggregated(
+      creatorId: c.id,
+      creatorName: c.displayName,
+      avatarUrl: c.avatarUrl,
+      count: e.value,
+      totalMeals: total,
+    );
+  }).toList()
+    ..sort((a, b) => b.count.compareTo(a.count));
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Creator consumption ratio — current month, aggregated client-side
+// ---------------------------------------------------------------------------
+
+final creatorConsumptionProvider =
+    FutureProvider.autoDispose<List<CreatorConsumption>>((ref) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return [];
+
+  appLogger.provider('creatorConsumptionProvider build() | userId: ${user.id}');
+  ref.onDispose(() => appLogger.provider('creatorConsumptionProvider disposed'));
+
+  final monthKey = currentMonthKey();
+  final client = ref.watch(supabaseClientProvider);
+
+  // Step 1: fetch this month's consumption rows
+  appLogger.db('BEFORE | table: meal_consumption | op: SELECT | userId: ${user.id} | month: $monthKey');
+  late final List<Map<String, dynamic>> consumptionRows;
+  try {
+    consumptionRows = await client
+        .from('meal_consumption')
+        .select('creator_id')
+        .eq('user_id', user.id)
+        .eq('month_key', monthKey);
+    appLogger.db('AFTER | table: meal_consumption | rows: ${consumptionRows.length}');
+    if (consumptionRows.isEmpty) {
+      appLogger.rls('Zero rows | table: meal_consumption | userId: ${user.id} | month: $monthKey | no meals or RLS');
+      appLogger.provider('creatorConsumptionProvider → data (empty)');
+      return [];
+    }
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: meal_consumption | userId: ${user.id}', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: meal_consumption | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('creatorConsumptionProvider → error | ${e.message}');
+    rethrow;
+  }
+
+  // Step 2: fetch creator details for distinct IDs found in consumption
+  final creatorIds = consumptionRows
+      .map((r) => r['creator_id'] as String?)
+      .whereType<String>()
+      .toSet()
+      .toList();
+
+  appLogger.db('BEFORE | table: creator | op: SELECT | ids: ${creatorIds.length}');
+  late final List<Map<String, dynamic>> creatorRows;
+  try {
+    creatorRows = await client
+        .from('creator')
+        .select()
+        .inFilter('id', creatorIds);
+    appLogger.db('AFTER | table: creator | rows: ${creatorRows.length}');
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: creator', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: creator | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('creatorConsumptionProvider → error | ${e.message}');
+    rethrow;
+  }
+
+  final creatorMap = {for (final r in creatorRows) r['id'] as String: Creator.fromJson(r)};
+  final result = aggregateConsumption(consumptionRows, creatorMap);
+  appLogger.provider('creatorConsumptionProvider → data | creators: ${result.length}');
+  return result;
+});
+
+// ---------------------------------------------------------------------------
+// Fan external recipe counter — current month (0 if no row yet)
+// ---------------------------------------------------------------------------
+
+final fanExternalCounterProvider =
+    FutureProvider.autoDispose<int>((ref) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return 0;
+
+  appLogger.provider('fanExternalCounterProvider build() | userId: ${user.id}');
+  ref.onDispose(() => appLogger.provider('fanExternalCounterProvider disposed'));
+
+  final monthKey = currentMonthKey();
+  final client = ref.watch(supabaseClientProvider);
+
+  appLogger.db('BEFORE | table: fan_external_recipe_counter | op: SELECT | userId: ${user.id} | month: $monthKey');
+  try {
+    final data = await client
+        .from('fan_external_recipe_counter')
+        .select('external_recipe_count')
+        .eq('user_id', user.id)
+        .eq('month_key', monthKey)
+        .maybeSingle();
+    final count = (data?['external_recipe_count'] as int?) ?? 0;
+    appLogger.db('AFTER | table: fan_external_recipe_counter | count: $count');
+    appLogger.provider('fanExternalCounterProvider → data | count: $count');
+    return count;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: fan_external_recipe_counter | userId: ${user.id}', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: fan_external_recipe_counter | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('fanExternalCounterProvider → error | ${e.message}');
+    rethrow;
+  }
+});
+
+// ---------------------------------------------------------------------------
 // Fan mode notifier — activate / cancel via Edge Functions
 // ---------------------------------------------------------------------------
 
