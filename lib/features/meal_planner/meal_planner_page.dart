@@ -142,40 +142,70 @@ class MealPlannerPage extends ConsumerWidget {
                   childCount: dayKeys.length,
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
             ],
           ),
         ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          appLogger.userAction('Generate plan FAB tapped', screen: 'MealPlannerPage');
-          _generatePlan(context, ref);
-        },
-        backgroundColor: AkeliColors.primary,
-        elevation: 4,
-        child: const Icon(Icons.auto_awesome, color: Colors.white),
-      ),
+      bottomNavigationBar: planAsync.hasValue && planAsync.valueOrNull != null
+          ? SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    appLogger.userAction('Generate plan button tapped', screen: 'MealPlannerPage');
+                    _generatePlan(context, ref);
+                  },
+                  icon: const Icon(Icons.auto_awesome),
+                  label: const Text('Nouveau plan de repas'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AkeliColors.primary,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 52),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.lg)),
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 
   Future<void> _addSnack(BuildContext context, WidgetRef ref, String mealPlanId, DateTime date) async {
-    appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage', metadata: {'date': date.toIso8601String()});
-    final recipeId = await showModalBottomSheet<String>(
+    appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage',
+        metadata: {'date': date.toIso8601String()});
+
+    final selection = await showModalBottomSheet<SnackSelection>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => const SnackPickerSheet(),
     );
-    if (recipeId == null || !context.mounted) return;
+    if (selection == null || !context.mounted) return;
+
     try {
-      await ref.read(snackEntryProvider.notifier).addSnack(
-        mealPlanId: mealPlanId,
-        recipeId: recipeId,
-        scheduledDate: date,
-      );
+      switch (selection) {
+        case RecipeSnackSelection(:final recipeId):
+          await ref.read(snackEntryProvider.notifier).addSnack(
+            mealPlanId: mealPlanId,
+            recipeId: recipeId,
+            scheduledDate: date,
+          );
+        case CustomSnackSelection(:final name, :final calories,
+            :final proteinG, :final carbsG, :final fatG):
+          await ref.read(snackEntryProvider.notifier).addCustomSnack(
+            mealPlanId: mealPlanId,
+            scheduledDate: date,
+            name: name,
+            calories: calories,
+            proteinG: proteinG,
+            carbsG: carbsG,
+            fatG: fatG,
+          );
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
