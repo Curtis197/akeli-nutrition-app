@@ -15,6 +15,7 @@ class AkeliChatBubble extends ConsumerWidget {
   final bool isRead;
   final String messageType;
   final String? recipeId;
+  final String? caption;
 
   const AkeliChatBubble({
     super.key,
@@ -25,6 +26,7 @@ class AkeliChatBubble extends ConsumerWidget {
     this.isRead = false,
     this.messageType = 'text',
     this.recipeId,
+    this.caption,
   });
 
   @override
@@ -67,8 +69,8 @@ class AkeliChatBubble extends ConsumerWidget {
 
   Widget _buildContent(BuildContext context, WidgetRef ref) {
     return switch (messageType) {
-      'image'        => _ImageBubble(url: message, isSent: isSent, senderName: senderName),
-      'recipe_share' => _RecipeBubble(recipeId: recipeId ?? message, isSent: isSent, ref: ref, context: context, senderName: senderName),
+      'image'        => _ImageBubble(url: message, isSent: isSent, senderName: senderName, caption: caption),
+      'recipe_share' => _RecipeBubble(recipeId: recipeId ?? message, isSent: isSent, ref: ref, context: context, senderName: senderName, caption: caption),
       _              => _TextBubble(text: message, isSent: isSent, senderName: senderName),
     };
   }
@@ -120,8 +122,9 @@ class _ImageBubble extends StatelessWidget {
   final String url;
   final bool isSent;
   final String? senderName;
+  final String? caption;
 
-  const _ImageBubble({required this.url, required this.isSent, this.senderName});
+  const _ImageBubble({required this.url, required this.isSent, this.senderName, this.caption});
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +165,19 @@ class _ImageBubble extends StatelessWidget {
               child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
             ),
           ),
+          if (caption != null && caption!.isNotEmpty)
+            Container(
+              width: double.infinity,
+              color: AkeliColors.surfaceContainer,
+              padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+              child: Text(
+                caption!,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AkeliColors.textPrimary,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -176,6 +192,7 @@ class _RecipeBubble extends StatelessWidget {
   final WidgetRef ref;
   final BuildContext context;
   final String? senderName;
+  final String? caption;
 
   const _RecipeBubble({
     required this.recipeId,
@@ -183,6 +200,7 @@ class _RecipeBubble extends StatelessWidget {
     required this.ref,
     required this.context,
     this.senderName,
+    this.caption,
   });
 
   @override
@@ -262,12 +280,12 @@ class _RecipeBubble extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
                   child: Row(
                     children: [
-                      if (recipe.calories != null) ...[
+                      if (recipe.calories100g != null) ...[
                         const Icon(Icons.local_fire_department_rounded,
                             size: 13, color: AkeliColors.secondary),
                         const SizedBox(width: 3),
                         Text(
-                          '${recipe.calories!.round()} kcal',
+                          '${recipe.calories100g!.round()} kcal/100g',
                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: AkeliColors.textSecondary,
                               ),
@@ -285,6 +303,16 @@ class _RecipeBubble extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (caption != null && caption!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+                    child: Text(
+                      caption!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AkeliColors.textPrimary,
+                          ),
+                    ),
+                  ),
               ],
             );
           },

@@ -431,6 +431,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                         isRead: false,
                         messageType: msg.messageType,
                         recipeId: msg.recipeId,
+                        caption: msg.caption,
                       ),
                     );
                   },
