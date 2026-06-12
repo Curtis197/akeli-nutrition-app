@@ -109,20 +109,39 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
     switch (type) {
       case 'message':
+        final conversationId = data['conversation_id'] as String? ?? '';
+        final chatTitle = data['sender_name'] as String? ?? title;
         return AkeliNotifCard(
           type: NotifType.chat,
           title: title,
           subtitle: body,
           time: _relativeTime(createdAt),
+          onTap: conversationId.isEmpty
+              ? null
+              : () {
+                  _logger.userAction('Message notification tapped',
+                      screen: 'NotificationsPage',
+                      metadata: {'conversation_id': conversationId});
+                  context.push(AkeliRoutes.dmChatPath(conversationId), extra: chatTitle);
+                },
         );
 
       case 'conversation_request':
         final requestId = data['request_id'] as String? ?? '';
+        final senderId = data['sender_id'] as String? ?? '';
         return AkeliNotifCard(
           type: NotifType.request,
           title: title,
           subtitle: body,
           time: _relativeTime(createdAt),
+          onTap: senderId.isEmpty
+              ? null
+              : () {
+                  _logger.userAction('DM request notification tapped',
+                      screen: 'NotificationsPage',
+                      metadata: {'sender_id': senderId});
+                  context.push(AkeliRoutes.userProfilePath(senderId));
+                },
           onAccept: requestId.isEmpty
               ? null
               : () {
@@ -151,11 +170,20 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
       case 'group_invite':
         final inviteId = data['invite_id'] as String? ?? '';
+        final groupId = data['group_id'] as String? ?? '';
         return AkeliNotifCard(
           type: NotifType.request,
           title: title,
           subtitle: body,
           time: _relativeTime(createdAt),
+          onTap: groupId.isEmpty
+              ? null
+              : () {
+                  _logger.userAction('Group invite notification tapped',
+                      screen: 'NotificationsPage',
+                      metadata: {'group_id': groupId});
+                  context.push(AkeliRoutes.groupDetailPath(groupId));
+                },
           onAccept: inviteId.isEmpty
               ? null
               : () async {
@@ -212,12 +240,23 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
       case 'meal_reminder':
         final mealType = data['meal_type'] as String? ?? '';
+        final mealId = data['meal_id'] as String? ?? '';
         return AkeliNotifCard(
           type: NotifType.meal,
           title: title,
           subtitle: body,
           time: _relativeTime(createdAt),
           emoji: _mealEmoji(mealType),
+          onTap: () {
+            _logger.userAction('Meal reminder notification tapped',
+                screen: 'NotificationsPage',
+                metadata: {'meal_id': mealId, 'meal_type': mealType});
+            if (mealId.isNotEmpty) {
+              context.push(AkeliRoutes.mealDetailPath(mealId));
+            } else {
+              context.go(AkeliRoutes.mealPlanner);
+            }
+          },
         );
 
       default:
@@ -227,6 +266,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           subtitle: body,
           time: _relativeTime(createdAt),
           emoji: '🔔',
+          onTap: () {
+            _logger.userAction('Generic notification tapped',
+                screen: 'NotificationsPage');
+            context.go(AkeliRoutes.home);
+          },
         );
     }
   }

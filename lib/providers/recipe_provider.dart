@@ -18,6 +18,7 @@ class FeedParams {
   final int? minCal;
   final int? maxCal;
   final String? orderBy; // 'rating' | 'likes' | 'created_at' | null = personalized
+  final String? mealType; // filter by meal_types array membership e.g. 'snack'
 
   const FeedParams({
     this.limit = 20,
@@ -28,6 +29,7 @@ class FeedParams {
     this.minCal,
     this.maxCal,
     this.orderBy,
+    this.mealType,
   });
 
   @override
@@ -41,11 +43,12 @@ class FeedParams {
           maxTimeMin == other.maxTimeMin &&
           minCal == other.minCal &&
           maxCal == other.maxCal &&
-          orderBy == other.orderBy;
+          orderBy == other.orderBy &&
+          mealType == other.mealType;
 
   @override
   int get hashCode =>
-      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy);
+      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, mealType);
 }
 
 final feedProvider =
@@ -53,7 +56,7 @@ final feedProvider =
         (ref, params) async {
   final user = ref.watch(currentUserProvider);
   appLogger.provider(
-      'feedProvider build() | userId: ${user?.id ?? "null"} | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy}');
+      'feedProvider build() | userId: ${user?.id ?? "null"} | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
   ref.onDispose(() => appLogger.provider('feedProvider disposed'));
 
   if (user == null) {
@@ -73,6 +76,7 @@ final feedProvider =
     if (params.minCal != null) 'p_min_cal': params.minCal,
     if (params.maxCal != null) 'p_max_cal': params.maxCal,
     if (params.orderBy != null) 'p_order_by': params.orderBy,
+    if (params.mealType != null) 'p_meal_type': params.mealType,
   };
 
   appLogger.db(
@@ -158,7 +162,7 @@ final recipeDetailProvider =
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order, ingredient_ids), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order, is_section_header, title), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order, ingredient_ids, is_section_header, title), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
         .maybeSingle();
 

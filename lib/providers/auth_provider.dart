@@ -149,6 +149,66 @@ class AuthNotifier extends AsyncNotifier<void> {
       }
     });
   }
+
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    _logger.auth('updatePassword BEFORE');
+    _logger.provider('AuthNotifier → loading (updatePassword)');
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final email = client.auth.currentUser?.email;
+        if (email == null) throw Exception('No authenticated user');
+
+        _logger.db('BEFORE | op: signInWithPassword | verify current password');
+        await client.auth.signInWithPassword(email: email, password: currentPassword);
+        _logger.auth('updatePassword | current password verified');
+
+        _logger.db('BEFORE | op: updateUser | new password');
+        await client.auth.updateUser(UserAttributes(password: newPassword));
+        _logger.auth('updatePassword SUCCESS');
+        _logger.provider('AuthNotifier → data (updatePassword success)');
+      } on AuthException catch (e, st) {
+        _logger.auth('updatePassword ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (updatePassword failed)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('updatePassword ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (updatePassword unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> deleteAccount() async {
+    _logger.auth('deleteAccount BEFORE');
+    _logger.provider('AuthNotifier → loading (deleteAccount)');
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        _logger.edge('delete-account', 'BEFORE | invoking edge function');
+        final response = await client.functions.invoke('delete-account', method: HttpMethod.post);
+        _logger.edge('delete-account', 'AFTER | status: ${response.status}');
+
+        if (response.status != 200) {
+          throw Exception('delete-account returned status ${response.status}');
+        }
+
+        _logger.db('BEFORE | op: signOut | after account deletion');
+        await client.auth.signOut();
+        _logger.auth('deleteAccount SUCCESS | user signed out');
+        _logger.provider('AuthNotifier → data (deleteAccount success)');
+      } catch (e, st) {
+        _logger.edge('delete-account', 'ERROR | $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (deleteAccount failed)');
+        rethrow;
+      }
+    });
+  }
 }
 
 final authNotifierProvider =

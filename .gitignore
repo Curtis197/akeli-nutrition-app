@@ -61,3 +61,7 @@ test_users.sql
 
 # Unsplash credentials
 lib/features/cooking/unsplash
+
+# Local test/debug scripts
+analyze_user_plan.js
+test_*.js

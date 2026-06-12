@@ -439,7 +439,9 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
               },
             ),
           ),
-          Container(
+          SafeArea(
+            top: false,
+            child: Container(
             color: AkeliColors.surface,
             padding: const EdgeInsets.symmetric(
                 horizontal: AkeliSpacing.sm, vertical: AkeliSpacing.sm),
@@ -508,6 +510,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                 ),
               ],
             ),
+          ),
           ),
         ],
       ),

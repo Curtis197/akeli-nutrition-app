@@ -17,25 +17,25 @@ class MainShell extends ConsumerWidget {
       route: AkeliRoutes.home,
       icon: Icons.home_outlined,
       activeIcon: Icons.home,
-      label: 'Home',
+      label: 'Accueil',
     ),
     _TabItem(
       route: AkeliRoutes.mealPlanner,
       icon: Icons.restaurant_menu_outlined,
       activeIcon: Icons.restaurant_menu,
-      label: 'Meals',
+      label: 'Repas',
     ),
     _TabItem(
       route: AkeliRoutes.recipes,
       icon: Icons.menu_book_outlined,
       activeIcon: Icons.menu_book,
-      label: 'Recipes',
+      label: 'Recettes',
     ),
     _TabItem(
       route: AkeliRoutes.community,
       icon: Icons.people_outlined,
       activeIcon: Icons.people,
-      label: 'Community',
+      label: 'Communauté',
     ),
   ];
 

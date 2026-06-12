@@ -245,19 +245,11 @@ class SettingsPage extends ConsumerWidget {
                           },
                         ),
                         _MenuItem(
-                          icon: Icons.star_outline_rounded,
-                          label: 'Mon abonnement',
-                          trailing: isPremium
-                              ? const Chip(
-                                  label: Text('Premium'),
-                                  backgroundColor: AkeliColors.primary,
-                                  labelStyle: TextStyle(color: Colors.white, fontSize: 11),
-                                  padding: EdgeInsets.zero,
-                                )
-                              : null,
+                          icon: Icons.manage_accounts_outlined,
+                          label: 'Mon compte',
                           onTap: () {
-                            appLogger.userAction('Subscription menu tapped', screen: 'SettingsPage');
-                            context.push(AkeliRoutes.subscription);
+                            appLogger.userAction('Account menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.account);
                           },
                         ),
                         _MenuItem(
@@ -295,7 +287,7 @@ class SettingsPage extends ConsumerWidget {
                           label: 'Notifications',
                           onTap: () {
                             appLogger.userAction('Notifications menu tapped', screen: 'SettingsPage');
-                            context.push(AkeliRoutes.notifications);
+                            context.push(AkeliRoutes.notificationSettings);
                           },
                         ),
                         _MenuItem(
@@ -340,7 +332,8 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               InkWell(
                                 onTap: () {
@@ -356,7 +349,7 @@ class SettingsPage extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 16),
+                              const SizedBox(height: 12),
                               InkWell(
                                 onTap: () {
                                   appLogger.userAction('Terms link tapped', screen: 'SettingsPage');

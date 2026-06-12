@@ -175,7 +175,7 @@ class _CookingModePageState extends State<CookingModePage> {
                 currentStepIndex: _currentStepIndex,
                 pageController: _pageController,
                 onPageChanged: (index) {
-                  _logger.userAction('Step swiped (landscape)',
+                  _logger.userAction('Step page changed (landscape)',
                       screen: 'CookingModePage',
                       metadata: {'to': index + 1});
                   setState(() {
@@ -261,10 +261,11 @@ class _CookingModePageState extends State<CookingModePage> {
                           : widget.recipe.ingredients;
 
                       if (s.isSectionHeader) {
+                        _logger.provider(
+                            'CookingModePage | section slide | index: $index | title: "${s.sectionTitle}"');
                         return _SectionSlide(
                           title: s.sectionTitle ?? '',
                           stepCount: _sectionStepCount(index),
-                          onStart: () => _goToStep(index + 1),
                         );
                       }
 
@@ -370,12 +371,10 @@ class _CookingModePageState extends State<CookingModePage> {
 class _SectionSlide extends StatelessWidget {
   final String title;
   final int stepCount;
-  final VoidCallback onStart;
 
   const _SectionSlide({
     required this.title,
     required this.stepCount,
-    required this.onStart,
   });
 
   @override
@@ -412,21 +411,6 @@ class _SectionSlide extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               color: AkeliColors.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 36),
-          FilledButton.icon(
-            onPressed: onStart,
-            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-            label: const Text('Commencer'),
-            style: FilledButton.styleFrom(
-              backgroundColor: AkeliColors.primary,
-              foregroundColor: AkeliColors.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              textStyle: GoogleFonts.plusJakartaSans(
-                  fontSize: 16, fontWeight: FontWeight.w600),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AkeliRadius.lg)),
             ),
           ),
         ],
@@ -764,6 +748,22 @@ class _LandscapeInfoPanel extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               ...ingredients.map((ing) {
+                if (ing.isSectionHeader) {
+                  appLogger.provider(
+                      'CookingModePage | ingredient section header | title: "${ing.sectionTitle}"');
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 4),
+                    child: Text(
+                      ing.sectionTitle ?? '',
+                      style: GoogleFonts.plusJakartaSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurfaceVariant,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  );
+                }
                 final isChecked = checked.contains(ing.ingredientId);
                 return GestureDetector(
                   onTap: () => onTap(ing),
@@ -892,7 +892,6 @@ class _LandscapeCenter extends StatelessWidget {
   final ValueChanged<RecipeIngredient> onIngredientTap;
   final ValueChanged<RecipeIngredient> onIngredientLongPress;
   final int stepCount;
-  final VoidCallback onStart;
 
   const _LandscapeCenter({
     required this.step,
@@ -905,7 +904,6 @@ class _LandscapeCenter extends StatelessWidget {
     required this.onIngredientTap,
     required this.onIngredientLongPress,
     required this.stepCount,
-    required this.onStart,
   });
 
   bool get _hasMedia => step.videoUrl != null || step.imageUrl != null;
@@ -922,7 +920,6 @@ class _LandscapeCenter extends StatelessWidget {
           child: _SectionSlide(
             title: step.sectionTitle ?? '',
             stepCount: stepCount,
-            onStart: onStart,
           ),
         ),
       );
@@ -1166,11 +1163,6 @@ class _LandscapeBody extends StatelessWidget {
                         onIngredientTap: onIngredientTap,
                         onIngredientLongPress: onIngredientLongPress,
                         stepCount: sCount,
-                        onStart: () => pageController.animateToPage(
-                          index + 1,
-                          duration: const Duration(milliseconds: 320),
-                          curve: Curves.easeInOut,
-                        ),
                       );
                     },
                   ),

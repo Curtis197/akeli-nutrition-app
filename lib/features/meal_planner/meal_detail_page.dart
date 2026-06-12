@@ -10,6 +10,8 @@ import 'package:akeli/core/theme.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
 import 'package:akeli/providers/recipe_provider.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
+import 'package:akeli/shared/models/recipe.dart';
+import 'package:akeli/features/recipes/widgets/ingredient_detail_sheet.dart';
 import 'personal_meal_bottom_sheet.dart';
 import 'rating_bottom_sheet.dart';
 
@@ -127,6 +129,11 @@ class _MealDetailBody extends ConsumerWidget {
 
     final isFuture = isFutureMeal(entry.scheduledDate);
     if (isFuture) appLogger.provider('MealDetailBody | future meal guard | mealId: ${entry.id} | scheduledDate: ${entry.scheduledDate}');
+
+    final isBatch = entry.components.any((c) => c.cookingSessionId != null);
+    final batchSessionId = isBatch
+        ? entry.components.firstWhere((c) => c.cookingSessionId != null).cookingSessionId
+        : null;
 
     final topPadding = MediaQuery.of(context).padding.top;
 
@@ -329,8 +336,8 @@ class _MealDetailBody extends ConsumerWidget {
                 ),
               ),
 
-              // ── INGREDIENTS ───────────────────────────────────
-              if (entry.ingredients.isNotEmpty)
+              // ── INGREDIENTS (non-batch only) ──────────────────
+              if (entry.ingredients.isNotEmpty && !isBatch)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                   child: Container(
@@ -357,14 +364,11 @@ class _MealDetailBody extends ConsumerWidget {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        ...entry.ingredients.map(
-                          (ing) => Container(
+                        ...entry.ingredients.map((ing) {
+                          final canShowDetail = ing.ingredientId != null;
+                          return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AkeliRadius.md),
-                              color: Colors.transparent,
-                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -386,17 +390,101 @@ class _MealDetailBody extends ConsumerWidget {
                                     color: AkeliColors.accentAmber,
                                   ),
                                 ),
+                                if (canShowDetail) ...[
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.info_outline),
+                                    color: AkeliColors.onSurfaceVariant,
+                                    onPressed: () {
+                                      appLogger.userAction('Ingredient tapped',
+                                          screen: 'MealDetailPage',
+                                          metadata: {'ingredientId': ing.ingredientId});
+                                      IngredientDetailSheet.show(
+                                        context,
+                                        RecipeIngredient(
+                                          ingredientId: ing.ingredientId!,
+                                          name: ing.ingredientName,
+                                          quantity: ing.quantity,
+                                          unit: ing.unit,
+                                          isOptional: false,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ],
                             ),
-                          ),
-                        ),
+                          );
+                        }),
                       ],
                     ),
                   ),
                 ),
 
-              // ── INSTRUCTIONS ──────────────────────────────────
-              if (recipeAsync != null)
+              // ── BATCH SECTION (description + session link) ────
+              if (isBatch && recipeAsync != null)
+                recipeAsync.when(
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (recipe) => Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (recipe?.description != null) ...[
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AkeliColors.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                              boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Description',
+                                  style: GoogleFonts.plusJakartaSans(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: AkeliColors.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  recipe!.description!,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    height: 1.6,
+                                    color: AkeliColors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        if (batchSessionId != null)
+                          _BatchSessionCard(
+                            sessionId: batchSessionId,
+                            onTap: () {
+                              appLogger.userAction(
+                                'Batch session card tapped',
+                                screen: 'MealDetailPage',
+                                metadata: {'sessionId': batchSessionId},
+                              );
+                              pageContext.push(
+                                AkeliRoutes.batchCookingDetailPath(batchSessionId),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // ── INSTRUCTIONS (non-batch only) ─────────────────
+              if (recipeAsync != null && !isBatch)
                 recipeAsync.when(
                   loading: () => const Padding(
                     padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -405,8 +493,6 @@ class _MealDetailBody extends ConsumerWidget {
                   error: (_, __) => const SizedBox.shrink(),
                   data: (recipe) {
                     if (recipe == null || recipe.steps.isEmpty) return const SizedBox.shrink();
-                    final steps = [...recipe.steps]
-                      ..sort((a, b) => a.stepNumber.compareTo(b.stepNumber));
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                       child: Container(
@@ -428,44 +514,86 @@ class _MealDetailBody extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            ...steps.map(
-                              (step) => Padding(
-                                padding: const EdgeInsets.only(bottom: 24),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: 32,
-                                      height: 32,
-                                      decoration: const BoxDecoration(
-                                        color: AkeliColors.surfaceContainer,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        '${step.stepNumber}',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: AkeliColors.primary,
+                            ...() {
+                              int contentNum = 0;
+                              return recipe.steps.map((step) {
+                                if (step.isSectionHeader) {
+                                  appLogger.provider(
+                                      'MealDetailPage | section header | title: "${step.sectionTitle}"');
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 16, top: 4),
+                                    child: Row(children: [
+                                      Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                                        child: Text(
+                                          step.sectionTitle ?? '',
+                                          style: GoogleFonts.plusJakartaSans(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            color: AkeliColors.onSurfaceVariant,
+                                            letterSpacing: 0.4,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Text(
-                                        step.instruction,
-                                        style: GoogleFonts.inter(
-                                          fontSize: 15,
-                                          height: 1.6,
-                                          color: AkeliColors.onSurface,
+                                      Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                                    ]),
+                                  );
+                                }
+                                contentNum++;
+                                final stepIdx = recipe.steps.indexOf(step);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 24),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        width: 32,
+                                        height: 32,
+                                        decoration: const BoxDecoration(
+                                          color: AkeliColors.surfaceContainer,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '$contentNum',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: AkeliColors.primary,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          step.instruction,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 15,
+                                            height: 1.6,
+                                            color: AkeliColors.onSurface,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      IconButton(
+                                        icon: const Icon(Icons.play_circle_outline),
+                                        color: AkeliColors.primary,
+                                        onPressed: () {
+                                          appLogger.userAction('Step tapped',
+                                              screen: 'MealDetailPage',
+                                              metadata: {'stepNumber': step.stepNumber});
+                                          pageContext.push(
+                                            AkeliRoutes.recipeCookPath(recipe.id),
+                                            extra: {'recipe': recipe, 'initialStepIndex': stepIdx},
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+                            }(),
                           ],
                         ),
                       ),
@@ -688,6 +816,73 @@ class _ActionButton extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AkeliRadius.pill),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BatchSessionCard extends ConsumerWidget {
+  final String sessionId;
+  final VoidCallback onTap;
+
+  const _BatchSessionCard({required this.sessionId, required this.onTap});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    const portionsText = 'Session de cuisine batch';
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AkeliColors.primary.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          border: Border.all(
+            color: AkeliColors.primary.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AkeliColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(Icons.soup_kitchen_rounded,
+                  color: AkeliColors.primary, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Préparation batch',
+                    style: GoogleFonts.inter(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    portionsText,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: AkeliColors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded,
+                color: AkeliColors.primary, size: 24),
+          ],
         ),
       ),
     );

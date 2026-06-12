@@ -151,10 +151,11 @@ class _ImageBubble extends StatelessWidget {
           CachedNetworkImage(
             imageUrl: url,
             width: 220,
+            height: 200,
             fit: BoxFit.cover,
             placeholder: (_, __) => Container(
               width: 220,
-              height: 160,
+              height: 200,
               color: AkeliColors.surfaceContainer,
               child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
             ),

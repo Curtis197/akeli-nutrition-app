@@ -172,7 +172,7 @@ final weightLogProvider =
         .from('weight_log')
         .select()
         .eq('user_id', user.id)
-        .order('created_at', ascending: false)
+        .order('logged_at', ascending: false)
         .limit(30);
     appLogger.db('AFTER | table: weight_log | rows: ${data.length} | userId: ${user.id}');
     if (data.isEmpty) {
@@ -214,31 +214,38 @@ class WeightLogNotifier extends AutoDisposeAsyncNotifier<void> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    _logger.userAction('Add weight entry', metadata: {'weightKg': weightKg});
-    _logger.db('BEFORE | table: weight_log | op: INSERT | userId: ${user.id} | weightKg: $weightKg');
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    _logger.userAction('Add weight entry', metadata: {'weightKg': weightKg, 'date': dateStr});
+    _logger.db('BEFORE | table: weight_log | op: UPSERT | userId: ${user.id} | weightKg: $weightKg | date: $dateStr');
     _logger.provider('WeightLogNotifier → loading (addEntry)');
 
     final client = ref.read(supabaseClientProvider);
     state = await AsyncValue.guard(() async {
       try {
-        await client.from('weight_log').insert({
-          'user_id': user.id,
-          'weight_kg': weightKg,
-          if (note != null) 'note': note,
-          'logged_at': DateTime.now().toIso8601String(),
-        });
-        _logger.db('AFTER | table: weight_log | op: INSERT | success | userId: ${user.id}');
+        await client.from('weight_log').upsert(
+          {
+            'user_id': user.id,
+            'weight_kg': weightKg,
+            if (note != null) 'note': note,
+            'logged_at': dateStr,
+          },
+          onConflict: 'user_id,logged_at',
+        );
+        _logger.db('AFTER | table: weight_log | op: UPSERT | success | userId: ${user.id}');
         _logger.provider('WeightLogNotifier → data (addEntry success)');
       } on PostgrestException catch (e, st) {
         if (e.code == '42501') {
-          _logger.rls('Permission denied | table: weight_log | INSERT | userId: ${user.id}', error: e, stackTrace: st);
+          _logger.rls('Permission denied | table: weight_log | UPSERT | userId: ${user.id}', error: e, stackTrace: st);
         } else {
-          _logger.db('ERROR | table: weight_log | INSERT | code: ${e.code}', error: e, stackTrace: st);
+          _logger.db('ERROR | table: weight_log | UPSERT | code: ${e.code}', error: e, stackTrace: st);
         }
         _logger.provider('WeightLogNotifier → error (addEntry)');
         rethrow;
       } catch (e, st) {
-        _logger.db('ERROR | table: weight_log | INSERT | unexpected: $e', error: e, stackTrace: st);
+        _logger.db('ERROR | table: weight_log | UPSERT | unexpected: $e', error: e, stackTrace: st);
         _logger.provider('WeightLogNotifier → error (addEntry unexpected)');
         rethrow;
       }

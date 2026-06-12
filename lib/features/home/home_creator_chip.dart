@@ -29,29 +29,49 @@ class HomeCreatorChip extends StatelessWidget {
               onTap!();
             },
       child: Container(
-        width: 80,
-        padding: const EdgeInsets.all(8),
+        width: 300,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: AkeliColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(AkeliRadius.lg),
+          borderRadius: BorderRadius.circular(AkeliRadius.xl),
           boxShadow: const [AkeliShadows.sm],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Row(
           children: [
             _ChipAvatar(avatarUrl: creator.avatarUrl, displayName: creator.displayName),
-            const SizedBox(height: 6),
-            Text(
-              creator.displayName,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: AkeliColors.onSurface,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    creator.displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.plusJakartaSans(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  if (creator.bio != null && creator.bio!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      creator.bio!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: AkeliColors.outline, size: 20),
           ],
         ),
       ),

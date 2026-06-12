@@ -352,22 +352,13 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
           ),
           const SizedBox(height: 24),
           ...meals.map((m) {
-            IconData icon;
-            Color iconColor = AkeliColors.primary;
-            switch (m.mealType) {
-              case 'breakfast':
-                icon = Icons.sunny;
-                break;
-              case 'lunch':
-                icon = Icons.lunch_dining;
-                break;
-              case 'dinner':
-                icon = Icons.dark_mode;
-                iconColor = AkeliColors.tertiary;
-                break;
-              default:
-                icon = Icons.restaurant;
-            }
+            final (IconData icon, Color mealColor) = switch (m.mealType) {
+              'breakfast' => (Icons.sunny,          const Color(0xFFF59E0B)),
+              'lunch'     => (Icons.lunch_dining,   const Color(0xFF22C55E)),
+              'dinner'    => (Icons.dark_mode,      const Color(0xFF6366F1)),
+              'snack'     => (Icons.restaurant,     const Color(0xFFA855F7)),
+              _           => (Icons.restaurant,     AkeliColors.primary),
+            };
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -391,11 +382,11 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                         Container(
                           width: 48,
                           height: 48,
-                          decoration: const BoxDecoration(
-                            color: AkeliColors.surfaceContainerLowest,
+                          decoration: BoxDecoration(
+                            color: mealColor.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(icon, color: iconColor),
+                          child: Icon(icon, color: mealColor),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -404,7 +395,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                             children: [
                               Text(
                                 m.mealTypeLabel,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AkeliColors.onSurface),
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: mealColor),
                               ),
                               Text(
                                 m.recipeTitle ?? 'Repas',

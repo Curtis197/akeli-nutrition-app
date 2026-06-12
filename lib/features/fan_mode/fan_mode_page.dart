@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/fan_mode_provider.dart';
-import '../../providers/user_profile_provider.dart';
 import '../../shared/models/creator.dart';
 import '../../shared/widgets/empty_state.dart';
 
@@ -15,8 +14,7 @@ class FanModePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final fanSubAsync = ref.watch(myFanSubscriptionProvider);
     final creatorsAsync = ref.watch(fanEligibleCreatorsProvider);
-    final isPremium = ref.watch(isPremiumProvider);
-    appLogger.provider('FanModePage build() | isPremium: $isPremium | fanSubAsync.isLoading: ${fanSubAsync.isLoading}');
+    appLogger.provider('FanModePage build() | fanSubAsync.isLoading: ${fanSubAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -25,9 +23,7 @@ class FanModePage extends ConsumerWidget {
         backgroundColor: AkeliColors.background,
         elevation: 0,
       ),
-      body: !isPremium
-          ? _PremiumRequired()
-          : CustomScrollView(
+      body: CustomScrollView(
               slivers: [
                 // Current fan subscription status
                 SliverToBoxAdapter(
@@ -184,20 +180,6 @@ class FanModePage extends ConsumerWidget {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Mode Fan annulé.')),
-    );
-  }
-}
-
-class _PremiumRequired extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    appLogger.d('PremiumRequired build()');
-    return const EmptyState(
-      icon: Icons.star_rounded,
-      title: 'Fonctionnalité Premium',
-      subtitle:
-          'Le Mode Fan est disponible avec un abonnement Akeli Premium.',
-      actionLabel: 'Voir les offres',
     );
   }
 }

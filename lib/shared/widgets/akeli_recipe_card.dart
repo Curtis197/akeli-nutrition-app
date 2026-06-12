@@ -8,7 +8,7 @@ import 'package:akeli/shared/widgets/badge.dart';
 
 class AkeliRecipeCard extends StatelessWidget {
   final String title;
-  final int calories;
+  final int? calories100g;
   final double rating;
   final int likes;
   final int comments;
@@ -25,7 +25,7 @@ class AkeliRecipeCard extends StatelessWidget {
   const AkeliRecipeCard({
     super.key,
     required this.title,
-    required this.calories,
+    this.calories100g,
     required this.rating,
     required this.likes,
     required this.comments,
@@ -136,10 +136,10 @@ class _ImageVariant extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (card.isMinimalist) ...[
+              if (card.isMinimalist && card.calories100g != null) ...[
                 const SizedBox(height: 4),
                 Text(
-                  '${card.calories} kcal',
+                  '${card.calories100g} kcal/100g',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
@@ -294,44 +294,53 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment:
-          centered ? MainAxisAlignment.center : MainAxisAlignment.start,
+    final align = centered ? MainAxisAlignment.center : MainAxisAlignment.start;
+    return Column(
+      crossAxisAlignment:
+          centered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          '${card.calories} kcal',
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: AkeliColors.secondary,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-        const SizedBox(width: AkeliSpacing.sm),
-        const Icon(Icons.star_rounded, size: 12, color: AkeliColors.secondary),
-        const SizedBox(width: 2),
-        Text(
-          card.rating.toStringAsFixed(1),
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-        const SizedBox(width: 8),
-        const Icon(Icons.favorite_border, size: 14, color: AkeliColors.primary),
-        const SizedBox(width: 2),
-        Text(
-          '${card.likes}',
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-        const SizedBox(width: AkeliSpacing.xs),
-        const Icon(Icons.chat_bubble_outline, size: 14, color: AkeliColors.primary),
-        const SizedBox(width: 2),
-        Text(
-          '${card.comments}',
-          style: Theme.of(context).textTheme.labelSmall,
-        ),
-        const SizedBox(width: AkeliSpacing.xs),
-        const Icon(Icons.bookmark_border, size: 14, color: AkeliColors.primary),
-        const SizedBox(width: 2),
-        Text(
-          '${card.saves}',
-          style: Theme.of(context).textTheme.labelSmall,
+        if (card.calories100g != null) ...[
+          Text(
+            '${card.calories100g} kcal/100g',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: AkeliColors.secondary,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 4),
+        ],
+        Row(
+          mainAxisAlignment: align,
+          children: [
+            const Icon(Icons.star_rounded, size: 12, color: AkeliColors.secondary),
+            const SizedBox(width: 2),
+            Text(
+              card.rating.toStringAsFixed(1),
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.favorite_border, size: 14, color: AkeliColors.primary),
+            const SizedBox(width: 2),
+            Text(
+              '${card.likes}',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            const SizedBox(width: AkeliSpacing.xs),
+            const Icon(Icons.chat_bubble_outline, size: 14, color: AkeliColors.primary),
+            const SizedBox(width: 2),
+            Text(
+              '${card.comments}',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+            const SizedBox(width: AkeliSpacing.xs),
+            const Icon(Icons.bookmark_border, size: 14, color: AkeliColors.primary),
+            const SizedBox(width: 2),
+            Text(
+              '${card.saves}',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ],
         ),
       ],
     );

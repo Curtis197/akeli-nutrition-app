@@ -230,12 +230,18 @@ class AkeliMealCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 280,
+        width: 300,
         margin: const EdgeInsets.only(right: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isConsumed
+              ? AkeliColors.surfaceContainerLowest
+              : Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+          border: Border.all(
+            color: isConsumed
+                ? AkeliColors.success.withValues(alpha: 0.4)
+                : AkeliColors.outlineVariant.withValues(alpha: 0.3),
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -251,32 +257,79 @@ class AkeliMealCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: imageUrl != null && imageUrl!.isNotEmpty
-                      ? Image.network(
-                          imageUrl!,
-                          height: 160,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholderImage(160),
-                        )
-                      : _buildPlaceholderImage(160),
+                  child: ColorFiltered(
+                    colorFilter: isConsumed
+                        ? const ColorFilter.matrix([
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0.2126, 0.7152, 0.0722, 0, 0,
+                            0,      0,      0,      1, 0,
+                          ])
+                        : const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+                    child: imageUrl != null && imageUrl!.isNotEmpty
+                        ? Image.network(
+                            imageUrl!,
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildPlaceholderImage(200),
+                          )
+                        : _buildPlaceholderImage(200),
+                  ),
                 ),
+                // Meal type badge — top right
                 Positioned(
                   top: 12,
                   right: 12,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.9),
+                      color: _mealTypeColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
                       _mealTypeLabel.toUpperCase(),
                       style: const TextStyle(
-                        color: AkeliColors.primary,
+                        color: Colors.white,
                         fontWeight: FontWeight.w800,
                         fontSize: 10,
+                        letterSpacing: 0.5,
                       ),
+                    ),
+                  ),
+                ),
+                // Consumption toggle — top left
+                Positioned(
+                  top: 12,
+                  left: 12,
+                  child: GestureDetector(
+                    onTap: onConsumedToggle,
+                    child: Container(
+                      key: const Key('consumed-toggle-dashboard'),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isConsumed
+                            ? AkeliColors.success
+                            : Colors.white.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isConsumed
+                              ? AkeliColors.success
+                              : Colors.white,
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: isConsumed
+                          ? const Icon(Icons.check, size: 18, color: Colors.white)
+                          : null,
                     ),
                   ),
                 ),
@@ -289,10 +342,14 @@ class AkeliMealCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
-                      color: AkeliColors.onSurface,
+                      color: isConsumed
+                          ? AkeliColors.onSurfaceVariant
+                          : AkeliColors.onSurface,
+                      decoration: isConsumed ? TextDecoration.lineThrough : null,
+                      decorationColor: AkeliColors.onSurfaceVariant,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -300,16 +357,42 @@ class AkeliMealCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.local_fire_department, size: 14, color: Color(0xFFEBA14D)),
+                      Icon(
+                        Icons.local_fire_department,
+                        size: 14,
+                        color: isConsumed
+                            ? AkeliColors.onSurfaceVariant.withValues(alpha: 0.5)
+                            : const Color(0xFFEBA14D),
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${calories.toInt()} kcal',
-                        style: const TextStyle(
-                          color: AkeliColors.textSecondary,
+                        style: TextStyle(
+                          color: isConsumed
+                              ? AkeliColors.onSurfaceVariant.withValues(alpha: 0.5)
+                              : AkeliColors.textSecondary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if (isConsumed) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AkeliColors.success.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Consommé',
+                            style: TextStyle(
+                              color: AkeliColors.success,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ],

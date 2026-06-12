@@ -353,7 +353,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       isScrollControlled: true,
       backgroundColor: AkeliColors.surface,
       builder: (ctx) {
-        return StatefulBuilder(
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              onSecondaryContainer: Colors.white,
+            ),
+            chipTheme: ChipThemeData(
+              selectedColor: AkeliColors.primary,
+              backgroundColor: AkeliColors.surfaceContainerHigh,
+              side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.5)),
+            ),
+          ),
+          child: StatefulBuilder(
           builder: (context, setModalState) {
             return SafeArea(
               child: SingleChildScrollView(
@@ -501,6 +512,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             );
           }
+          ),
         );
       }
     );
@@ -550,7 +562,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       isScrollControlled: true,
       backgroundColor: AkeliColors.surface,
       builder: (ctx) {
-        return StatefulBuilder(
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              onSecondaryContainer: Colors.white,
+            ),
+            chipTheme: ChipThemeData(
+              selectedColor: AkeliColors.primary,
+              backgroundColor: AkeliColors.surfaceContainerHigh,
+              side: BorderSide(color: AkeliColors.outlineVariant.withValues(alpha: 0.5)),
+            ),
+          ),
+          child: StatefulBuilder(
           builder: (context, setModalState) {
             return SafeArea(
               child: SingleChildScrollView(
@@ -625,6 +648,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             );
           },
+          ),
         );
       },
     );
@@ -973,7 +997,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     child: AkeliRecipeCard(
                     horizontal: true,
                     title: recipe.title,
-                    calories: recipe.calories?.toInt() ?? 0,
+                    calories100g: recipe.calories100g?.toInt(),
                     rating: recipe.averageRating,
                     likes: recipe.likeCount,
                     comments: recipe.commentCount,

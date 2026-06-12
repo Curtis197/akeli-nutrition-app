@@ -20,6 +20,9 @@ import 'presentation/providers/recipe_tracking_provider.dart';
 import 'widgets/recipe_comments_sheet.dart';
 import '../../shared/widgets/recipe_video_card.dart';
 import 'widgets/ingredient_detail_sheet.dart';
+import '../../providers/recipe_comment_provider.dart';
+import '../../shared/models/recipe_comment.dart';
+import '../../shared/widgets/avatar.dart';
 
 class RecipeDetailPage extends ConsumerStatefulWidget {
   final String recipeId;
@@ -400,11 +403,6 @@ class _RecipeContent extends StatelessWidget {
                               iconColor: AkeliColors.accentAmber,
                               label: _difficultyLabel(recipe.difficulty),
                             ),
-                            _QuickInfo(
-                              icon: Icons.restaurant_menu,
-                              iconColor: AkeliColors.primary,
-                              label: '${recipe.servings} portions',
-                            ),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -524,7 +522,7 @@ class _RecipeContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'L\'Histoire du Plat',
+                          'Description',
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -564,77 +562,82 @@ class _RecipeContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Ingrédients',
-                              style: GoogleFonts.plusJakartaSans(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: AkeliColors.onSurface,
-                              ),
-                            ),
-                            Text(
-                              '${recipe.servings} portions',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AkeliColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          'Ingrédients',
+                          style: GoogleFonts.plusJakartaSans(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.onSurface,
+                          ),
                         ),
                         const SizedBox(height: 24),
-                        ...recipe.ingredients.map(
-                          (ing) => Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.circular(AkeliRadius.md),
-                                color: Colors.transparent,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      ing.name +
-                                          (ing.isOptional ? ' (opt.)' : ''),
-                                      style: GoogleFonts.inter(
-                                        fontSize: 15,
-                                        color: AkeliColors.onSurface,
-                                      ),
+                        ...recipe.ingredients.map((ing) {
+                          if (ing.isSectionHeader) {
+                            appLogger.provider(
+                                'RecipeDetailPage | ingredient section header | title: "${ing.sectionTitle}"');
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8, bottom: 12),
+                              child: Row(children: [
+                                Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  child: Text(
+                                    ing.sectionTitle ?? '',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AkeliColors.onSurfaceVariant,
+                                      letterSpacing: 0.4,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
+                                ),
+                                Expanded(child: Divider(color: AkeliColors.outline.withValues(alpha: 0.25), height: 1)),
+                              ]),
+                            );
+                          }
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AkeliRadius.md),
+                              color: Colors.transparent,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    ing.name + (ing.isOptional ? ' (opt.)' : ''),
                                     style: GoogleFonts.inter(
                                       fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      color: AkeliColors.accentAmber,
+                                      color: AkeliColors.onSurface,
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  IconButton(
-                                    icon: const Icon(Icons.info_outline),
-                                    color: AkeliColors.onSurfaceVariant,
-                                    onPressed: () {
-                                      appLogger.userAction('Ingredient tapped',
-                                          screen: 'RecipeDetailPage',
-                                          metadata: {
-                                            'ingredientId': ing.ingredientId
-                                          });
-                                      IngredientDetailSheet.show(context, ing);
-                                    },
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: AkeliColors.accentAmber,
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.info_outline),
+                                  color: AkeliColors.onSurfaceVariant,
+                                  onPressed: () {
+                                    appLogger.userAction('Ingredient tapped',
+                                        screen: 'RecipeDetailPage',
+                                        metadata: {'ingredientId': ing.ingredientId});
+                                    IngredientDetailSheet.show(context, ing);
+                                  },
+                                ),
+                              ],
                             ),
-                        ),
+                          );
+                        }),
                       ],
                     ),
                   ),
@@ -1054,13 +1057,14 @@ class _CreatorCardSection extends ConsumerWidget {
   }
 }
 
-class _RatingsAndCommentsSection extends StatelessWidget {
+class _RatingsAndCommentsSection extends ConsumerWidget {
   final Recipe recipe;
 
   const _RatingsAndCommentsSection({required this.recipe});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final commentsAsync = ref.watch(recipeCommentNotifierProvider(recipe.id));
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: Container(
@@ -1128,6 +1132,27 @@ class _RatingsAndCommentsSection extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
+            commentsAsync.maybeWhen(
+              data: (comments) {
+                final top5 = (comments
+                      .where((c) => c.content != null && c.content!.isNotEmpty)
+                      .toList()
+                    ..sort((a, b) => (b.rating ?? 0).compareTo(a.rating ?? 0)))
+                    .take(5)
+                    .toList();
+                if (top5.isEmpty) return const SizedBox.shrink();
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    ...top5.map((c) => _CommentTile(comment: c)),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              },
+              orElse: () => const SizedBox.shrink(),
+            ),
             TextButton(
               onPressed: () {
                 showModalBottomSheet(
@@ -1207,6 +1232,89 @@ class _DetailedRatingBar extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _CommentTile extends StatelessWidget {
+  final RecipeComment comment;
+  const _CommentTile({required this.comment});
+
+  String _relativeDate(DateTime dt) {
+    final diff = DateTime.now().difference(dt.toLocal());
+    if (diff.inDays >= 30) return 'Il y a ${(diff.inDays / 30).floor()} mois';
+    if (diff.inDays >= 1) return 'Il y a ${diff.inDays} j';
+    if (diff.inHours >= 1) return 'Il y a ${diff.inHours} h';
+    return "À l'instant";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final rating = comment.rating ?? 0;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AkeliAvatar(
+            imageUrl: comment.authorAvatarUrl,
+            initials: comment.authorName.isNotEmpty
+                ? comment.authorName[0].toUpperCase()
+                : '?',
+            size: AvatarSize.sm,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      comment.authorName,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: AkeliColors.onSurface,
+                      ),
+                    ),
+                    Text(
+                      _relativeDate(comment.createdAt),
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                if (rating > 0) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: List.generate(
+                      5,
+                      (i) => Icon(
+                        i < rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                        size: 14,
+                        color: AkeliColors.accentAmber,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Text(
+                  comment.content!,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: AkeliColors.onSurfaceVariant,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -13,6 +13,7 @@ class AkeliNotifCard extends StatelessWidget {
   final String? emoji;
   final VoidCallback? onAccept;
   final VoidCallback? onDecline;
+  final VoidCallback? onTap;
 
   const AkeliNotifCard({
     super.key,
@@ -24,19 +25,23 @@ class AkeliNotifCard extends StatelessWidget {
     this.emoji,
     this.onAccept,
     this.onDecline,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AkeliColors.surface,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildContent(context),
-          const Divider(height: 1, thickness: 1),
-        ],
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        color: AkeliColors.surface,
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildContent(context),
+            const Divider(height: 1, thickness: 1),
+          ],
+        ),
       ),
     );
   }

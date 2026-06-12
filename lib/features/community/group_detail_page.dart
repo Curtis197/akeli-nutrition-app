@@ -582,12 +582,12 @@ class _SharedRecipeCard extends ConsumerWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            if (recipe.calories != null) ...[
+                            if (recipe.calories100g != null) ...[
                               const Icon(Icons.local_fire_department_rounded,
                                   size: 13, color: AkeliColors.secondary),
                               const SizedBox(width: 3),
                               Text(
-                                '${recipe.calories!.round()} kcal',
+                                '${recipe.calories100g!.round()} kcal/100g',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall

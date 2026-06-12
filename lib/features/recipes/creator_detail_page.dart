@@ -148,7 +148,7 @@ class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
                         child: AkeliRecipeCard(
                           horizontal: true,
                           title: recipe.title,
-                          calories: recipe.calories?.toInt() ?? 0,
+                          calories100g: recipe.calories100g?.toInt(),
                           rating: recipe.averageRating,
                           likes: recipe.likeCount,
                           comments: recipe.commentCount,

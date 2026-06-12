@@ -109,6 +109,22 @@ class _HomePageState extends ConsumerState<HomePage> {
       });
     });
 
+    // ref.listen only fires on changes — if providers are already loaded (warm cache),
+    // the listener never fires and _currentWeight stays 0. Seed from current data.
+    if (_currentWeight == 0.0) {
+      final weightEntries = weightAsync.valueOrNull;
+      final healthWeight = healthAsync.valueOrNull?.weightKg;
+      final seedWeight = (weightEntries != null && weightEntries.isNotEmpty)
+          ? weightEntries.first.weightKg
+          : healthWeight;
+      if (seedWeight != null && seedWeight > 0) {
+        _logger.provider('HomePage build() | seeding weight from current data (listener missed): $seedWeight kg');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) setState(() => _currentWeight = seedWeight);
+        });
+      }
+    }
+
     _logger.provider('HomePage build() ── provider states ──────────────────');
     _logger.provider('  [profile]      ${_ps(profileAsync)}');
     _logger.provider('  [health]       ${_ps(healthAsync)}');
@@ -346,7 +362,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 12),
 
               SizedBox(
-                height: 310,
+                height: 340,
                 child: mealPlanAsync.when(
                   data: (plan) {
                     final today = DateTime.now();
@@ -374,9 +390,26 @@ class _HomePageState extends ConsumerState<HomePage> {
                         return AkeliMealCard(
                           key: ValueKey(entry.id),
                           title: entry.recipeTitle ?? 'Repas',
-                          mealType: entry.mealTypeLabel,
+                          mealType: entry.mealType,
                           calories: entry.calories,
                           imageUrl: entry.recipeThumbnail,
+                          isConsumed: entry.isConsumed,
+                          onConsumedToggle: () {
+                            HapticFeedback.mediumImpact();
+                            _logger.userAction('Meal consumed toggled',
+                                screen: 'HomePage',
+                                metadata: {
+                                  'mealId': entry.id,
+                                  'wasConsumed': entry.isConsumed,
+                                });
+                            ref
+                                .read(mealConsumptionProvider.notifier)
+                                .toggleConsumption(
+                                  entry.id,
+                                  isCurrentlyConsumed: entry.isConsumed,
+                                );
+                            ref.invalidate(activeMealPlanProvider);
+                          },
                           onTap: () {
                             _logger.userAction('Meal card tapped',
                                 screen: 'HomePage',
@@ -539,7 +572,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 12),
 
               SizedBox(
-                height: 220,
+                height: 300,
                 child: recipesAsync.when(
                   data: (recipes) {
                     _logger.provider('[recipes] data | count: ${recipes.length}');
@@ -564,13 +597,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                         final recipe = recipes[index];
                         return SizedBox(
                           key: ValueKey(recipe.id),
-                          width: 160,
-                          height: 220,
+                          width: 300,
+                          height: 300,
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.only(right: 16),
                             child: AkeliRecipeCard(
                               title: recipe.title,
-                              calories: recipe.calories?.toInt() ?? 0,
+                              calories100g: recipe.calories100g?.toInt(),
                               rating: recipe.averageRating,
                               likes: recipe.likeCount,
                               comments: recipe.commentCount,
@@ -578,7 +611,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                               region: recipe.regionId != null ? regionNames[recipe.regionId!] ?? recipe.regionId : null,
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
-                              isMinimalist: true,
                               onTap: () {
                                 _logger.userAction('Recipe card tapped',
                                     screen: 'HomePage',
@@ -638,7 +670,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         itemBuilder: (context, index) {
                           final creator = shown[index];
                           return Padding(
-                            padding: const EdgeInsets.only(right: 12),
+                            padding: const EdgeInsets.only(right: 16),
                             child: HomeCreatorChip(
                               key: ValueKey(creator.id),
                               creator: creator,

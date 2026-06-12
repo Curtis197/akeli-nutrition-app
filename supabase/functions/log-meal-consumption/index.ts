@@ -145,6 +145,7 @@ serve(async (req) => {
     // 5. Insérer N lignes dans meal_consumption — une par composant.
     //    consumption_value = 1/N, utilisé par le trigger nutrition et les revenus créateurs.
     logger.debug("[STEP 6] Insert consumption rows | count: " + components.length);
+    const consumedAt = new Date().toISOString();
     const consumptionRows = components.map((comp) => ({
       user_id: user.id,
       recipe_id: comp.recipe_id,
@@ -153,6 +154,7 @@ serve(async (req) => {
       component_id: comp.id,
       servings,
       consumption_value: comp.consumption_weight,
+      consumed_at: consumedAt,
     }));
 
     logRLSCheck(logger, "meal_consumption", "INSERT", user.id);

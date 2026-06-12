@@ -22,6 +22,7 @@ import '../features/meal_planner/batch_cooking_page.dart';
 import '../features/nutrition_plan/nutrition_plan_page.dart';
 import '../features/diet_plan/diet_plan_page.dart';
 import '../features/notifications/notifications_page.dart';
+import '../features/settings/notification_settings_page.dart';
 import '../features/community/group_chat_page.dart';
 import '../features/community/group_detail_page.dart';
 import '../features/community/browse_groups_page.dart';
@@ -32,10 +33,13 @@ import '../features/legal/terms_of_service_page.dart';
 import '../features/referral/referral_page.dart';
 import '../features/settings/preferences_page.dart';
 import '../features/settings/health_profile_page.dart';
+import '../features/settings/account_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import '../features/recipes/creator_detail_page.dart';
 import '../features/cooking/cooking_mode_page.dart';
+import '../features/meal_planner/batch_cooking_detail_page.dart';
+import '../shared/models/meal_plan.dart';
 import '../shared/models/recipe.dart';
 import 'logger.dart';
 
@@ -62,6 +66,8 @@ abstract class AkeliRoutes {
   static const notifications = "/notifications";
   static const mealDetail = "/meal/:id";
   static const batchCooking = "/batch-cooking";
+  static const batchCookingDetail = "/batch-cooking/:sessionId";
+  static String batchCookingDetailPath(String id) => "/batch-cooking/$id";
   static const nutritionPlan = "/nutrition-plan";
   static const groupChat = "/group/:id";
   static const groupDetail = "/group/:id/detail";
@@ -72,6 +78,8 @@ abstract class AkeliRoutes {
   static const referral = "/referral";
   static const preferences = "/preferences";
   static const healthProfile = '/health-profile';
+  static const notificationSettings = '/notification-settings';
+  static const account = '/account';
   static const dmChat = '/dm/:conversationId';
   static String dmChatPath(String id) => '/dm/$id';
   static const creatorDetail = '/creators/:creatorId';
@@ -234,6 +242,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const NotificationsPage(),
       ),
       GoRoute(
+        path: AkeliRoutes.notificationSettings,
+        builder: (context, state) => const NotificationSettingsPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.account,
+        builder: (context, state) => const AccountPage(),
+      ),
+      GoRoute(
         path: AkeliRoutes.mealDetail,
         builder: (context, state) {
           final id = state.pathParameters["id"]!;
@@ -252,6 +268,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.batchCooking,
         builder: (context, state) => const BatchCookingPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.batchCookingDetail,
+        builder: (context, state) {
+          final sessionId = state.pathParameters['sessionId']!;
+          final extra = state.extra as Map<String, dynamic>?;
+          final initialSession = extra?['session'] as CookingSession?;
+          return BatchCookingDetailPage(
+            sessionId: sessionId,
+            initialSession: initialSession,
+          );
+        },
       ),
       GoRoute(
         path: AkeliRoutes.nutritionPlan,

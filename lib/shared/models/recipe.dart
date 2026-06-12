@@ -148,6 +148,8 @@ class RecipeIngredient {
   final double quantity;
   final String unit;
   final bool isOptional;
+  final bool isSectionHeader;
+  final String? sectionTitle;
 
   const RecipeIngredient({
     required this.ingredientId,
@@ -155,6 +157,8 @@ class RecipeIngredient {
     required this.quantity,
     required this.unit,
     required this.isOptional,
+    this.isSectionHeader = false,
+    this.sectionTitle,
   });
 
   factory RecipeIngredient.fromJson(Map<String, dynamic> json) {
@@ -169,6 +173,8 @@ class RecipeIngredient {
       quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
       unit: json['unit'] as String? ?? '',
       isOptional: (json['is_optional'] as bool?) ?? false,
+      isSectionHeader: (json['is_section_header'] as bool?) ?? false,
+      sectionTitle: json['title'] as String?,
     );
   }
 }

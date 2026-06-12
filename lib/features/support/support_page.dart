@@ -1,15 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 
-/// Support Page - Editorial Design
-/// Allows users to submit support tickets with name, email, message, and screenshot upload
 class SupportPage extends ConsumerStatefulWidget {
   const SupportPage({super.key});
 
@@ -20,15 +20,16 @@ class SupportPage extends ConsumerStatefulWidget {
 class _SupportPageState extends ConsumerState<SupportPage> {
   final _logger = appLogger;
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _subjectController = TextEditingController();
   final _emailController = TextEditingController();
   final _messageController = TextEditingController();
   bool _isSubmitting = false;
+  File? _screenshotFile;
 
   @override
   void initState() {
     super.initState();
-    _logger.provider('SupportPage build()');
+    _logger.provider('SupportPage initState()');
     final user = ref.read(currentUserProvider);
     if (user?.email != null) {
       _emailController.text = user!.email!;
@@ -37,11 +38,52 @@ class _SupportPageState extends ConsumerState<SupportPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _subjectController.dispose();
     _emailController.dispose();
     _messageController.dispose();
     _logger.provider('SupportPage disposed');
     super.dispose();
+  }
+
+  Future<void> _pickScreenshot() async {
+    _logger.userAction('Add screenshot tapped', screen: 'SupportPage');
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+      maxWidth: 1920,
+    );
+    if (picked != null) {
+      setState(() => _screenshotFile = File(picked.path));
+      _logger.userAction('Screenshot selected', screen: 'SupportPage',
+          metadata: {'path': picked.path});
+    }
+  }
+
+  Future<String?> _uploadScreenshot(String userId) async {
+    if (_screenshotFile == null) return null;
+
+    final client = ref.read(supabaseClientProvider);
+    final ext = _screenshotFile!.path.split('.').last.toLowerCase();
+    final fileName = '$userId/${DateTime.now().millisecondsSinceEpoch}.$ext';
+
+    _logger.edge('storage', 'BEFORE | bucket: support-screenshots | path: $fileName');
+    try {
+      await client.storage
+          .from('support-screenshots')
+          .upload(fileName, _screenshotFile!,
+              fileOptions: const FileOptions(upsert: false));
+
+      final url = client.storage
+          .from('support-screenshots')
+          .getPublicUrl(fileName);
+
+      _logger.edge('storage', 'AFTER | url: $url');
+      return url;
+    } catch (e, st) {
+      _logger.edge('storage', 'ERROR | $e', error: e, stackTrace: st);
+      rethrow;
+    }
   }
 
   Future<void> _submitForm() async {
@@ -57,15 +99,21 @@ class _SupportPageState extends ConsumerState<SupportPage> {
     final client = ref.read(supabaseClientProvider);
 
     try {
-      _logger.db('BEFORE | table: support_message | op: INSERT | userId: ${user?.id}');
+      String? screenshotUrl;
+      if (_screenshotFile != null && user != null) {
+        screenshotUrl = await _uploadScreenshot(user.id);
+      }
+
+      _logger.db(
+          'BEFORE | table: support_message | op: INSERT | userId: ${user?.id}');
       await client.from('support_message').insert({
         'user_id': user?.id,
         'email': _emailController.text.trim(),
-        'subject': _nameController.text.trim(),
+        'subject': _subjectController.text.trim(),
         'content': _messageController.text.trim(),
+        if (screenshotUrl != null) 'screenshot_url': screenshotUrl,
       });
       _logger.db('AFTER | table: support_message | rows: 1');
-      _logger.provider('SupportPage | ticket submitted');
 
       if (mounted) {
         setState(() => _isSubmitting = false);
@@ -82,36 +130,35 @@ class _SupportPageState extends ConsumerState<SupportPage> {
         context.pop();
       }
     } on PostgrestException catch (e, st) {
-      _logger.db('ERROR | table: support_message | code: ${e.code}', error: e, stackTrace: st);
+      _logger.db(
+          'ERROR | table: support_message | code: ${e.code}',
+          error: e,
+          stackTrace: st);
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
-            backgroundColor: AkeliColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AkeliRadius.lg),
-            ),
-          ),
-        );
+        _showErrorSnackbar();
       }
     } catch (e, st) {
-      _logger.db('ERROR | table: support_message | unexpected | $e', error: e, stackTrace: st);
+      _logger.db('ERROR | support submit | unexpected | $e',
+          error: e, stackTrace: st);
       if (mounted) {
         setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
-            backgroundColor: AkeliColors.error,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AkeliRadius.lg),
-            ),
-          ),
-        );
+        _showErrorSnackbar();
       }
     }
+  }
+
+  void _showErrorSnackbar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
+        backgroundColor: AkeliColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        ),
+      ),
+    );
   }
 
   @override
@@ -123,7 +170,8 @@ class _SupportPageState extends ConsumerState<SupportPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AkeliColors.onSurface),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: AkeliColors.onSurface),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -156,11 +204,8 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(
-                      Icons.support_agent_rounded,
-                      size: 48,
-                      color: AkeliColors.onPrimary,
-                    ),
+                    const Icon(Icons.support_agent_rounded,
+                        size: 48, color: AkeliColors.onPrimary),
                     const SizedBox(height: 16),
                     Text(
                       'Comment pouvons-nous vous aider?',
@@ -183,9 +228,9 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               ),
               const SizedBox(height: 32),
 
-              // Name field
+              // Subject field
               Text(
-                'Nom complet',
+                'Sujet',
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -194,27 +239,11 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  hintText: 'Votre nom',
-                  filled: true,
-                  fillColor: AkeliColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
-                  ),
-                ),
+                controller: _subjectController,
+                decoration: _fieldDecoration('Ex: Problème de connexion...'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre nom';
+                    return 'Veuillez entrer un sujet';
                   }
                   return null;
                 },
@@ -234,23 +263,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'votre@email.com',
-                  filled: true,
-                  fillColor: AkeliColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
-                  ),
-                ),
+                decoration: _fieldDecoration('votre@email.com'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer votre email';
@@ -276,23 +289,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               TextFormField(
                 controller: _messageController,
                 maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: 'Décrivez votre problème...',
-                  filled: true,
-                  fillColor: AkeliColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.outline),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                    borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
-                  ),
-                ),
+                decoration: _fieldDecoration('Décrivez votre problème...'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer votre message';
@@ -305,28 +302,36 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               ),
               const SizedBox(height: 32),
 
-              // Screenshot upload button
-              OutlinedButton.icon(
-                onPressed: () {
-                  _logger.userAction('Add screenshot tapped', screen: 'SupportPage');
-                  // TODO: Implement image picker
-                },
-                icon: const Icon(Icons.add_photo_alternate_outlined, color: AkeliColors.primary),
-                label: Text(
-                  'Ajouter une capture d\'écran',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: AkeliColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 56),
-                  side: const BorderSide(color: AkeliColors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AkeliRadius.lg),
-                  ),
-                ),
-              ),
+              // Screenshot picker
+              _screenshotFile == null
+                  ? OutlinedButton.icon(
+                      onPressed: _pickScreenshot,
+                      icon: const Icon(Icons.add_photo_alternate_outlined,
+                          color: AkeliColors.primary),
+                      label: Text(
+                        'Ajouter une capture d\'écran',
+                        style: GoogleFonts.plusJakartaSans(
+                          color: AkeliColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 56),
+                        side: const BorderSide(color: AkeliColors.primary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                        ),
+                      ),
+                    )
+                  : _ScreenshotPreview(
+                      file: _screenshotFile!,
+                      onRemove: () {
+                        _logger.userAction('Screenshot removed',
+                            screen: 'SupportPage');
+                        setState(() => _screenshotFile = null);
+                      },
+                      onReplace: _pickScreenshot,
+                    ),
               const SizedBox(height: 32),
 
               // Submit button
@@ -336,7 +341,9 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                   onPressed: _isSubmitting ? null : _submitForm,
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 56),
-                    backgroundColor: _isSubmitting ? AkeliColors.outline : AkeliColors.primary,
+                    backgroundColor: _isSubmitting
+                        ? AkeliColors.outline
+                        : AkeliColors.primary,
                     foregroundColor: AkeliColors.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AkeliRadius.lg),
@@ -348,7 +355,8 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AkeliColors.onPrimary),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                AkeliColors.onPrimary),
                           ),
                         )
                       : Text(
@@ -363,6 +371,96 @@ class _SupportPageState extends ConsumerState<SupportPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  InputDecoration _fieldDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: AkeliColors.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        borderSide: const BorderSide(color: AkeliColors.outline),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        borderSide: const BorderSide(color: AkeliColors.outline),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        borderSide: const BorderSide(color: AkeliColors.primary, width: 2),
+      ),
+    );
+  }
+}
+
+class _ScreenshotPreview extends StatelessWidget {
+  final File file;
+  final VoidCallback onRemove;
+  final VoidCallback onReplace;
+
+  const _ScreenshotPreview({
+    required this.file,
+    required this.onRemove,
+    required this.onReplace,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+        border: Border.all(color: AkeliColors.primary.withValues(alpha: 0.4)),
+        color: AkeliColors.surfaceContainerLow,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Stack(
+            children: [
+              Image.file(
+                file,
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: onRemove,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.55),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close, color: Colors.white, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+            onTap: onReplace,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 12),
+              child: Text(
+                'Changer la capture',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AkeliColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Plus Jakarta Sans',
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

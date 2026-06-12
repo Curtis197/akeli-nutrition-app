@@ -94,6 +94,10 @@ class BatchCookingPage extends ConsumerWidget {
                     onToggleCooked: () => ref
                         .read(cookingSessionsProvider.notifier)
                         .markCooked(session.id, isCooked: !session.isCooked),
+                    onTap: () => context.push(
+                      AkeliRoutes.batchCookingDetailPath(session.id),
+                      extra: {'session': session},
+                    ),
                   );
                 },
               ),
@@ -141,7 +145,12 @@ class _EmptyState extends StatelessWidget {
 class _CookingSessionCard extends StatelessWidget {
   final CookingSession session;
   final VoidCallback onToggleCooked;
-  const _CookingSessionCard({required this.session, required this.onToggleCooked});
+  final VoidCallback onTap;
+  const _CookingSessionCard({
+    required this.session,
+    required this.onToggleCooked,
+    required this.onTap,
+  });
 
   String _formatDate(DateTime date) {
     const months = [
@@ -158,126 +167,104 @@ class _CookingSessionCard extends StatelessWidget {
         ? session.portionsUsed / session.totalPortions
         : 0.0;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Recipe image / emoji
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(12),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
-            child: session.recipeThumbnail != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(session.recipeThumbnail!, fit: BoxFit.cover),
-                  )
-                : const Center(child: Text('🍲', style: TextStyle(fontSize: 28))),
-          ),
-          const SizedBox(width: 20),
-
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Recipe image
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AkeliColors.secondaryContainer.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: session.recipeThumbnail != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(session.recipeThumbnail!, fit: BoxFit.cover),
+                    )
+                  : const Center(child: Text('🍲', style: TextStyle(fontSize: 28))),
+            ),
+            const SizedBox(width: 20),
             // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  session.recipeTitle ?? 'Recette',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: AkeliColors.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${_formatDate(session.plannedDate)} · ${session.totalPortions} portions',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: AkeliColors.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: AkeliColors.surfaceContainerHighest,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            (session.totalPortions - session.portionsUsed) > 0
-                                ? AkeliColors.primary
-                                : AkeliColors.outline,
-                          ),
-                          minHeight: 10,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      '${session.portionsUsed}/${session.totalPortions}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AkeliColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                if (session.ingredients != null && session.ingredients!.isNotEmpty) ...[
-                  const SizedBox(height: 16),
-                  const Divider(color: AkeliColors.surfaceContainerHighest),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Ingrédients (ajustés):',
-                    style: TextStyle(
-                      fontSize: 12,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    session.recipeTitle ?? 'Recette',
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AkeliColors.onSurfaceVariant,
+                      fontSize: 18,
+                      color: AkeliColors.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  ...session.ingredients!.map((ing) => Padding(
-                    padding: const EdgeInsets.only(bottom: 2),
-                    child: Text(
-                      '• ${ing.ingredientName} — ${ing.quantityDisplay}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AkeliColors.onSurface,
-                      ),
+                  Text(
+                    '${_formatDate(session.plannedDate)} · ${session.totalPortions} portions',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AkeliColors.onSurfaceVariant,
                     ),
-                  )),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: AkeliColors.surfaceContainerHighest,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              (session.totalPortions - session.portionsUsed) > 0
+                                  ? AkeliColors.primary
+                                  : AkeliColors.outline,
+                            ),
+                            minHeight: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${session.portionsUsed}/${session.totalPortions}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AkeliColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          GestureDetector(
-            onTap: onToggleCooked,
-            child: Icon(
-              session.isCooked ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-              color: session.isCooked ? AkeliColors.primary : AkeliColors.outline,
-              size: 28,
+            const SizedBox(width: 16),
+            GestureDetector(
+              onTap: onToggleCooked,
+              child: Icon(
+                session.isCooked ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+                color: session.isCooked ? AkeliColors.primary : AkeliColors.outline,
+                size: 28,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
