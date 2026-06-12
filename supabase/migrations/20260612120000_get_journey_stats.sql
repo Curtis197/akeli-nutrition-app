@@ -107,7 +107,7 @@ BEGIN
     ),
     grp_assigned AS (
       SELECT d, is_hit,
-        d - (ROW_NUMBER() OVER (PARTITION BY is_hit ORDER BY d) || ' days')::INTERVAL AS grp
+        d - ROW_NUMBER() OVER (PARTITION BY is_hit ORDER BY d)::INT AS grp
       FROM day_status
     ),
     streak_lengths AS (
@@ -149,7 +149,7 @@ BEGIN
             JOIN meal_plan mp ON mp.id = mpe.meal_plan_id
             WHERE mp.user_id = v_user_id AND mpe.scheduled_date = d.day
           ) THEN 'missed' ELSE 'empty' END
-        WHEN v_calorie_goal IS NULL OR v_calorie_goal = 0 THEN 'partial'
+        WHEN v_calorie_goal IS NULL OR v_calorie_goal <= 0 THEN 'partial'
         WHEN ABS(dnl.calories - v_calorie_goal) / v_calorie_goal <= 0.10 THEN 'hit'
         ELSE 'partial'
       END
