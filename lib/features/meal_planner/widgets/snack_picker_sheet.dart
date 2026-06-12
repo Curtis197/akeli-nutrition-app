@@ -4,6 +4,29 @@ import '../../../core/logger.dart';
 import '../../../core/theme.dart';
 import '../../../providers/recipe_provider.dart';
 import '../../../shared/models/recipe.dart';
+import '../personal_meal_bottom_sheet.dart';
+
+sealed class SnackSelection {}
+
+class RecipeSnackSelection extends SnackSelection {
+  final String recipeId;
+  RecipeSnackSelection(this.recipeId);
+}
+
+class CustomSnackSelection extends SnackSelection {
+  final String name;
+  final double calories;
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+  CustomSnackSelection({
+    required this.name,
+    required this.calories,
+    required this.proteinG,
+    required this.carbsG,
+    required this.fatG,
+  });
+}
 
 class SnackPickerSheet extends ConsumerStatefulWidget {
   const SnackPickerSheet({super.key});
@@ -30,10 +53,31 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
     super.dispose();
   }
 
+  Future<void> _openPersonalSnack() async {
+    _logger.userAction('Collation personnelle tapped', screen: 'SnackPickerSheet');
+    final result = await showModalBottomSheet<PersonalMealCreatedResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const PersonalMealBottomSheet(entryId: null),
+    );
+    if (result != null && mounted) {
+      _logger.userAction('Personal snack created', screen: 'SnackPickerSheet',
+          metadata: {'name': result.name});
+      Navigator.of(context).pop(CustomSnackSelection(
+        name: result.name,
+        calories: result.calories,
+        proteinG: result.proteinG,
+        carbsG: result.carbsG,
+        fatG: result.fatG,
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _logger.provider('SnackPickerSheet build() | query: $_query');
-    final recipesAsync = ref.watch(feedProvider(const FeedParams(limit: 30)));
+    final recipesAsync = ref.watch(feedProvider(const FeedParams(limit: 30, mealType: 'snack')));
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -98,6 +142,22 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: OutlinedButton.icon(
+                  onPressed: _openPersonalSnack,
+                  icon: const Icon(Icons.edit_note),
+                  label: const Text('Collation personnelle'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AkeliColors.primary,
+                    side: BorderSide(color: AkeliColors.primary.withValues(alpha: 0.5)),
+                    minimumSize: const Size(double.infinity, 48),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.md)),
+                  ),
+                ),
+              ),
               const SizedBox(height: 12),
               Expanded(
                 child: recipesAsync.when(
@@ -148,7 +208,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                             _logger.userAction('Recipe picked for snack',
                                 screen: 'SnackPickerSheet',
                                 metadata: {'recipeId': recipe.id, 'title': recipe.title});
-                            Navigator.of(context).pop(recipe.id);
+                            Navigator.of(context).pop(RecipeSnackSelection(recipe.id));
                           },
                         );
                       },
@@ -214,12 +274,12 @@ class _RecipePickerTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      if (recipe.calories != null) ...[
+                      if (recipe.calories100g != null) ...[
                         const Icon(Icons.local_fire_department,
                             size: 13, color: AkeliColors.accentAmber),
                         const SizedBox(width: 2),
                         Text(
-                          '${recipe.calories!.toInt()} kcal',
+                          '${recipe.calories100g!.toInt()} kcal/100g',
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall
