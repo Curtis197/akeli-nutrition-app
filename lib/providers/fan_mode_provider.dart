@@ -130,9 +130,9 @@ final creatorProfileProvider =
 // Pure aggregation — exported for testability
 // ---------------------------------------------------------------------------
 
-String currentMonthKey() {
-  final now = DateTime.now();
-  return '${now.year}-${now.month.toString().padLeft(2, '0')}';
+String currentMonthKey([DateTime? now]) {
+  final d = now ?? DateTime.now();
+  return '${d.year}-${d.month.toString().padLeft(2, '0')}';
 }
 
 List<CreatorConsumption> aggregateConsumption(
@@ -199,6 +199,10 @@ final creatorConsumptionProvider =
     }
     appLogger.provider('creatorConsumptionProvider → error | ${e.message}');
     rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: meal_consumption | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('creatorConsumptionProvider → error | $e');
+    rethrow;
   }
 
   // Step 2: fetch creator details for distinct IDs found in consumption
@@ -216,6 +220,9 @@ final creatorConsumptionProvider =
         .select()
         .inFilter('id', creatorIds);
     appLogger.db('AFTER | table: creator | rows: ${creatorRows.length}');
+    if (creatorRows.isEmpty && creatorIds.isNotEmpty) {
+      appLogger.rls('Zero rows | table: creator | ids: ${creatorIds.length} | possible RLS block');
+    }
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       appLogger.rls('Permission denied | table: creator', error: e, stackTrace: st);
@@ -224,10 +231,20 @@ final creatorConsumptionProvider =
     }
     appLogger.provider('creatorConsumptionProvider → error | ${e.message}');
     rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: creator | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('creatorConsumptionProvider → error | $e');
+    rethrow;
   }
 
   final creatorMap = {for (final r in creatorRows) r['id'] as String: Creator.fromJson(r)};
   final result = aggregateConsumption(consumptionRows, creatorMap);
+  if (result.isEmpty && consumptionRows.isNotEmpty) {
+    appLogger.rls(
+      'Zero results after aggregation | table: meal_consumption | '
+      'consumptionRows: ${consumptionRows.length} | possible stale creator_ids',
+    );
+  }
   appLogger.provider('creatorConsumptionProvider → data | creators: ${result.length}');
   return result;
 });
@@ -266,6 +283,10 @@ final fanExternalCounterProvider =
       appLogger.db('ERROR | table: fan_external_recipe_counter | code: ${e.code}', error: e, stackTrace: st);
     }
     appLogger.provider('fanExternalCounterProvider → error | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: fan_external_recipe_counter | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('fanExternalCounterProvider → error | $e');
     rethrow;
   }
 });
