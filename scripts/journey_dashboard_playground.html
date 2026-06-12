@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Parcours Tab — Journey Dashboard Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f0f; color: #e0e0e0; font-family: system-ui, sans-serif; display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── Controls ── */
+  #controls {
+    width: 300px; min-width: 300px; background: #1a1a1a; border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 { font-size: 11px; font-weight: 600; color: #666; letter-spacing: .8px; text-transform: uppercase; padding: 18px 16px 8px; }
+  .group { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+
+  .opt-btn {
+    background: #222; border: 1px solid #333; border-radius: 8px; color: #ccc;
+    padding: 10px 12px; text-align: left; cursor: pointer; font-size: 12px; line-height: 1.5;
+    transition: all .15s;
+  }
+  .opt-btn.active { background: #1a2f4a; border-color: #3a6fd8; color: #fff; }
+  .opt-btn strong { display: block; font-size: 13px; margin-bottom: 2px; }
+  .opt-btn .badge { font-size: 11px; color: #888; }
+  .opt-btn.active .badge { color: #7ab3f0; }
+
+  .streak-btn {
+    background: #222; border: 1px solid #333; border-radius: 6px; color: #aaa;
+    padding: 7px 10px; text-align: left; cursor: pointer; font-size: 12px;
+    transition: all .15s;
+  }
+  .streak-btn.active { background: #2a1f4a; border-color: #8b5cf6; color: #c4b5fd; }
+
+  /* ── Right pane ── */
+  #right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #preview-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 24px; overflow: hidden;
+  }
+
+  /* ── Phone frame ── */
+  .phone {
+    width: 375px; height: 780px; background: #121212; border-radius: 40px;
+    border: 8px solid #333; overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0,0,0,.8); position: relative; flex-shrink: 0;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px 4px; font-size: 11px; color: #666; flex-shrink: 0;
+  }
+
+  /* ── Page title ── */
+  .page-title {
+    font-size: 22px; font-weight: 700; color: #f0f0f0; padding: 4px 20px 12px; flex-shrink: 0;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; border-bottom: 1px solid #222; flex-shrink: 0; padding: 0 20px;
+  }
+  .tab {
+    flex: 1; text-align: center; padding: 8px 4px; font-size: 13px; font-weight: 500;
+    color: #555; border-bottom: 2px solid transparent; cursor: pointer; transition: all .15s;
+  }
+  .tab.active { color: #f0f0f0; border-bottom-color: #3a6fd8; }
+
+  /* ── Scrollable content ── */
+  .tab-content { flex: 1; overflow-y: auto; padding: 16px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+  .tab-content::-webkit-scrollbar { width: 0; }
+
+  /* ── All-time summary row ── */
+  .summary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-card {
+    background: #1a1a1a; border-radius: 12px; padding: 12px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .summary-card .s-val { font-size: 22px; font-weight: 700; color: #f0f0f0; }
+  .summary-card .s-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: .5px; }
+  .summary-card .s-icon { font-size: 16px; margin-bottom: 4px; }
+
+  /* ── Section title ── */
+  .section-title { font-size: 12px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: .6px; margin-bottom: -6px; }
+
+  /* ── Streak pill ── */
+  .streak-pill {
+    display: flex; align-items: center; gap: 10px;
+    background: #1a1a2a; border: 1px solid #2a2a4a; border-radius: 12px; padding: 12px 14px;
+  }
+  .streak-fire { font-size: 28px; }
+  .streak-info .streak-num { font-size: 26px; font-weight: 700; color: #f0f0f0; line-height: 1; }
+  .streak-info .streak-sub { font-size: 11px; color: #666; margin-top: 2px; }
+  .streak-best { margin-left: auto; text-align: right; }
+  .streak-best .b-val { font-size: 16px; font-weight: 600; color: #8b5cf6; }
+  .streak-best .b-label { font-size: 10px; color: #555; }
+
+  /* ── Goals progress ── */
+  .goal-card { background: #1a1a1a; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .goal-row { display: flex; flex-direction: column; gap: 5px; }
+  .goal-header { display: flex; justify-content: space-between; align-items: center; }
+  .goal-label { font-size: 12px; color: #aaa; }
+  .goal-vals { font-size: 12px; color: #666; }
+  .goal-vals span { color: #e0e0e0; font-weight: 600; }
+  .goal-bar { height: 7px; background: #262626; border-radius: 4px; overflow: hidden; }
+  .goal-bar-fill { height: 100%; border-radius: 4px; transition: width .4s; }
+
+  /* ── Calendar: Option A — GitHub grid ── */
+  .github-grid { display: flex; flex-direction: column; gap: 4px; }
+  .grid-months { display: flex; gap: 3px; padding-left: 20px; margin-bottom: 2px; }
+  .grid-months span { font-size: 9px; color: #555; }
+  .grid-body { display: flex; gap: 4px; }
+  .grid-days-label { display: flex; flex-direction: column; gap: 3px; justify-content: space-around; }
+  .grid-days-label span { font-size: 9px; color: #555; width: 16px; text-align: right; }
+  .grid-weeks { display: flex; gap: 3px; }
+  .grid-col { display: flex; flex-direction: column; gap: 3px; }
+  .grid-cell {
+    width: 13px; height: 13px; border-radius: 2px; background: #1e1e1e;
+    transition: transform .1s;
+    position: relative;
+  }
+  .grid-cell:hover { transform: scale(1.3); z-index: 10; }
+  /* intensity levels */
+  .c0 { background: #1e1e1e; }
+  .c1 { background: #1e3a2a; }
+  .c2 { background: #1a6b3c; }
+  .c3 { background: #26a65b; }
+  .c4 { background: #4ade80; }
+  /* today marker */
+  .c-today { outline: 2px solid #60a5fa; outline-offset: 1px; }
+
+  /* ── Calendar: Option B — Month calendar ── */
+  .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .month-nav .m-title { font-size: 14px; font-weight: 600; color: #e0e0e0; }
+  .month-nav button { background: none; border: none; color: #555; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+  .month-nav button:hover { color: #e0e0e0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-header { font-size: 10px; color: #444; text-align: center; padding: 2px; font-weight: 600; }
+  .cal-day {
+    aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #666; background: #1a1a1a; position: relative;
+    transition: transform .1s;
+  }
+  .cal-day:hover { transform: scale(1.1); }
+  .cal-day.empty { background: transparent; }
+  .cal-day.today { font-weight: 700; color: #60a5fa; border: 1px solid #3a6fd8; }
+  .cal-day.future { color: #333; background: #141414; }
+  /* dot indicators */
+  .cal-day::after {
+    content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+    width: 4px; height: 4px; border-radius: 50%;
+  }
+  .cal-day.logged::after { background: #4ade80; }
+  .cal-day.partial::after { background: #facc15; }
+  .cal-day.missed::after { background: #ef4444; }
+  .cal-day.logged { background: #1a2a1a; color: #a3e8b5; }
+  .cal-day.partial { background: #2a2010; color: #fde68a; }
+  .cal-day.missed { background: #2a1010; color: #fca5a5; }
+
+  /* ── Calendar: Option C — Week strips ── */
+  .week-strips { display: flex; flex-direction: column; gap: 6px; }
+  .week-row { display: flex; flex-direction: column; gap: 3px; }
+  .week-label { font-size: 10px; color: #444; padding-left: 2px; }
+  .week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .strip-day {
+    aspect-ratio: 1; border-radius: 6px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-size: 9px; gap: 1px;
+    transition: transform .1s;
+  }
+  .strip-day:hover { transform: scale(1.05); }
+  .strip-day .d-label { color: #444; font-weight: 600; }
+  .strip-day .d-num { font-size: 10px; font-weight: 600; }
+  .strip-day.s-great { background: #1a2f1a; }
+  .strip-day.s-great .d-num { color: #4ade80; }
+  .strip-day.s-great .d-label { color: #2d6b3a; }
+  .strip-day.s-ok { background: #2a2010; }
+  .strip-day.s-ok .d-num { color: #facc15; }
+  .strip-day.s-ok .d-label { color: #6b5a1f; }
+  .strip-day.s-miss { background: #2a1010; }
+  .strip-day.s-miss .d-num { color: #f87171; }
+  .strip-day.s-miss .d-label { color: #6b2020; }
+  .strip-day.s-empty { background: #1a1a1a; }
+  .strip-day.s-empty .d-num { color: #333; }
+  .strip-day.s-empty .d-label { color: #2a2a2a; }
+  .strip-day.s-today { outline: 2px solid #60a5fa; outline-offset: 1px; }
+  .strip-day .d-dot { width: 4px; height: 4px; border-radius: 50%; }
+
+  /* ── Description box at bottom ── */
+  #desc-area {
+    border-top: 1px solid #222; padding: 14px 18px; background: #141414;
+    min-height: 80px;
+  }
+  #desc-area h3 { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 6px; }
+  #desc-text { font-size: 13px; color: #bbb; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ── Controls ── -->
+<div id="controls">
+  <h2>Vue Calendrier</h2>
+  <div class="group">
+    <button class="opt-btn active" onclick="setCalendar('github')" id="btn-github">
+      <strong>Option A — GitHub Grid</strong>
+      <span class="badge">Grille compacte · intensité de couleur</span>
+    </button>
+    <button class="opt-btn" onclick="setCalendar('month')" id="btn-month">
+      <strong>Option B — Calendrier Mensuel</strong>
+      <span class="badge">Grille classique · dot coloré par jour</span>
+    </button>
+    <button class="opt-btn" onclick="setCalendar('strips')" id="btn-strips">
+      <strong>Option C — Semaines Horizontales</strong>
+      <span class="badge">4 dernières semaines · carte par jour</span>
+    </button>
+  </div>
+
+  <h2>Critère de Streak</h2>
+  <div class="group">
+    <button class="streak-btn active" onclick="setStreak('any')" id="sk-any">🍽️ Au moins 1 repas journalisé</button>
+    <button class="streak-btn" onclick="setStreak('target')" id="sk-target">🎯 Objectif calorique atteint</button>
+    <button class="streak-btn" onclick="setStreak('plan')" id="sk-plan">📋 Tous les repas du plan consommés</button>
+  </div>
+
+  <h2>Données de test</h2>
+  <div class="group" style="font-size:11px;color:#555;line-height:1.7;">
+    <div>📅 Début : 1er mars 2026</div>
+    <div>⚖️ Poids départ : 82 kg → cible 73 kg</div>
+    <div>🔥 Streak actuel : 7 jours</div>
+    <div>🏆 Meilleur streak : 14 jours</div>
+    <div>✅ Jours logués : 78 / 103</div>
+    <div>🍽️ Repas consommés : 234</div>
+  </div>
+</div>
+
+<!-- ── Right pane ── -->
+<div id="right">
+  <div id="preview-area">
+    <div class="phone">
+      <div class="status-bar"><span>9:41</span><span>●●●</span></div>
+      <div class="page-title">Nutrition</div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <div class="tab">Aujourd'hui</div>
+        <div class="tab">Semaine</div>
+        <div class="tab active">Parcours</div>
+      </div>
+
+      <!-- Tab content -->
+      <div class="tab-content" id="tab-content">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <div id="desc-area">
+    <h3>Notes de conception</h3>
+    <div id="desc-text"></div>
+  </div>
+</div>
+
+<script>
+// ── Mock data ─────────────────────────────────────────────────────────────────
+const TODAY = new Date(2026, 5, 12); // June 12 2026
+const START = new Date(2026, 2, 1);  // March 1 2026
+
+// Generate 103 days of mock data
+function genDays() {
+  const days = [];
+  const d = new Date(START);
+  while (d <= TODAY) {
+    const r = Math.random();
+    days.push({
+      date: new Date(d),
+      logged: r > 0.25,
+      targetHit: r > 0.4,
+      planFull: r > 0.55,
+      quality: r > 0.7 ? 'great' : r > 0.45 ? 'ok' : r > 0.25 ? 'miss' : 'empty'
+    });
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+const DAYS = genDays();
+
+// Fix last 7 to be a streak
+for (let i = DAYS.length - 7; i < DAYS.length; i++) {
+  DAYS[i].logged = true;
+  DAYS[i].targetHit = true;
+  DAYS[i].planFull = i >= DAYS.length - 5;
+  DAYS[i].quality = 'great';
+}
+
+const state = { calendar: 'github', streak: 'any' };
+
+function dayStatus(day) {
+  if (!day.logged) return 'empty';
+  if (state.streak === 'any') return day.logged ? 'great' : 'empty';
+  if (state.streak === 'target') return day.targetHit ? 'great' : day.logged ? 'ok' : 'empty';
+  if (state.streak === 'plan') return day.planFull ? 'great' : day.logged ? 'ok' : 'miss';
+  return 'empty';
+}
+
+function intensity(day) {
+  const s = dayStatus(day);
+  if (s === 'great') return 'c4';
+  if (s === 'ok') return 'c2';
+  if (s === 'miss') return 'c1';
+  return 'c0';
+}
+
+function sameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+// ── Render all ────────────────────────────────────────────────────────────────
+function render() {
+  renderTab();
+  renderDesc();
+}
+
+function renderTab() {
+  const el = document.getElementById('tab-content');
+  el.innerHTML = summaryHTML() + streakHTML() + goalsHTML() + sectionTitleHTML() + calendarHTML();
+}
+
+function summaryHTML() {
+  const logged = DAYS.filter(d => d.logged).length;
+  const meals = 234;
+  return `
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="s-icon">📅</div>
+        <div class="s-val">${DAYS.length}</div>
+        <div class="s-label">Jours de parcours</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-icon">✅</div>
+        <div class="s-val">${logged}</div>
+        <div class="s-label">Jours logués</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-icon">🍽️</div>
+        <div class="s-val">${meals}</div>
+        <div class="s-label">Repas consommés</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-icon">📊</div>
+        <div class="s-val">${Math.round(logged/DAYS.length*100)}%</div>
+        <div class="s-label">Taux de régularité</div>
+      </div>
+    </div>
+  `;
+}
+
+function streakHTML() {
+  const streakLabel = state.streak === 'any' ? 'repas journalisés' : state.streak === 'target' ? 'objectif calorique' : 'plan complet';
+  return `
+    <div class="streak-pill">
+      <div class="streak-fire">🔥</div>
+      <div class="streak-info">
+        <div class="streak-num">7</div>
+        <div class="streak-sub">jours · ${streakLabel}</div>
+      </div>
+      <div class="streak-best">
+        <div class="b-val">14</div>
+        <div class="b-label">Record</div>
+      </div>
+    </div>
+  `;
+}
+
+function goalsHTML() {
+  const startW = 82, currW = 76.5, targetW = 73;
+  const pctW = Math.round((startW - currW) / (startW - targetW) * 100);
+  const logged = DAYS.filter(d => d.logged).length;
+  const targetHit = DAYS.filter(d => d.targetHit).length;
+  const pctCal = Math.round(targetHit / Math.max(logged, 1) * 100);
+
+  return `
+    <div class="goal-card">
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-label">⚖️ Objectif poids</span>
+          <span class="goal-vals"><span>${currW} kg</span> → ${targetW} kg</span>
+        </div>
+        <div class="goal-bar"><div class="goal-bar-fill" style="width:${pctW}%;background:linear-gradient(90deg,#ef4444,#facc15 50%,#4ade80)"></div></div>
+        <div style="font-size:10px;color:#555;text-align:right;">${pctW}% de l'objectif atteint</div>
+      </div>
+      <div class="goal-row">
+        <div class="goal-header">
+          <span class="goal-label">🎯 Objectif calorique</span>
+          <span class="goal-vals"><span>${pctCal}%</span> des jours logués</span>
+        </div>
+        <div class="goal-bar"><div class="goal-bar-fill" style="width:${pctCal}%;background:#3a6fd8"></div></div>
+      </div>
+    </div>
+  `;
+}
+
+function sectionTitleHTML() {
+  const label = state.calendar === 'github' ? 'Historique' : state.calendar === 'month' ? 'Juin 2026' : '4 dernières semaines';
+  return `<div class="section-title">${label}</div>`;
+}
+
+function calendarHTML() {
+  if (state.calendar === 'github') return githubHTML();
+  if (state.calendar === 'month') return monthHTML();
+  return stripsHTML();
+}
+
+// ── Option A: GitHub grid ─────────────────────────────────────────────────────
+function githubHTML() {
+  // Group days into weeks (Sun-start)
+  const weeks = [];
+  let week = [];
+  // Pad start
+  const startDow = DAYS[0].date.getDay();
+  for (let i = 0; i < startDow; i++) week.push(null);
+  for (const d of DAYS) {
+    week.push(d);
+    if (d.date.getDay() === 6) { weeks.push(week); week = []; }
+  }
+  if (week.length) { while (week.length < 7) week.push(null); weeks.push(week); }
+
+  // Month labels (approx)
+  const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  let monthLabels = '';
+  let lastM = -1;
+  for (let w = 0; w < weeks.length; w++) {
+    const firstReal = weeks[w].find(d => d);
+    if (firstReal) {
+      const m = firstReal.date.getMonth();
+      if (m !== lastM) { monthLabels += `<span style="min-width:${(w===0?0:1)*16}px">${MONTHS[m]}</span>`; lastM = m; }
+      else monthLabels += `<span style="min-width:16px"></span>`;
+    } else monthLabels += `<span style="min-width:16px"></span>`;
+  }
+
+  const cols = weeks.map(w => {
+    const cells = w.map(d => {
+      if (!d) return `<div class="grid-cell c0" style="opacity:.2"></div>`;
+      const cls = intensity(d) + (sameDay(d.date, TODAY) ? ' c-today' : '');
+      const title = d.date.toLocaleDateString('fr');
+      return `<div class="grid-cell ${cls}" title="${title}"></div>`;
+    }).join('');
+    return `<div class="grid-col">${cells}</div>`;
+  }).join('');
+
+  return `
+    <div class="github-grid">
+      <div class="grid-months">${monthLabels}</div>
+      <div class="grid-body">
+        <div class="grid-days-label">
+          <span></span><span>Lun</span><span></span><span>Mer</span><span></span><span>Ven</span><span></span>
+        </div>
+        <div class="grid-weeks">${cols}</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;margin-top:6px;padding-left:20px;">
+        <span style="font-size:10px;color:#444;">Moins</span>
+        <div class="grid-cell c0"></div>
+        <div class="grid-cell c1"></div>
+        <div class="grid-cell c2"></div>
+        <div class="grid-cell c3"></div>
+        <div class="grid-cell c4"></div>
+        <span style="font-size:10px;color:#444;">Plus</span>
+      </div>
+    </div>
+  `;
+}
+
+// ── Option B: Month calendar ──────────────────────────────────────────────────
+let monthOffset = 0;
+function monthHTML() {
+  const d = new Date(TODAY.getFullYear(), TODAY.getMonth() + monthOffset, 1);
+  const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  const DAYS_FR = ['D','L','M','M','J','V','S'];
+  const title = `${MONTHS_FR[d.getMonth()]} ${d.getFullYear()}`;
+  const firstDow = d.getDay();
+  const daysInMonth = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+
+  const headers = DAYS_FR.map(x => `<div class="cal-header">${x}</div>`).join('');
+  let cells = '';
+  for (let i = 0; i < firstDow; i++) cells += `<div class="cal-day empty"></div>`;
+  for (let n = 1; n <= daysInMonth; n++) {
+    const date = new Date(d.getFullYear(), d.getMonth(), n);
+    const isToday = sameDay(date, TODAY);
+    const isFuture = date > TODAY;
+    const dayData = DAYS.find(x => sameDay(x.date, date));
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    else if (isFuture) cls += ' future';
+    else if (dayData) {
+      const s = dayStatus(dayData);
+      if (s === 'great') cls += ' logged';
+      else if (s === 'ok') cls += ' partial';
+      else if (s === 'miss') cls += ' missed';
+    }
+    cells += `<div class="${cls}">${n}</div>`;
+  }
+
+  const canNext = monthOffset < 0;
+  const canPrev = true;
+
+  return `
+    <div style="background:#1a1a1a;border-radius:12px;padding:12px;">
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <div class="m-title">${title}</div>
+        <button onclick="changeMonth(1)" ${!canNext?'style="opacity:.3;cursor:default;"':''}>›</button>
+      </div>
+      <div class="cal-grid">${headers}${cells}</div>
+      <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;">
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#555;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#4ade80"></div>Atteint
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#555;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#facc15"></div>Partiel
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#555;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#ef4444"></div>Manqué
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function changeMonth(dir) {
+  monthOffset = Math.min(0, monthOffset + dir);
+  render();
+}
+
+// ── Option C: Week strips ─────────────────────────────────────────────────────
+function stripsHTML() {
+  // Last 4 weeks = 28 days back from today, aligned to week start
+  const DAYS_SHORT = ['Di','Lu','Ma','Me','Je','Ve','Sa'];
+  // Get last 4 complete+partial weeks
+  const todayDow = TODAY.getDay();
+  const weeksData = [];
+  for (let w = 3; w >= 0; w--) {
+    const weekDays = [];
+    for (let dow = 0; dow < 7; dow++) {
+      const daysBack = (3 - w) * 7 + (todayDow - dow);
+      if (daysBack < 0) { weekDays.push({ future: true, dow, date: null, data: null }); continue; }
+      const date = new Date(TODAY);
+      date.setDate(date.getDate() - daysBack);
+      if (date < START) { weekDays.push({ past: true, dow, date, data: null }); continue; }
+      const data = DAYS.find(x => sameDay(x.date, date));
+      weekDays.push({ dow, date, data });
+    }
+    weeksData.push(weekDays);
+  }
+
+  const WEEK_LABELS = ['Il y a 3 sem.', 'Il y a 2 sem.', 'La semaine dernière', 'Cette semaine'];
+
+  const rows = weeksData.map((week, wi) => {
+    const cells = week.map(day => {
+      const isToday = day.date && sameDay(day.date, TODAY);
+      const dayNum = day.date ? day.date.getDate() : '';
+      const dayLabel = DAYS_SHORT[day.dow];
+      let cls = 'strip-day';
+      if (isToday) cls += ' s-today';
+      if (!day.date || day.past || !day.data) { cls += ' s-empty'; }
+      else if (day.future) { cls += ' s-empty'; }
+      else {
+        const s = dayStatus(day.data);
+        if (s === 'great') cls += ' s-great';
+        else if (s === 'ok') cls += ' s-ok';
+        else if (s === 'miss') cls += ' s-miss';
+        else cls += ' s-empty';
+      }
+      return `<div class="${cls}"><span class="d-label">${dayLabel}</span><span class="d-num">${dayNum}</span></div>`;
+    }).join('');
+    return `
+      <div class="week-row">
+        <div class="week-label">${WEEK_LABELS[wi]}</div>
+        <div class="week-days">${cells}</div>
+      </div>
+    `;
+  }).join('');
+
+  return `<div class="week-strips">${rows}</div>`;
+}
+
+// ── Descriptions ──────────────────────────────────────────────────────────────
+const DESCS = {
+  github: {
+    any:    'Grille compacte type GitHub · intensité = nombre de repas logués · survol = date · légende en bas. Idéal pour voir les patterns sur toute la durée du parcours d\'un seul coup d\'œil.',
+    target: 'Même grille · l\'intensité reflète maintenant si l\'objectif calorique a été atteint ce jour-là. 1 barre rouge = logué mais raté · 2 barres jaunes = proche · vert = dans la cible.',
+    plan:   'Même grille · intensité = adhérence au plan du jour. Rouge = repas logués mais plan incomplet · vert = tous les repas du plan consommés.'
+  },
+  month: {
+    any:    'Calendrier mensuel classique · navigation mois par mois avec ‹ › · dot vert si au moins 1 repas journalisé. Familier pour l\'utilisateur, orienté "suivi de journal".',
+    target: 'Même vue mensuelle · dot vert = objectif calorique atteint, jaune = logué mais hors cible, rouge = logué mais loin de l\'objectif. Navigation historique naturelle.',
+    plan:   'Même vue mensuelle · dot vert = plan complet, jaune = plan partiel, rouge = plan existait mais aucun repas consommé. Bon pour voir les semaines de rigueur d\'un seul regard.'
+  },
+  strips: {
+    any:    'Semaines horizontales · 4 dernières semaines seulement · chaque case = un jour avec initiale + numéro. Très lisible en format mobile, focus sur le présent récent.',
+    target: 'Même vue 4 semaines · couleur = objectif calorique. Vert vif = dans la cible, jaune = partiellement, rouge = raté. Pratique pour voir les habitudes récentes rapidement.',
+    plan:   'Même vue 4 semaines · couleur = adhérence au plan. Permet de voir en un clin d\'œil si les dernières semaines ont été rigoureuses ou relâchées sur le suivi du plan repas.'
+  }
+};
+
+function renderDesc() {
+  document.getElementById('desc-text').textContent = DESCS[state.calendar][state.streak];
+}
+
+// ── Controls ──────────────────────────────────────────────────────────────────
+function setCalendar(c) {
+  state.calendar = c;
+  ['github','month','strips'].forEach(k => document.getElementById('btn-'+k).classList.remove('active'));
+  document.getElementById('btn-'+c).classList.add('active');
+  render();
+}
+
+function setStreak(s) {
+  state.streak = s;
+  ['any','target','plan'].forEach(k => document.getElementById('sk-'+k).classList.remove('active'));
+  document.getElementById('sk-'+s).classList.add('active');
+  render();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
