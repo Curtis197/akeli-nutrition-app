@@ -50,5 +50,14 @@ void main() {
       expect(result.length, 1);
       expect(result[0].creatorId, 'c-1');
     });
+
+    test('returns empty list when all creator_ids are unknown', () {
+      final rows = [
+        {'creator_id': 'c-unknown'},
+        {'creator_id': 'c-also-unknown'},
+      ];
+      final result = aggregateConsumption(rows, creators);
+      expect(result, isEmpty);
+    });
   });
 }

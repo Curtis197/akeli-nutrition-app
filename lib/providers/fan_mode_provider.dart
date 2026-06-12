@@ -146,6 +146,8 @@ List<CreatorConsumption> aggregateConsumption(
     if (id == null || !creatorMap.containsKey(id)) continue;
     counts[id] = (counts[id] ?? 0) + 1;
   }
+  // total = creator-attributed meals only; pct represents share of identified meals,
+  // summing to 1.0 across all returned entries (DB FK ensures creator_id is always set).
   final total = counts.values.fold(0, (a, b) => a + b);
   final result = counts.entries.map((e) {
     final c = creatorMap[e.key]!;
