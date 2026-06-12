@@ -6,10 +6,25 @@ import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/meal_plan_provider.dart';
 
-class PersonalMealBottomSheet extends ConsumerStatefulWidget {
-  final String entryId;
+class PersonalMealCreatedResult {
+  final String name;
+  final double calories;
+  final double proteinG;
+  final double carbsG;
+  final double fatG;
+  const PersonalMealCreatedResult({
+    required this.name,
+    required this.calories,
+    required this.proteinG,
+    required this.carbsG,
+    required this.fatG,
+  });
+}
 
-  const PersonalMealBottomSheet({super.key, required this.entryId});
+class PersonalMealBottomSheet extends ConsumerStatefulWidget {
+  final String? entryId; // null = create mode
+
+  const PersonalMealBottomSheet({super.key, this.entryId});
 
   @override
   ConsumerState<PersonalMealBottomSheet> createState() => _PersonalMealBottomSheetState();
@@ -73,10 +88,22 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
 
   Future<void> _save() async {
     _logger.userAction('Confirmer ce repas tapped', screen: 'PersonalMealBottomSheet', metadata: {'entryId': widget.entryId});
+    if (widget.entryId == null) {
+      // create mode — return data to caller, no DB write
+      Navigator.of(context).pop(PersonalMealCreatedResult(
+        name: _nameController.text.trim(),
+        calories: double.tryParse(_calController.text.trim()) ?? 0,
+        proteinG: double.tryParse(_protController.text.trim()) ?? 0,
+        carbsG: double.tryParse(_carbsController.text.trim()) ?? 0,
+        fatG: double.tryParse(_fatController.text.trim()) ?? 0,
+      ));
+      return;
+    }
+    // swap mode — save via RPC then dismiss
     setState(() => _isSaving = true);
     try {
       await ref.read(personalMealSwapProvider.notifier).save(
-        entryId: widget.entryId,
+        entryId: widget.entryId!,
         mealName: _nameController.text.trim(),
         calories: double.tryParse(_calController.text.trim()) ?? 0,
         proteinG: double.tryParse(_protController.text.trim()) ?? 0,
@@ -137,7 +164,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
               ),
             ),
             Text(
-              'Saisir un repas personnel',
+              widget.entryId == null ? 'Ajouter une collation personnelle' : 'Saisir un repas personnel',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -284,7 +311,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
                     ),
                     child: _isSaving
                         ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Confirmer ce repas'),
+                        : Text(widget.entryId == null ? 'Ajouter la collation' : 'Confirmer ce repas'),
                   ),
                 ),
               ),
