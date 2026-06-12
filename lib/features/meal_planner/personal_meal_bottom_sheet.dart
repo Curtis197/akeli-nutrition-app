@@ -93,6 +93,14 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
       metadata: {'entryId': widget.entryId},
     );
     if (widget.entryId == null) {
+      if (_nameController.text.trim().isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Le nom du repas ne peut pas être vide.')),
+          );
+        }
+        return;
+      }
       _logger.provider('PersonalMealBottomSheet → create mode pop | name: ${_nameController.text.trim()} | kcal: ${_calController.text.trim()}');
       // create mode — return data to caller, no DB write
       if (mounted) {
