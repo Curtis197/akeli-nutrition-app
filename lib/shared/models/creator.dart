@@ -84,3 +84,35 @@ class FanSubscription {
         createdAt: DateTime.parse(json['created_at'] as String),
       );
 }
+
+@immutable
+class CreatorConsumption {
+  final String creatorId;
+  final String creatorName;
+  final String? avatarUrl;
+  final int count;
+  final double pct;
+
+  const CreatorConsumption({
+    required this.creatorId,
+    required this.creatorName,
+    this.avatarUrl,
+    required this.count,
+    required this.pct,
+  });
+
+  factory CreatorConsumption.fromAggregated({
+    required String creatorId,
+    required String creatorName,
+    String? avatarUrl,
+    required int count,
+    required int totalMeals,
+  }) =>
+      CreatorConsumption(
+        creatorId: creatorId,
+        creatorName: creatorName,
+        avatarUrl: avatarUrl,
+        count: count,
+        pct: totalMeals == 0 ? 0.0 : count / totalMeals,
+      );
+}
