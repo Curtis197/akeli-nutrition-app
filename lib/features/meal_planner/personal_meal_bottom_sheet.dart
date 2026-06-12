@@ -87,8 +87,13 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
   }
 
   Future<void> _save() async {
-    _logger.userAction('Confirmer ce repas tapped', screen: 'PersonalMealBottomSheet', metadata: {'entryId': widget.entryId});
+    _logger.userAction(
+      widget.entryId == null ? 'Ajouter la collation tapped' : 'Confirmer ce repas tapped',
+      screen: 'PersonalMealBottomSheet',
+      metadata: {'entryId': widget.entryId},
+    );
     if (widget.entryId == null) {
+      _logger.provider('PersonalMealBottomSheet → create mode pop | name: ${_nameController.text.trim()} | kcal: ${_calController.text.trim()}');
       // create mode — return data to caller, no DB write
       Navigator.of(context).pop(PersonalMealCreatedResult(
         name: _nameController.text.trim(),
