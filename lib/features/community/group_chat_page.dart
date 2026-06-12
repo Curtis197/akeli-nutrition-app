@@ -17,6 +17,23 @@ import '../../shared/models/recipe.dart';
 import '../../shared/widgets/chat_bubble.dart';
 import '../../shared/widgets/avatar.dart';
 
+// ---------------------------------------------------------------------------
+// Pending attachment — staged locally until Send is tapped
+// ---------------------------------------------------------------------------
+
+sealed class _PendingAttachment {}
+
+class _PendingRecipe extends _PendingAttachment {
+  final Recipe recipe;
+  _PendingRecipe(this.recipe);
+}
+
+class _PendingImage extends _PendingAttachment {
+  final Uint8List bytes;
+  final String extension;
+  _PendingImage(this.bytes, this.extension);
+}
+
 class GroupChatPage extends ConsumerStatefulWidget {
   final String? groupId;
   final String? conversationId;
@@ -41,6 +58,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
   final _logger = appLogger;
   String? _resolvedConversationId;
   bool _isUploading = false;
+  _PendingAttachment? _pendingAttachment;
 
   @override
   void initState() {
@@ -67,27 +85,65 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
     });
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
-    if (text.isEmpty || _resolvedConversationId == null) return;
+    final attachment = _pendingAttachment;
+    if (text.isEmpty && attachment == null) return;
+    if (_resolvedConversationId == null) return;
+
     _logger.userAction('Message sent', screen: 'GroupChatPage', metadata: {
       'conversationId': _resolvedConversationId,
       'groupId': widget.groupId,
-      'length': text.length,
+      'type': attachment == null ? 'text' : (attachment is _PendingRecipe ? 'recipe_share' : 'image'),
     });
+
     _controller.clear();
-    sendMessage(ref, _resolvedConversationId!, text).then((_) {
-      if (widget.groupId != null) {
-        _notifyGroupMembers(widget.groupId!, text);
+    setState(() => _pendingAttachment = null);
+
+    try {
+      if (attachment is _PendingRecipe) {
+        final caption = text.isNotEmpty ? text : null;
+        await sendMessage(
+          ref,
+          _resolvedConversationId!,
+          attachment.recipe.title,
+          messageType: 'recipe_share',
+          recipeId: attachment.recipe.id,
+          caption: caption,
+        );
+        if (widget.groupId != null && mounted) {
+          _notifyGroupMembers(widget.groupId!, '🍽️ ${attachment.recipe.title}');
+        }
+      } else if (attachment is _PendingImage) {
+        setState(() => _isUploading = true);
+        final caption = text.isNotEmpty ? text : null;
+        final url = await uploadChatImage(ref, attachment.bytes, attachment.extension);
+        await sendMessage(
+          ref,
+          _resolvedConversationId!,
+          url,
+          messageType: 'image',
+          caption: caption,
+        );
+        if (widget.groupId != null && mounted) {
+          _notifyGroupMembers(widget.groupId!, '📷 Photo');
+        }
+      } else {
+        await sendMessage(ref, _resolvedConversationId!, text);
+        if (widget.groupId != null && mounted) {
+          _notifyGroupMembers(widget.groupId!, text);
+        }
       }
-    }).catchError((e) {
-      _logger.db('ERROR | sendMessage | $e');
+    } catch (e, st) {
+      _logger.db('ERROR | _sendMessage | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Erreur lors de l'envoi")),
         );
       }
-    });
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
   }
 
   void _notifyGroupMembers(String groupId, String text) {
@@ -150,7 +206,6 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
   }
 
   Future<void> _sendImageMessage() async {
-    if (_resolvedConversationId == null) return;
     final picker = ImagePicker();
     final file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 75);
     if (file == null || !mounted) return;
@@ -159,25 +214,9 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
     final ext = file.name.split('.').last.toLowerCase();
     final extension = ext.isNotEmpty ? ext : 'jpg';
 
-    _logger.userAction('Image selected for chat', screen: 'GroupChatPage',
+    _logger.userAction('Image staged in composer', screen: 'GroupChatPage',
         metadata: {'size': bytes.length, 'ext': extension});
-    setState(() => _isUploading = true);
-    try {
-      final url = await uploadChatImage(ref, bytes, extension);
-      await sendMessage(ref, _resolvedConversationId!, url, messageType: 'image');
-      if (widget.groupId != null && mounted) {
-        _notifyGroupMembers(widget.groupId!, '📷 Photo');
-      }
-    } catch (e) {
-      _logger.db('ERROR | _sendImageMessage | $e', error: e);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur lors de l'envoi de l'image")),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isUploading = false);
-    }
+    setState(() => _pendingAttachment = _PendingImage(bytes, extension));
   }
 
   void _showRecipePicker() {
@@ -193,21 +232,9 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
       builder: (_) => _RecipePickerSheet(
         onRecipeSelected: (recipe) {
           Navigator.of(context).pop();
-          _logger.userAction('Recipe shared in chat', screen: 'GroupChatPage',
+          _logger.userAction('Recipe staged in composer', screen: 'GroupChatPage',
               metadata: {'recipeId': recipe.id, 'title': recipe.title});
-          sendMessage(
-            ref,
-            _resolvedConversationId!,
-            recipe.title,
-            messageType: 'recipe_share',
-            recipeId: recipe.id,
-          ).then((_) {
-            if (widget.groupId != null) {
-              _notifyGroupMembers(widget.groupId!, '🍽️ ${recipe.title}');
-            }
-          }).catchError((Object e, StackTrace st) {
-            _logger.db('ERROR | sendMessage recipe_share | $e', error: e, stackTrace: st);
-          });
+          setState(() => _pendingAttachment = _PendingRecipe(recipe));
         },
       ),
     );
@@ -418,6 +445,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _buildAttachmentPreview(),
                 if (_isUploading)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 6),
@@ -479,6 +507,80 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAttachmentPreview() {
+    final attachment = _pendingAttachment;
+    if (attachment == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: const BoxDecoration(
+        color: AkeliColors.surfaceContainer,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(AkeliRadius.md),
+          topRight: Radius.circular(AkeliRadius.md),
+        ),
+      ),
+      child: Row(
+        children: [
+          if (attachment is _PendingRecipe) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: attachment.recipe.thumbnailUrl != null
+                  ? Image.network(
+                      attachment.recipe.thumbnailUrl!,
+                      width: 44, height: 44,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.restaurant, size: 24, color: AkeliColors.outline),
+                    )
+                  : const Icon(Icons.restaurant, size: 24, color: AkeliColors.outline),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                attachment.recipe.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.textPrimary,
+                    ),
+              ),
+            ),
+          ] else if (attachment is _PendingImage) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.memory(
+                attachment.bytes,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Photo',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AkeliColors.textSecondary,
+                    ),
+              ),
+            ),
+          ],
+          IconButton(
+            icon: const Icon(Icons.close, size: 18),
+            color: AkeliColors.textSecondary,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () {
+              _logger.userAction('Attachment preview dismissed', screen: 'GroupChatPage');
+              setState(() => _pendingAttachment = null);
+            },
           ),
         ],
       ),
@@ -621,8 +723,8 @@ class _RecipePickerSheetState extends ConsumerState<_RecipePickerSheet> {
                       ),
                       title: Text(recipe.title, maxLines: 1, overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontWeight: FontWeight.w600)),
-                      subtitle: recipe.calories != null
-                          ? Text('${recipe.calories!.round()} kcal · ${recipe.totalTimeMin} min',
+                      subtitle: recipe.calories100g != null
+                          ? Text('${recipe.calories100g!.round()} kcal/100g · ${recipe.totalTimeMin} min',
                               style: const TextStyle(color: AkeliColors.textSecondary, fontSize: 12))
                           : Text('${recipe.totalTimeMin} min',
                               style: const TextStyle(color: AkeliColors.textSecondary, fontSize: 12)),
