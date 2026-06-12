@@ -123,6 +123,7 @@ class ChatMessage {
   final String content;
   final String messageType; // 'text' | 'image' | 'recipe_share'
   final String? recipeId;
+  final String? caption;
   final DateTime sentAt;
   final bool isMine;
 
@@ -135,6 +136,7 @@ class ChatMessage {
     required this.content,
     required this.messageType,
     this.recipeId,
+    this.caption,
     required this.sentAt,
     required this.isMine,
   });
@@ -154,6 +156,7 @@ class ChatMessage {
       content: json['content'] as String,
       messageType: json['message_type'] as String? ?? 'text',
       recipeId: json['recipe_id'] as String?,
+      caption: json['caption'] as String?,
       sentAt: DateTime.parse(json['sent_at'] as String),
       isMine: senderId == currentUserId,
     );
@@ -774,6 +777,7 @@ Future<void> sendMessage(
   String content, {
   String messageType = 'text',
   String? recipeId,
+  String? caption,
 }) async {
   final logger = appLogger;
   final client = ref.read(supabaseClientProvider);
@@ -789,6 +793,7 @@ Future<void> sendMessage(
       'content': content,
       'message_type': messageType,
       if (recipeId != null) 'recipe_id': recipeId,
+      if (caption != null && caption.isNotEmpty) 'caption': caption,
     });
     logger.db('AFTER | table: chat_message | inserted | type: $messageType');
 
