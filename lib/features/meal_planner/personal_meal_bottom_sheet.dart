@@ -95,13 +95,15 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
     if (widget.entryId == null) {
       _logger.provider('PersonalMealBottomSheet → create mode pop | name: ${_nameController.text.trim()} | kcal: ${_calController.text.trim()}');
       // create mode — return data to caller, no DB write
-      Navigator.of(context).pop(PersonalMealCreatedResult(
-        name: _nameController.text.trim(),
-        calories: double.tryParse(_calController.text.trim()) ?? 0,
-        proteinG: double.tryParse(_protController.text.trim()) ?? 0,
-        carbsG: double.tryParse(_carbsController.text.trim()) ?? 0,
-        fatG: double.tryParse(_fatController.text.trim()) ?? 0,
-      ));
+      if (mounted) {
+        Navigator.of(context).pop(PersonalMealCreatedResult(
+          name: _nameController.text.trim(),
+          calories: double.tryParse(_calController.text.trim()) ?? 0,
+          proteinG: double.tryParse(_protController.text.trim()) ?? 0,
+          carbsG: double.tryParse(_carbsController.text.trim()) ?? 0,
+          fatG: double.tryParse(_fatController.text.trim()) ?? 0,
+        ));
+      }
       return;
     }
     // swap mode — save via RPC then dismiss

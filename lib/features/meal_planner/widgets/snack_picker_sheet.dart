@@ -71,6 +71,8 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
         carbsG: result.carbsG,
         fatG: result.fatG,
       ));
+    } else if (result == null) {
+      _logger.userAction('Personal snack dismissed', screen: 'SnackPickerSheet');
     }
   }
 
