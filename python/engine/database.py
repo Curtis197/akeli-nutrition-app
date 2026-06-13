@@ -229,6 +229,76 @@ def get_creator_recipe_vectors(creator_id: str) -> list[np.ndarray]:
             return result
 
 
+# ---------------------------------------------------------------------------
+# Recipe weight impact helpers
+# ---------------------------------------------------------------------------
+
+def get_user_weight_log(user_id: str) -> list[tuple]:
+    """Retourne [(date, weight_kg), ...] triés ASC pour un utilisateur."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DATE(logged_at), weight_kg
+                FROM weight_log
+                WHERE user_id = %s
+                ORDER BY logged_at ASC
+            """, (user_id,))
+            return [(row[0], float(row[1])) for row in cur.fetchall()]
+
+
+def get_recipes_consumed_between(user_id: str, date_start, date_end) -> list[str]:
+    """Retourne les recipe_ids distincts consommés dans [date_start, date_end)."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT DISTINCT recipe_id
+                FROM meal_consumption
+                WHERE user_id = %s
+                  AND scheduled_date >= %s
+                  AND scheduled_date < %s
+                  AND recipe_id IS NOT NULL
+            """, (user_id, date_start, date_end))
+            return [row[0] for row in cur.fetchall()]
+
+
+def upsert_recipe_weight_impact(user_id: str, results: list[dict]):
+    """Remplace les données recipe_weight_impact d'un utilisateur."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM recipe_weight_impact WHERE user_id = %s",
+                (user_id,),
+            )
+            if results:
+                psycopg2.extras.execute_values(
+                    cur,
+                    """
+                    INSERT INTO recipe_weight_impact
+                        (user_id, recipe_id, avg_delta_kg, sample_count, computed_at)
+                    VALUES %s
+                    """,
+                    [
+                        (user_id, r["recipe_id"], r["avg_delta_kg"], r["sample_count"])
+                        for r in results
+                    ],
+                    template="(%s, %s, %s, %s, NOW())",
+                )
+        conn.commit()
+
+
+def get_users_with_weight_history(min_entries: int = 2) -> list[str]:
+    """Retourne les user_ids ayant au moins min_entries entrées dans weight_log."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT user_id
+                FROM weight_log
+                GROUP BY user_id
+                HAVING COUNT(*) >= %s
+            """, (min_entries,))
+            return [row[0] for row in cur.fetchall()]
+
+
 def upsert_creator_vector(creator_id: str, vector: np.ndarray, recipe_count_sampled: int):
     """Stocke ou met à jour le creator_vector dans PostgreSQL."""
     vector_list = vector.tolist()

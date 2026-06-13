@@ -10,6 +10,7 @@ import uvicorn
 import os
 
 from engine.vectorization import compute_user_vector, compute_recipe_vector, compute_creator_vector
+from engine.analytics import compute_recipe_weight_impact
 from engine.database import (
     upsert_user_vector,
     upsert_recipe_vector,
@@ -18,6 +19,8 @@ from engine.database import (
     get_all_creators,
     get_creator_recipe_vectors,
     upsert_creator_vector,
+    upsert_recipe_weight_impact,
+    get_users_with_weight_history,
 )
 
 app = FastAPI(
@@ -210,6 +213,22 @@ def run_nightly_batch():
             logger.error(f"[nightly-batch] Creator {creator_id} failed: {e}")
 
     logger.info(f"[nightly-batch] Creator vectors: {creator_success}/{len(all_creators)} updated")
+
+    # --- 4. Recipe weight impact ---
+    # Requires at least 2 weight log entries to form one period.
+    users_with_weights = get_users_with_weight_history(min_entries=2)
+    logger.info(f"[nightly-batch] Processing weight impact for {len(users_with_weights)} users")
+
+    impact_success = 0
+    for user_id in users_with_weights:
+        try:
+            results = compute_recipe_weight_impact(user_id, min_samples=3)
+            upsert_recipe_weight_impact(user_id, results)
+            impact_success += 1
+        except Exception as e:
+            logger.error(f"[nightly-batch] Weight impact {user_id} failed: {e}")
+
+    logger.info(f"[nightly-batch] Weight impact: {impact_success}/{len(users_with_weights)} updated")
 
 
 # ---------------------------------------------------------------------------
