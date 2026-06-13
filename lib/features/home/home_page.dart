@@ -387,28 +387,39 @@ class _HomePageState extends ConsumerState<HomePage> {
                       itemCount: todayEntries.length,
                       itemBuilder: (context, index) {
                         final entry = todayEntries[index];
+                        final overrides = ref.watch(optimisticConsumptionProvider);
+                        final effectiveIsConsumed = overrides[entry.id] ?? entry.isConsumed;
                         return AkeliMealCard(
                           key: ValueKey(entry.id),
                           title: entry.recipeTitle ?? 'Repas',
                           mealType: entry.mealType,
                           calories: entry.calories,
                           imageUrl: entry.recipeThumbnail,
-                          isConsumed: entry.isConsumed,
-                          onConsumedToggle: () {
+                          isConsumed: effectiveIsConsumed,
+                          onConsumedToggle: () async {
                             HapticFeedback.mediumImpact();
                             _logger.userAction('Meal consumed toggled',
                                 screen: 'HomePage',
                                 metadata: {
                                   'mealId': entry.id,
-                                  'wasConsumed': entry.isConsumed,
+                                  'wasConsumed': effectiveIsConsumed,
                                 });
-                            ref
-                                .read(mealConsumptionProvider.notifier)
-                                .toggleConsumption(
-                                  entry.id,
-                                  isCurrentlyConsumed: entry.isConsumed,
+                            try {
+                              await ref
+                                  .read(mealConsumptionProvider.notifier)
+                                  .toggleConsumption(
+                                    entry.id,
+                                    isCurrentlyConsumed: effectiveIsConsumed,
+                                  );
+                            } catch (_) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Impossible de mettre à jour le repas. Réessayez.'),
+                                  ),
                                 );
-                            ref.invalidate(activeMealPlanProvider);
+                              }
+                            }
                           },
                           onTap: () {
                             _logger.userAction('Meal card tapped',
