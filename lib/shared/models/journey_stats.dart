@@ -43,27 +43,34 @@ class RecipeWeightImpact {
 // ignore: unused_field
 final _logger = appLogger;
 
-enum JourneyDayStatus { hit, partial, missed, empty }
-
 @immutable
 class JourneyCalendarDay {
   final DateTime date;
-  final JourneyDayStatus status;
+  final int planned;
+  final int consumed;
 
-  const JourneyCalendarDay({required this.date, required this.status});
+  const JourneyCalendarDay({
+    required this.date,
+    required this.planned,
+    required this.consumed,
+  });
 
   factory JourneyCalendarDay.fromJson(Map<String, dynamic> json) {
-    _logger.db('JourneyCalendarDay.fromJson | date: ${json['date']}');
+    _logger.db(
+      'JourneyCalendarDay.fromJson | date: ${json['date']} '
+      '| planned: ${json['planned']} | consumed: ${json['consumed']}',
+    );
     return JourneyCalendarDay(
-      date: DateTime.parse(json['date'] as String),
-      status: switch (json['status'] as String? ?? 'empty') {
-        'hit'     => JourneyDayStatus.hit,
-        'partial' => JourneyDayStatus.partial,
-        'missed'  => JourneyDayStatus.missed,
-        _         => JourneyDayStatus.empty,
-      },
+      date:     DateTime.parse(json['date'] as String),
+      planned:  (json['planned']  as num?)?.toInt() ?? 0,
+      consumed: (json['consumed'] as num?)?.toInt() ?? 0,
     );
   }
+
+  bool get hasNoPlan => planned == 0;
+  bool get isFull    => planned > 0 && consumed == planned;
+  bool get isPartial => consumed > 0 && consumed < planned;
+  bool get isMissed  => planned > 0 && consumed == 0;
 }
 
 @immutable

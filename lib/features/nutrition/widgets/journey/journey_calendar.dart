@@ -32,9 +32,9 @@ class JourneyCalendar extends StatelessWidget {
     appLogger.provider('JourneyCalendar build() | $year-$month');
 
     final firstOfMonth = DateTime(year, month, 1);
-    final startDow = firstOfMonth.weekday % 7; // 0=Sun … 6=Sat
+    final startDow    = firstOfMonth.weekday % 7; // 0=Sun … 6=Sat
     final daysInMonth = DateUtils.getDaysInMonth(year, month);
-    final today = DateTime.now();
+    final today       = DateTime.now();
     final isCurrentMonth = today.year == year && today.month == month;
 
     final dayMap = {for (final d in days) d.date.day: d};
@@ -78,20 +78,18 @@ class JourneyCalendar extends StatelessWidget {
           // ── Day-of-week headers ──
           Row(
             children: _dayHeaders
-                .map(
-                  (h) => Expanded(
-                    child: Center(
-                      child: Text(
-                        h,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: AkeliColors.outlineVariant,
+                .map((h) => Expanded(
+                      child: Center(
+                        child: Text(
+                          h,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: AkeliColors.outlineVariant,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                )
+                    ))
                 .toList(),
           ),
           const SizedBox(height: 6),
@@ -103,32 +101,34 @@ class JourneyCalendar extends StatelessWidget {
               crossAxisCount: 7,
               mainAxisSpacing: 4,
               crossAxisSpacing: 4,
+              childAspectRatio: 0.85,
             ),
             itemCount: startDow + daysInMonth,
             itemBuilder: (context, i) {
               if (i < startDow) return const SizedBox.shrink();
-              final dayNum = i - startDow + 1;
+              final dayNum  = i - startDow + 1;
               final isToday = isCurrentMonth && dayNum == today.day;
               final isFuture = DateTime(year, month, dayNum).isAfter(today);
-              final dayData = dayMap[dayNum];
+              final dayData  = dayMap[dayNum];
               return _DayCell(
-                dayNum: dayNum,
-                isToday: isToday,
+                dayNum:   dayNum,
+                isToday:  isToday,
                 isFuture: isFuture,
-                status: isFuture ? null : dayData?.status,
+                planned:  isFuture ? 0 : (dayData?.planned  ?? 0),
+                consumed: isFuture ? 0 : (dayData?.consumed ?? 0),
               );
             },
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           // ── Legend ──
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _LegendDot(color: Color(0xFF4ADE80), label: 'Atteint'),
-              SizedBox(width: 12),
-              _LegendDot(color: Color(0xFFFACC15), label: 'Partiel'),
-              SizedBox(width: 12),
-              _LegendDot(color: Color(0xFFEF4444), label: 'Manqué'),
+              _LegendItem(color: Color(0xFF4ADE80), label: 'Tous'),
+              SizedBox(width: 14),
+              _LegendItem(color: Color(0xFFFACC15), label: 'Partiel'),
+              SizedBox(width: 14),
+              _LegendItem(color: Color(0xFFEF4444), label: 'Aucun'),
             ],
           ),
         ],
@@ -137,76 +137,103 @@ class JourneyCalendar extends StatelessWidget {
   }
 }
 
+// ── Day cell ──────────────────────────────────────────────────────────────────
+
 class _DayCell extends StatelessWidget {
-  final int dayNum;
+  final int  dayNum;
   final bool isToday;
   final bool isFuture;
-  final JourneyDayStatus? status;
+  final int  planned;
+  final int  consumed;
+
+  // Show pips only when planned count is small enough to fit legibly.
+  static const _maxPips = 4;
 
   const _DayCell({
     required this.dayNum,
     required this.isToday,
     required this.isFuture,
-    this.status,
+    required this.planned,
+    required this.consumed,
   });
 
   Color _bgColor() {
-    if (isFuture || status == null) return AkeliColors.surfaceContainer;
-    return switch (status!) {
-      JourneyDayStatus.hit     => const Color(0xFFDCFCE7),
-      JourneyDayStatus.partial => const Color(0xFFFEF9C3),
-      JourneyDayStatus.missed  => const Color(0xFFFEE2E2),
-      JourneyDayStatus.empty   => AkeliColors.surfaceContainer,
-    };
+    if (isFuture || planned == 0) return AkeliColors.surfaceContainer;
+    if (consumed == planned)      return const Color(0xFFDCFCE7); // full — green tint
+    if (consumed > 0)             return const Color(0xFFFEF9C3); // partial — yellow tint
+    return const Color(0xFFFEE2E2);                               // missed — red tint
   }
 
-  Color _textColor() {
-    if (isFuture) return AkeliColors.outlineVariant;
-    return switch (status) {
-      JourneyDayStatus.hit     => const Color(0xFF166534),
-      JourneyDayStatus.partial => const Color(0xFF854D0E),
-      JourneyDayStatus.missed  => const Color(0xFF991B1B),
-      _                        => AkeliColors.onSurfaceVariant,
-    };
+  Color _accentColor() {
+    if (isFuture || planned == 0) return AkeliColors.onSurfaceVariant;
+    if (consumed == planned)      return const Color(0xFF166534);
+    if (consumed > 0)             return const Color(0xFF854D0E);
+    return const Color(0xFF991B1B);
   }
 
   @override
   Widget build(BuildContext context) {
+    final showPips = !isFuture && planned > 0 && planned <= _maxPips;
+    final accent   = _accentColor();
+
     return Container(
       decoration: BoxDecoration(
         color: _bgColor(),
         borderRadius: BorderRadius.circular(6),
-        border: isToday
-            ? Border.all(color: AkeliColors.primary, width: 1.5)
-            : null,
+        border: isToday ? Border.all(color: AkeliColors.primary, width: 1.5) : null,
       ),
-      child: Center(
-        child: Text(
-          '$dayNum',
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
-            color: isToday ? AkeliColors.primary : _textColor(),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '$dayNum',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isToday ? FontWeight.w700 : FontWeight.w500,
+              color: isToday ? AkeliColors.primary : accent,
+            ),
           ),
-        ),
+          if (showPips) ...[
+            const SizedBox(height: 3),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(planned, (i) {
+                final eaten = i < consumed;
+                return Container(
+                  width:  4,
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(horizontal: 1),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: eaten ? accent : Colors.transparent,
+                    border: eaten
+                        ? null
+                        : Border.all(color: accent.withValues(alpha: 0.45), width: 1),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ],
       ),
     );
   }
 }
 
-class _LegendDot extends StatelessWidget {
-  final Color color;
+// ── Legend item ───────────────────────────────────────────────────────────────
+
+class _LegendItem extends StatelessWidget {
+  final Color  color;
   final String label;
 
-  const _LegendDot({required this.color, required this.label});
+  const _LegendItem({required this.color, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 8, height: 8,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
