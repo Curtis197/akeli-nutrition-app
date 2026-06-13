@@ -276,12 +276,13 @@ class WaterLogNotifier extends AutoDisposeAsyncNotifier<void> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    final currentWater = ref.read(todayNutritionProvider).valueOrNull?.waterMl ?? 0.0;
-    final newWater = currentWater + glassSize;
-
     final today = DateTime.now();
     final dateStr =
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    final currentWater =
+        ref.read(dailyNutritionForDateProvider(dateStr)).valueOrNull?.waterMl ?? 0.0;
+    final newWater = currentWater + glassSize;
 
     _logger.userAction('Add water glass', metadata: {'currentMl': currentWater, 'newMl': newWater});
     _logger.db('BEFORE | table: daily_nutrition_log | op: UPSERT water_ml | userId: ${user.id} | newWaterMl: $newWater');
@@ -310,7 +311,52 @@ class WaterLogNotifier extends AutoDisposeAsyncNotifier<void> {
         rethrow;
       }
     });
-    if (state is AsyncData) ref.invalidate(todayNutritionProvider);
+    if (state is AsyncData) ref.invalidate(dailyNutritionForDateProvider(dateStr));
+  }
+
+  Future<void> removeGlass() async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final today = DateTime.now();
+    final dateStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    final currentWater =
+        ref.read(dailyNutritionForDateProvider(dateStr)).valueOrNull?.waterMl ?? 0.0;
+    
+    if (currentWater <= 0) return;
+
+    final newWater = (currentWater - glassSize).clamp(0.0, double.infinity);
+
+    _logger.userAction('Remove water glass', metadata: {'currentMl': currentWater, 'newMl': newWater});
+    _logger.db('BEFORE | table: daily_nutrition_log | op: UPSERT water_ml | userId: ${user.id} | newWaterMl: $newWater');
+
+    final client = ref.read(supabaseClientProvider);
+    state = await AsyncValue.guard(() async {
+      try {
+        await client.from('daily_nutrition_log').upsert(
+          {
+            'user_id': user.id,
+            'log_date': dateStr,
+            'water_ml': newWater,
+          },
+          onConflict: 'user_id,log_date',
+        );
+        _logger.db('AFTER | table: daily_nutrition_log | UPSERT water_ml | success | userId: ${user.id}');
+      } on PostgrestException catch (e, st) {
+        if (e.code == '42501') {
+          _logger.rls('Permission denied | table: daily_nutrition_log | UPSERT water_ml | userId: ${user.id}', error: e, stackTrace: st);
+        } else {
+          _logger.db('ERROR | table: daily_nutrition_log | UPSERT water_ml | code: ${e.code}', error: e, stackTrace: st);
+        }
+        rethrow;
+      } catch (e, st) {
+        _logger.db('ERROR | table: daily_nutrition_log | UPSERT water_ml | unexpected: $e', error: e, stackTrace: st);
+        rethrow;
+      }
+    });
+    if (state is AsyncData) ref.invalidate(dailyNutritionForDateProvider(dateStr));
   }
 }
 
@@ -360,6 +406,81 @@ final dailyNutritionForDateProvider =
   } catch (e, st) {
     appLogger.db('ERROR | table: daily_nutrition_log | unexpected: $e', error: e, stackTrace: st);
     appLogger.provider('dailyNutritionForDateProvider → error | date: $dateStr | $e');
+    rethrow;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Consumed recipes for a specific date
+// ---------------------------------------------------------------------------
+
+class ConsumedRecipeSummary {
+  final String recipeId;
+  final String title;
+  final String? thumbnailUrl;
+  final DateTime consumedAt;
+
+  const ConsumedRecipeSummary({
+    required this.recipeId,
+    required this.title,
+    this.thumbnailUrl,
+    required this.consumedAt,
+  });
+}
+
+final consumedRecipesForDateProvider =
+    FutureProvider.autoDispose.family<List<ConsumedRecipeSummary>, String>((ref, dateStr) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return [];
+
+  appLogger.provider('consumedRecipesForDateProvider build() | userId: ${user.id} | date: $dateStr');
+  ref.onDispose(() => appLogger.provider('consumedRecipesForDateProvider disposed | date: $dateStr'));
+  appLogger.db('BEFORE | table: meal_consumption | op: SELECT with recipe join | userId: ${user.id} | date: $dateStr');
+
+  final client = ref.watch(supabaseClientProvider);
+  try {
+    final data = await client
+        .from('meal_consumption')
+        .select('recipe_id, consumed_at, scheduled_date, recipe!inner(title, cover_image_url)')
+        .eq('user_id', user.id)
+        .eq('scheduled_date', dateStr)
+        .not('recipe_id', 'is', null)
+        .order('consumed_at');
+
+    appLogger.db('AFTER | table: meal_consumption | rows: ${data.length} | date: $dateStr');
+    if (data.isEmpty) {
+      appLogger.rls('Zero rows | table: meal_consumption | userId: ${user.id} | date: $dateStr | no meals or RLS block');
+    }
+
+    // Deduplicate by recipe_id, keeping the earliest consumed_at per recipe
+    final seen = <String>{};
+    final results = <ConsumedRecipeSummary>[];
+    for (final row in data) {
+      final id = row['recipe_id'] as String;
+      if (seen.contains(id)) continue;
+      seen.add(id);
+      final recipe = row['recipe'] as Map<String, dynamic>;
+      results.add(ConsumedRecipeSummary(
+        recipeId: id,
+        title: recipe['title'] as String,
+        thumbnailUrl: recipe['cover_image_url'] as String?,
+        consumedAt: DateTime.parse(row['consumed_at'] as String).toLocal(),
+      ));
+    }
+
+    appLogger.provider('consumedRecipesForDateProvider → data | distinct recipes: ${results.length} | date: $dateStr');
+    return results;
+  } on PostgrestException catch (e, st) {
+    if (e.code == '42501') {
+      appLogger.rls('Permission denied | table: meal_consumption | userId: ${user.id}', error: e, stackTrace: st);
+    } else {
+      appLogger.db('ERROR | table: meal_consumption | code: ${e.code}', error: e, stackTrace: st);
+    }
+    appLogger.provider('consumedRecipesForDateProvider → error | date: $dateStr | ${e.message}');
+    rethrow;
+  } catch (e, st) {
+    appLogger.db('ERROR | table: meal_consumption | unexpected: $e', error: e, stackTrace: st);
+    appLogger.provider('consumedRecipesForDateProvider → error | date: $dateStr | $e');
     rethrow;
   }
 });

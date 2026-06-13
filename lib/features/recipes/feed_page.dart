@@ -68,6 +68,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   int? _minCal;
   int? _maxCal;
   String? _orderBy;
+  String? _mealType;
 
   int _tabIndex = 0;
 
@@ -97,7 +98,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   String? _creatorsOrderBy;
 
   bool get _hasActiveFilter =>
-      _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null;
+      _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null || _mealType != null;
 
   bool get _hasActiveCreatorFilter =>
       _creatorsRegionId != null || _creatorsSpecialty != null;
@@ -159,6 +160,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       minCal: _minCal,
       maxCal: _maxCal,
       orderBy: _orderBy,
+      mealType: _mealType,
     );
 
     try {
@@ -198,6 +200,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       orderBy: _orderBy ?? 'relevance',
       limit: _pageSize,
       offset: _searchOffset,
+      mealType: _mealType,
     );
 
     try {
@@ -323,6 +326,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
         _ => 'Trier ▾',
       };
 
+  String _mealTypeLabel() => switch (_mealType) {
+        'breakfast' => 'Petit-déjeuner',
+        'lunch'     => 'Déjeuner',
+        'dinner'    => 'Dîner',
+        'snack'     => 'Collation',
+        _           => 'Type ▾',
+      };
+
   String _creatorsRegionLabel() {
     if (_creatorsRegionId == null) return 'Région';
     final names = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
@@ -347,6 +358,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     int? tempTime = _maxTimeMin;
     int? tempMinCal = _minCal;
     int? tempMaxCal = _maxCal;
+    String? tempMealType = _mealType;
 
     showModalBottomSheet(
       context: context,
@@ -429,6 +441,40 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
+                    Text('Type de repas', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        ChoiceChip(
+                          label: const Text('Tous'),
+                          selected: tempMealType == null,
+                          onSelected: (v) => setModalState(() => tempMealType = null),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Petit-déjeuner'),
+                          selected: tempMealType == 'breakfast',
+                          onSelected: (v) => setModalState(() => tempMealType = 'breakfast'),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Déjeuner'),
+                          selected: tempMealType == 'lunch',
+                          onSelected: (v) => setModalState(() => tempMealType = 'lunch'),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Dîner'),
+                          selected: tempMealType == 'dinner',
+                          onSelected: (v) => setModalState(() => tempMealType = 'dinner'),
+                        ),
+                        ChoiceChip(
+                          label: const Text('Collation'),
+                          selected: tempMealType == 'snack',
+                          onSelected: (v) => setModalState(() => tempMealType = 'snack'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                     Text('Temps maximum', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
@@ -500,6 +546,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                             _maxTimeMin = tempTime;
                             _minCal = tempMinCal;
                             _maxCal = tempMaxCal;
+                            _mealType = tempMealType;
                             _resetRecipes();
                           });
                           Navigator.pop(context);
@@ -690,6 +737,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             maxCal: _maxCal,
             orderBy: _orderBy ?? 'relevance',
             limit: _pageSize,
+            mealType: _mealType,
           )))
         : ref.watch(feedProvider(FeedParams(
             limit: _pageSize,
@@ -699,6 +747,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             minCal: _minCal,
             maxCal: _maxCal,
             orderBy: _orderBy,
+            mealType: _mealType,
           )));
 
 
@@ -706,7 +755,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
     _logger.provider('FeedPage build() | isSearching: $isSearching | feedAsync.isLoading: ${feedAsync.isLoading}');
 
-    return NotificationListener<ScrollNotification>(
+    final body = NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scrollInfo) {
         if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 500) {
           if (_tabIndex == 0) {
@@ -742,7 +791,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 ),
           actions: const [],
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(_tabIndex == 0 ? 148 : 44),
+            preferredSize: Size.fromHeight(_tabIndex == 0 ? 164 : 44),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -763,6 +812,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   ),
                 ),
                 if (_tabIndex == 0) ...[
+                  const SizedBox(height: 16),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
                     child: Row(
@@ -899,6 +949,16 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                               label: _sortLabel(),
                               onDeleted: () => setState(() {
                                 _orderBy = null;
+                                _resetRecipes();
+                              }),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          if (_mealType != null) ...[
+                            _ActiveFilterChip(
+                              label: _mealTypeLabel(),
+                              onDeleted: () => setState(() {
+                                _mealType = null;
                                 _resetRecipes();
                               }),
                             ),
@@ -1072,6 +1132,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           ),
       ],
     ));
+
+    if (widget.swapEntryId != null) {
+      return Scaffold(backgroundColor: AkeliColors.background, body: body);
+    }
+    return body;
   }
 
   Widget _buildCreateursSliver(Map<String, String> regionNames) {

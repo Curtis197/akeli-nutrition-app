@@ -137,7 +137,7 @@ void main() {
 
       expect(find.text('Étape 1 / 3'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.text('Étape 2 / 3'), findsOneWidget);
     });
 
@@ -151,7 +151,7 @@ void main() {
       await tester.pump();
 
       await tester.tap(find.byIcon(Icons.chevron_left_rounded).first);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.text('Étape 1 / 3'), findsOneWidget);
     });
 

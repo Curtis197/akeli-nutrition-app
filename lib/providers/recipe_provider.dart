@@ -206,6 +206,7 @@ class SearchParams {
   final String orderBy;
   final int limit;
   final int offset;
+  final String? mealType;
 
   const SearchParams({
     required this.query,
@@ -217,6 +218,7 @@ class SearchParams {
     this.orderBy = 'relevance',
     this.limit = 20,
     this.offset = 0,
+    this.mealType,
   });
 
   @override
@@ -231,10 +233,11 @@ class SearchParams {
           maxCal == other.maxCal &&
           orderBy == other.orderBy &&
           limit == other.limit &&
-          offset == other.offset;
+          offset == other.offset &&
+          mealType == other.mealType;
 
   @override
-  int get hashCode => Object.hash(query, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, limit, offset);
+  int get hashCode => Object.hash(query, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, limit, offset, mealType);
 }
 
 final searchRecipesProvider =
@@ -262,6 +265,7 @@ final searchRecipesProvider =
     if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
     if (params.minCal != null) query = query.gte('calories', params.minCal!);
     if (params.maxCal != null) query = query.lte('calories', params.maxCal!);
+    if (params.mealType != null) query = query.contains('meal_types', [params.mealType!]);
 
     final orderColumn = switch (params.orderBy) {
       'rating' => 'average_rating',

@@ -12,17 +12,20 @@ void main() {
         'protein_per_100g': 1.9,
         'carbs_per_100g': 7.5,
         'fat_per_100g': 0.2,
-        'fiber_per_100g': 3.2,
-        'substitution': 'Haricots verts',
-        'market_notes': 'Épicerie africaine',
+        'description_fr': 'Un légume vert',
+        'image_url': 'https://example.com/gombo.jpg',
+        'tags': ['vegetable', 'african'],
       });
 
       expect(detail.id, 'ing-1');
       expect(detail.name, 'Gombo');
       expect(detail.caloriesPer100g, 33.0);
       expect(detail.proteinPer100g, 1.9);
-      expect(detail.substitution, 'Haricots verts');
-      expect(detail.marketNotes, 'Épicerie africaine');
+      expect(detail.carbsPer100g, 7.5);
+      expect(detail.fatPer100g, 0.2);
+      expect(detail.description, 'Un légume vert');
+      expect(detail.imageUrl, 'https://example.com/gombo.jpg');
+      expect(detail.tags, ['vegetable', 'african']);
     });
 
     test('returns null for nullable fields when absent', () {
@@ -32,8 +35,9 @@ void main() {
       });
 
       expect(detail.caloriesPer100g, isNull);
-      expect(detail.substitution, isNull);
-      expect(detail.marketNotes, isNull);
+      expect(detail.description, isNull);
+      expect(detail.imageUrl, isNull);
+      expect(detail.tags, isEmpty);
     });
 
     test('prefers name_fr over name', () {

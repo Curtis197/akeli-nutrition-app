@@ -10,8 +10,8 @@ void main() {
     test('primaryContainer is #006A63', () {
       expect(AkeliColors.primaryContainer, const Color(0xFF006A63));
     });
-    test('surface is warm cream #FCFAEF', () {
-      expect(AkeliColors.surface, const Color(0xFFFCFAEF));
+    test('surface is white #FFFFFF', () {
+      expect(AkeliColors.surface, const Color(0xFFFFFFFF));
     });
     test('surfaceContainerHighest is #E4E3D8', () {
       expect(AkeliColors.surfaceContainerHighest, const Color(0xFFE4E3D8));

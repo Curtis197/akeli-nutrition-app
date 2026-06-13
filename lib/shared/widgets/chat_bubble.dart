@@ -90,6 +90,7 @@ class _TextBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
       decoration: _bubbleDecoration(isSent),
+      clipBehavior: Clip.hardEdge,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -128,58 +129,58 @@ class _ImageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: _bubbleBorderRadius(isSent),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (senderName != null)
-            Container(
-              width: double.infinity,
-              color: AkeliColors.surfaceContainer,
-              padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
-              child: Text(
-                senderName!,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: AkeliColors.primary,
+    return Container(
+      decoration: _bubbleDecoration(isSent),
+      clipBehavior: Clip.hardEdge,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 260, minWidth: 150),
+        child: IntrinsicWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (senderName != null)
+                Container(
+                  color: AkeliColors.surfaceContainer,
+                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+                  child: Text(
+                    senderName!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AkeliColors.primary,
+                    ),
+                  ),
+                ),
+              CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (_, __) => Container(
+                  height: 200,
+                  color: AkeliColors.surfaceContainer,
+                  child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+                errorWidget: (_, __, ___) => Container(
+                  height: 100,
+                  color: AkeliColors.surfaceContainer,
+                  child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
                 ),
               ),
-            ),
-          CachedNetworkImage(
-            imageUrl: url,
-            width: 220,
-            height: 200,
-            fit: BoxFit.cover,
-            placeholder: (_, __) => Container(
-              width: 220,
-              height: 200,
-              color: AkeliColors.surfaceContainer,
-              child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-            ),
-            errorWidget: (_, __, ___) => Container(
-              width: 220,
-              height: 100,
-              color: AkeliColors.surfaceContainer,
-              child: const Icon(Icons.broken_image_outlined, color: AkeliColors.outline),
-            ),
+              if (caption != null && caption!.isNotEmpty)
+                Container(
+                  color: AkeliColors.surfaceContainer,
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+                  child: Text(
+                    caption!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AkeliColors.textPrimary,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          if (caption != null && caption!.isNotEmpty)
-            Container(
-              width: double.infinity,
-              color: AkeliColors.surfaceContainer,
-              padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-              child: Text(
-                caption!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AkeliColors.textPrimary,
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -214,109 +215,112 @@ class _RecipeBubble extends StatelessWidget {
         context.push(AkeliRoutes.recipeDetailPath(recipeId));
       },
       child: Container(
-        width: 220,
         decoration: _bubbleDecoration(isSent),
         clipBehavior: Clip.hardEdge,
-        child: recipeAsync.when(
-          loading: () => const SizedBox(
-            height: 80,
-            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-          ),
-          error: (_, __) => Padding(
-            padding: const EdgeInsets.all(12),
-            child: Text(
-              'Recette introuvable',
-              style: TextStyle(color: AkeliColors.textSecondary, fontSize: 13),
-            ),
-          ),
-          data: (recipe) {
-            if (recipe == null) {
-              return Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text('Recette supprimée',
-                    style: TextStyle(color: AkeliColors.textSecondary, fontSize: 13)),
-              );
-            }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (senderName != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-                    child: Text(
-                      senderName!,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: AkeliColors.primary,
-                      ),
-                    ),
-                  ),
-                if (recipe.thumbnailUrl != null)
-                  CachedNetworkImage(
-                    imageUrl: recipe.thumbnailUrl!,
-                    height: 110,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorWidget: (_, __, ___) => Container(
-                      height: 110,
-                      color: AkeliColors.surfaceContainer,
-                      child: const Icon(Icons.restaurant, color: AkeliColors.outline),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
-                  child: Text(
-                    recipe.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AkeliColors.textPrimary,
-                        ),
-                  ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 260, minWidth: 180),
+          child: IntrinsicWidth(
+            child: recipeAsync.when(
+              loading: () => const SizedBox(
+                height: 80,
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              ),
+              error: (_, __) => const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  'Recette introuvable',
+                  style: TextStyle(color: AkeliColors.textSecondary, fontSize: 13),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
-                  child: Row(
-                    children: [
-                      if (recipe.calories100g != null) ...[
-                        const Icon(Icons.local_fire_department_rounded,
-                            size: 13, color: AkeliColors.secondary),
-                        const SizedBox(width: 3),
-                        Text(
-                          '${recipe.calories100g!.round()} kcal/100g',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: AkeliColors.textSecondary,
-                              ),
+              ),
+              data: (recipe) {
+                if (recipe == null) {
+                  return const Padding(
+                    padding: EdgeInsets.all(12),
+                    child: Text('Recette supprimée',
+                        style: TextStyle(color: AkeliColors.textSecondary, fontSize: 13)),
+                  );
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (senderName != null)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+                        child: Text(
+                          senderName!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: AkeliColors.primary,
+                          ),
                         ),
-                        const SizedBox(width: 8),
-                      ],
-                      const Spacer(),
-                      Text(
-                        'Voir →',
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: AkeliColors.primary,
-                              fontWeight: FontWeight.bold,
+                      ),
+                    if (recipe.thumbnailUrl != null)
+                      CachedNetworkImage(
+                        imageUrl: recipe.thumbnailUrl!,
+                        height: 110,
+                        fit: BoxFit.cover,
+                        errorWidget: (_, __, ___) => Container(
+                          height: 110,
+                          color: AkeliColors.surfaceContainer,
+                          child: const Icon(Icons.restaurant, color: AkeliColors.outline),
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 4),
+                      child: Text(
+                        recipe.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AkeliColors.textPrimary,
                             ),
                       ),
-                    ],
-                  ),
-                ),
-                if (caption != null && caption!.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
-                    child: Text(
-                      caption!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AkeliColors.textPrimary,
-                          ),
                     ),
-                  ),
-              ],
-            );
-          },
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                      child: Row(
+                        children: [
+                          if (recipe.calories100g != null) ...[
+                            const Icon(Icons.local_fire_department_rounded,
+                                size: 13, color: AkeliColors.secondary),
+                            const SizedBox(width: 3),
+                            Text(
+                              '${recipe.calories100g!.round()} kcal/100g',
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: AkeliColors.textSecondary,
+                                  ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          const Spacer(),
+                          Text(
+                            'Voir →',
+                            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  color: AkeliColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (caption != null && caption!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 6, 12, 10),
+                        child: Text(
+                          caption!,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AkeliColors.textPrimary,
+                              ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
