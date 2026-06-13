@@ -109,9 +109,8 @@ void main() {
 
       expect(find.text('Recettes externes ce mois'), findsOneWidget);
       // Verify the progress indicator is rendered with the correct value (3/9 = 0.33)
-      final progressIndicator = find.byType(LinearProgressIndicator).evaluate()
-          .firstWhere((el) => (el.widget as LinearProgressIndicator).value == (3/9).clamp(0.0, 1.0));
-      expect(progressIndicator, isNotNull);
+      final indicators = tester.widgetList<LinearProgressIndicator>(find.byType(LinearProgressIndicator));
+      expect(indicators.any((w) => w.value == (3 / 9).clamp(0.0, 1.0)), isTrue);
     });
 
     testWidgets('shows Quitter le Mode Fan button', (tester) async {

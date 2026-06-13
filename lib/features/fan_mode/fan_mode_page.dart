@@ -53,9 +53,18 @@ class _NoFanUserView extends ConsumerWidget {
       slivers: [
         SliverToBoxAdapter(
           child: consumptionAsync.when(
-            loading: () => const LinearProgressIndicator(),
-            error: (_, __) => const SizedBox.shrink(),
-            data: (consumption) => _ConsumptionCard(consumption: consumption),
+            loading: () {
+              appLogger.provider('_NoFanUserView consumptionAsync → loading');
+              return const LinearProgressIndicator();
+            },
+            error: (e, st) {
+              appLogger.provider('_NoFanUserView consumptionAsync → error | $e', error: e, stackTrace: st);
+              return const SizedBox.shrink();
+            },
+            data: (consumption) {
+              appLogger.provider('_NoFanUserView consumptionAsync → data | count: ${consumption.length}');
+              return _ConsumptionCard(consumption: consumption);
+            },
           ),
         ),
 
@@ -80,11 +89,17 @@ class _NoFanUserView extends ConsumerWidget {
         ),
 
         creatorsAsync.when(
-          loading: () => const SliverToBoxAdapter(
-              child: Center(child: CircularProgressIndicator())),
-          error: (err, _) =>
-              SliverToBoxAdapter(child: ErrorState(message: err.toString())),
+          loading: () {
+            appLogger.provider('_NoFanUserView creatorsAsync → loading');
+            return const SliverToBoxAdapter(
+                child: Center(child: CircularProgressIndicator()));
+          },
+          error: (err, st) {
+            appLogger.provider('_NoFanUserView creatorsAsync → error | $err', error: err, stackTrace: st);
+            return SliverToBoxAdapter(child: ErrorState(message: err.toString()));
+          },
           data: (creators) {
+            appLogger.provider('_NoFanUserView creatorsAsync → data | count: ${creators.length}');
             if (creators.isEmpty) {
               return const SliverToBoxAdapter(
                 child: EmptyState(
@@ -307,7 +322,7 @@ class _EligibleCreatorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('_EligibleCreatorCard build() | creatorId: ${creator.id} | isDominant: $isDominant');
+    appLogger.provider('_EligibleCreatorCard build() | creatorId: ${creator.id} | isDominant: $isDominant');
     return Card(
       margin: const EdgeInsets.symmetric(
           horizontal: AkeliSpacing.md, vertical: AkeliSpacing.xs),
