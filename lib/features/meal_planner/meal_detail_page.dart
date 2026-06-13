@@ -31,6 +31,7 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
   Widget build(BuildContext context) {
     final planAsync = ref.watch(activeMealPlanProvider);
     final consumeState = ref.watch(mealConsumptionProvider);
+    final consumptionOverrides = ref.watch(optimisticConsumptionProvider);
     final likeState = ref.watch(recipeLikeProvider);
     final isLiked = likeState.valueOrNull ?? false;
 
@@ -38,8 +39,8 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
 
     ref.listen(mealConsumptionProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(next.error.toString()),
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Impossible de mettre à jour le repas. Réessayez.'),
           backgroundColor: AkeliColors.error,
         ));
       } else if (next.valueOrNull != null) {
@@ -80,11 +81,12 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
             isConsumeLoading: consumeState.isLoading,
             isLiked: isLiked,
             onConsume: () {
-              _logger.userAction('Mark consumed tapped | isConsumed: ${entry.isConsumed}',
+              final effectiveIsConsumed = consumptionOverrides[entry.id] ?? entry.isConsumed;
+              _logger.userAction('Mark consumed tapped | isConsumed: $effectiveIsConsumed',
                   screen: 'MealDetailPage', metadata: {'mealId': entry.id});
               ref.read(mealConsumptionProvider.notifier).toggleConsumption(
                 entry.id,
-                isCurrentlyConsumed: entry.isConsumed,
+                isCurrentlyConsumed: effectiveIsConsumed,
               );
             },
             onLike: _recipeId == null
