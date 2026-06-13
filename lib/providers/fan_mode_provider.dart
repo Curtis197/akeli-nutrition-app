@@ -214,6 +214,13 @@ final creatorConsumptionProvider =
       .toSet()
       .toList();
 
+  if (creatorIds.isEmpty) {
+    appLogger.provider(
+      'creatorConsumptionProvider → data (empty — ${consumptionRows.length} rows have no creator attribution)',
+    );
+    return [];
+  }
+
   appLogger.db('BEFORE | table: creator | op: SELECT | ids: ${creatorIds.length}');
   late final List<Map<String, dynamic>> creatorRows;
   try {
