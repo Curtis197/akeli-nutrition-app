@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/logger.dart';
+import 'package:akeli/core/logger.dart';
 import '../core/supabase_client.dart';
 import '../shared/models/journey_stats.dart';
 import 'auth_provider.dart';
@@ -16,6 +16,10 @@ final journeyStatsProvider = FutureProvider.autoDispose
     'journeyStatsProvider build() | userId: ${user.id} | ${params.year}-${params.month}',
   );
 
+  ref.onDispose(() => _logger.provider(
+    'journeyStatsProvider disposed | ${params.year}-${params.month}',
+  ));
+
   final client = ref.read(supabaseClientProvider);
 
   _logger.db(
@@ -28,12 +32,8 @@ final journeyStatsProvider = FutureProvider.autoDispose
       'p_month': params.month,
     });
 
-    _logger.db('AFTER rpc | fn: get_journey_stats | success');
-
-    if (data == null) {
-      _logger.db('AFTER rpc | fn: get_journey_stats | rows: 0');
-      return null;
-    }
+    _logger.db('AFTER rpc | fn: get_journey_stats | rows: ${data == null ? 0 : 1}');
+    if (data == null) return null;
 
     final stats = JourneyStats.fromJson(data as Map<String, dynamic>);
     _logger.provider(
