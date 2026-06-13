@@ -1,4 +1,3 @@
-// ignore_for_file: prefer_const_constructors
 import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
@@ -122,9 +121,9 @@ class JourneyCalendar extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           // ── Legend ──
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               _LegendDot(color: Color(0xFF4ADE80), label: 'Atteint'),
               SizedBox(width: 12),
               _LegendDot(color: Color(0xFFFACC15), label: 'Partiel'),
