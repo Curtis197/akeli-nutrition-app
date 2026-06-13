@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
 import '../../providers/user_profile_provider.dart';
+import 'widgets/journey/journey_tab.dart';
 
 class NutritionPage extends ConsumerStatefulWidget {
   const NutritionPage({super.key});
@@ -27,7 +29,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   void initState() {
     super.initState();
     _logger.provider('NutritionPage initState()');
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -101,6 +103,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
                 tabs: const [
                   Tab(text: "Aujourd'hui"),
                   Tab(text: "Semaine"),
+                  Tab(text: "Parcours"),
                 ],
               ),
             ),
@@ -112,6 +115,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
         children: const [
           _TodayTab(),
           _WeeklyTab(),
+          JourneyTab(),
         ],
       ),
     );
@@ -236,6 +240,8 @@ class _TodayTabState extends ConsumerState<_TodayTab> {
                             : null,
                       ),
                     ),
+                    const SizedBox(height: 24),
+                    _ConsumedRecipesList(dateStr: _dateStr),
                     const SizedBox(height: 24),
                     _OrganicCard(
                       child: _WeightTrendChart(),
@@ -1086,4 +1092,128 @@ class _AverageStats extends StatelessWidget {
       fatG: avgFat,
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// Consumed recipes for the selected day
+// ---------------------------------------------------------------------------
+
+class _ConsumedRecipesList extends ConsumerWidget {
+  final String dateStr;
+
+  const _ConsumedRecipesList({required this.dateStr});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final recipesAsync = ref.watch(consumedRecipesForDateProvider(dateStr));
+    appLogger.provider('_ConsumedRecipesList build() | date: $dateStr | recipesAsync.isLoading: ${recipesAsync.isLoading}');
+
+    return recipesAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (recipes) {
+        if (recipes.isEmpty) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AkeliColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.restaurant_rounded, color: AkeliColors.primary, size: 20),
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  'Repas consommés',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...recipes.map((r) => _ConsumedRecipeRow(recipe: r)),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ConsumedRecipeRow extends StatelessWidget {
+  final ConsumedRecipeSummary recipe;
+
+  const _ConsumedRecipeRow({required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    final timeLabel =
+        '${recipe.consumedAt.hour.toString().padLeft(2, '0')}:${recipe.consumedAt.minute.toString().padLeft(2, '0')}';
+
+    return GestureDetector(
+      onTap: () {
+        appLogger.userAction('Consumed recipe tapped', screen: 'NutritionPage', metadata: {'recipeId': recipe.recipeId});
+        context.push(AkeliRoutes.recipeDetailPath(recipe.recipeId));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AkeliColors.outlineVariant.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: recipe.thumbnailUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: recipe.thumbnailUrl!,
+                      width: 52,
+                      height: 52,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) => _placeholder(),
+                    )
+                  : _placeholder(),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                recipe.title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AkeliColors.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              timeLabel,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AkeliColors.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right_rounded, size: 18, color: AkeliColors.outlineVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _placeholder() => Container(
+        width: 52,
+        height: 52,
+        color: AkeliColors.surfaceContainerHigh,
+        child: const Icon(Icons.restaurant, color: AkeliColors.outline, size: 22),
+      );
 }
