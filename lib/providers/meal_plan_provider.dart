@@ -353,6 +353,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
 
   Future<void> toggleConsumption(String mealPlanEntryId, {required bool isCurrentlyConsumed}) async {
     if (state.isLoading) return;
+    final keepAlive = ref.keepAlive();
 
     _logger.userAction('Toggle meal consumption | isConsumed: $isCurrentlyConsumed',
         metadata: {'mealPlanEntryId': mealPlanEntryId});
@@ -398,7 +399,7 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
       }
       // Success: remove override, DB refetch confirms
       ref.read(optimisticConsumptionProvider.notifier)
-          .update((map) => Map.from(map)..remove(mealPlanEntryId));
+          .update((map) => {...map}..remove(mealPlanEntryId));
       ref.invalidate(activeMealPlanProvider);
     } catch (e, st) {
       // Revert optimistic override
@@ -408,6 +409,8 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
       _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
       state = AsyncError(e, st);
       rethrow;
+    } finally {
+      keepAlive.close();
     }
   }
 }
