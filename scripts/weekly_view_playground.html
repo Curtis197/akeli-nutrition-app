@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Weekly View — Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f0f; color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+
+  /* ── Controls ── */
+  #controls {
+    width: 270px; min-width: 270px; background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 {
+    font-size: 10px; font-weight: 600; color: #555;
+    letter-spacing: .8px; text-transform: uppercase;
+    padding: 18px 16px 8px;
+  }
+  .group { padding: 0 14px 18px; display: flex; flex-direction: column; gap: 9px; }
+  .divider { height: 1px; background: #222; margin: 2px 0; }
+  .group label { font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center; }
+  .group label span { color: #e0e0e0; font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: #4a7afc; }
+  .note { font-size: 11px; color: #555; line-height: 1.6; padding: 0 14px 14px; }
+
+  .tog-row { display: flex; gap: 6px; }
+  .tog-btn {
+    flex: 1; background: #222; border: 1px solid #333; border-radius: 8px;
+    color: #aaa; padding: 7px 8px; font-size: 11px; cursor: pointer;
+    text-align: center; transition: all .15s; font-weight: 600;
+  }
+  .tog-btn.active { background: #1e2d4a; border-color: #4a7afc; color: #fff; }
+
+  /* ── Right ── */
+  #right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #topbar {
+    background: #141414; border-bottom: 1px solid #222;
+    padding: 12px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  #topbar h1 { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+  #topbar .sub { font-size: 11px; color: #555; margin-left: auto; }
+
+  /* ── Phones ── */
+  #phones-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 40px; padding: 20px; overflow: hidden;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+  .phone-label.current  { color: #f87171; }
+  .phone-label.proposed { color: #4ade80; }
+
+  .phone {
+    width: 350px; height: 680px;
+    background: #121212; border-radius: 38px;
+    border: 7px solid #2a2a2a; overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 20px 56px rgba(0,0,0,.7); flex-shrink: 0;
+  }
+  .p-statusbar { display: flex; justify-content: space-between; padding: 10px 20px 4px; font-size: 11px; color: #666; flex-shrink: 0; }
+  .p-appbar    { display: flex; align-items: center; gap: 10px; padding: 4px 16px 8px; flex-shrink: 0; }
+  .p-back  { background: none; border: none; color: #888; font-size: 18px; cursor: pointer; }
+  .p-title { font-size: 17px; font-weight: 700; color: #f0f0f0; flex: 1; }
+  .p-tabs  { display: flex; border-bottom: 1px solid #222; flex-shrink: 0; }
+  .p-tab   { flex: 1; text-align: center; padding: 8px 4px; font-size: 12px; font-weight: 600; color: #555; border-bottom: 2px solid transparent; }
+  .p-tab.active { color: #4a7afc; border-bottom-color: #4a7afc; }
+
+  .p-body { flex: 1; overflow-y: auto; padding: 14px 14px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .p-body::-webkit-scrollbar { display: none; }
+
+  /* Week nav */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1c1c1e; border-radius: 14px; padding: 10px 14px;
+  }
+  .week-nav .arr { font-size: 18px; color: #555; cursor: pointer; }
+  .week-nav .wlabel { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+  .week-nav .wsub   { font-size: 11px; color: #555; text-align: center; }
+
+  /* ── SUMMARY HEADER CARD (Proposed) ── */
+  .summary-card {
+    background: #1c1c1e; border-radius: 16px; padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .summary-card-title { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .7px; }
+
+  .summary-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .sum-metric { display: flex; flex-direction: column; gap: 3px; }
+  .sum-metric-val {
+    font-size: 22px; font-weight: 800; line-height: 1;
+  }
+  .sum-metric-sub { font-size: 10px; color: #666; }
+  .sum-metric-label { font-size: 10px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+  .weight-delta-row { display: flex; align-items: center; gap: 8px; }
+  .weight-arrow { font-size: 20px; font-weight: 900; }
+  .weight-kg { font-size: 22px; font-weight: 800; line-height: 1; }
+  .weight-range { font-size: 11px; color: #666; }
+
+  /* Days-on-target pips */
+  .pips-row { display: flex; gap: 4px; align-items: center; }
+  .pip {
+    width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .pip.hit     { background: rgba(74,222,128,.2);  color: #4ade80; }
+  .pip.partial { background: rgba(250,204,21,.15); color: #facc15; }
+  .pip.miss    { background: rgba(239,68,68,.12);  color: #f87171; }
+  .pip.empty   { background: #252525; color: #444; }
+  .pip-legend  { font-size: 10px; color: #555; margin-left: 4px; }
+
+  /* ── CHART ── */
+  .chart-block { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .chart-title { font-size: 12px; font-weight: 700; color: #e0e0e0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .chart-title span { font-size: 10px; color: #555; font-weight: 400; }
+  .chart-with-target { position: relative; }
+  .chart-area  { display: flex; align-items: flex-end; gap: 5px; height: 120px; }
+  .bar-col     { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .bar-stack   { width: 100%; display: flex; flex-direction: column-reverse; justify-content: flex-start; flex: 1; border-radius: 5px; overflow: hidden; gap: 1px; }
+  .bar-seg     { width: 100%; transition: background .4s, height .3s; min-height: 0; }
+  .bar-day-lbl { font-size: 10px; color: #555; flex-shrink: 0; }
+  .bar-today .bar-day-lbl { color: #4a7afc; font-weight: 700; }
+
+  .target-line {
+    position: absolute; left: 0; right: 0; height: 1px;
+    background: rgba(74,222,128,.35); pointer-events: none;
+    display: flex; align-items: center; justify-content: flex-end;
+  }
+  .target-tag {
+    font-size: 9px; color: #4ade80; background: #1c1c1e;
+    padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+  }
+
+  .legend { display: flex; gap: 12px; margin-top: 10px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .leg-dot  { width: 8px; height: 8px; border-radius: 2px; }
+  .leg-lbl  { font-size: 10px; color: #888; }
+
+  /* Avg row */
+  .avg-block { background: #1c1c1e; border-radius: 14px; padding: 12px 14px; }
+  .avg-title { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+  .avg-row   { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .avg-card  { background: #252525; border-radius: 10px; padding: 8px; text-align: center; }
+  .avg-val   { font-size: 13px; font-weight: 700; color: #f0f0f0; }
+  .avg-lbl   { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+
+  /* Old weight block (current phone) */
+  .old-weight { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .old-w-note { font-size: 10px; color: #555; text-align: center; margin-top: 8px; }
+  .phone-info { font-size: 10px; color: #555; text-align: center; max-width: 350px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ── Controls ── -->
+<div id="controls">
+  <h2>Semaine</h2>
+  <div class="group">
+    <label>Objectif calorique <span id="goalDisp">2000</span> kcal</label>
+    <input type="range" id="calGoal" min="1200" max="3000" value="2000" oninput="update()">
+    <label>Poids début de semaine <span id="wStartDisp">83.2</span> kg</label>
+    <input type="range" id="wStart" min="50" max="130" step="0.1" value="83.2" oninput="update()">
+    <label>Poids fin de semaine <span id="wEndDisp">82.8</span> kg</label>
+    <input type="range" id="wEnd" min="50" max="130" step="0.1" value="82.8" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Jours de la semaine</h2>
+  <div class="group">
+    <label>Lundi <span id="d0Disp">1850</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="0" min="0" max="3500" value="1850" oninput="update()">
+    <label>Mardi <span id="d1Disp">2200</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="1" min="0" max="3500" value="2200" oninput="update()">
+    <label>Mercredi <span id="d2Disp">1600</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="2" min="0" max="3500" value="1600" oninput="update()">
+    <label>Jeudi <span id="d3Disp">1950</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="3" min="0" max="3500" value="1950" oninput="update()">
+    <label>Vendredi <span id="d4Disp">2100</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="4" min="0" max="3500" value="2100" oninput="update()">
+    <label>Samedi <span id="d5Disp">2350</span> kcal</label>
+    <input type="range" class="day-slider" data-idx="5" min="0" max="3500" value="2350" oninput="update()">
+    <label>Dimanche <span id="d6Disp">0</span> kcal <span style="color:#555;font-size:10px">non logué</span></label>
+    <input type="range" class="day-slider" data-idx="6" min="0" max="3500" value="0" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <p class="note">
+    <strong style="color:#aaa">Tolérance objectif :</strong><br>
+    ✅ Hit = ± 10% de l'objectif<br>
+    🟡 Partial = logué mais hors cible<br>
+    ❌ Miss = non logué
+  </p>
+</div>
+
+<!-- ── Right ── -->
+<div id="right">
+  <div id="topbar">
+    <h1>Semaine — Carte résumé hebdomadaire · Playground</h1>
+    <span class="sub">Ajustez les curseurs pour explorer différents scénarios</span>
+  </div>
+
+  <div id="phones-area">
+
+    <!-- PHONE A: Current -->
+    <div class="phone-wrap">
+      <div class="phone-label current">▲ Actuel</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar"><button class="p-back">←</button><span class="p-title">Ma Nutrition</span></div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab active">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+        <div class="p-body">
+          <div class="week-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="wlabel">Cette semaine</div>
+              <div class="wsub">9 – 15 juin 2026</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <!-- Chart only — no weight, no days-on-target -->
+          <div class="chart-block">
+            <div class="chart-title">Apport calorique <span>kcal/jour</span></div>
+            <div class="chart-with-target" style="height:120px;position:relative">
+              <div class="chart-area" id="cur-chart"></div>
+              <div class="target-line" id="cur-tline"><span class="target-tag" id="cur-tlabel">2000 kcal</span></div>
+            </div>
+            <div class="legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#4a7afc"></div><span class="leg-lbl">Protéines</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#a78bfa"></div><span class="leg-lbl">Glucides</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#f97316"></div><span class="leg-lbl">Lipides</span></div>
+            </div>
+          </div>
+
+          <!-- Averages -->
+          <div class="avg-block">
+            <div class="avg-title">Moyennes journalières</div>
+            <div class="avg-row" id="cur-avg"></div>
+          </div>
+
+          <!-- No weight info at all -->
+          <div style="background:#1a1a1a;border:1px solid #252525;border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:11px;color:#444">Aucune information sur le poids</div>
+            <div style="font-size:10px;color:#333;margin-top:4px">Le poids est dans l'onglet "Aujourd'hui"</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-info">Actuel — graphique seul, pas de résumé, poids absent</div>
+    </div>
+
+    <!-- PHONE B: Proposed -->
+    <div class="phone-wrap">
+      <div class="phone-label proposed">✓ Proposé</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar"><button class="p-back">←</button><span class="p-title">Ma Nutrition</span></div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab active">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+        <div class="p-body">
+          <div class="week-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="wlabel">Cette semaine</div>
+              <div class="wsub">9 – 15 juin 2026</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <!-- SUMMARY HEADER CARD -->
+          <div class="summary-card">
+            <div class="summary-card-title">Résumé de la semaine</div>
+
+            <div class="summary-metrics">
+              <!-- Weight delta -->
+              <div class="sum-metric">
+                <div class="sum-metric-label">Poids</div>
+                <div class="weight-delta-row">
+                  <span class="weight-arrow" id="prop-w-arrow">↓</span>
+                  <span class="weight-kg" id="prop-w-delta">0.4 kg</span>
+                </div>
+                <div class="weight-range" id="prop-w-range">83.2 → 82.8</div>
+              </div>
+
+              <!-- Days on target -->
+              <div class="sum-metric">
+                <div class="sum-metric-label">Objectif</div>
+                <div style="display:flex;align-items:baseline;gap:3px">
+                  <span class="sum-metric-val" id="prop-days-hit" style="color:#4ade80">4</span>
+                  <span style="font-size:13px;color:#555">/ <span id="prop-days-logged">6</span> j</span>
+                </div>
+                <div class="sum-metric-sub">jours dans la cible</div>
+              </div>
+
+              <!-- Avg calories -->
+              <div class="sum-metric">
+                <div class="sum-metric-label">Moy. kcal</div>
+                <div class="sum-metric-val" id="prop-avg-kcal" style="color:#e0e0e0">1,975</div>
+                <div class="sum-metric-sub">kcal / jour</div>
+              </div>
+            </div>
+
+            <!-- Pips row -->
+            <div>
+              <div style="font-size:10px;color:#555;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:700">Chaque jour</div>
+              <div class="pips-row" id="prop-pips"></div>
+            </div>
+          </div>
+
+          <!-- Chart -->
+          <div class="chart-block">
+            <div class="chart-title">Apport calorique <span>kcal/jour</span></div>
+            <div class="chart-with-target" style="height:120px;position:relative">
+              <div class="chart-area" id="prop-chart"></div>
+              <div class="target-line" id="prop-tline"><span class="target-tag" id="prop-tlabel">2000 kcal</span></div>
+            </div>
+            <div class="legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#4a7afc"></div><span class="leg-lbl">Protéines</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#a78bfa"></div><span class="leg-lbl">Glucides</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#2dd4bf"></div><span class="leg-lbl">Lipides</span></div>
+            </div>
+          </div>
+
+          <!-- Averages -->
+          <div class="avg-block">
+            <div class="avg-title">Moyennes journalières</div>
+            <div class="avg-row" id="prop-avg"></div>
+          </div>
+
+        </div>
+      </div>
+      <div class="phone-info">Proposé — carte résumé en tête · poids delta · jours sur cible · pips</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const DAYS_SHORT = ['L','M','M','J','V','S','D'];
+const DAYS_FULL  = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+// Approximate macro split from total kcal: 25% prot, 50% carb, 25% fat
+function splitMacros(kcal) {
+  const prot = (kcal * 0.25) / 4;
+  const carb = (kcal * 0.50) / 4;
+  const fat  = (kcal * 0.25) / 9;
+  return [prot, fat, carb];
+}
+
+function buildChart(containerId, dayKcals, goal, colors) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  const H = 120;
+  const maxKcal = Math.max(...dayKcals.filter(v => v > 0), goal * 1.1, 100);
+
+  dayKcals.forEach((kcal, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col' + (i === 5 ? ' bar-today' : ''); // samedi = today
+
+    const stack = document.createElement('div');
+    stack.className = 'bar-stack';
+
+    if (kcal > 0) {
+      const [prot, fat, carb] = splitMacros(kcal);
+      const total = prot * 4 + carb * 4 + fat * 9;
+      const segs = [
+        { h: (prot * 4 / maxKcal) * H, color: colors[0] },
+        { h: (carb * 4 / maxKcal) * H, color: colors[1] },
+        { h: (fat  * 9 / maxKcal) * H, color: colors[2] },
+      ];
+      segs.forEach(({ h, color }) => {
+        if (h < 1) return;
+        const s = document.createElement('div');
+        s.className = 'bar-seg';
+        s.style.height = h + 'px';
+        s.style.background = color;
+        stack.appendChild(s);
+      });
+    } else {
+      // Empty day — dotted placeholder
+      const s = document.createElement('div');
+      s.className = 'bar-seg';
+      s.style.height = '4px';
+      s.style.background = '#2a2a2a';
+      s.style.borderRadius = '2px';
+      stack.appendChild(s);
+    }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-day-lbl';
+    lbl.textContent = DAYS_SHORT[i];
+
+    col.appendChild(stack);
+    col.appendChild(lbl);
+    el.appendChild(col);
+  });
+
+  // Target line
+  const suffix = containerId.startsWith('cur') ? 'cur' : 'prop';
+  const lineEl  = document.getElementById(suffix + '-tline');
+  const labelEl = document.getElementById(suffix + '-tlabel');
+  const lineTop = H - (goal / maxKcal) * H;
+  lineEl.style.top = lineTop + 'px';
+  labelEl.textContent = goal.toLocaleString('fr') + ' kcal';
+}
+
+function buildAvg(containerId, dayKcals) {
+  const logged = dayKcals.filter(v => v > 0);
+  if (logged.length === 0) return;
+  const avgKcal = Math.round(logged.reduce((s, v) => s + v, 0) / logged.length);
+  const avgProt = Math.round(logged.reduce((s, v) => s + splitMacros(v)[0], 0) / logged.length);
+  const avgCarb = Math.round(logged.reduce((s, v) => s + splitMacros(v)[2], 0) / logged.length);
+  const avgFat  = Math.round(logged.reduce((s, v) => s + splitMacros(v)[1], 0) / logged.length);
+  document.getElementById(containerId).innerHTML = `
+    <div class="avg-card"><div class="avg-val">${avgKcal.toLocaleString('fr')}</div><div class="avg-lbl">kcal</div></div>
+    <div class="avg-card"><div class="avg-val">${avgProt}g</div><div class="avg-lbl">prot.</div></div>
+    <div class="avg-card"><div class="avg-val">${avgCarb}g</div><div class="avg-lbl">glucides</div></div>
+    <div class="avg-card"><div class="avg-val">${avgFat}g</div><div class="avg-lbl">lip.</div></div>
+  `;
+}
+
+function getDayStatus(kcal, goal) {
+  if (kcal === 0) return 'empty';
+  const ratio = kcal / goal;
+  if (ratio >= 0.9 && ratio <= 1.1) return 'hit';
+  return 'partial';
+}
+
+function buildPips(dayKcals, goal) {
+  const el = document.getElementById('prop-pips');
+  el.innerHTML = '';
+  dayKcals.forEach((kcal, i) => {
+    const status = getDayStatus(kcal, goal);
+    const pip = document.createElement('div');
+    pip.className = 'pip ' + status;
+    pip.title = DAYS_FULL[i] + (kcal > 0 ? ` · ${kcal} kcal` : ' · Non logué');
+    const icons = { hit: '✓', partial: '~', miss: '✗', empty: '–' };
+    pip.textContent = icons[status];
+    el.appendChild(pip);
+  });
+  // Legend
+  const leg = document.createElement('span');
+  leg.className = 'pip-legend';
+  leg.textContent = '✓ cible  ~ partiel  – non logué';
+  el.appendChild(leg);
+}
+
+function update() {
+  const goal   = +document.getElementById('calGoal').value;
+  const wStart = +document.getElementById('wStart').value;
+  const wEnd   = +document.getElementById('wEnd').value;
+
+  document.getElementById('goalDisp').textContent = goal;
+  document.getElementById('wStartDisp').textContent = wStart.toFixed(1);
+  document.getElementById('wEndDisp').textContent   = wEnd.toFixed(1);
+
+  const dayKcals = [];
+  document.querySelectorAll('.day-slider').forEach((sl, i) => {
+    const v = +sl.value;
+    dayKcals.push(v);
+    document.getElementById('d' + i + 'Disp').textContent = v;
+  });
+
+  // ── Current phone ──
+  buildChart('cur-chart', dayKcals, goal, ['#4a7afc', '#a78bfa', '#f97316']);
+  buildAvg('cur-avg', dayKcals);
+
+  // ── Proposed phone ──
+  buildChart('prop-chart', dayKcals, goal, ['#4a7afc', '#a78bfa', '#2dd4bf']);
+  buildAvg('prop-avg', dayKcals);
+
+  // Summary card
+  const delta = wEnd - wStart;
+  const loss  = delta < 0;
+  const gain  = delta > 0;
+  const arrowEl = document.getElementById('prop-w-arrow');
+  const deltaEl = document.getElementById('prop-w-delta');
+  const rangeEl = document.getElementById('prop-w-range');
+
+  arrowEl.textContent = loss ? '↓' : gain ? '↑' : '→';
+  arrowEl.style.color = loss ? '#4ade80' : gain ? '#f87171' : '#888';
+  deltaEl.textContent = Math.abs(delta).toFixed(1) + ' kg';
+  deltaEl.style.color = loss ? '#4ade80' : gain ? '#f87171' : '#888';
+  rangeEl.textContent = wStart.toFixed(1) + ' → ' + wEnd.toFixed(1);
+
+  // Days on target
+  const logged = dayKcals.filter(v => v > 0);
+  const hits   = dayKcals.filter(v => getDayStatus(v, goal) === 'hit').length;
+  const hitEl  = document.getElementById('prop-days-hit');
+  hitEl.textContent = hits;
+  hitEl.style.color = hits >= logged.length * 0.7 ? '#4ade80' : hits >= logged.length * 0.4 ? '#facc15' : '#f87171';
+  document.getElementById('prop-days-logged').textContent = logged.length;
+
+  // Avg kcal
+  const avgKcal = logged.length > 0
+    ? Math.round(logged.reduce((s, v) => s + v, 0) / logged.length)
+    : 0;
+  document.getElementById('prop-avg-kcal').textContent = avgKcal.toLocaleString('fr');
+
+  // Pips
+  buildPips(dayKcals, goal);
+}
+
+update();
+</script>
+</body>
+</html>

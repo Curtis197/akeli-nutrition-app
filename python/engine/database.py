@@ -246,19 +246,25 @@ def get_user_weight_log(user_id: str) -> list[tuple]:
             return [(row[0], float(row[1])) for row in cur.fetchall()]
 
 
-def get_recipes_consumed_between(user_id: str, date_start, date_end) -> list[str]:
-    """Retourne les recipe_ids distincts consommés dans [date_start, date_end)."""
+def get_recipes_consumed_between(user_id: str, date_start, date_end) -> list[tuple]:
+    """
+    Retourne les paires (recipe_id, meal_type) distinctes consommées dans [date_start, date_end).
+    Joins meal_plan_entry pour récupérer le meal_type.
+    Exclut les consommations sans meal_type connu.
+    """
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT DISTINCT recipe_id
-                FROM meal_consumption
-                WHERE user_id = %s
-                  AND scheduled_date >= %s
-                  AND scheduled_date < %s
-                  AND recipe_id IS NOT NULL
+                SELECT DISTINCT mc.recipe_id, mpe.meal_type
+                FROM meal_consumption mc
+                JOIN meal_plan_entry mpe ON mpe.id = mc.meal_plan_entry_id
+                WHERE mc.user_id = %s
+                  AND mc.scheduled_date >= %s
+                  AND mc.scheduled_date < %s
+                  AND mc.recipe_id IS NOT NULL
+                  AND mpe.meal_type IS NOT NULL
             """, (user_id, date_start, date_end))
-            return [row[0] for row in cur.fetchall()]
+            return [(row[0], row[1]) for row in cur.fetchall()]
 
 
 def upsert_recipe_weight_impact(user_id: str, results: list[dict]):
@@ -274,14 +280,14 @@ def upsert_recipe_weight_impact(user_id: str, results: list[dict]):
                     cur,
                     """
                     INSERT INTO recipe_weight_impact
-                        (user_id, recipe_id, avg_delta_kg, sample_count, computed_at)
+                        (user_id, recipe_id, meal_type, avg_delta_kg, sample_count, computed_at)
                     VALUES %s
                     """,
                     [
-                        (user_id, r["recipe_id"], r["avg_delta_kg"], r["sample_count"])
+                        (user_id, r["recipe_id"], r["meal_type"], r["avg_delta_kg"], r["sample_count"])
                         for r in results
                     ],
-                    template="(%s, %s, %s, %s, NOW())",
+                    template="(%s, %s, %s, %s, %s, NOW())",
                 )
         conn.commit()
 

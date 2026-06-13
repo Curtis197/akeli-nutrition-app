@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Parcours Tab -- Journey Tab Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f0f; color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+
+  /* Controls */
+  #controls {
+    width: 280px; min-width: 280px; background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 {
+    font-size: 10px; font-weight: 600; color: #555;
+    letter-spacing: .8px; text-transform: uppercase;
+    padding: 18px 16px 8px;
+  }
+  .group { padding: 0 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .divider { height: 1px; background: #222; margin: 2px 0; }
+  .group label { font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center; }
+  .group label span { color: #e0e0e0; font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: #4a7afc; }
+  .note { font-size: 11px; color: #555; line-height: 1.6; padding: 0 14px 14px; }
+
+  .meal-section-hdr {
+    font-size: 11px; font-weight: 700; color: #888;
+    text-transform: uppercase; letter-spacing: .5px;
+    padding: 8px 0 2px;
+  }
+  .meal-section-hdr.breakfast { color: #facc15; }
+  .meal-section-hdr.lunch     { color: #4ade80; }
+  .meal-section-hdr.dinner    { color: #818cf8; }
+
+  .tog-row { display: flex; gap: 6px; }
+  .tog-btn {
+    flex: 1; background: #222; border: 1px solid #333; border-radius: 8px;
+    color: #aaa; padding: 7px 8px; font-size: 11px; cursor: pointer;
+    text-align: center; font-weight: 600; transition: all .15s;
+  }
+  .tog-btn.active { background: #1e2d4a; border-color: #4a7afc; color: #fff; }
+
+  /* Right */
+  #right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #topbar {
+    background: #141414; border-bottom: 1px solid #222;
+    padding: 12px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  #topbar h1 { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+  #topbar .sub { font-size: 11px; color: #555; margin-left: auto; }
+
+  /* Phones area */
+  #phones-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 40px; padding: 20px; overflow: hidden;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; }
+  .phone-label.current  { color: #f87171; }
+  .phone-label.proposed { color: #4ade80; }
+
+  .phone {
+    width: 350px; height: 700px;
+    background: #121212; border-radius: 38px;
+    border: 7px solid #2a2a2a; overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 20px 56px rgba(0,0,0,.7); flex-shrink: 0;
+  }
+  .p-statusbar { display: flex; justify-content: space-between; padding: 10px 20px 4px; font-size: 11px; color: #666; flex-shrink: 0; }
+  .p-appbar    { display: flex; align-items: center; gap: 10px; padding: 4px 16px 8px; flex-shrink: 0; }
+  .p-back      { background: none; border: none; color: #888; font-size: 18px; cursor: pointer; }
+  .p-title     { font-size: 17px; font-weight: 700; color: #f0f0f0; flex: 1; }
+  .p-tabs      { display: flex; border-bottom: 1px solid #222; flex-shrink: 0; }
+  .p-tab       { flex: 1; text-align: center; padding: 8px 4px; font-size: 12px; font-weight: 600; color: #555; border-bottom: 2px solid transparent; }
+  .p-tab.active { color: #4a7afc; border-bottom-color: #4a7afc; }
+
+  .p-body { flex: 1; overflow-y: auto; padding: 14px 14px 24px; display: flex; flex-direction: column; gap: 12px; }
+  .p-body::-webkit-scrollbar { display: none; }
+
+  /* ── Shared components ── */
+  .sec-label { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .7px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card {
+    background: #1c1c1e; border-radius: 14px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat-icon  { font-size: 16px; }
+  .stat-val   { font-size: 22px; font-weight: 800; color: #f0f0f0; line-height: 1; }
+  .stat-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: .5px; }
+
+  .streak-pill {
+    background: #1c1c1e; border-radius: 14px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .streak-fire { font-size: 28px; }
+  .streak-info { flex: 1; }
+  .streak-val  { font-size: 26px; font-weight: 800; color: #f0f0f0; line-height: 1; }
+  .streak-sub  { font-size: 11px; color: #666; margin-top: 2px; }
+  .streak-best { text-align: right; }
+  .streak-best-val { font-size: 18px; font-weight: 700; color: #facc15; }
+  .streak-best-lbl { font-size: 10px; color: #555; }
+
+  .goals-card { background: #1c1c1e; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .goals-title { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+  .goal-row   { display: flex; flex-direction: column; gap: 4px; }
+  .goal-header { display: flex; justify-content: space-between; align-items: center; }
+  .goal-label  { font-size: 12px; color: #aaa; }
+  .goal-pct    { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+  .goal-track  { width: 100%; height: 5px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
+  .goal-fill   { height: 100%; border-radius: 3px; transition: width .4s; }
+  .grad-bar    { background: linear-gradient(90deg, #ef4444, #facc15 40%, #4ade80); }
+
+  .weight-card { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .weight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .weight-current-val { font-size: 28px; font-weight: 800; color: #4a7afc; line-height: 1; }
+  .weight-current-lbl { font-size: 10px; color: #555; margin-top: 2px; }
+  .weight-target-val  { font-size: 16px; font-weight: 700; color: #4ade80; }
+  .weight-target-lbl  { font-size: 10px; color: #555; text-align: right; }
+  .weight-progress-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .weight-progress-track { flex: 1; height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
+  .weight-progress-fill  { height: 100%; border-radius: 3px; transition: width .4s; }
+  .weight-progress-pct   { font-size: 11px; font-weight: 700; color: #4ade80; flex-shrink: 0; }
+
+  .cal-card { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .cal-nav  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .cal-nav-arr { font-size: 16px; color: #555; cursor: pointer; }
+  .cal-month   { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+  .cal-grid    { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-day-hdr { font-size: 9px; color: #555; text-align: center; font-weight: 700; padding-bottom: 4px; }
+  .cal-day     {
+    aspect-ratio: 1; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+  }
+  .cal-day.hit     { background: rgba(74,222,128,.2); color: #4ade80; }
+  .cal-day.partial { background: rgba(250,204,21,.12); color: #facc15; }
+  .cal-day.miss    { background: rgba(239,68,68,.1); color: #f87171; }
+  .cal-day.empty   { background: #1e1e1e; color: #333; }
+  .cal-day.today   { outline: 2px solid #4a7afc; }
+  .cal-legend { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .cal-leg    { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #666; }
+  .cal-dot    { width: 8px; height: 8px; border-radius: 3px; }
+
+  /* ── IMPACT SECTION ── */
+  .impact-section { display: flex; flex-direction: column; gap: 8px; }
+  .impact-section-title {
+    font-size: 11px; font-weight: 700; color: #555;
+    text-transform: uppercase; letter-spacing: .7px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .impact-section-title::after {
+    content: ''; flex: 1; height: 1px; background: #222;
+  }
+
+  /* Single impact card */
+  .impact-card {
+    border-radius: 14px; padding: 12px 14px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .impact-card.loss {
+    background: linear-gradient(135deg, #152215 0%, #1c1c1e 100%);
+    border: 1px solid rgba(74,222,128,.18);
+  }
+  .impact-card.gain {
+    background: linear-gradient(135deg, #221515 0%, #1c1c1e 100%);
+    border: 1px solid rgba(248,113,113,.18);
+  }
+
+  .impact-thumb {
+    width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .impact-thumb.loss { background: #1a2d1a; }
+  .impact-thumb.gain { background: #2d1a1a; }
+
+  .impact-info { flex: 1; min-width: 0; }
+  .impact-meal-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 2px;
+  }
+  .impact-meal-label.breakfast { color: #facc15; }
+  .impact-meal-label.lunch     { color: #4ade80; }
+  .impact-meal-label.dinner    { color: #818cf8; }
+
+  .impact-name {
+    font-size: 13px; font-weight: 700; color: #f0f0f0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .impact-sub { font-size: 10px; color: #555; margin-top: 2px; }
+
+  .impact-right { text-align: right; flex-shrink: 0; }
+  .impact-delta { font-size: 18px; font-weight: 800; line-height: 1; }
+  .impact-delta.loss { color: #4ade80; }
+  .impact-delta.gain { color: #f87171; }
+  .impact-n { font-size: 10px; color: #555; margin-top: 2px; }
+
+  /* Empty card */
+  .impact-empty {
+    border-radius: 14px; padding: 12px 14px;
+    background: #1c1c1e; border: 1px dashed #2a2a2a;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .impact-empty-icon { font-size: 22px; flex-shrink: 0; }
+  .impact-empty-info { flex: 1; }
+  .impact-empty-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px;
+  }
+  .impact-empty-text { font-size: 11px; color: #444; line-height: 1.4; }
+
+  .phone-info { font-size: 10px; color: #555; text-align: center; max-width: 350px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div id="controls">
+  <h2>Donnees utilisateur</h2>
+  <div class="group">
+    <label>Jours de parcours <span id="totalDaysDisp">87</span></label>
+    <input type="range" id="totalDays" min="7" max="365" value="87" oninput="update()">
+    <label>Jours logues <span id="daysLoggedDisp">61</span></label>
+    <input type="range" id="daysLogged" min="0" max="365" value="61" oninput="update()">
+    <label>Repas consommes <span id="mealsDisp">183</span></label>
+    <input type="range" id="meals" min="0" max="600" value="183" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Poids</h2>
+  <div class="group">
+    <label>Poids de depart <span id="wStartDisp">92.0</span> kg</label>
+    <input type="range" id="wStart" min="40" max="150" step="0.5" value="92.0" oninput="update()">
+    <label>Poids actuel <span id="wCurDisp">87.4</span> kg</label>
+    <input type="range" id="wCur" min="40" max="150" step="0.1" value="87.4" oninput="update()">
+    <label>Poids cible <span id="wTargetDisp">75.0</span> kg</label>
+    <input type="range" id="wTarget" min="40" max="150" step="0.5" value="75.0" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Streak & Objectifs</h2>
+  <div class="group">
+    <label>Streak actuel <span id="streakDisp">9</span> jours</label>
+    <input type="range" id="streak" min="0" max="90" value="9" oninput="update()">
+    <label>Meilleur streak <span id="bestStreakDisp">21</span> jours</label>
+    <input type="range" id="bestStreak" min="0" max="180" value="21" oninput="update()">
+    <label>Calories cible <span id="calHitDisp">68</span>%</label>
+    <input type="range" id="calHit" min="0" max="100" value="68" oninput="update()">
+    <label>Proteines cible <span id="protHitDisp">52</span>%</label>
+    <input type="range" id="protHit" min="0" max="100" value="52" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Recette impact — par repas</h2>
+  <div class="group">
+    <div class="meal-section-hdr breakfast">🌅 Petit-dejeuner</div>
+    <label>Delta moyen <span id="deltaBreakfastDisp">-0.38</span> kg</label>
+    <input type="range" id="deltaBreakfast" min="-2" max="2" step="0.01" value="-0.38" oninput="update()">
+    <label>Periodes (n) <span id="samplesBreakfastDisp">8</span></label>
+    <input type="range" id="samplesBreakfast" min="0" max="20" value="8" oninput="update()">
+
+    <div class="meal-section-hdr lunch">☀️ Dejeuner</div>
+    <label>Delta moyen <span id="deltaLunchDisp">-0.70</span> kg</label>
+    <input type="range" id="deltaLunch" min="-2" max="2" step="0.01" value="-0.70" oninput="update()">
+    <label>Periodes (n) <span id="samplesLunchDisp">5</span></label>
+    <input type="range" id="samplesLunch" min="0" max="20" value="5" oninput="update()">
+
+    <div class="meal-section-hdr dinner">🌙 Diner</div>
+    <label>Delta moyen <span id="deltaDinnerDisp">+0.60</span> kg</label>
+    <input type="range" id="deltaDinner" min="-2" max="2" step="0.01" value="0.60" oninput="update()">
+    <label>Periodes (n) <span id="samplesDinnerDisp">3</span></label>
+    <input type="range" id="samplesDinner" min="0" max="20" value="3" oninput="update()">
+
+    <p class="note">n=0 → carte vide (pas encore assez de donnees pour ce repas)</p>
+  </div>
+
+  <div class="divider"></div>
+  <h2>Placement des cartes</h2>
+  <div class="group">
+    <div class="tog-row">
+      <button class="tog-btn active" data-pos="after-goals" onclick="setPos(this)">Apres objectifs</button>
+      <button class="tog-btn" data-pos="after-streak" onclick="setPos(this)">Apres streak</button>
+    </div>
+    <p class="note">Teste ou le bloc impact s'insere le mieux dans le flux de lecture.</p>
+  </div>
+</div>
+
+<div id="right">
+  <div id="topbar">
+    <h1>Parcours — 3 cartes impact par repas</h1>
+    <span class="sub">Ajustez les curseurs pour explorer differents etats</span>
+  </div>
+
+  <div id="phones-area">
+
+    <!-- PHONE A: Current -->
+    <div class="phone-wrap">
+      <div class="phone-label current">Actuel</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>...</span></div>
+        <div class="p-appbar"><button class="p-back">←</button><span class="p-title">Ma Nutrition</span></div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab">Semaine</div>
+          <div class="p-tab active">Parcours</div>
+        </div>
+        <div class="p-body">
+          <div class="stat-grid" id="cur-stats"></div>
+          <div class="streak-pill" id="cur-streak"></div>
+          <div class="goals-card" id="cur-goals"></div>
+          <div class="cal-card" id="cur-cal"></div>
+          <div style="background:#1a1a1a;border:1px dashed #252525;border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:11px;color:#333">Poids: voir onglet Aujourd'hui</div>
+            <div style="font-size:10px;color:#2a2a2a;margin-top:4px">Recette impact: inexistant</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-info">Actuel — pas de poids, pas de recette impact</div>
+    </div>
+
+    <!-- PHONE B: Proposed -->
+    <div class="phone-wrap">
+      <div class="phone-label proposed">Propose</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>...</span></div>
+        <div class="p-appbar"><button class="p-back">←</button><span class="p-title">Ma Nutrition</span></div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab">Semaine</div>
+          <div class="p-tab active">Parcours</div>
+        </div>
+        <div class="p-body" id="prop-body"></div>
+      </div>
+      <div class="phone-info" id="prop-info">Propose — poids + 3 cartes impact (breakfast / lunch / dinner)</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let cardPos = 'after-goals';
+
+function setPos(btn) {
+  document.querySelectorAll('.tog-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  cardPos = btn.dataset.pos;
+  update();
+}
+
+// ── Calendar mock data (June 2026) ──
+const CAL_DATA = [
+  null, null, 'hit', 'hit', 'partial', 'miss', 'hit',
+  'hit', 'partial', 'hit', 'hit', 'hit', 'miss', 'hit',
+  'partial', 'hit', 'hit', 'hit', 'partial', 'hit', 'hit',
+  'hit', 'miss', 'hit', 'partial', 'hit', 'hit', 'hit',
+  'partial', 'hit', 'hit', null, null, null, null
+];
+const DAY_LABELS = ['D','L','M','M','J','V','S'];
+
+// Mock recipe names per meal type and direction
+const RECIPES = {
+  breakfast: { loss: { emoji: '🥣', name: 'Bouillie de mil' },     gain: { emoji: '🍞', name: 'Foufou + sauce graine' } },
+  lunch:     { loss: { emoji: '🥗', name: 'Salade avocat-tomate' }, gain: { emoji: '🍲', name: 'Thieboudienne au poisson' } },
+  dinner:    { loss: { emoji: '🍗', name: 'Poulet Yassa' },         gain: { emoji: '🍚', name: 'Riz sauce tomate' } },
+};
+const MEAL_LABELS = { breakfast: 'Petit-dejeuner', lunch: 'Dejeuner', dinner: 'Diner' };
+
+function buildStatGrid(containerId, totalDays, daysLogged, meals, consistency) {
+  document.getElementById(containerId).innerHTML = `
+    <div class="stat-card"><span class="stat-icon">📅</span><span class="stat-val">${totalDays}</span><span class="stat-label">Jours de parcours</span></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><span class="stat-val">${daysLogged}</span><span class="stat-label">Jours logues</span></div>
+    <div class="stat-card"><span class="stat-icon">🍽️</span><span class="stat-val">${meals}</span><span class="stat-label">Repas consommes</span></div>
+    <div class="stat-card"><span class="stat-icon">📊</span><span class="stat-val">${consistency}%</span><span class="stat-label">Consistance</span></div>
+  `;
+}
+
+function buildStreak(containerId, cur, best) {
+  document.getElementById(containerId).innerHTML = `
+    <span class="streak-fire">🔥</span>
+    <div class="streak-info">
+      <div class="streak-val">${cur}</div>
+      <div class="streak-sub">jours · objectif calorique</div>
+    </div>
+    <div class="streak-best">
+      <div class="streak-best-val">${best}</div>
+      <div class="streak-best-lbl">record</div>
+    </div>
+  `;
+}
+
+function buildGoals(containerId, wStart, wCur, wTarget, calHit, protHit) {
+  const weightProg = wStart === wTarget ? 0
+    : Math.max(0, Math.min(1, (wStart - wCur) / (wStart - wTarget)));
+  document.getElementById(containerId).innerHTML = `
+    <div class="goals-title">Objectifs</div>
+    <div class="goal-row">
+      <div class="goal-header"><span class="goal-label">⚖️ Poids</span><span class="goal-pct">${wStart} → ${wTarget} kg</span></div>
+      <div class="goal-track"><div class="goal-fill grad-bar" style="width:${weightProg*100}%"></div></div>
+    </div>
+    <div class="goal-row">
+      <div class="goal-header"><span class="goal-label">🔥 Calories</span><span class="goal-pct">${calHit}%</span></div>
+      <div class="goal-track"><div class="goal-fill" style="width:${calHit}%;background:#4a7afc"></div></div>
+    </div>
+    <div class="goal-row">
+      <div class="goal-header"><span class="goal-label">🥩 Proteines</span><span class="goal-pct">${protHit}%</span></div>
+      <div class="goal-track"><div class="goal-fill" style="width:${protHit}%;background:#4ade80"></div></div>
+    </div>
+  `;
+}
+
+function buildWeightCard(wStart, wCur, wTarget) {
+  const prog = wStart === wTarget ? 0
+    : Math.max(0, Math.min(1, (wStart - wCur) / (wStart - wTarget)));
+  const remaining = (wCur - wTarget).toFixed(1);
+  return `
+    <div class="weight-card">
+      <div class="weight-header">
+        <div><div class="weight-current-val">${wCur} kg</div><div class="weight-current-lbl">Poids actuel</div></div>
+        <div><div class="weight-target-val">${wTarget} kg</div><div class="weight-target-lbl">Objectif<br>−${remaining} restants</div></div>
+      </div>
+      <div class="weight-progress-row">
+        <div class="weight-progress-track"><div class="weight-progress-fill grad-bar" style="width:${prog*100}%"></div></div>
+        <span class="weight-progress-pct">${Math.round(prog*100)}%</span>
+      </div>
+      <svg width="100%" height="52" viewBox="0 0 310 52" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4a7afc" stop-opacity=".25"/>
+            <stop offset="100%" stop-color="#4a7afc" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="46" x2="310" y2="46" stroke="#4ade80" stroke-width="1" stroke-dasharray="4,4" opacity=".3"/>
+        <polyline fill="none" stroke="#4a7afc" stroke-width="2"
+          points="0,38 35,34 70,30 105,28 140,25 175,22 210,19 245,17 280,14 310,12"/>
+        <polygon fill="url(#wg2)"
+          points="0,38 35,34 70,30 105,28 140,25 175,22 210,19 245,17 280,14 310,12 310,52 0,52"/>
+      </svg>
+      <div style="font-size:10px;color:#444;text-align:center;margin-top:4px">Evolution du poids · 10 dernieres entrees</div>
+    </div>
+  `;
+}
+
+// Build a single compact impact card for one meal type
+function buildSingleImpactCard(mealType, delta, samples) {
+  const mealLbl = MEAL_LABELS[mealType];
+  const icon = mealType === 'breakfast' ? '🌅' : mealType === 'lunch' ? '☀️' : '🌙';
+
+  if (samples === 0) {
+    return `
+      <div class="impact-empty">
+        <span class="impact-empty-icon">${icon}</span>
+        <div class="impact-empty-info">
+          <div class="impact-empty-label ${mealType}">${mealLbl}</div>
+          <div class="impact-empty-text">Pas encore assez de donnees. Continuez a enregistrer vos repas.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  const isLoss = delta < 0;
+  const dir    = isLoss ? 'loss' : 'gain';
+  const sign   = delta >= 0 ? '+' : '';
+  const recipe = RECIPES[mealType][dir];
+
+  return `
+    <div class="impact-card ${dir}">
+      <div class="impact-thumb ${dir}">${recipe.emoji}</div>
+      <div class="impact-info">
+        <div class="impact-meal-label ${mealType}">${icon} ${mealLbl}</div>
+        <div class="impact-name">${recipe.name}</div>
+        <div class="impact-sub">${isLoss ? 'Favorise la perte de poids' : 'Associee a une prise de poids'}</div>
+      </div>
+      <div class="impact-right">
+        <div class="impact-delta ${dir}">${sign}${delta.toFixed(2)}</div>
+        <div class="impact-n">n=${samples}</div>
+      </div>
+    </div>
+  `;
+}
+
+// Build the full impact section (title + 3 cards)
+function buildImpactSection(dB, sB, dL, sL, dD, sD) {
+  return `
+    <div class="impact-section">
+      <div class="impact-section-title">✨ Impact recette · semaine</div>
+      ${buildSingleImpactCard('breakfast', dB, sB)}
+      ${buildSingleImpactCard('lunch',     dL, sL)}
+      ${buildSingleImpactCard('dinner',    dD, sD)}
+    </div>
+  `;
+}
+
+function buildCalendar(containerId) {
+  const el = document.getElementById(containerId);
+  let html = `
+    <div class="cal-nav">
+      <span class="cal-nav-arr">‹</span>
+      <span class="cal-month">Juin 2026</span>
+      <span class="cal-nav-arr" style="color:#2a2a2a">›</span>
+    </div>
+    <div class="cal-grid">
+  `;
+  DAY_LABELS.forEach(d => { html += `<div class="cal-day-hdr">${d}</div>`; });
+  CAL_DATA.forEach((status, i) => {
+    if (!status) { html += `<div class="cal-day empty"></div>`; return; }
+    const isToday = i === 12;
+    html += `<div class="cal-day ${status}${isToday ? ' today' : ''}">${i}</div>`;
+  });
+  html += `</div>
+    <div class="cal-legend">
+      <div class="cal-leg"><div class="cal-dot" style="background:rgba(74,222,128,.4)"></div>Objectif</div>
+      <div class="cal-leg"><div class="cal-dot" style="background:rgba(250,204,21,.4)"></div>Partiel</div>
+      <div class="cal-leg"><div class="cal-dot" style="background:rgba(239,68,68,.3)"></div>Rate</div>
+    </div>
+  `;
+  el.innerHTML = html;
+}
+
+function rebuildProposed(p) {
+  const statsHTML  = `<div class="stat-grid" id="prop-stats"></div>`;
+  const streakHTML = `<div class="streak-pill" id="prop-streak"></div>`;
+  const goalsHTML  = `<div class="goals-card" id="prop-goals"></div>`;
+  const weightHTML = buildWeightCard(p.wStart, p.wCur, p.wTarget);
+  const impactHTML = buildImpactSection(p.dB, p.sB, p.dL, p.sL, p.dD, p.sD);
+  const calHTML    = `<div class="cal-card" id="prop-cal"></div>`;
+
+  let bodyHTML = '';
+  if (cardPos === 'after-streak') {
+    bodyHTML = statsHTML + streakHTML + impactHTML + weightHTML + goalsHTML + calHTML;
+  } else {
+    bodyHTML = statsHTML + streakHTML + weightHTML + goalsHTML + impactHTML + calHTML;
+  }
+
+  document.getElementById('prop-body').innerHTML = bodyHTML;
+
+  buildStatGrid('prop-stats', p.totalDays, p.daysLogged, p.meals, p.consistency);
+  buildStreak('prop-streak', p.streak, p.bestStreak);
+  buildGoals('prop-goals', p.wStart, p.wCur, p.wTarget, p.calHit, p.protHit);
+  buildCalendar('prop-cal');
+
+  const posLabel = cardPos === 'after-streak' ? 'apres streak' : 'apres objectifs';
+  const emptyCount = [p.sB, p.sL, p.sD].filter(s => s === 0).length;
+  document.getElementById('prop-info').textContent =
+    `Propose — 3 cartes impact (${posLabel})${emptyCount > 0 ? ' · ' + emptyCount + ' vide(s)' : ''}`;
+}
+
+function update() {
+  const totalDays  = +document.getElementById('totalDays').value;
+  const daysLogged = +document.getElementById('daysLogged').value;
+  const meals      = +document.getElementById('meals').value;
+  const wStart     = +document.getElementById('wStart').value;
+  const wCur       = +document.getElementById('wCur').value;
+  const wTarget    = +document.getElementById('wTarget').value;
+  const streak     = +document.getElementById('streak').value;
+  const bestStreak = +document.getElementById('bestStreak').value;
+  const calHit     = +document.getElementById('calHit').value;
+  const protHit    = +document.getElementById('protHit').value;
+  const dB  = +document.getElementById('deltaBreakfast').value;
+  const sB  = +document.getElementById('samplesBreakfast').value;
+  const dL  = +document.getElementById('deltaLunch').value;
+  const sL  = +document.getElementById('samplesLunch').value;
+  const dD  = +document.getElementById('deltaDinner').value;
+  const sD  = +document.getElementById('samplesDinner').value;
+  const consistency = totalDays > 0 ? Math.round((daysLogged / totalDays) * 100) : 0;
+
+  // Update labels
+  document.getElementById('totalDaysDisp').textContent      = totalDays;
+  document.getElementById('daysLoggedDisp').textContent     = daysLogged;
+  document.getElementById('mealsDisp').textContent          = meals;
+  document.getElementById('wStartDisp').textContent         = wStart.toFixed(1);
+  document.getElementById('wCurDisp').textContent           = wCur.toFixed(1);
+  document.getElementById('wTargetDisp').textContent        = wTarget.toFixed(1);
+  document.getElementById('streakDisp').textContent         = streak;
+  document.getElementById('bestStreakDisp').textContent     = bestStreak;
+  document.getElementById('calHitDisp').textContent         = calHit;
+  document.getElementById('protHitDisp').textContent        = protHit;
+  document.getElementById('deltaBreakfastDisp').textContent = (dB >= 0 ? '+' : '') + dB.toFixed(2);
+  document.getElementById('samplesBreakfastDisp').textContent = sB;
+  document.getElementById('deltaLunchDisp').textContent    = (dL >= 0 ? '+' : '') + dL.toFixed(2);
+  document.getElementById('samplesLunchDisp').textContent  = sL;
+  document.getElementById('deltaDinnerDisp').textContent   = (dD >= 0 ? '+' : '') + dD.toFixed(2);
+  document.getElementById('samplesDinnerDisp').textContent = sD;
+
+  // Current phone
+  buildStatGrid('cur-stats', totalDays, daysLogged, meals, consistency);
+  buildStreak('cur-streak', streak, bestStreak);
+  buildGoals('cur-goals', wStart, wCur, wTarget, calHit, protHit);
+  buildCalendar('cur-cal');
+
+  // Proposed phone
+  rebuildProposed({ totalDays, daysLogged, meals, consistency,
+    wStart, wCur, wTarget, streak, bestStreak, calHit, protHit,
+    dB, sB, dL, sL, dD, sD });
+}
+
+update();
+</script>
+</body>
+</html>

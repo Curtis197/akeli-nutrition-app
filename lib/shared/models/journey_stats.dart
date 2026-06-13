@@ -1,6 +1,45 @@
 import 'package:flutter/foundation.dart';
 import 'package:akeli/core/logger.dart';
 
+@immutable
+class RecipeWeightImpact {
+  final String recipeId;
+  final String mealType;
+  final String recipeTitle;
+  final String? recipeThumbnailUrl;
+  final double avgDeltaKg;
+  final int sampleCount;
+
+  const RecipeWeightImpact({
+    required this.recipeId,
+    required this.mealType,
+    required this.recipeTitle,
+    this.recipeThumbnailUrl,
+    required this.avgDeltaKg,
+    required this.sampleCount,
+  });
+
+  factory RecipeWeightImpact.fromJson(Map<String, dynamic> json) {
+    _logger.db('RecipeWeightImpact.fromJson | recipeId: ${json['recipe_id']} | mealType: ${json['meal_type']}');
+    final recipe = json['recipe'] as Map<String, dynamic>? ?? {};
+    return RecipeWeightImpact(
+      recipeId:           json['recipe_id']      as String,
+      mealType:           json['meal_type']       as String,
+      recipeTitle:        recipe['title']         as String? ?? '',
+      recipeThumbnailUrl: recipe['thumbnail_url'] as String?,
+      avgDeltaKg:         (json['avg_delta_kg']   as num).toDouble(),
+      sampleCount:        (json['sample_count']   as num).toInt(),
+    );
+  }
+
+  bool get isWeightLoss => avgDeltaKg < 0;
+
+  String get formattedDelta {
+    final sign = avgDeltaKg >= 0 ? '+' : '';
+    return '$sign${avgDeltaKg.toStringAsFixed(2)} kg';
+  }
+}
+
 // ignore: unused_field
 final _logger = appLogger;
 

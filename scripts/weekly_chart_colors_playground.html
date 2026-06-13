@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Weekly Chart — Color Scheme Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f0f; color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+
+  /* ── Controls ── */
+  #controls {
+    width: 260px; min-width: 260px; background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 {
+    font-size: 10px; font-weight: 600; color: #555;
+    letter-spacing: .8px; text-transform: uppercase;
+    padding: 18px 16px 8px;
+  }
+  .group { padding: 0 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+  .divider { height: 1px; background: #222; margin: 2px 0; }
+  .group label { font-size: 12px; color: #aaa; display: flex; justify-content: space-between; }
+  .group label span { color: #e0e0e0; font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: #4a7afc; }
+
+  .scheme-btn {
+    background: #222; border: 1px solid #333; border-radius: 8px;
+    color: #ccc; padding: 10px 12px; text-align: left;
+    cursor: pointer; font-size: 12px; line-height: 1.5;
+    transition: all .15s; width: 100%;
+  }
+  .scheme-btn.active { background: #1e2d4a; border-color: #4a7afc; color: #fff; }
+  .scheme-btn strong { display: block; font-size: 13px; margin-bottom: 3px; }
+
+  .swatch-row { display: flex; gap: 6px; margin-top: 4px; }
+  .swatch {
+    width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; color: transparent;
+  }
+  .swatch-label { font-size: 10px; color: #666; }
+
+  .note { font-size: 11px; color: #555; line-height: 1.5; padding: 0 14px 16px; }
+
+  /* ── Right pane ── */
+  #right { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  #topbar {
+    background: #141414; border-bottom: 1px solid #222;
+    padding: 12px 24px; display: flex; align-items: center; gap: 12px;
+  }
+  #topbar h1 { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+  #topbar .sub { font-size: 11px; color: #555; margin-left: auto; }
+
+  /* ── Phones area ── */
+  #phones-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 40px; padding: 20px; overflow: hidden; flex-wrap: wrap;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: .7px; }
+  .phone-label.current  { color: #f87171; }
+  .phone-label.scheme   { color: #4a7afc; }
+
+  .phone {
+    width: 340px; height: 640px;
+    background: #121212; border-radius: 36px;
+    border: 7px solid #2a2a2a; overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 20px 56px rgba(0,0,0,.7);
+    flex-shrink: 0;
+  }
+  .p-statusbar {
+    display: flex; justify-content: space-between; padding: 10px 20px 4px;
+    font-size: 11px; color: #666; flex-shrink: 0;
+  }
+  .p-appbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 16px 8px; flex-shrink: 0;
+  }
+  .p-back  { background: none; border: none; color: #888; font-size: 18px; cursor: pointer; }
+  .p-title { font-size: 17px; font-weight: 700; color: #f0f0f0; flex: 1; }
+  .p-tabs  { display: flex; border-bottom: 1px solid #222; flex-shrink: 0; }
+  .p-tab   {
+    flex: 1; text-align: center; padding: 8px 4px; font-size: 12px;
+    font-weight: 600; color: #555; border-bottom: 2px solid transparent;
+  }
+  .p-tab.active { color: #4a7afc; border-bottom-color: #4a7afc; }
+
+  .p-body {
+    flex: 1; overflow-y: auto; padding: 14px 14px 20px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .p-body::-webkit-scrollbar { display: none; }
+
+  /* Week nav */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1c1c1e; border-radius: 14px; padding: 10px 14px;
+  }
+  .week-nav .arr { font-size: 18px; color: #555; cursor: pointer; }
+  .week-nav .wlabel { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+  .week-nav .wsub   { font-size: 11px; color: #555; text-align: center; }
+
+  /* Stacked bar chart */
+  .chart-block { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .chart-title { font-size: 13px; font-weight: 700; color: #e0e0e0; margin-bottom: 12px; }
+  .chart-area  { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+  .bar-col     { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .bar-stack   { width: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 1px; flex: 1; }
+  .bar-seg     { width: 100%; border-radius: 0; transition: background .4s; min-height: 0; }
+  .bar-seg:first-child { border-radius: 4px 4px 0 0; }
+  .bar-seg:last-child  { border-radius: 0 0 4px 4px; }
+  .bar-seg:only-child  { border-radius: 4px; }
+  .bar-day-lbl { font-size: 10px; color: #555; flex-shrink: 0; }
+  .bar-today   .bar-day-lbl { color: #4a7afc; font-weight: 700; }
+
+  /* Target line indicator */
+  .chart-with-target { position: relative; }
+  .target-line {
+    position: absolute; left: 0; right: 0;
+    height: 1px; background: rgba(74,222,128,.4);
+    pointer-events: none;
+  }
+  .target-label {
+    position: absolute; right: 0;
+    font-size: 9px; color: #4ade80; background: #1c1c1e;
+    padding: 1px 4px; border-radius: 4px; transform: translateY(-50%);
+  }
+
+  /* Legend */
+  .legend { display: flex; gap: 14px; margin-top: 10px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; }
+  .leg-dot  { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; transition: background .4s; }
+  .leg-lbl  { font-size: 11px; color: #888; }
+
+  /* Averages row */
+  .avg-block { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .avg-title { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 10px; }
+  .avg-row   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .avg-card  { background: #252525; border-radius: 10px; padding: 8px; text-align: center; }
+  .avg-val   { font-size: 14px; font-weight: 700; color: #f0f0f0; }
+  .avg-lbl   { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: .4px; margin-top: 2px; }
+
+  /* Color issue annotation */
+  .issue-note {
+    background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2);
+    border-radius: 10px; padding: 10px 12px;
+    font-size: 11px; color: #f87171; line-height: 1.5;
+  }
+  .ok-note {
+    background: rgba(74,222,128,.08); border: 1px solid rgba(74,222,128,.2);
+    border-radius: 10px; padding: 10px 12px;
+    font-size: 11px; color: #4ade80; line-height: 1.5;
+  }
+
+  /* Diff overlay on bars */
+  .phone-info { font-size: 10px; color: #555; text-align: center; max-width: 340px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div id="controls">
+  <h2>Schéma de couleurs</h2>
+  <div class="group" id="scheme-btns">
+
+    <button class="scheme-btn active" data-scheme="current" onclick="setScheme(this)">
+      <strong>Actuel</strong>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#4a7afc"></div>
+        <div class="swatch" style="background:#a78bfa"></div>
+        <div class="swatch" style="background:#f97316"></div>
+      </div>
+      <span class="swatch-label">Bleu · Violet · Orange (warning)</span>
+    </button>
+
+    <button class="scheme-btn" data-scheme="neutral" onclick="setScheme(this)">
+      <strong>Neutre</strong>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#4a7afc"></div>
+        <div class="swatch" style="background:#a78bfa"></div>
+        <div class="swatch" style="background:#2dd4bf"></div>
+      </div>
+      <span class="swatch-label">Bleu · Violet · Teal</span>
+    </button>
+
+    <button class="scheme-btn" data-scheme="warm" onclick="setScheme(this)">
+      <strong>Chaleureux</strong>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#fb923c"></div>
+        <div class="swatch" style="background:#facc15"></div>
+        <div class="swatch" style="background:#f87171"></div>
+      </div>
+      <span class="swatch-label">Orange · Jaune · Rouge-rose</span>
+    </button>
+
+    <button class="scheme-btn" data-scheme="earth" onclick="setScheme(this)">
+      <strong>Terreux (Akeli)</strong>
+      <div class="swatch-row">
+        <div class="swatch" style="background:#86efac"></div>
+        <div class="swatch" style="background:#fcd34d"></div>
+        <div class="swatch" style="background:#c084fc"></div>
+      </div>
+      <span class="swatch-label">Vert · Ambre · Lavande</span>
+    </button>
+
+  </div>
+
+  <div class="divider"></div>
+  <h2>Données de la semaine</h2>
+  <div class="group">
+    <label>Objectif calorique <span id="goalDisp">2000</span> kcal</label>
+    <input type="range" id="calGoal" min="1200" max="3000" value="2000" oninput="update()">
+    <label>Variation des données <span id="varDisp">Med</span></label>
+    <input type="range" id="variation" min="0" max="2" value="1" step="1" oninput="update()">
+    <p class="note">Faible = jours très réguliers<br>Moyen = variation normale<br>Élevé = beaucoup d'écart</p>
+  </div>
+
+  <div class="divider"></div>
+  <h2>Problème identifié</h2>
+  <p class="note">
+    L'orange (<code>#f97316</code>) est la couleur "warning" dans le design system Akeli.
+    Utilisée pour les lipides, elle crée un signal négatif implicite : les lipides = danger.<br><br>
+    Or les lipides sont essentiels. La couleur devrait être <strong>neutre</strong>, pas alarmante.
+  </p>
+</div>
+
+<div id="right">
+  <div id="topbar">
+    <h1>Semaine — Couleurs du graphique empilé · Playground</h1>
+    <span class="sub">Cliquez sur un schéma pour comparer en temps réel</span>
+  </div>
+
+  <div id="phones-area">
+
+    <!-- PHONE A: Current scheme -->
+    <div class="phone-wrap">
+      <div class="phone-label current">▲ Actuel</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar">
+          <button class="p-back">←</button>
+          <span class="p-title">Ma Nutrition</span>
+        </div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab active">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+        <div class="p-body">
+          <div class="week-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="wlabel">Cette semaine</div>
+              <div class="wsub">9 – 15 juin 2026</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <div class="chart-block">
+            <div class="chart-title">Apport calorique</div>
+            <div class="chart-with-target" style="height:140px;position:relative">
+              <div class="chart-area" id="cur-chart" style="height:140px"></div>
+              <div class="target-line" id="cur-target-line" style="top:30px">
+                <span class="target-label" id="cur-target-label">2000</span>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#4a7afc" id="cur-leg-prot"></div><span class="leg-lbl">Protéines</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#a78bfa" id="cur-leg-carb"></div><span class="leg-lbl">Glucides</span></div>
+              <div class="leg-item"><div class="leg-dot" style="background:#f97316" id="cur-leg-fat"></div><span class="leg-lbl">Lipides ⚠</span></div>
+            </div>
+          </div>
+
+          <div class="issue-note">
+            ⚠ Orange = couleur "warning" du design system.<br>
+            Signal implicite : les lipides sont mauvais.
+          </div>
+
+          <div class="avg-block">
+            <div class="avg-title">Moyennes journalières</div>
+            <div class="avg-row" id="cur-avg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-info">Schéma fixe — Actuel (toujours orange pour lipides)</div>
+    </div>
+
+    <!-- PHONE B: Selected scheme -->
+    <div class="phone-wrap">
+      <div class="phone-label scheme">↑ Schéma sélectionné</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar">
+          <button class="p-back">←</button>
+          <span class="p-title">Ma Nutrition</span>
+        </div>
+        <div class="p-tabs">
+          <div class="p-tab">Aujourd'hui</div>
+          <div class="p-tab active">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+        <div class="p-body">
+          <div class="week-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="wlabel">Cette semaine</div>
+              <div class="wsub">9 – 15 juin 2026</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <div class="chart-block">
+            <div class="chart-title">Apport calorique</div>
+            <div class="chart-with-target" style="height:140px;position:relative">
+              <div class="chart-area" id="prop-chart" style="height:140px"></div>
+              <div class="target-line" id="prop-target-line" style="top:30px">
+                <span class="target-label" id="prop-target-label">2000</span>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="leg-item"><div class="leg-dot" id="prop-leg-prot"></div><span class="leg-lbl" id="prop-leg-prot-lbl">Protéines</span></div>
+              <div class="leg-item"><div class="leg-dot" id="prop-leg-carb"></div><span class="leg-lbl" id="prop-leg-carb-lbl">Glucides</span></div>
+              <div class="leg-item"><div class="leg-dot" id="prop-leg-fat"></div><span class="leg-lbl" id="prop-leg-fat-lbl">Lipides</span></div>
+            </div>
+          </div>
+
+          <div class="ok-note" id="prop-scheme-note">
+            ✓ Teal (#2dd4bf) — neutre, aucune connotation négative.
+          </div>
+
+          <div class="avg-block">
+            <div class="avg-title">Moyennes journalières</div>
+            <div class="avg-row" id="prop-avg"></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-info" id="prop-phone-info">Schéma Neutre — Teal pour lipides</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const DAYS = ['L','M','M','J','V','S','D'];
+const TODAY_IDX = 5; // samedi = index 5
+
+const SCHEMES = {
+  current: { prot: '#4a7afc', carb: '#a78bfa', fat: '#f97316',
+    note: '⚠ Orange = "warning" dans le design system. Lipides = danger implicite.',
+    noteClass: 'issue-note', info: 'Actuel — orange warning pour lipides' },
+  neutral: { prot: '#4a7afc', carb: '#a78bfa', fat: '#2dd4bf',
+    note: '✓ Teal (#2dd4bf) — neutre, aucune connotation négative pour les lipides.',
+    noteClass: 'ok-note', info: 'Neutre — Teal pour lipides' },
+  warm: { prot: '#fb923c', carb: '#facc15', fat: '#f87171',
+    note: '✓ Tons chauds cohérents — aucune couleur ne domine négativement. Moins accessible pour daltoniens.',
+    noteClass: 'ok-note', info: 'Chaleureux — palette orange/jaune/rose' },
+  earth: { prot: '#86efac', carb: '#fcd34d', fat: '#c084fc',
+    note: '✓ Palette terrestre (vert/ambre/lavande) — s\'intègre au thème africain d\'Akeli. Distincte et positive.',
+    noteClass: 'ok-note', info: 'Terreux Akeli — vert/ambre/lavande' },
+};
+
+let currentScheme = 'neutral';
+
+// Variation presets
+const VARIATIONS = [
+  // Low: very regular
+  [[85,40,160],[88,41,162],[84,40,158],[87,42,161],[86,40,160],[90,43,165],[85,41,159]],
+  // Medium: normal variation
+  [[85,42,165],[110,50,200],[60,30,140],[95,45,180],[105,48,190],[70,35,155],[100,46,185]],
+  // High: lots of variation
+  [[120,55,210],[50,25,110],[130,58,220],[40,20,100],[115,52,205],[80,38,160],[135,60,225]],
+];
+
+function getDayData() {
+  const varIdx = +document.getElementById('variation').value;
+  return VARIATIONS[varIdx];
+}
+
+function macroToKcal(p, f, c) {
+  return p * 4 + c * 4 + f * 9;
+}
+
+function buildBars(containerId, data, schemeColors, goal, isFixed) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const maxKcal = Math.max(...data.map(([p,f,c]) => macroToKcal(p,f,c)), goal * 1.05);
+
+  const days = data.map(([p,f,c], i) => {
+    const kcal = macroToKcal(p, f, c);
+    const protH = (p * 4 / maxKcal) * 140;
+    const carbH = (c * 4 / maxKcal) * 140;
+    const fatH  = (f * 9 / maxKcal) * 140;
+    const totalH = protH + carbH + fatH;
+    return { p, f, c, kcal, protH, carbH, fatH, totalH };
+  });
+
+  data.forEach(([p,f,c], i) => {
+    const { protH, carbH, fatH } = days[i];
+    const col = document.createElement('div');
+    col.className = 'bar-col' + (i === TODAY_IDX ? ' bar-today' : '');
+
+    const stack = document.createElement('div');
+    stack.className = 'bar-stack';
+
+    const segs = [
+      { h: protH, color: schemeColors.prot },
+      { h: carbH,  color: schemeColors.carb },
+      { h: fatH,   color: schemeColors.fat },
+    ];
+
+    segs.forEach(({ h, color }) => {
+      if (h < 1) return;
+      const seg = document.createElement('div');
+      seg.className = 'bar-seg';
+      seg.style.height = h + 'px';
+      seg.style.background = color;
+      stack.appendChild(seg);
+    });
+
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-day-lbl';
+    lbl.textContent = DAYS[i];
+
+    col.appendChild(stack);
+    col.appendChild(lbl);
+    container.appendChild(col);
+  });
+
+  // Target line position
+  const targetH = (goal / maxKcal) * 140;
+  const lineTop = 140 - targetH;
+  const lineId = containerId === 'cur-chart' ? 'cur-target-line' : 'prop-target-line';
+  const lblId  = containerId === 'cur-chart' ? 'cur-target-label' : 'prop-target-label';
+  document.getElementById(lineId).style.top = lineTop + 'px';
+  document.getElementById(lblId).textContent = goal + ' kcal';
+}
+
+function buildAvg(containerId, data) {
+  const n = data.length;
+  const avgProt = Math.round(data.reduce((s,[p]) => s+p, 0) / n);
+  const avgCarb = Math.round(data.reduce((s,[p,f,c]) => s+c, 0) / n);
+  const avgFat  = Math.round(data.reduce((s,[p,f]) => s+f, 0) / n);
+  const avgKcal = Math.round(data.reduce((s,[p,f,c]) => s + macroToKcal(p,f,c), 0) / n);
+  const el = document.getElementById(containerId);
+  el.innerHTML = `
+    <div class="avg-card"><div class="avg-val">${avgKcal}</div><div class="avg-lbl">kcal</div></div>
+    <div class="avg-card"><div class="avg-val">${avgProt}g</div><div class="avg-lbl">prot.</div></div>
+    <div class="avg-card"><div class="avg-val">${avgCarb}g</div><div class="avg-lbl">glucides</div></div>
+    <div class="avg-card"><div class="avg-val">${avgFat}g</div><div class="avg-lbl">lipides</div></div>
+  `;
+}
+
+function setScheme(btn) {
+  document.querySelectorAll('.scheme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentScheme = btn.dataset.scheme;
+  update();
+}
+
+function update() {
+  const goal   = +document.getElementById('calGoal').value;
+  const varIdx = +document.getElementById('variation').value;
+  document.getElementById('goalDisp').textContent = goal;
+  document.getElementById('varDisp').textContent = ['Faible','Moyen','Élevé'][varIdx];
+
+  const data   = getDayData();
+  const scheme = SCHEMES[currentScheme];
+
+  // Fixed current (always original colors)
+  buildBars('cur-chart', data, SCHEMES.current, goal, true);
+  buildAvg('cur-avg', data);
+
+  // Selected scheme
+  buildBars('prop-chart', data, scheme, goal, false);
+  buildAvg('prop-avg', data);
+
+  // Update prop legend
+  document.getElementById('prop-leg-prot').style.background = scheme.prot;
+  document.getElementById('prop-leg-carb').style.background = scheme.carb;
+  document.getElementById('prop-leg-fat').style.background  = scheme.fat;
+
+  // Update prop note
+  const noteEl = document.querySelector('.phone:last-of-type .ok-note, .phone:last-of-type .issue-note');
+  const noteContainer = document.getElementById('prop-scheme-note');
+  noteContainer.className = scheme.noteClass;
+  noteContainer.textContent = scheme.note;
+  document.getElementById('prop-phone-info').textContent = scheme.info;
+}
+
+update();
+</script>
+</body>
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Nutrition — Today Tab Layout Playground</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f0f; color: #e0e0e0;
+    font-family: system-ui, sans-serif;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+
+  /* ── Left controls ── */
+  #controls {
+    width: 280px; min-width: 280px; background: #1a1a1a;
+    border-right: 1px solid #2a2a2a;
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  #controls h2 {
+    font-size: 10px; font-weight: 600; color: #555;
+    letter-spacing: .8px; text-transform: uppercase;
+    padding: 18px 18px 8px;
+  }
+  .group { padding: 0 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .group label {
+    font-size: 12px; color: #aaa;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .group label span { color: #e0e0e0; font-weight: 600; }
+  input[type=range] { width: 100%; accent-color: #4a7afc; }
+  .note { font-size: 11px; color: #555; line-height: 1.5; }
+  .divider { height: 1px; background: #222; margin: 4px 0; }
+
+  .scenario-btn {
+    background: #222; border: 1px solid #333; border-radius: 8px;
+    color: #ccc; padding: 10px 12px; text-align: left;
+    cursor: pointer; font-size: 12px; line-height: 1.5; transition: all .15s;
+    width: 100%;
+  }
+  .scenario-btn.active { background: #1e2d4a; border-color: #4a7afc; color: #fff; }
+  .scenario-btn strong { display: block; font-size: 13px; margin-bottom: 2px; }
+
+  .issue-tag {
+    display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 10px;
+    font-weight: 600; margin-top: 4px; margin-right: 3px;
+  }
+  .issue-tag.red    { background: rgba(239,68,68,.15); color: #f87171; }
+  .issue-tag.yellow { background: rgba(251,191,36,.12); color: #fbbf24; }
+  .issue-tag.green  { background: rgba(74,222,128,.12); color: #4ade80; }
+
+  /* ── Right pane ── */
+  #right {
+    flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  #topbar {
+    background: #141414; border-bottom: 1px solid #222;
+    padding: 12px 24px; display: flex; align-items: center; gap: 16px;
+  }
+  #topbar h1 { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+  #topbar .sub { font-size: 11px; color: #555; margin-left: auto; }
+
+  /* ── Phone frames area ── */
+  #phones-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    gap: 48px; padding: 24px; overflow: hidden;
+  }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone-label {
+    font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase;
+    letter-spacing: .8px;
+  }
+  .phone-label.current { color: #f87171; }
+  .phone-label.proposed { color: #4ade80; }
+
+  .phone {
+    width: 360px; height: 700px;
+    background: #121212; border-radius: 38px;
+    border: 7px solid #2a2a2a; overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 64px rgba(0,0,0,.7);
+    flex-shrink: 0;
+  }
+
+  /* ── App chrome ── */
+  .p-statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px 4px; flex-shrink: 0;
+    font-size: 11px; color: #666;
+  }
+  .p-appbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 16px 10px; background: #121212; flex-shrink: 0;
+  }
+  .p-back { background: none; border: none; color: #888; font-size: 18px; cursor: pointer; }
+  .p-title { font-size: 17px; font-weight: 700; color: #f0f0f0; flex: 1; }
+
+  /* Tab bar */
+  .p-tabs {
+    display: flex; border-bottom: 1px solid #222; flex-shrink: 0;
+    background: #121212;
+  }
+  .p-tab {
+    flex: 1; text-align: center; padding: 9px 4px; font-size: 12px;
+    font-weight: 600; color: #555; cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all .15s;
+  }
+  .p-tab.active { color: #4a7afc; border-bottom-color: #4a7afc; }
+
+  /* Scrollable body */
+  .p-body {
+    flex: 1; overflow-y: auto; padding: 14px 14px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .p-body::-webkit-scrollbar { display: none; }
+
+  /* ── Shared components ── */
+
+  /* Date nav */
+  .date-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1c1c1e; border-radius: 14px; padding: 10px 14px;
+  }
+  .date-nav .arr { font-size: 18px; color: #555; cursor: pointer; }
+  .date-nav .date-label { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+  .date-nav .date-sub  { font-size: 11px; color: #555; text-align: center; }
+
+  /* Section label */
+  .sec-label {
+    font-size: 10px; font-weight: 700; color: #555;
+    text-transform: uppercase; letter-spacing: .8px;
+    margin-bottom: -6px;
+  }
+
+  /* Macro row cards */
+  .macro-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .macro-card {
+    background: #1c1c1e; border-radius: 12px; padding: 10px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .macro-card .m-icon { font-size: 15px; }
+  .macro-card .m-val  { font-size: 14px; font-weight: 700; color: #f0f0f0; }
+  .macro-card .m-lbl  { font-size: 9px; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+
+  /* Donut chart (SVG) */
+  .donut-wrap {
+    background: #1c1c1e; border-radius: 14px; padding: 14px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .donut-svg-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .donut-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #f0f0f0; line-height: 1.2;
+  }
+  .donut-center .d-sub { font-size: 9px; color: #666; }
+  .donut-legend { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .legend-row { display: flex; align-items: center; gap: 7px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend-lbl { font-size: 11px; color: #aaa; flex: 1; }
+  .legend-val { font-size: 11px; font-weight: 700; color: #e0e0e0; }
+
+  /* Progress bars */
+  .progress-block { background: #1c1c1e; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .pb-row { display: flex; flex-direction: column; gap: 5px; }
+  .pb-header { display: flex; justify-content: space-between; align-items: center; }
+  .pb-label  { font-size: 12px; font-weight: 600; color: #ccc; }
+  .pb-nums   { font-size: 11px; color: #666; }
+  .pb-track  { width: 100%; height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
+  .pb-fill   { height: 100%; border-radius: 3px; transition: width .4s; }
+
+  /* Water */
+  .water-block { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .water-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .water-title  { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+  .water-sub    { font-size: 11px; color: #555; }
+  .water-glasses { display: flex; gap: 5px; flex-wrap: wrap; }
+  .w-glass { font-size: 18px; opacity: .25; transition: opacity .2s; }
+  .w-glass.filled { opacity: 1; }
+  .water-bar-track { width: 100%; height: 5px; background: #2a2a2a; border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .water-bar-fill  { height: 100%; border-radius: 3px; background: #38bdf8; transition: width .4s; }
+
+  /* Meal list */
+  .meal-list { background: #1c1c1e; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .meal-item { display: flex; align-items: center; gap: 10px; }
+  .meal-thumb {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
+  }
+  .meal-info { flex: 1; min-width: 0; }
+  .meal-name { font-size: 13px; font-weight: 600; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .meal-meta { font-size: 11px; color: #666; }
+  .meal-time { font-size: 11px; color: #555; flex-shrink: 0; }
+
+  /* Weight chart (current only) */
+  .weight-block { background: #1c1c1e; border-radius: 14px; padding: 14px; }
+  .weight-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .weight-current { font-size: 26px; font-weight: 800; color: #4a7afc; }
+  .weight-target-lbl { font-size: 11px; color: #555; }
+  .weight-mini-chart { width: 100%; height: 60px; position: relative; }
+
+  /* Calorie ring (proposed) */
+  .cal-ring-block {
+    background: #1c1c1e; border-radius: 14px; padding: 16px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .cal-ring-svg { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+  .cal-ring-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+  }
+  .cal-ring-val  { font-size: 18px; font-weight: 800; color: #f0f0f0; line-height: 1; }
+  .cal-ring-sub  { font-size: 9px; color: #666; margin-top: 2px; }
+  .cal-ring-goal { font-size: 11px; color: #555; margin-top: 4px; }
+  .cal-ring-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .cal-stat-row  { display: flex; justify-content: space-between; align-items: center; }
+  .cal-stat-lbl  { font-size: 11px; color: #888; }
+  .cal-stat-val  { font-size: 13px; font-weight: 700; color: #e0e0e0; }
+
+  /* Compact macro strip (proposed) */
+  .macro-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .macro-strip-card {
+    background: #1c1c1e; border-radius: 12px; padding: 10px 8px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .ms-label { font-size: 9px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: .5px; }
+  .ms-val   { font-size: 15px; font-weight: 800; color: #f0f0f0; }
+  .ms-bar-track { width: 100%; height: 4px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
+  .ms-bar-fill  { height: 100%; border-radius: 2px; transition: width .4s; }
+  .ms-goal  { font-size: 10px; color: #555; }
+
+  /* Annotation bubbles */
+  .ann-wrap { position: relative; }
+  .ann-badge {
+    position: absolute; right: -8px; top: -8px; z-index: 10;
+    background: #f87171; color: #fff; font-size: 10px; font-weight: 700;
+    border-radius: 50%; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(248,113,113,.5);
+  }
+  .ann-badge.green { background: #4ade80; box-shadow: 0 2px 8px rgba(74,222,128,.4); color: #0a0a0a; }
+
+  /* Info strip at bottom of phone */
+  .phone-info {
+    font-size: 10px; color: #555; text-align: center; line-height: 1.6;
+    max-width: 360px;
+  }
+
+  /* Gradient bar helper */
+  .grad-bar { background: linear-gradient(90deg, #ef4444, #facc15 40%, #4ade80); }
+</style>
+</head>
+<body>
+
+<!-- ── Controls ── -->
+<div id="controls">
+  <h2>Données de démo</h2>
+
+  <div class="group">
+    <label>Calories consommées <span id="calVal">1480</span> kcal</label>
+    <input type="range" id="calConsumed" min="0" max="2800" value="1480" oninput="update()">
+
+    <label>Objectif calorique <span id="goalVal">2000</span> kcal</label>
+    <input type="range" id="calGoal" min="1200" max="3200" value="2000" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Macros consommées</h2>
+  <div class="group">
+    <label>Protéines <span id="protVal">85</span>g / <span id="protGoalVal">120</span>g</label>
+    <input type="range" id="protConsumed" min="0" max="200" value="85" oninput="update()">
+    <input type="range" id="protGoal" min="50" max="250" value="120" oninput="update()">
+
+    <label>Glucides <span id="carbVal">165</span>g / <span id="carbGoalVal">220</span>g</label>
+    <input type="range" id="carbConsumed" min="0" max="400" value="165" oninput="update()">
+    <input type="range" id="carbGoal" min="50" max="450" value="220" oninput="update()">
+
+    <label>Lipides <span id="fatVal">42</span>g / <span id="fatGoalVal">67</span>g</label>
+    <input type="range" id="fatConsumed" min="0" max="150" value="42" oninput="update()">
+    <input type="range" id="fatGoal" min="20" max="180" value="67" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Eau</h2>
+  <div class="group">
+    <label>Verres bus <span id="waterVal">5</span> / 8</label>
+    <input type="range" id="waterConsumed" min="0" max="8" value="5" step="1" oninput="update()">
+  </div>
+
+  <div class="divider"></div>
+  <h2>Problèmes identifiés</h2>
+  <div class="group">
+    <div class="note">
+      <span class="issue-tag red">❌ Actuel</span> Centre du donut = grammes totaux (sans sens)<br><br>
+      <span class="issue-tag red">❌ Actuel</span> Graphique poids dans l'onglet "Aujourd'hui"<br><br>
+      <span class="issue-tag red">❌ Actuel</span> 7 blocs = pas de hiérarchie visuelle<br><br>
+      <span class="issue-tag green">✓ Proposé</span> Grand anneau calories en tête (métrique principale)<br><br>
+      <span class="issue-tag green">✓ Proposé</span> Macros en bandes compactes avec mini-barres<br><br>
+      <span class="issue-tag green">✓ Proposé</span> Poids déplacé vers l'onglet Parcours
+    </div>
+  </div>
+</div>
+
+<!-- ── Right pane ── -->
+<div id="right">
+  <div id="topbar">
+    <h1>Nutrition — Onglet "Aujourd'hui" · Layout Playground</h1>
+    <span class="sub">Faites glisser les curseurs pour tester différentes données</span>
+  </div>
+
+  <div id="phones-area">
+
+    <!-- ══ PHONE A: CURRENT ══ -->
+    <div class="phone-wrap">
+      <div class="phone-label current">▲ Actuel (7 blocs)</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar">
+          <button class="p-back">←</button>
+          <span class="p-title">Ma Nutrition</span>
+        </div>
+        <div class="p-tabs">
+          <div class="p-tab active">Aujourd'hui</div>
+          <div class="p-tab">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+
+        <div class="p-body" id="currentBody">
+
+          <!-- 1. Date nav -->
+          <div class="date-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="date-label">Aujourd'hui</div>
+              <div class="date-sub">Sam. 14 juin</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <!-- 2. Macro row (4 cards) -->
+          <div class="macro-row" id="cur-macro-row">
+            <div class="macro-card">
+              <span class="m-icon">🔥</span>
+              <span class="m-val" id="cur-kcal">1480</span>
+              <span class="m-lbl">kcal</span>
+            </div>
+            <div class="macro-card">
+              <span class="m-icon">🥩</span>
+              <span class="m-val" id="cur-prot">85g</span>
+              <span class="m-lbl">prot.</span>
+            </div>
+            <div class="macro-card">
+              <span class="m-icon">🌾</span>
+              <span class="m-val" id="cur-carb">165g</span>
+              <span class="m-lbl">glucides</span>
+            </div>
+            <div class="macro-card">
+              <span class="m-icon">🫒</span>
+              <span class="m-val" id="cur-fat">42g</span>
+              <span class="m-lbl">lipides</span>
+            </div>
+          </div>
+
+          <!-- 3. Donut chart -->
+          <div class="ann-wrap">
+            <div class="ann-badge" title="Centre = grammes totaux (sans sens)">!</div>
+            <div class="donut-wrap">
+              <div class="donut-svg-wrap">
+                <svg id="cur-donut" viewBox="0 0 100 100" width="100" height="100">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#2a2a2a" stroke-width="14"/>
+                  <circle id="d-prot" cx="50" cy="50" r="38" fill="none" stroke="#4a7afc" stroke-width="14"
+                    stroke-dasharray="0 239" stroke-dashoffset="60" stroke-linecap="round"/>
+                  <circle id="d-carb" cx="50" cy="50" r="38" fill="none" stroke="#a78bfa" stroke-width="14"
+                    stroke-dasharray="0 239" stroke-dashoffset="0" stroke-linecap="round"/>
+                  <circle id="d-fat"  cx="50" cy="50" r="38" fill="none" stroke="#f97316" stroke-width="14"
+                    stroke-dasharray="0 239" stroke-dashoffset="0" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-center">
+                  <span id="cur-donut-center" style="font-size:12px">292g</span>
+                  <span class="d-sub">total g</span>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-row"><div class="legend-dot" style="background:#4a7afc"></div><span class="legend-lbl">Protéines</span><span class="legend-val" id="leg-prot">85g</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#a78bfa"></div><span class="legend-lbl">Glucides</span><span class="legend-val" id="leg-carb">165g</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#f97316"></div><span class="legend-lbl">Lipides</span><span class="legend-val" id="leg-fat">42g</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Progress bars -->
+          <div class="progress-block" id="cur-progress">
+            <div class="pb-row">
+              <div class="pb-header">
+                <span class="pb-label">Protéines</span>
+                <span class="pb-nums" id="pb-prot-lbl">85g / 120g</span>
+              </div>
+              <div class="pb-track"><div class="pb-fill" id="pb-prot" style="background:#4a7afc;width:70%"></div></div>
+            </div>
+            <div class="pb-row">
+              <div class="pb-header">
+                <span class="pb-label">Glucides</span>
+                <span class="pb-nums" id="pb-carb-lbl">165g / 220g</span>
+              </div>
+              <div class="pb-track"><div class="pb-fill" id="pb-carb" style="background:#a78bfa;width:75%"></div></div>
+            </div>
+            <div class="pb-row">
+              <div class="pb-header">
+                <span class="pb-label">Lipides</span>
+                <span class="pb-nums" id="pb-fat-lbl">42g / 67g</span>
+              </div>
+              <div class="pb-track"><div class="pb-fill" id="pb-fat" style="background:#f97316;width:63%"></div></div>
+            </div>
+          </div>
+
+          <!-- 5. Water -->
+          <div class="water-block">
+            <div class="water-header">
+              <span class="water-title">💧 Eau</span>
+              <span class="water-sub" id="cur-water-lbl">1250 ml / 2000 ml</span>
+            </div>
+            <div class="water-glasses" id="cur-glasses"></div>
+            <div class="water-bar-track"><div class="water-bar-fill" id="cur-water-bar" style="width:62%"></div></div>
+          </div>
+
+          <!-- 6. Consumed meals -->
+          <div class="sec-label">Repas consommés</div>
+          <div class="meal-list">
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#1e2d1e">🥣</div>
+              <div class="meal-info">
+                <div class="meal-name">Bouillie de mil au lait</div>
+                <div class="meal-meta">Petit-déjeuner · 380 kcal</div>
+              </div>
+              <span class="meal-time">07:42</span>
+            </div>
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#2d1e1e">🍲</div>
+              <div class="meal-info">
+                <div class="meal-name">Thiéboudienne au poisson</div>
+                <div class="meal-meta">Déjeuner · 620 kcal</div>
+              </div>
+              <span class="meal-time">12:15</span>
+            </div>
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#1e1e2d">🥜</div>
+              <div class="meal-info">
+                <div class="meal-name">Arachides grillées</div>
+                <div class="meal-meta">Collation · 210 kcal</div>
+              </div>
+              <span class="meal-time">15:30</span>
+            </div>
+          </div>
+
+          <!-- 7. Weight chart — annotated as misplaced -->
+          <div class="ann-wrap">
+            <div class="ann-badge" title="Poids ici = mauvais tab">!</div>
+            <div class="weight-block">
+              <div class="weight-header">
+                <div>
+                  <div style="font-size:11px;color:#666;margin-bottom:2px">Poids actuel</div>
+                  <div class="weight-current" id="cur-weight-val">82.4 kg</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:11px;color:#666">Objectif</div>
+                  <div style="font-size:15px;font-weight:700;color:#4ade80">75 kg</div>
+                  <div style="font-size:10px;color:#555">−7.4 kg restants</div>
+                </div>
+              </div>
+              <svg width="100%" height="60" viewBox="0 0 320 60" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="wg" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4a7afc" stop-opacity=".3"/>
+                    <stop offset="100%" stop-color="#4a7afc" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Target line -->
+                <line x1="0" y1="50" x2="320" y2="50" stroke="#4ade80" stroke-width="1" stroke-dasharray="4,4" opacity=".4"/>
+                <!-- Weight line -->
+                <polyline fill="none" stroke="#4a7afc" stroke-width="2"
+                  points="0,10 45,14 90,16 135,18 180,20 225,18 270,16 320,15"/>
+                <polygon fill="url(#wg)"
+                  points="0,10 45,14 90,16 135,18 180,20 225,18 270,16 320,15 320,60 0,60"/>
+              </svg>
+              <div style="font-size:10px;color:#555;text-align:center;margin-top:6px">10 dernières entrées</div>
+            </div>
+          </div>
+
+        </div><!-- /p-body -->
+      </div><!-- /phone -->
+      <div class="phone-info">
+        7 blocs · Poids en bas de page · Donut = g totaux
+      </div>
+    </div>
+
+    <!-- ══ PHONE B: PROPOSED ══ -->
+    <div class="phone-wrap">
+      <div class="phone-label proposed">✓ Proposé (5 blocs)</div>
+      <div class="phone">
+        <div class="p-statusbar"><span>9:41</span><span>●●●</span></div>
+        <div class="p-appbar">
+          <button class="p-back">←</button>
+          <span class="p-title">Ma Nutrition</span>
+        </div>
+        <div class="p-tabs">
+          <div class="p-tab active">Aujourd'hui</div>
+          <div class="p-tab">Semaine</div>
+          <div class="p-tab">Parcours</div>
+        </div>
+
+        <div class="p-body">
+
+          <!-- 1. Date nav (same) -->
+          <div class="date-nav">
+            <span class="arr">‹</span>
+            <div style="text-align:center">
+              <div class="date-label">Aujourd'hui</div>
+              <div class="date-sub">Sam. 14 juin</div>
+            </div>
+            <span class="arr" style="color:#2a2a2a">›</span>
+          </div>
+
+          <!-- 2. BIG calorie ring (primary metric, leads) -->
+          <div class="cal-ring-block">
+            <div class="cal-ring-svg">
+              <svg viewBox="0 0 110 110" width="110" height="110">
+                <circle cx="55" cy="55" r="44" fill="none" stroke="#2a2a2a" stroke-width="10"/>
+                <circle id="prop-cal-ring" cx="55" cy="55" r="44" fill="none"
+                  stroke="url(#calGrad)" stroke-width="10"
+                  stroke-dasharray="0 277" stroke-dashoffset="69"
+                  stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="calGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#ef4444"/>
+                    <stop offset="50%" stop-color="#facc15"/>
+                    <stop offset="100%" stop-color="#4ade80"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="cal-ring-center">
+                <span class="cal-ring-val" id="prop-cal-val">1480</span>
+                <span class="cal-ring-sub">kcal</span>
+                <span class="cal-ring-goal" id="prop-cal-pct">74%</span>
+              </div>
+            </div>
+            <div class="cal-ring-info">
+              <div class="cal-stat-row">
+                <span class="cal-stat-lbl">Objectif</span>
+                <span class="cal-stat-val" id="prop-goal-lbl">2000 kcal</span>
+              </div>
+              <div class="cal-stat-row">
+                <span class="cal-stat-lbl">Restant</span>
+                <span class="cal-stat-val" id="prop-remain-lbl" style="color:#4ade80">520 kcal</span>
+              </div>
+              <div class="cal-stat-row">
+                <span class="cal-stat-lbl">Repas</span>
+                <span class="cal-stat-val">3 consommés</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Compact macro strip with mini progress -->
+          <div class="macro-strip">
+            <div class="macro-strip-card">
+              <span class="ms-label">Protéines</span>
+              <span class="ms-val" id="prop-prot">85g</span>
+              <div class="ms-bar-track"><div class="ms-bar-fill" id="prop-prot-bar" style="background:#4a7afc;width:70%"></div></div>
+              <span class="ms-goal" id="prop-prot-goal">/ 120g</span>
+            </div>
+            <div class="macro-strip-card">
+              <span class="ms-label">Glucides</span>
+              <span class="ms-val" id="prop-carb">165g</span>
+              <div class="ms-bar-track"><div class="ms-bar-fill" id="prop-carb-bar" style="background:#a78bfa;width:75%"></div></div>
+              <span class="ms-goal" id="prop-carb-goal">/ 220g</span>
+            </div>
+            <div class="macro-strip-card">
+              <span class="ms-label">Lipides</span>
+              <span class="ms-val" id="prop-fat">42g</span>
+              <div class="ms-bar-track"><div class="ms-bar-fill" id="prop-fat-bar" style="background:#38bdf8;width:63%"></div></div>
+              <span class="ms-goal" id="prop-fat-goal">/ 67g</span>
+            </div>
+          </div>
+
+          <!-- 4. Water (same) -->
+          <div class="water-block">
+            <div class="water-header">
+              <span class="water-title">💧 Eau</span>
+              <span class="water-sub" id="prop-water-lbl">1250 ml / 2000 ml</span>
+            </div>
+            <div class="water-glasses" id="prop-glasses"></div>
+            <div class="water-bar-track"><div class="water-bar-fill" id="prop-water-bar" style="width:62%"></div></div>
+          </div>
+
+          <!-- 5. Consumed meals (same) -->
+          <div class="sec-label">Repas consommés</div>
+          <div class="meal-list">
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#1e2d1e">🥣</div>
+              <div class="meal-info">
+                <div class="meal-name">Bouillie de mil au lait</div>
+                <div class="meal-meta">Petit-déjeuner · 380 kcal</div>
+              </div>
+              <span class="meal-time">07:42</span>
+            </div>
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#2d1e1e">🍲</div>
+              <div class="meal-info">
+                <div class="meal-name">Thiéboudienne au poisson</div>
+                <div class="meal-meta">Déjeuner · 620 kcal</div>
+              </div>
+              <span class="meal-time">12:15</span>
+            </div>
+            <div class="meal-item">
+              <div class="meal-thumb" style="background:#1e1e2d">🥜</div>
+              <div class="meal-info">
+                <div class="meal-name">Arachides grillées</div>
+                <div class="meal-meta">Collation · 210 kcal</div>
+              </div>
+              <span class="meal-time">15:30</span>
+            </div>
+          </div>
+
+          <!-- Note: weight moved to Parcours -->
+          <div style="background:#1a2a1a;border:1px solid #2a3a2a;border-radius:12px;padding:12px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:16px">↗</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#4ade80">Poids → onglet Parcours</div>
+              <div style="font-size:10px;color:#555;margin-top:2px">Évolution du poids visible sur la vue long-terme</div>
+            </div>
+          </div>
+
+        </div><!-- /p-body -->
+      </div><!-- /phone -->
+      <div class="phone-info">
+        5 blocs · Calories en tête · Macros compactes · Poids déplacé
+      </div>
+    </div>
+
+  </div><!-- /phones-area -->
+</div>
+
+<script>
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function pct(v, total) { return total > 0 ? clamp(v / total, 0, 1) : 0; }
+
+// Donut helpers
+const CIRC = 2 * Math.PI * 38; // r=38 → ~238.76
+function setDonutSegment(el, start, len) {
+  el.setAttribute('stroke-dasharray', `${len} ${CIRC - len}`);
+  el.setAttribute('stroke-dashoffset', CIRC - start + CIRC * 0.25);
+}
+
+function buildGlasses(containerId, filled, total) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const g = document.createElement('span');
+    g.className = 'w-glass' + (i < filled ? ' filled' : '');
+    g.textContent = '🥛';
+    c.appendChild(g);
+  }
+}
+
+// Calorie ring: r=44, circ≈276.46
+const CAL_CIRC = 2 * Math.PI * 44;
+function setCalRing(pctVal) {
+  const el = document.getElementById('prop-cal-ring');
+  const len = clamp(pctVal, 0, 1) * CAL_CIRC;
+  el.setAttribute('stroke-dasharray', `${len} ${CAL_CIRC - len}`);
+  el.setAttribute('stroke-dashoffset', CAL_CIRC * 0.25);
+}
+
+function update() {
+  const cal  = +document.getElementById('calConsumed').value;
+  const goal = +document.getElementById('calGoal').value;
+  const prot = +document.getElementById('protConsumed').value;
+  const protG = +document.getElementById('protGoal').value;
+  const carb = +document.getElementById('carbConsumed').value;
+  const carbG = +document.getElementById('carbGoal').value;
+  const fat  = +document.getElementById('fatConsumed').value;
+  const fatG = +document.getElementById('fatGoal').value;
+  const water = +document.getElementById('waterConsumed').value;
+
+  // Update labels
+  document.getElementById('calVal').textContent = cal;
+  document.getElementById('goalVal').textContent = goal;
+  document.getElementById('protVal').textContent = prot;
+  document.getElementById('protGoalVal').textContent = protG;
+  document.getElementById('carbVal').textContent = carb;
+  document.getElementById('carbGoalVal').textContent = carbG;
+  document.getElementById('fatVal').textContent = fat;
+  document.getElementById('fatGoalVal').textContent = fatG;
+  document.getElementById('waterVal').textContent = water;
+
+  // ── CURRENT phone ──
+  document.getElementById('cur-kcal').textContent = cal;
+  document.getElementById('cur-prot').textContent = prot + 'g';
+  document.getElementById('cur-carb').textContent = carb + 'g';
+  document.getElementById('cur-fat').textContent = fat + 'g';
+
+  // Donut (current) — proportions of consumed macros
+  const totalG = prot + carb + fat;
+  const protLen = totalG > 0 ? (prot / totalG) * CIRC : 0;
+  const carbLen = totalG > 0 ? (carb / totalG) * CIRC : 0;
+  const fatLen  = totalG > 0 ? (fat  / totalG) * CIRC : 0;
+
+  // Protein starts at top (offset = CIRC*0.25)
+  const protStart = 0;
+  const carbStart = protLen;
+  const fatStart  = protLen + carbLen;
+
+  setDonutSegment(document.getElementById('d-prot'), protStart, protLen);
+  setDonutSegment(document.getElementById('d-carb'), carbStart, carbLen);
+  setDonutSegment(document.getElementById('d-fat'),  fatStart,  fatLen);
+
+  document.getElementById('cur-donut-center').textContent = totalG + 'g';
+  document.getElementById('leg-prot').textContent = prot + 'g';
+  document.getElementById('leg-carb').textContent = carb + 'g';
+  document.getElementById('leg-fat').textContent  = fat + 'g';
+
+  // Progress bars (current)
+  document.getElementById('pb-prot').style.width = (pct(prot, protG) * 100) + '%';
+  document.getElementById('pb-carb').style.width = (pct(carb, carbG) * 100) + '%';
+  document.getElementById('pb-fat').style.width  = (pct(fat,  fatG)  * 100) + '%';
+  document.getElementById('pb-prot-lbl').textContent = `${prot}g / ${protG}g`;
+  document.getElementById('pb-carb-lbl').textContent = `${carb}g / ${carbG}g`;
+  document.getElementById('pb-fat-lbl').textContent  = `${fat}g  / ${fatG}g`;
+
+  // Water (current)
+  buildGlasses('cur-glasses', water, 8);
+  document.getElementById('cur-water-lbl').textContent = `${water * 250} ml / 2000 ml`;
+  document.getElementById('cur-water-bar').style.width = (water / 8 * 100) + '%';
+
+  // ── PROPOSED phone ──
+  const calPct = pct(cal, goal);
+  const remain = Math.max(0, goal - cal);
+  const remainColor = remain === 0 ? '#f87171' : cal > goal ? '#f87171' : '#4ade80';
+
+  setCalRing(calPct);
+  document.getElementById('prop-cal-val').textContent = cal;
+  document.getElementById('prop-cal-pct').textContent = Math.round(calPct * 100) + '%';
+  document.getElementById('prop-goal-lbl').textContent = goal + ' kcal';
+  document.getElementById('prop-remain-lbl').textContent = remain === 0 ? '✓ Objectif atteint' : remain + ' kcal';
+  document.getElementById('prop-remain-lbl').style.color = remainColor;
+
+  // Macro strip (proposed)
+  document.getElementById('prop-prot').textContent = prot + 'g';
+  document.getElementById('prop-carb').textContent = carb + 'g';
+  document.getElementById('prop-fat').textContent  = fat + 'g';
+  document.getElementById('prop-prot-bar').style.width = (pct(prot, protG) * 100) + '%';
+  document.getElementById('prop-carb-bar').style.width = (pct(carb, carbG) * 100) + '%';
+  document.getElementById('prop-fat-bar').style.width  = (pct(fat,  fatG)  * 100) + '%';
+  document.getElementById('prop-prot-goal').textContent = '/ ' + protG + 'g';
+  document.getElementById('prop-carb-goal').textContent = '/ ' + carbG + 'g';
+  document.getElementById('prop-fat-goal').textContent  = '/ ' + fatG  + 'g';
+
+  // Water (proposed)
+  buildGlasses('prop-glasses', water, 8);
+  document.getElementById('prop-water-lbl').textContent = `${water * 250} ml / 2000 ml`;
+  document.getElementById('prop-water-bar').style.width = (water / 8 * 100) + '%';
+}
+
+update();
+</script>
+</body>
+</html>
