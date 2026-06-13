@@ -357,65 +357,68 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
     _logger.userAction('Toggle meal consumption | isConsumed: $isCurrentlyConsumed',
         metadata: {'mealPlanEntryId': mealPlanEntryId});
 
+    // Phase 1: optimistic write — flip before any async work
+    ref.read(optimisticConsumptionProvider.notifier)
+        .update((map) => {...map, mealPlanEntryId: !isCurrentlyConsumed});
+
     final client = ref.read(supabaseClientProvider);
     state = const AsyncLoading();
 
-    if (isCurrentlyConsumed) {
-      // Undo consumption
-      _logger.edge('unconsume-meal', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
-      _logger.provider('MealConsumptionNotifier → loading (unconsume)');
-      state = await AsyncValue.guard(() async {
-        try {
-          await client.functions.invoke(
-            'unconsume-meal',
-            body: {'meal_plan_entry_id': mealPlanEntryId},
-          );
-          _logger.edge('unconsume-meal', 'AFTER | success');
-          _logger.provider('MealConsumptionNotifier → data (unconsume $mealPlanEntryId)');
-          return null;
-        } catch (e, st) {
-          _logger.edge('unconsume-meal', 'ERROR | $e', error: e, stackTrace: st);
-          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
-          rethrow;
-        }
-      });
-    } else {
-      // Log consumption
-      _logger.edge('log-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
-      _logger.provider('MealConsumptionNotifier → loading (consume)');
-      state = await AsyncValue.guard(() async {
+    try {
+      if (isCurrentlyConsumed) {
+        _logger.edge('unconsume-meal', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
+        _logger.provider('MealConsumptionNotifier → loading (unconsume)');
+        await client.functions.invoke(
+          'unconsume-meal',
+          body: {'meal_plan_entry_id': mealPlanEntryId},
+        );
+        _logger.edge('unconsume-meal', 'AFTER | success');
+        _logger.provider('MealConsumptionNotifier → data (unconsume $mealPlanEntryId)');
+        state = const AsyncData(null);
+      } else {
+        _logger.edge('log-meal-consumption', 'BEFORE | mealPlanEntryId: $mealPlanEntryId');
+        _logger.provider('MealConsumptionNotifier → loading (consume)');
         try {
           await client.functions.invoke(
             'log-meal-consumption',
             body: {'meal_plan_entry_id': mealPlanEntryId},
           );
-          _logger.edge('log-meal-consumption', 'AFTER | success');
-          _logger.provider('MealConsumptionNotifier → data (consume $mealPlanEntryId)');
-          return mealPlanEntryId;
         } on FunctionException catch (e, st) {
           final details = e.details;
           if (details is Map && details['error'] == 'Meal already consumed') {
             _logger.edge('log-meal-consumption', 'WARNING | Already consumed. Treating as success.');
-            return mealPlanEntryId;
+          } else {
+            _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
+            rethrow;
           }
-          _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
-          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
-          rethrow;
-        } catch (e, st) {
-          _logger.edge('log-meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
-          _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
-          rethrow;
         }
-      });
+        _logger.edge('log-meal-consumption', 'AFTER | success');
+        _logger.provider('MealConsumptionNotifier → data (consume $mealPlanEntryId)');
+        state = AsyncData(mealPlanEntryId);
+      }
+      // Success: remove override, DB refetch confirms
+      ref.read(optimisticConsumptionProvider.notifier)
+          .update((map) => Map.from(map)..remove(mealPlanEntryId));
+      ref.invalidate(activeMealPlanProvider);
+    } catch (e, st) {
+      // Revert optimistic override
+      ref.read(optimisticConsumptionProvider.notifier)
+          .update((map) => {...map, mealPlanEntryId: isCurrentlyConsumed});
+      _logger.edge('meal-consumption', 'ERROR | $e', error: e, stackTrace: st);
+      _logger.provider('MealConsumptionNotifier → error | $e', error: e, stackTrace: st);
+      state = AsyncError(e, st);
+      rethrow;
     }
-
-    if (state is AsyncData) ref.invalidate(activeMealPlanProvider);
   }
 }
 
 final mealConsumptionProvider =
     AsyncNotifierProvider.autoDispose<MealConsumptionNotifier, String?>(
         MealConsumptionNotifier.new);
+
+// Optimistic overlay — entryId → isConsumed — cleared after server confirms.
+final optimisticConsumptionProvider =
+    StateProvider<Map<String, bool>>((ref) => {});
 
 // ---------------------------------------------------------------------------
 // Cooking sessions — for the active meal plan
