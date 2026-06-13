@@ -26,10 +26,9 @@ class FanModePage extends ConsumerWidget {
         loading: () => const LinearProgressIndicator(),
         error: (_, __) => const Center(child: Text('Erreur de chargement')),
         data: (sub) {
-          final fanSub = sub;
-          final isFan = fanSub != null && (fanSub.isActive || fanSub.isPending);
-          appLogger.provider('FanModePage → isFan: $isFan | status: ${fanSub?.status}');
-          if (isFan && fanSub != null) return _FanUserView(sub: fanSub);
+          final isFan = sub != null && (sub.isActive || sub.isPending);
+          appLogger.provider('FanModePage → isFan: $isFan | status: ${sub?.status}');
+          if (isFan) return _FanUserView(sub: sub);
           return const _NoFanUserView();
         },
       ),
@@ -291,7 +290,7 @@ class _CreatorRatioRow extends StatelessWidget {
       Color(0xFFA78BFA),
       Color(0xFFFBBF24),
     ];
-    return colors[id.hashCode % colors.length];
+    return colors[id.hashCode.abs() % colors.length];
   }
 }
 
@@ -420,7 +419,7 @@ class _FanUserView extends ConsumerWidget {
             ),
           if (sub.isActive) const SizedBox(height: AkeliSpacing.lg),
 
-          _FanExplanationCard(sub: sub, creator: creator),
+          _FanExplanationCard(creator: creator),
           const SizedBox(height: AkeliSpacing.lg),
 
           OutlinedButton(
@@ -616,7 +615,7 @@ class _ExternalCounterCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
-              value: count / 9,
+              value: (count / 9).clamp(0.0, 1.0),
               backgroundColor: AkeliColors.background,
               valueColor: AlwaysStoppedAnimation(_color),
               minHeight: 6,
@@ -629,9 +628,8 @@ class _ExternalCounterCard extends StatelessWidget {
 }
 
 class _FanExplanationCard extends StatelessWidget {
-  final FanSubscription sub;
   final Creator? creator;
-  const _FanExplanationCard({required this.sub, this.creator});
+  const _FanExplanationCard({this.creator});
 
   @override
   Widget build(BuildContext context) {
