@@ -22,7 +22,7 @@ class JourneySummaryRow extends StatelessWidget {
       childAspectRatio: 1.6,
       children: [
         _StatCard(icon: '📅', value: '${stats.totalDays}', label: 'Jours de parcours'),
-        _StatCard(icon: '✅', value: '${stats.daysLogged}', label: 'Jours logués'),
+        _StatCard(icon: '✅', value: '${stats.daysLogged}', label: 'Jours suivis'),
         _StatCard(icon: '🍽️', value: '${stats.mealsConsumed}', label: 'Repas consommés'),
         _StatCard(icon: '📊', value: '${stats.consistencyPct}%', label: 'Régularité'),
       ],
@@ -49,7 +49,7 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 16)),
+          Text(icon, style: const TextStyle(fontSize: 24)),
           Text(
             value,
             style: const TextStyle(

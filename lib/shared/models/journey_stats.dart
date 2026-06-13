@@ -76,6 +76,7 @@ class JourneyCalendarDay {
 @immutable
 class JourneyStats {
   final int totalDays;
+  final int totalPlannedDays;
   final int daysLogged;
   final int mealsConsumed;
   final int consistencyPct;
@@ -92,6 +93,7 @@ class JourneyStats {
 
   const JourneyStats({
     required this.totalDays,
+    required this.totalPlannedDays,
     required this.daysLogged,
     required this.mealsConsumed,
     required this.consistencyPct,
@@ -115,8 +117,9 @@ class JourneyStats {
     final calList  = json['calendar'] as List<dynamic>?        ?? [];
 
     return JourneyStats(
-      totalDays:       (summary['total_days']      as num?)?.toInt() ?? 0,
-      daysLogged:      (summary['days_logged']     as num?)?.toInt() ?? 0,
+      totalDays:         (summary['total_days']          as num?)?.toInt() ?? 0,
+      totalPlannedDays:  (summary['total_planned_days']  as num?)?.toInt() ?? 0,
+      daysLogged:        (summary['days_logged']         as num?)?.toInt() ?? 0,
       mealsConsumed:   (summary['meals_consumed']  as num?)?.toInt() ?? 0,
       consistencyPct:  (summary['consistency_pct'] as num?)?.toInt() ?? 0,
       currentStreak:   (streak['current']          as num?)?.toInt() ?? 0,
