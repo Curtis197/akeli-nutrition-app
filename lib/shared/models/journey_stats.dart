@@ -1,4 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:akeli/core/logger.dart';
+
+// ignore: unused_field
+final _logger = appLogger;
 
 enum JourneyDayStatus { hit, partial, missed, empty }
 
@@ -10,6 +14,7 @@ class JourneyCalendarDay {
   const JourneyCalendarDay({required this.date, required this.status});
 
   factory JourneyCalendarDay.fromJson(Map<String, dynamic> json) {
+    _logger.db('JourneyCalendarDay.fromJson | date: ${json['date']}');
     return JourneyCalendarDay(
       date: DateTime.parse(json['date'] as String),
       status: switch (json['status'] as String? ?? 'empty') {
@@ -57,6 +62,7 @@ class JourneyStats {
   });
 
   factory JourneyStats.fromJson(Map<String, dynamic> json) {
+    _logger.db('JourneyStats.fromJson | keys: ${json.keys.toList()}');
     final summary  = json['summary']  as Map<String, dynamic>? ?? {};
     final streak   = json['streak']   as Map<String, dynamic>? ?? {};
     final goals    = json['goals']    as Map<String, dynamic>? ?? {};
