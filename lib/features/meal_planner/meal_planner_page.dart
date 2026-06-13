@@ -116,6 +116,7 @@ class MealPlannerPage extends ConsumerWidget {
           top: false,
           child: CustomScrollView(
             slivers: [
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
               // ── DAILY MEAL LIST ─────────────────────────────────────────
               SliverList(
                 delegate: SliverChildBuilderDelegate(
@@ -130,11 +131,28 @@ class MealPlannerPage extends ConsumerWidget {
                         appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
                         context.push(AkeliRoutes.mealDetailPath(entryId));
                       },
-                      onConsumedToggle: (entryId) {
+                      onConsumedToggle: (entryId) async {
                         appLogger.userAction('Meal consumed toggle', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
                         final plan = ref.read(activeMealPlanProvider).valueOrNull;
-                        final isConsumed = plan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
-                        ref.read(mealConsumptionProvider.notifier).toggleConsumption(entryId, isCurrentlyConsumed: isConsumed);
+                        final dbIsConsumed = plan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
+                        final overrides = ref.read(optimisticConsumptionProvider);
+                        final effectiveIsConsumed = overrides[entryId] ?? dbIsConsumed;
+                        try {
+                          await ref.read(mealConsumptionProvider.notifier).toggleConsumption(
+                            entryId,
+                            isCurrentlyConsumed: effectiveIsConsumed,
+                          );
+                        } catch (e) {
+                          appLogger.userAction('toggleConsumption ERROR | $e',
+                              screen: 'MealPlannerPage', metadata: {'error': e.toString()});
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Impossible de mettre à jour le repas. Réessayez.'),
+                              ),
+                            );
+                          }
+                        }
                       },
                       onAddSnack: () => _addSnack(context, ref, plan.id, date),
                     );
@@ -142,35 +160,32 @@ class MealPlannerPage extends ConsumerWidget {
                   childCount: dayKeys.length,
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      appLogger.userAction('Generate plan button tapped', screen: 'MealPlannerPage');
+                      _generatePlan(context, ref);
+                    },
+                    icon: const Icon(Icons.auto_awesome),
+                    label: const Text('Nouveau plan de repas'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AkeliColors.primary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AkeliRadius.lg)),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
           );
         },
       ),
-      bottomNavigationBar: planAsync.hasValue && planAsync.valueOrNull != null
-          ? SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    appLogger.userAction('Generate plan button tapped', screen: 'MealPlannerPage');
-                    _generatePlan(context, ref);
-                  },
-                  icon: const Icon(Icons.auto_awesome),
-                  label: const Text('Nouveau plan de repas'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AkeliColors.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 52),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AkeliRadius.lg)),
-                  ),
-                ),
-              ),
-            )
-          : null,
     );
   }
 
