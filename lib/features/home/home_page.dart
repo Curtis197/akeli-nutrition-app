@@ -411,7 +411,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                                     entry.id,
                                     isCurrentlyConsumed: effectiveIsConsumed,
                                   );
-                            } catch (_) {
+                            } catch (e, st) {
+                              _logger.userAction('toggleConsumption ERROR',
+                                  screen: 'HomePage', metadata: {'error': e.toString()});
+                              _logger.db('toggleConsumption catch | $e', error: e, stackTrace: st);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
