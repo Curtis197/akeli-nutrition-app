@@ -450,45 +450,73 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                 final i = entry.key;
                 final dist = entry.value;
                 final kcal = (_calorieGoal * (dist.caloriePct / 100)).round();
-                return Row(
+                final expanded = _expandedBoundsIndices.contains(i);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(
-                      width: 90,
-                      child: Text(_mealLabel(dist.mealType),
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline),
-                      color: dist.caloriePct > 0 ? AkeliColors.primary : Colors.grey,
-                      onPressed: dist.caloriePct > 0 ? () => _updateSlotPct(i, dist.caloriePct - 1) : null,
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          '${dist.caloriePct.toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AkeliColors.primary,
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 90,
+                          child: Text(_mealLabel(dist.mealType),
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          color: dist.caloriePct > 0 ? AkeliColors.primary : Colors.grey,
+                          onPressed: dist.caloriePct > 0 ? () => _updateSlotPct(i, dist.caloriePct - 1) : null,
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              '${dist.caloriePct.toStringAsFixed(0)}%',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AkeliColors.primary,
+                              ),
+                            ),
                           ),
                         ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          color: dist.caloriePct < 100 ? AkeliColors.primary : Colors.grey,
+                          onPressed: dist.caloriePct < 100 ? () => _updateSlotPct(i, dist.caloriePct + 1) : null,
+                        ),
+                        SizedBox(
+                          width: 65,
+                          child: Text('$kcal kcal',
+                              style: const TextStyle(fontSize: 12),
+                              textAlign: TextAlign.right),
+                        ),
+                        _BoundsChip(
+                          minG: dist.minPortionG,
+                          maxG: dist.maxPortionG,
+                          expanded: expanded,
+                          onTap: () {
+                            _logger.userAction('Bounds chip tapped', screen: 'NutritionPlanPage',
+                                metadata: {'index': i, 'expanded': !expanded});
+                            setState(() {
+                              if (expanded) {
+                                _expandedBoundsIndices.remove(i);
+                              } else {
+                                _expandedBoundsIndices.add(i);
+                              }
+                            });
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
+                          onPressed: _distributions.length > 1 ? () => _removeMealSlot(i) : null,
+                        ),
+                      ],
+                    ),
+                    if (expanded)
+                      _PortionBoundsPanel(
+                        minG: dist.minPortionG,
+                        maxG: dist.maxPortionG,
+                        onChanged: (min, max) => _updateSlotBounds(i, min, max),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline),
-                      color: dist.caloriePct < 100 ? AkeliColors.primary : Colors.grey,
-                      onPressed: dist.caloriePct < 100 ? () => _updateSlotPct(i, dist.caloriePct + 1) : null,
-                    ),
-                    SizedBox(
-                      width: 65,
-                      child: Text('$kcal kcal',
-                          style: const TextStyle(fontSize: 12),
-                          textAlign: TextAlign.right),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                      onPressed: _distributions.length > 1 ? () => _removeMealSlot(i) : null,
-                    ),
                   ],
                 );
               }),
