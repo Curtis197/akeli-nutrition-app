@@ -37,7 +37,7 @@ serve(async (req) => {
     logRLSCheck(logger, "meal_plan_entry", "SELECT", user.id);
     const { data: entry, error: entryError } = await client
       .from("meal_plan_entry")
-      .select("is_consumed, meal_plan_id")
+      .select("is_consumed, meal_plan_id, is_custom_meal")
       .eq("id", meal_plan_entry_id)
       .single();
     logQueryResult(logger, "meal_plan_entry", "SELECT", entry ? 1 : 0, entryError ?? undefined);
@@ -60,124 +60,151 @@ serve(async (req) => {
       .eq("meal_plan_entry_id", meal_plan_entry_id);
     logQueryResult(logger, "meal_plan_entry_component", "SELECT", components?.length ?? 0, compError ?? undefined);
 
-    if (compError || !components || components.length === 0) {
+    if (compError || (!entry.is_custom_meal && (!components || components.length === 0))) {
       logger.warn("EARLY RETURN | reason: no components found | meal_plan_entry_id: " + meal_plan_entry_id);
       return err("No components found for this meal plan entry", 404);
     }
 
-    // 3. Vérifier le Mode Fan sur le composant base (premier composant).
-    //    Un seul check par repas — le composant base détermine le créateur principal.
-    const baseComponent = components[0];
-    logger.debug("[STEP 4] Fan mode check | base_component_id: " + baseComponent.id);
-
-    logRLSCheck(logger, "recipe", "SELECT", user.id);
-    const { data: baseRecipe, error: baseRecipeError } = await client
-      .from("recipe")
-      .select("creator_id")
-      .eq("id", baseComponent.recipe_id)
-      .single();
-    logQueryResult(logger, "recipe", "SELECT", baseRecipe ? 1 : 0, baseRecipeError ?? undefined);
-
-    const baseCreatorId = baseRecipe?.creator_id ?? null;
-
-    if (baseCreatorId) {
-      logRLSCheck(logger, "fan_subscription", "SELECT", user.id);
-      const { data: fanSub, error: fanSubError } = await client
-        .from("fan_subscription")
-        .select("creator_id")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .maybeSingle();
-      logQueryResult(logger, "fan_subscription", "SELECT", fanSub ? 1 : 0, fanSubError ?? undefined);
-
-      if (fanSub && fanSub.creator_id !== baseCreatorId) {
-        const monthKey = new Date().toISOString().slice(0, 7);
-
-        logRLSCheck(logger, "fan_external_recipe_counter", "SELECT", user.id);
-        const { data: counter, error: counterError } = await client
-          .from("fan_external_recipe_counter")
-          .select("external_recipe_count")
-          .eq("user_id", user.id)
-          .eq("month_key", monthKey)
-          .maybeSingle();
-        logQueryResult(logger, "fan_external_recipe_counter", "SELECT", counter ? 1 : 0, counterError ?? undefined);
-
-        if ((counter?.external_recipe_count ?? 0) >= 9) {
-          logger.warn("EARLY RETURN | reason: fan mode limit reached | count: " + (counter?.external_recipe_count ?? 0));
-          return err(
-            "Fan mode limit reached: max 9 external recipes per month",
-            403,
-          );
-        }
-
-        const admin = serviceClient();
-        logRLSCheck(logger, "fan_external_recipe_counter", "UPSERT", user.id);
-        const { error: upsertError } = await admin
-          .from("fan_external_recipe_counter")
-          .upsert(
-            {
-              user_id: user.id,
-              month_key: monthKey,
-              external_recipe_count: (counter?.external_recipe_count ?? 0) + 1,
-            },
-            { onConflict: "user_id,month_key" },
-          );
-        logQueryResult(logger, "fan_external_recipe_counter", "UPSERT", upsertError ? 0 : 1, upsertError ?? undefined);
-      }
-    } else {
-      logger.debug('Fan mode check skipped | base recipe has no creator_id');
-    }
-
-    // 4. Récupérer l'ID du créateur (creator_id) pour chaque recette distincte.
-    logger.debug("[STEP 5] Get recipe creator ids");
-    const recipeIds = [...new Set(components.map((c) => c.recipe_id))];
-    logRLSCheck(logger, "recipe", "SELECT", user.id);
-    const { data: recipes, error: recipesError } = await client
-      .from("recipe")
-      .select("id, creator_id")
-      .in("id", recipeIds);
-    logQueryResult(logger, "recipe", "SELECT", recipes?.length ?? 0, recipesError ?? undefined);
-
-    const creatorUserById = Object.fromEntries(
-      (recipes ?? []).map((r) => [r.id, r.creator_id ?? null]),
-    );
-
-    // 5. Insérer N lignes dans meal_consumption — une par composant.
-    //    consumption_value = 1/N, utilisé par le trigger nutrition et les revenus créateurs.
-    logger.debug("[STEP 6] Insert consumption rows | count: " + components.length);
     const consumedAt = new Date().toISOString();
-    const consumptionRows = components.map((comp) => ({
-      user_id: user.id,
-      recipe_id: comp.recipe_id,
-      creator_id: creatorUserById[comp.recipe_id] ?? null,
-      meal_plan_entry_id,
-      component_id: comp.id,
-      servings,
-      consumption_value: comp.consumption_weight,
-      consumed_at: consumedAt,
-    }));
+    let componentsLogged = 0;
 
-    logRLSCheck(logger, "meal_consumption", "INSERT", user.id);
-    const { error: consumptionError } = await client
-      .from("meal_consumption")
-      .insert(consumptionRows);
-    logQueryResult(logger, "meal_consumption", "INSERT", consumptionError ? 0 : consumptionRows.length, consumptionError ?? undefined);
+    if (entry.is_custom_meal && (!components || components.length === 0)) {
+      // Custom meal — no recipe components. Insert a single row with recipe_id = null.
+      // Fan mode check is skipped (no creator attribution for personal meals).
+      logger.debug("[STEP 4] Custom meal — skipping fan mode | inserting single consumption row");
+      logRLSCheck(logger, "meal_consumption", "INSERT", user.id);
+      const { error: customConsumptionError } = await client
+        .from("meal_consumption")
+        .insert({
+          user_id: user.id,
+          recipe_id: null,
+          creator_id: null,
+          meal_plan_entry_id,
+          component_id: null,
+          servings,
+          consumption_value: 1,
+          consumed_at: consumedAt,
+        });
+      logQueryResult(logger, "meal_consumption", "INSERT", customConsumptionError ? 0 : 1, customConsumptionError ?? undefined);
+      if (customConsumptionError) throw customConsumptionError;
+      componentsLogged = 1;
+    } else {
+      // Normal recipe-backed meal — fan mode check + one row per component.
 
-    if (consumptionError) throw consumptionError;
+      // 3. Vérifier le Mode Fan sur le composant base (premier composant).
+      //    Un seul check par repas — le composant base détermine le créateur principal.
+      const baseComponent = components![0];
+      logger.debug("[STEP 4] Fan mode check | base_component_id: " + baseComponent.id);
+
+      logRLSCheck(logger, "recipe", "SELECT", user.id);
+      const { data: baseRecipe, error: baseRecipeError } = await client
+        .from("recipe")
+        .select("creator_id")
+        .eq("id", baseComponent.recipe_id)
+        .single();
+      logQueryResult(logger, "recipe", "SELECT", baseRecipe ? 1 : 0, baseRecipeError ?? undefined);
+
+      const baseCreatorId = baseRecipe?.creator_id ?? null;
+
+      if (baseCreatorId) {
+        logRLSCheck(logger, "fan_subscription", "SELECT", user.id);
+        const { data: fanSub, error: fanSubError } = await client
+          .from("fan_subscription")
+          .select("creator_id")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
+        logQueryResult(logger, "fan_subscription", "SELECT", fanSub ? 1 : 0, fanSubError ?? undefined);
+
+        if (fanSub && fanSub.creator_id !== baseCreatorId) {
+          const monthKey = new Date().toISOString().slice(0, 7);
+
+          logRLSCheck(logger, "fan_external_recipe_counter", "SELECT", user.id);
+          const { data: counter, error: counterError } = await client
+            .from("fan_external_recipe_counter")
+            .select("external_recipe_count")
+            .eq("user_id", user.id)
+            .eq("month_key", monthKey)
+            .maybeSingle();
+          logQueryResult(logger, "fan_external_recipe_counter", "SELECT", counter ? 1 : 0, counterError ?? undefined);
+
+          if ((counter?.external_recipe_count ?? 0) >= 9) {
+            logger.warn("EARLY RETURN | reason: fan mode limit reached | count: " + (counter?.external_recipe_count ?? 0));
+            return err(
+              "Fan mode limit reached: max 9 external recipes per month",
+              403,
+            );
+          }
+
+          const admin = serviceClient();
+          logRLSCheck(logger, "fan_external_recipe_counter", "UPSERT", user.id);
+          const { error: upsertError } = await admin
+            .from("fan_external_recipe_counter")
+            .upsert(
+              {
+                user_id: user.id,
+                month_key: monthKey,
+                external_recipe_count: (counter?.external_recipe_count ?? 0) + 1,
+              },
+              { onConflict: "user_id,month_key" },
+            );
+          logQueryResult(logger, "fan_external_recipe_counter", "UPSERT", upsertError ? 0 : 1, upsertError ?? undefined);
+        }
+      } else {
+        logger.debug('Fan mode check skipped | base recipe has no creator_id');
+      }
+
+      // 4. Récupérer l'ID du créateur (creator_id) pour chaque recette distincte.
+      logger.debug("[STEP 5] Get recipe creator ids");
+      const recipeIds = [...new Set(components!.map((c) => c.recipe_id))];
+      logRLSCheck(logger, "recipe", "SELECT", user.id);
+      const { data: recipes, error: recipesError } = await client
+        .from("recipe")
+        .select("id, creator_id")
+        .in("id", recipeIds);
+      logQueryResult(logger, "recipe", "SELECT", recipes?.length ?? 0, recipesError ?? undefined);
+
+      const creatorUserById = Object.fromEntries(
+        (recipes ?? []).map((r) => [r.id, r.creator_id ?? null]),
+      );
+
+      // 5. Insérer N lignes dans meal_consumption — une par composant.
+      //    consumption_value = 1/N, utilisé par le trigger nutrition et les revenus créateurs.
+      logger.debug("[STEP 6] Insert consumption rows | count: " + components!.length);
+      const consumptionRows = components!.map((comp) => ({
+        user_id: user.id,
+        recipe_id: comp.recipe_id,
+        creator_id: creatorUserById[comp.recipe_id] ?? null,
+        meal_plan_entry_id,
+        component_id: comp.id,
+        servings,
+        consumption_value: comp.consumption_weight,
+        consumed_at: consumedAt,
+      }));
+
+      logRLSCheck(logger, "meal_consumption", "INSERT", user.id);
+      const { error: consumptionError } = await client
+        .from("meal_consumption")
+        .insert(consumptionRows);
+      logQueryResult(logger, "meal_consumption", "INSERT", consumptionError ? 0 : consumptionRows.length, consumptionError ?? undefined);
+
+      if (consumptionError) throw consumptionError;
+      componentsLogged = consumptionRows.length;
+    }
 
     // 6. Marquer l'entrée comme consommée — via service client (no UPDATE RLS on meal_plan_entry)
     logger.debug("[STEP 7] Mark entry consumed");
     const admin = serviceClient();
     const { error: updateError } = await admin
       .from("meal_plan_entry")
-      .update({ is_consumed: true, consumed_at: new Date().toISOString() })
+      .update({ is_consumed: true, consumed_at: consumedAt })
       .eq("id", meal_plan_entry_id)
       .eq("meal_plan_id", entry.meal_plan_id);
     logQueryResult(logger, "meal_plan_entry", "UPDATE", updateError ? 0 : 1, updateError ?? undefined);
     if (updateError) logger.warn("Mark consumed failed (non-fatal) | " + updateError.message);
 
-    logger.info("✅ EXIT | status: 200 | components_logged: " + components.length + " | duration: " + (Date.now() - start) + "ms");
-    return ok({ consumed: true, components_logged: components.length });
+    logger.info("✅ EXIT | status: 200 | components_logged: " + componentsLogged + " | duration: " + (Date.now() - start) + "ms");
+    return ok({ consumed: true, components_logged: componentsLogged });
   } catch (e) {
     logger.error("💥 Unhandled error", { message: e.message, stack: e.stack });
     return serverError(e);

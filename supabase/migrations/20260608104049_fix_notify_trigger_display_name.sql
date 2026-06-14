@@ -1,0 +1,1 @@
+-- Applied directly to remote. Stub file for migration history sync.
