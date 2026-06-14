@@ -5,6 +5,8 @@ class MealDistribution {
   final int sortOrder;
   final double caloriePct;
   final double? calorieTarget;
+  final int minPortionG;
+  final int maxPortionG;
 
   MealDistribution({
     this.id,
@@ -13,6 +15,8 @@ class MealDistribution {
     required this.sortOrder,
     required this.caloriePct,
     this.calorieTarget,
+    this.minPortionG = 50,
+    this.maxPortionG = 1500,
   });
 
   factory MealDistribution.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class MealDistribution {
       sortOrder: json['sort_order'] as int,
       caloriePct: (json['calorie_pct'] as num).toDouble(),
       calorieTarget: json['calorie_target'] != null ? (json['calorie_target'] as num).toDouble() : null,
+      minPortionG: (json['min_portion_g'] as int?) ?? 50,
+      maxPortionG: (json['max_portion_g'] as int?) ?? 1500,
     );
   }
 
@@ -34,6 +40,8 @@ class MealDistribution {
       'sort_order': sortOrder,
       'calorie_pct': caloriePct,
       if (calorieTarget != null) 'calorie_target': calorieTarget,
+      'min_portion_g': minPortionG,
+      'max_portion_g': maxPortionG,
     };
   }
 
@@ -44,6 +52,8 @@ class MealDistribution {
     int? sortOrder,
     double? caloriePct,
     double? calorieTarget,
+    int? minPortionG,
+    int? maxPortionG,
   }) {
     return MealDistribution(
       id: id ?? this.id,
@@ -52,6 +62,8 @@ class MealDistribution {
       sortOrder: sortOrder ?? this.sortOrder,
       caloriePct: caloriePct ?? this.caloriePct,
       calorieTarget: calorieTarget ?? this.calorieTarget,
+      minPortionG: minPortionG ?? this.minPortionG,
+      maxPortionG: maxPortionG ?? this.maxPortionG,
     );
   }
 }
