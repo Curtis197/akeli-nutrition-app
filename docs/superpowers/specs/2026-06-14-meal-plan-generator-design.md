@@ -232,7 +232,7 @@ Ranks by `preferred_meal_type` match (weight 0.15) then by total recipe likes. U
 - Recipe appears fewer than `p_max_recipe_repeat` times in `v_used_recipe_ids`
 - Fan rule: if user has an active fan subscription, non-fan recipes are capped at 10% of total slots (`v_max_other_slots = FLOOR(total_slots × 0.10)`)
 - Allergen exclusion: `NOT (recipe.allergen_tags && v_user_allergens)`
-- Portion feasibility: `v_target_meal_cal / (calories_per_100g / 100) <= v_max_g` (recipe must be achievable within max portion bounds)
+- Portion feasibility: `v_target_meal_cal / (calories_per_100g / 100) BETWEEN v_min_g AND v_max_g` (recipe's natural portion must fit within both bounds — too calorie-sparse AND too calorie-dense recipes are excluded)
 
 ---
 
