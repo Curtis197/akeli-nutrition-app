@@ -59,6 +59,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   List<MealDistribution> _distributions = [];
   bool _isCalculated = false;
   bool _isSaving = false;
+  final Set<int> _expandedBoundsIndices = {};
 
   @override
   void initState() {
@@ -159,6 +160,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       _carbPct = defaultMacros['carbs']!;
       _fatPct = defaultMacros['fat']!;
       _distributions = newDistributions;
+      _expandedBoundsIndices.clear();
       _isCalculated = true;
     });
   }
@@ -186,6 +188,13 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     _logger.userAction('Remove meal slot tapped | index: $index', screen: 'NutritionPlanPage');
     setState(() {
       _distributions = [..._distributions]..removeAt(index);
+      _expandedBoundsIndices.remove(index);
+      final shifted = _expandedBoundsIndices
+          .where((i) => i > index)
+          .map((i) => i - 1)
+          .toSet();
+      _expandedBoundsIndices.removeWhere((i) => i > index);
+      _expandedBoundsIndices.addAll(shifted);
     });
   }
 
@@ -196,6 +205,16 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         caloriePct: newPct,
         calorieTarget: _calorieGoal * (newPct / 100),
       );
+      _distributions = updated;
+    });
+  }
+
+  void _updateSlotBounds(int index, int minG, int maxG) {
+    _logger.userAction('Portion bounds changed', screen: 'NutritionPlanPage',
+        metadata: {'index': index, 'minG': minG, 'maxG': maxG});
+    setState(() {
+      final updated = [..._distributions];
+      updated[index] = updated[index].copyWith(minPortionG: minG, maxPortionG: maxG);
       _distributions = updated;
     });
   }
