@@ -199,6 +199,8 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   }
 
   void _updateSlotPct(int index, double newPct) {
+    _logger.userAction('Meal pct changed', screen: 'NutritionPlanPage',
+        metadata: {'index': index, 'pct': newPct});
     setState(() {
       final updated = [..._distributions];
       updated[index] = updated[index].copyWith(
@@ -212,10 +214,15 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   void _updateSlotBounds(int index, int minG, int maxG) {
     _logger.userAction('Portion bounds changed', screen: 'NutritionPlanPage',
         metadata: {'index': index, 'minG': minG, 'maxG': maxG});
+    if (minG < 0 || maxG <= minG) {
+      _logger.w('_updateSlotBounds | invalid bounds ignored | minG: $minG maxG: $maxG');
+      return;
+    }
     setState(() {
       final updated = [..._distributions];
       updated[index] = updated[index].copyWith(minPortionG: minG, maxPortionG: maxG);
       _distributions = updated;
+      _logger.provider('NutritionPlanPage → bounds updated | index: $index minG: $minG maxG: $maxG');
     });
   }
 
