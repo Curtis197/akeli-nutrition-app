@@ -636,3 +636,73 @@ class _BoundsChip extends StatelessWidget {
   }
 }
 
+class _PortionBoundsPanel extends StatelessWidget {
+  final int minG;
+  final int maxG;
+  final void Function(int minG, int maxG) onChanged;
+
+  const _PortionBoundsPanel({
+    required this.minG,
+    required this.maxG,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 4, bottom: 8),
+      padding: const EdgeInsets.fromLTRB(
+          AkeliSpacing.md, AkeliSpacing.sm, AkeliSpacing.md, AkeliSpacing.sm),
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'QUANTITÉ DE PORTION',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AkeliColors.onSurfaceVariant,
+              letterSpacing: 0.08,
+            ),
+          ),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: AkeliColors.secondaryContainer,
+              inactiveTrackColor: AkeliColors.surfaceContainerHighest,
+              thumbColor: AkeliColors.surfaceContainerLowest,
+              overlayColor: AkeliColors.primary.withValues(alpha: 0.1),
+              trackHeight: 8,
+            ),
+            child: RangeSlider(
+              values: RangeValues(minG.toDouble(), maxG.toDouble()),
+              min: 50,
+              max: 1500,
+              divisions: 58,
+              onChanged: (v) => onChanged(v.start.round(), v.end.round()),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Min : $minG g',
+                style: GoogleFonts.inter(
+                    fontSize: 12, color: AkeliColors.onSurfaceVariant),
+              ),
+              Text(
+                'Max : $maxG g',
+                style: GoogleFonts.inter(
+                    fontSize: 12, color: AkeliColors.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
