@@ -6,6 +6,7 @@ import 'package:akeli/providers/journey_provider.dart';
 import 'journey_summary_row.dart';
 import 'journey_streak_pill.dart';
 import 'journey_goals_card.dart';
+import 'journey_weight_chart.dart';
 import 'journey_calendar.dart';
 
 class JourneyTab extends ConsumerStatefulWidget {
@@ -115,6 +116,8 @@ class _JourneyTabState extends ConsumerState<JourneyTab> {
             JourneyStreakPill(stats: stats),
             const SizedBox(height: 12),
             JourneyGoalsCard(stats: stats),
+            const SizedBox(height: 12),
+            const JourneyWeightChart(),
             const SizedBox(height: 12),
             JourneyCalendar(
               year: _year,

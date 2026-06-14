@@ -6,6 +6,7 @@ import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/meal_plan.dart';
 import 'auth_provider.dart';
+import 'nutrition_provider.dart';
 import 'recipe_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -19,7 +20,12 @@ final activeMealPlanProvider =
 
   appLogger.provider('activeMealPlanProvider build() | userId: ${user.id}');
   ref.onDispose(() => appLogger.provider('activeMealPlanProvider disposed'));
-  appLogger.db('BEFORE | table: meal_plan | op: SELECT with joins | userId: ${user.id} | is_active: true');
+
+  final today = DateTime.now();
+  final todayStr =
+      '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+  appLogger.db('BEFORE | table: meal_plan | op: SELECT with joins | userId: ${user.id} | is_active: true | today: $todayStr');
 
   final client = ref.watch(supabaseClientProvider);
   try {
@@ -30,6 +36,8 @@ final activeMealPlanProvider =
         )
         .eq('user_id', user.id)
         .eq('is_active', true)
+        .lte('start_date', todayStr)
+        .gte('end_date', todayStr)
         .maybeSingle();
     appLogger.db('AFTER | table: meal_plan | rows: ${data == null ? 0 : 1} | userId: ${user.id}');
     if (data == null) {
@@ -96,9 +104,12 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    // Default: today through Sunday of the current week (batch runs Sunday night).
-    // weekday: 1=Mon … 7=Sun → days remaining inclusive = 8 - weekday.
-    final effectiveDays = days ?? (8 - DateTime.now().weekday);
+    // Days from today through Sunday of the current week, so the plan stays Mon–Sun.
+    // The SQL function preserves past entries; only today onwards is regenerated.
+    final now = DateTime.now();
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final effectiveDays = days ?? (8 - now.weekday);
 
     _logger.userAction('Generate meal plan', metadata: {'days': effectiveDays, 'mealsPerDay': mealsPerDay});
     _logger.edge('generate-meal-plan', 'BEFORE | days: $effectiveDays | mealsPerDay: $mealsPerDay | userId: ${user.id}');
@@ -110,7 +121,7 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
       try {
         final res = await client.functions.invoke(
           'generate-meal-plan',
-          body: {'days': effectiveDays, 'meals_per_day': mealsPerDay},
+          body: {'days': effectiveDays, 'meals_per_day': mealsPerDay, 'start_date': todayStr},
         );
         _logger.edge('generate-meal-plan', 'AFTER | success | responseType: ${res.data.runtimeType}');
 
@@ -401,6 +412,8 @@ class MealConsumptionNotifier extends AutoDisposeAsyncNotifier<String?> {
       ref.read(optimisticConsumptionProvider.notifier)
           .update((map) => {...map}..remove(mealPlanEntryId));
       ref.invalidate(activeMealPlanProvider);
+      ref.invalidate(todayNutritionProvider);
+      ref.invalidate(weeklyNutritionProvider);
     } catch (e, st) {
       // Revert optimistic override
       ref.read(optimisticConsumptionProvider.notifier)

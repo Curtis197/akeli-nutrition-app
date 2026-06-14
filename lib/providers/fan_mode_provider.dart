@@ -175,7 +175,6 @@ final creatorConsumptionProvider =
   appLogger.provider('creatorConsumptionProvider build() | userId: ${user.id}');
   ref.onDispose(() => appLogger.provider('creatorConsumptionProvider disposed'));
 
-  // DB uses consumed_date (date) — no month_key generated column in this DB.
   final now = DateTime.now();
   final startDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
   final nextMonth = now.month == 12
@@ -185,7 +184,8 @@ final creatorConsumptionProvider =
       '${nextMonth.year}-${nextMonth.month.toString().padLeft(2, '0')}-01';
   final client = ref.watch(supabaseClientProvider);
 
-  // Step 1: fetch this month's consumption rows
+  // Step 1: fetch this month's consumption rows — filter by scheduled_date so
+  // late-logged meals count for the month they were planned, not the tap date.
   appLogger.db('BEFORE | table: meal_consumption | op: SELECT | userId: ${user.id} | range: $startDate..$endDate');
   late final List<Map<String, dynamic>> consumptionRows;
   try {
@@ -193,8 +193,8 @@ final creatorConsumptionProvider =
         .from('meal_consumption')
         .select('creator_id')
         .eq('user_id', user.id)
-        .gte('consumed_date', startDate)
-        .lt('consumed_date', endDate);
+        .gte('scheduled_date', startDate)
+        .lt('scheduled_date', endDate);
     appLogger.db('AFTER | table: meal_consumption | rows: ${consumptionRows.length}');
     if (consumptionRows.isEmpty) {
       appLogger.rls('Zero rows | table: meal_consumption | userId: ${user.id} | range: $startDate..$endDate | no meals or RLS');

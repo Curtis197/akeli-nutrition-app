@@ -71,7 +71,13 @@ class NutritionPlanNotifier extends StateNotifier<AsyncValue<NutritionPlan?>> {
     }
   }
 
-  Future<void> savePlan(NutritionPlan plan, List<MealDistribution> distributions) async {
+  /// Single source of truth for persisting a nutrition plan.
+  /// Writes nutrition_plan + meal_distribution + user_goal atomically so the
+  /// generator (reads meal_distribution) and the swap (reads user_goal) can
+  /// never diverge. [goalType] is persisted on user_goal so a profile-driven
+  /// recompute keeps the goal_type the health profile screen reads back.
+  Future<void> savePlan(NutritionPlan plan, List<MealDistribution> distributions,
+      {String? goalType}) async {
     final user = ref.read(currentUserProvider);
     if (user == null) {
       _logger.provider('NutritionPlanNotifier savePlan ERROR: No user');
@@ -79,7 +85,7 @@ class NutritionPlanNotifier extends StateNotifier<AsyncValue<NutritionPlan?>> {
     }
 
     final client = ref.read(supabaseClientProvider);
-    _logger.provider('NutritionPlanNotifier savePlan | userId: ${user.id} | targetCal: ${plan.calorieGoal}');
+    _logger.provider('NutritionPlanNotifier savePlan | userId: ${user.id} | targetCal: ${plan.calorieGoal} | goalType: $goalType');
     state = const AsyncValue.loading();
 
     try {
@@ -131,6 +137,7 @@ class NutritionPlanNotifier extends StateNotifier<AsyncValue<NutritionPlan?>> {
         'protein_goal': plan.proteinGoalG,
         'carbs_goal': plan.carbGoalG,
         'fat_goal': plan.fatGoalG,
+        if (goalType != null) 'goal_type': goalType,
         'is_active': true,
       });
       _logger.db('AFTER | table: user_goal | inserted');

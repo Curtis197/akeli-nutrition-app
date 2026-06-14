@@ -274,7 +274,15 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
   Widget build(BuildContext context) {
     final weekAsync = ref.watch(weeklyNutritionForRangeProvider(_range));
     final plan = ref.watch(activeNutritionPlanProvider).valueOrNull;
-    appLogger.provider('WeeklyTab build() | weekAsync.isLoading: ${weekAsync.isLoading} | offset: $_weekOffset');
+    final allWeights = ref.watch(weightLogProvider).valueOrNull ?? [];
+    final weekWeights = allWeights.where((e) {
+      final day = DateTime(e.date.year, e.date.month, e.date.day);
+      return !day.isBefore(_since) && !day.isAfter(_until);
+    }).toList();
+    final double? weekWeightDelta = weekWeights.length >= 2
+        ? weekWeights.first.weightKg - weekWeights.last.weightKg
+        : null;
+    appLogger.provider('WeeklyTab build() | weekAsync.isLoading: ${weekAsync.isLoading} | offset: $_weekOffset | weekWeightDelta: $weekWeightDelta');
 
     return Column(
       children: [
@@ -316,6 +324,7 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
                       since: _since,
                       until: _until,
                       calorieGoal: plan?.calorieGoal ?? 2000,
+                      weekWeightDelta: weekWeightDelta,
                     ),
                     const SizedBox(height: 10),
                     _OrganicCard(child: _WeeklyCaloriesChart(days: days)),
@@ -447,8 +456,8 @@ class _WaterTracker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -467,6 +476,7 @@ class _WaterTracker extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Text(
@@ -1283,19 +1293,21 @@ class _WeeklySummaryCard extends StatelessWidget {
   final DateTime since;
   final DateTime until;
   final int calorieGoal;
+  final double? weekWeightDelta;
 
   const _WeeklySummaryCard({
     required this.days,
     required this.since,
     required this.until,
     required this.calorieGoal,
+    this.weekWeightDelta,
   });
 
   static DateTime _truncate(DateTime d) => DateTime(d.year, d.month, d.day);
 
   @override
   Widget build(BuildContext context) {
-    appLogger.d('_WeeklySummaryCard build() | days: ${days.length} | goal: $calorieGoal');
+    appLogger.d('_WeeklySummaryCard build() | days: ${days.length} | goal: $calorieGoal | delta: $weekWeightDelta');
 
     final dayMap = {for (final d in days) _truncate(d.date): d};
 
@@ -1308,6 +1320,23 @@ class _WeeklySummaryCard extends StatelessWidget {
       final r = d.calories / calorieGoal;
       return r >= 0.9 && r <= 1.1;
     }).length;
+
+    final delta = weekWeightDelta;
+    final String wdValue;
+    final Color wdColor;
+    if (delta == null) {
+      wdValue = '–';
+      wdColor = AkeliColors.onSurfaceVariant;
+    } else if (delta < 0) {
+      wdValue = '↓${(-delta).toStringAsFixed(1)} kg';
+      wdColor = const Color(0xFF4ADE80);
+    } else if (delta > 0) {
+      wdValue = '↑${delta.toStringAsFixed(1)} kg';
+      wdColor = AkeliColors.error;
+    } else {
+      wdValue = '–';
+      wdColor = AkeliColors.onSurfaceVariant;
+    }
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1326,13 +1355,24 @@ class _WeeklySummaryCard extends StatelessWidget {
               children: [
                 _SummaryMetric(value: '$avgKcal', label: 'moy. kcal', valueColor: AkeliColors.onSurface),
                 const _VertDivider(),
-                _SummaryMetric(
-                  value: '$onTarget',
-                  label: 'jours / objectif',
-                  valueColor: onTarget > 0 ? const Color(0xFF4ADE80) : AkeliColors.onSurfaceVariant,
+                _SummaryMetric(value: wdValue, label: 'variation poids', valueColor: wdColor),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text.rich(
+            TextSpan(
+              text: 'Vous avez atteint vos objectifs ',
+              style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
+              children: [
+                TextSpan(
+                  text: '$onTarget fois',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: onTarget > 0 ? const Color(0xFF4ADE80) : AkeliColors.onSurfaceVariant,
+                  ),
                 ),
-                const _VertDivider(),
-                _SummaryMetric(value: '${loggedDays.length}', label: 'jours logués', valueColor: AkeliColors.onSurface),
+                const TextSpan(text: ' cette semaine.'),
               ],
             ),
           ),

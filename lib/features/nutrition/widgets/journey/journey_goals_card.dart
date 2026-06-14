@@ -34,9 +34,10 @@ class JourneyGoalsCard extends StatelessWidget {
           ],
           _GoalBar(
             label: '🎯  Calories',
-            value: '${stats.calorieHitPct}% des jours logués',
+            value: '${stats.calorieHitPct}%',
             progress: stats.calorieHitPct / 100,
             color: AkeliColors.primary,
+            subtitle: 'Vous avez atteint votre objectif calorique ${stats.calorieHitPct}% des jours logués.',
           ),
           const SizedBox(height: 12),
           _GoalBar(
@@ -71,6 +72,7 @@ class _GoalBar extends StatelessWidget {
   final double progress;
   final Color? color;
   final Gradient? gradient;
+  final String? subtitle;
 
   const _GoalBar({
     required this.label,
@@ -78,6 +80,7 @@ class _GoalBar extends StatelessWidget {
     required this.progress,
     this.color,
     this.gradient,
+    this.subtitle,
   }) : assert(color != null || gradient != null);
 
   @override
@@ -120,6 +123,13 @@ class _GoalBar extends StatelessWidget {
             ),
           ),
         ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            subtitle!,
+            style: const TextStyle(fontSize: 11, color: AkeliColors.onSurfaceVariant),
+          ),
+        ],
       ],
     );
   }
