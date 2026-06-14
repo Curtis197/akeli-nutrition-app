@@ -582,3 +582,57 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   }
 }
 
+class _BoundsChip extends StatelessWidget {
+  final int minG;
+  final int maxG;
+  final bool expanded;
+  final VoidCallback onTap;
+
+  const _BoundsChip({
+    required this.minG,
+    required this.maxG,
+    required this.expanded,
+    required this.onTap,
+  });
+
+  bool get _isCustom => minG != 50 || maxG != 1500;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _isCustom ? AkeliColors.primary : AkeliColors.onSurfaceVariant;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+        decoration: BoxDecoration(
+          color: _isCustom
+              ? AkeliColors.primaryContainer
+              : AkeliColors.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.tune_rounded, size: 11, color: color),
+            const SizedBox(width: 3),
+            Text(
+              '$minG–${maxG}g',
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 2),
+            Icon(
+              expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
+              size: 13,
+              color: color,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
