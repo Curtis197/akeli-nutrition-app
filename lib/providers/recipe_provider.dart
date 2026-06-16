@@ -263,8 +263,8 @@ final searchRecipesProvider =
     if (params.regionId != null) query = query.eq('region_id', params.regionId!);
     if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
     if (params.maxTimeMin != null) query = query.lte('total_time_min', params.maxTimeMin!);
-    if (params.minCal != null) query = query.gte('calories', params.minCal!);
-    if (params.maxCal != null) query = query.lte('calories', params.maxCal!);
+    if (params.minCal != null) query = query.gte('recipe_macro.calories_per_100g', params.minCal!);
+    if (params.maxCal != null) query = query.lte('recipe_macro.calories_per_100g', params.maxCal!);
     if (params.mealType != null) query = query.contains('meal_types', [params.mealType!]);
 
     final orderColumn = switch (params.orderBy) {

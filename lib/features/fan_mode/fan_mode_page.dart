@@ -328,72 +328,77 @@ class _EligibleCreatorCard extends StatelessWidget {
           horizontal: AkeliSpacing.md, vertical: AkeliSpacing.xs),
       child: Padding(
         padding: const EdgeInsets.all(AkeliSpacing.md),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor:
-                  AkeliColors.primary.withValues(alpha: 0.1),
-              backgroundImage: creator.avatarUrl != null
-                  ? CachedNetworkImageProvider(creator.avatarUrl!)
-                  : null,
-              child: creator.avatarUrl == null
-                  ? Text(
-                      creator.displayName[0].toUpperCase(),
-                      style: const TextStyle(
-                          color: AkeliColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                    )
-                  : null,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: AkeliColors.primary.withValues(alpha: 0.1),
+                  backgroundImage: creator.avatarUrl != null
+                      ? CachedNetworkImageProvider(creator.avatarUrl!)
+                      : null,
+                  child: creator.avatarUrl == null
+                      ? Text(
+                          creator.displayName[0].toUpperCase(),
+                          style: const TextStyle(
+                              color: AkeliColors.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: AkeliSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(creator.displayName,
+                          style: Theme.of(context).textTheme.titleSmall),
+                      if (creator.specialties.isNotEmpty)
+                        Text(
+                          creator.specialties.join(' • '),
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AkeliColors.textSecondary),
+                        ),
+                      const SizedBox(height: 4),
+                      Row(children: [
+                        const Icon(Icons.restaurant_menu_rounded,
+                            size: 12, color: AkeliColors.textSecondary),
+                        const SizedBox(width: 2),
+                        Text('${creator.recipeCount} recettes',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: AkeliColors.textSecondary)),
+                        const SizedBox(width: AkeliSpacing.sm),
+                        const Icon(Icons.people_outline_rounded,
+                            size: 12, color: AkeliColors.textSecondary),
+                        const SizedBox(width: 2),
+                        Text('${creator.fanCount} fans',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(color: AkeliColors.textSecondary)),
+                      ]),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: AkeliSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(creator.displayName,
-                      style: Theme.of(context).textTheme.titleSmall),
-                  if (creator.specialties.isNotEmpty)
-                    Text(
-                      creator.specialties.join(' • '),
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: AkeliColors.textSecondary),
-                    ),
-                  const SizedBox(height: 4),
-                  Row(children: [
-                    const Icon(Icons.restaurant_menu_rounded,
-                        size: 12, color: AkeliColors.textSecondary),
-                    const SizedBox(width: 2),
-                    Text('${creator.recipeCount} recettes',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: AkeliColors.textSecondary)),
-                    const SizedBox(width: AkeliSpacing.sm),
-                    const Icon(Icons.people_outline_rounded,
-                        size: 12, color: AkeliColors.textSecondary),
-                    const SizedBox(width: 2),
-                    Text('${creator.fanCount} fans',
-                        style: Theme.of(context)
-                            .textTheme
-                            .labelSmall
-                            ?.copyWith(color: AkeliColors.textSecondary)),
-                  ]),
-                ],
+            const SizedBox(height: AkeliSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onActivate,
+                style: FilledButton.styleFrom(
+                  backgroundColor: isDominant ? AkeliColors.primary : null,
+                ),
+                child: const Text('Soutenir'),
               ),
-            ),
-            const SizedBox(width: AkeliSpacing.sm),
-            FilledButton(
-              onPressed: onActivate,
-              style: FilledButton.styleFrom(
-                backgroundColor:
-                    isDominant ? AkeliColors.primary : null,
-                minimumSize: const Size(80, 36),
-              ),
-              child: const Text('Soutenir'),
             ),
           ],
         ),

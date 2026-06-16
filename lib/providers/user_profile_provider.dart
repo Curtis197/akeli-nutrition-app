@@ -227,6 +227,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         rethrow;
       }
     });
+    if (state.hasValue) ref.invalidate(userProfileProvider);
   }
 
   Future<void> updateAvatar(File imageFile) async {
@@ -256,7 +257,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
             .select()
             .single();
         _logger.db('AFTER | table: user_profile | op: UPDATE | avatar_url');
-        
+
         return UserProfile.fromJson(data);
       } on StorageException catch (e, st) {
         _logger.db('ERROR | storage: avatars | UPLOAD | code: ${e.statusCode}', error: e, stackTrace: st);
@@ -268,6 +269,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         rethrow;
       }
     });
+    if (state.hasValue) ref.invalidate(userProfileProvider);
   }
 }
 

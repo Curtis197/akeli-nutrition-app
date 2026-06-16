@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
@@ -62,7 +63,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
+            icon: const Icon(PhosphorIconsRegular.arrowLeft, color: AkeliColors.primary),
             onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -188,7 +189,7 @@ class _TodayTabState extends ConsumerState<_TodayTab> {
             data: (nutrition) {
               if (nutrition == null) {
                 return const EmptyState(
-                  icon: Icons.restaurant_outlined,
+                  icon: PhosphorIconsRegular.forkKnife,
                   title: 'Aucune donnée',
                   subtitle: 'Aucune consommation enregistrée pour cette journée.',
                 );
@@ -309,7 +310,7 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
             data: (days) {
               if (days.isEmpty) {
                 return const EmptyState(
-                  icon: Icons.bar_chart_rounded,
+                  icon: PhosphorIconsRegular.chartBar,
                   title: 'Pas encore de données',
                   subtitle: 'Aucune consommation enregistrée pour cette semaine.',
                 );
@@ -355,7 +356,7 @@ class _NavBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          icon: const Icon(Icons.chevron_left_rounded, size: 28),
+          icon: const Icon(PhosphorIconsRegular.caretLeft, size: 28),
           onPressed: onPrev,
           color: AkeliColors.primary,
           style: IconButton.styleFrom(
@@ -369,7 +370,7 @@ class _NavBar extends StatelessWidget {
         ),
         IconButton(
           icon: Icon(
-            Icons.chevron_right_rounded,
+            PhosphorIconsRegular.caretRight,
             size: 28,
             color: onNext != null ? AkeliColors.primary : AkeliColors.outlineVariant,
           ),
@@ -467,7 +468,7 @@ class _WaterTracker extends StatelessWidget {
                     color: const Color(0xFF4D96FF).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.water_drop_rounded, color: Color(0xFF4D96FF), size: 20),
+                  child: const Icon(PhosphorIconsFill.drop, color: Color(0xFF4D96FF), size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -494,7 +495,7 @@ class _WaterTracker extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
-                        Icons.remove,
+                        PhosphorIconsRegular.minus,
                         color: Color(0xFF4D96FF),
                         size: 18,
                       ),
@@ -513,7 +514,7 @@ class _WaterTracker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
-                      Icons.add,
+                      PhosphorIconsRegular.plus,
                       color: onAddGlass != null ? const Color(0xFF4D96FF) : AkeliColors.outlineVariant,
                       size: 18,
                     ),
@@ -539,7 +540,7 @@ class _WaterTracker extends StatelessWidget {
           children: List.generate(
             targetGlasses,
             (i) => Icon(
-              i < glasses ? Icons.local_drink_rounded : Icons.local_drink_outlined,
+              i < glasses ? PhosphorIconsFill.drop : PhosphorIconsRegular.drop,
               color: i < glasses ? const Color(0xFF4D96FF) : AkeliColors.outlineVariant,
               size: 28,
             ),
@@ -575,7 +576,7 @@ class _WeightTrendChart extends ConsumerWidget {
                     color: AkeliColors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.monitor_weight_rounded, color: AkeliColors.secondary, size: 20),
+                  child: const Icon(PhosphorIconsFill.scales, color: AkeliColors.secondary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -585,7 +586,7 @@ class _WeightTrendChart extends ConsumerWidget {
               ],
             ),
             IconButton(
-              icon: const Icon(Icons.add_circle, color: AkeliColors.primary, size: 28),
+              icon: const Icon(PhosphorIconsFill.plusCircle, color: AkeliColors.primary, size: 28),
               onPressed: () {
                 _logger.userAction('Add weight button tapped', screen: 'NutritionPage');
                 _showAddWeightDialog(context, ref);
@@ -972,7 +973,7 @@ class _ConsumedRecipesList extends ConsumerWidget {
                     color: AkeliColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.restaurant_rounded, color: AkeliColors.primary, size: 20),
+                  child: const Icon(PhosphorIconsFill.cookingPot, color: AkeliColors.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -1050,7 +1051,7 @@ class _ConsumedRecipeRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right_rounded, size: 18, color: AkeliColors.outlineVariant),
+            const Icon(PhosphorIconsRegular.caretRight, size: 18, color: AkeliColors.outlineVariant),
           ],
         ),
       ),
@@ -1061,7 +1062,7 @@ class _ConsumedRecipeRow extends StatelessWidget {
         width: 52,
         height: 52,
         color: AkeliColors.surfaceContainerHigh,
-        child: const Icon(Icons.restaurant, color: AkeliColors.outline, size: 22),
+        child: const Icon(PhosphorIconsRegular.forkKnife, color: AkeliColors.outline, size: 22),
       );
 }
 

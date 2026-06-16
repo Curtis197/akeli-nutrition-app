@@ -2287,3 +2287,11 @@ This file contains potentially user-facing strings that might have been missed b
 - [L286] `ðŸŽ¯ UI: RecipeStepsList rendering empty state | reason: no steps`
 - [L290] `ðŸŽ¯ UI: RecipeStepsList rendering steps | reason: ${steps.length} steps available`
 
+
+## Unit Translations (from quantity_formatter.dart)
+- gousse(s)
+- botte(s)
+- c.à.c
+- c.à.s
+- pincée(s)
+- boîte(s)

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:akeli/core/quantity_formatter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class CookingModePage extends StatefulWidget {
@@ -785,7 +786,7 @@ class _LandscapeInfoPanel extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${ing.name}  ${ing.quantity.toStringAsFixed((ing.quantity - ing.quantity.truncate()).abs() < 0.001 ? 0 : 1)} ${ing.unit}',
+                            '${ing.name}  ${formatQuantity(ing.quantity, ing.unit)}',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: isChecked

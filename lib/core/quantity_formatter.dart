@@ -6,8 +6,18 @@ const _countableUnits = {
   'unit', 'piece', 'clove', 'bunch', 'can', 'pot', 'tsp', 'tbsp', 'pinch',
 };
 
-// Units whose label is suppressed in output (e.g. "1/2" not "1/2 unit").
-const _silentUnits = {'unit', 'piece'};
+// Translations for units
+const _unitTranslations = {
+  'clove': 'gousse',
+  'bunch': 'botte',
+  'can': 'boîte',
+  'pot': 'pot',
+  'tsp': 'c.à.c',
+  'tbsp': 'c.à.s',
+  'pinch': 'pincée',
+  'unit': '',
+  'piece': '',
+};
 
 // Decimal value → fraction string. Tolerance for floating-point comparison: ±0.01.
 final _fractionMap = <double, String>{
@@ -24,12 +34,19 @@ final _fractionMap = <double, String>{
 /// Countable units (unit, tsp, etc.): decimal part rendered as fraction.
 /// Silent units (unit, piece): suffix omitted.
 String formatQuantity(double qty, String unit) {
-  if (!_countableUnits.contains(unit)) {
-    if (qty % 1 == 0) return '${qty.toInt()}$unit';
-    return '${qty.toStringAsFixed(1)}$unit';
+  final isPlural = qty > 1;
+  String translatedUnit = _unitTranslations[unit] ?? unit;
+
+  if (isPlural && const ['gousse', 'botte', 'boîte', 'pot', 'pincée'].contains(translatedUnit)) {
+    translatedUnit += 's';
   }
 
-  final suffix = _silentUnits.contains(unit) ? '' : ' $unit';
+  if (!_countableUnits.contains(unit)) {
+    if (qty % 1 == 0) return '${qty.toInt()} $translatedUnit'.trim();
+    return '${qty.toStringAsFixed(1)} $translatedUnit'.trim();
+  }
+
+  final suffix = translatedUnit.isEmpty ? '' : ' $translatedUnit';
   final whole = qty.floor();
   final decimal = qty - whole;
 

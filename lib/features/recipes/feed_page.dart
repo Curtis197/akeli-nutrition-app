@@ -504,19 +504,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Calories (kcal)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text('Calories (kcal/100g)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     RangeSlider(
                       values: RangeValues(
                         (tempMinCal ?? 0).toDouble(),
-                        (tempMaxCal ?? 2000).toDouble(),
+                        (tempMaxCal ?? 800).toDouble(),
                       ),
                       min: 0,
-                      max: 2000,
+                      max: 800,
                       divisions: 40,
                       labels: RangeLabels(
-                        '${tempMinCal ?? 0} kcal',
-                        '${tempMaxCal ?? '2000+'} kcal',
+                        '${tempMinCal ?? 0} kcal/100g',
+                        '${tempMaxCal ?? '800+'} kcal/100g',
                       ),
                       activeColor: AkeliColors.primary,
                       onChanged: (RangeValues values) {
@@ -524,15 +524,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           tempMinCal = values.start.toInt();
                           tempMaxCal = values.end.toInt();
                           if (tempMinCal == 0) tempMinCal = null;
-                          if (tempMaxCal == 2000) tempMaxCal = null;
+                          if (tempMaxCal == 800) tempMaxCal = null;
                         });
                       },
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('${tempMinCal ?? 0} kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
-                        Text(tempMaxCal == null ? '2000+ kcal' : '$tempMaxCal kcal', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                        Text('${tempMinCal ?? 0} kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                        Text(tempMaxCal == null ? '800+ kcal/100g' : '$tempMaxCal kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
                       ],
                     ),
                     const SizedBox(height: 32),
@@ -935,7 +935,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           ],
                           if (_minCal != null || _maxCal != null) ...[
                             _ActiveFilterChip(
-                              label: '${_minCal ?? 0} - ${_maxCal ?? '2000+'} kcal',
+                              label: '${_minCal ?? 0} - ${_maxCal ?? '800+'} kcal/100g',
                               onDeleted: () => setState(() {
                                 _minCal = null;
                                 _maxCal = null;

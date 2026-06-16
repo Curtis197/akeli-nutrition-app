@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:akeli/core/quantity_formatter.dart';
 
 class IngredientDetailSheet extends ConsumerWidget {
   final RecipeIngredient ingredient;
@@ -150,7 +151,7 @@ class IngredientDetailSheet extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(AkeliRadius.pill),
                   ),
                   child: Text(
-                    '${ingredient.quantity.toStringAsFixed(ingredient.quantity % 1 == 0 ? 0 : 1)} ${ingredient.unit}',
+                    formatQuantity(ingredient.quantity, ingredient.unit),
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,

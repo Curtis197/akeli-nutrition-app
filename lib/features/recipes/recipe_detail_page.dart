@@ -17,6 +17,7 @@ import '../../shared/widgets/creator_card.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'domain/entities/recipe_tracking.dart';
 import 'presentation/providers/recipe_tracking_provider.dart';
+import 'package:akeli/core/quantity_formatter.dart';
 import 'widgets/recipe_comments_sheet.dart';
 import '../../shared/widgets/recipe_video_card.dart';
 import 'widgets/ingredient_detail_sheet.dart';
@@ -616,7 +617,7 @@ class _RecipeContent extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  '${ing.quantity.toStringAsFixed(ing.quantity % 1 == 0 ? 0 : 1)} ${ing.unit}',
+                                  formatQuantity(ing.quantity, ing.unit),
                                   style: GoogleFonts.inter(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
