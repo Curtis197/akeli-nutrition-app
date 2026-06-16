@@ -620,7 +620,7 @@ class _ExternalCounterCard extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: _color),
                     ),
-                    TextSpan(
+                    const TextSpan(
                       text: ' / 9',
                       style: TextStyle(
                           fontSize: 14,

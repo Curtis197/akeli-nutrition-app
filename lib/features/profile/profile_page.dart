@@ -399,9 +399,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AkeliColors.surfaceContainerLowest,
-                    borderRadius: const BorderRadius.only(
+                    borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24),
                     ),

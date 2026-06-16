@@ -90,5 +90,5 @@ void main() {
   }
 
   outputFile.writeAsStringSync(buffer.toString());
-  print('Found $totalFound potentially missed strings.');
+  stdout.writeln('Found $totalFound potentially missed strings.');
 }

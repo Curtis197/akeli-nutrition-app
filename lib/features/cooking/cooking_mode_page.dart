@@ -721,9 +721,9 @@ class _LandscapeInfoPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AkeliColors.surfaceContainer,
-        borderRadius: const BorderRadius.only(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(AkeliRadius.xl),
           bottomLeft: Radius.circular(AkeliRadius.xl),
         ),

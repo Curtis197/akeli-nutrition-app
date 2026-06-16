@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -33,10 +30,7 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -49,6 +43,15 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDMDpMXxvBqmthJSXg3MfcROwSuxwVHWXI',
+    appId: '1:1080340252277:web:a859bd43041dcb49ea5a3c',
+    messagingSenderId: '1080340252277',
+    projectId: 'afro-health-oyks8y',
+    authDomain: 'afro-health-oyks8y.firebaseapp.com',
+    storageBucket: 'afro-health-oyks8y.firebasestorage.app',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB0TkT_y-4K1YtQvzoGheABZL__0HcEoNo',
     appId: '1:1080340252277:android:a3619f287ee0f70eea5a3c',
@@ -59,11 +62,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBQ-rMwlwCZusyW1Ql8Em7Es0bLK1IEMUY',
-    appId: '1:1080340252277:ios:ce983c6a04707e6bea5a3c',
+    appId: '1:1080340252277:ios:33dc06549f342cfcea5a3c',
     messagingSenderId: '1080340252277',
     projectId: 'afro-health-oyks8y',
     storageBucket: 'afro-health-oyks8y.firebasestorage.app',
-    iosBundleId: 'com.akeli.nutrition',
+    iosBundleId: 'io.akeli.com',
   );
 
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDMDpMXxvBqmthJSXg3MfcROwSuxwVHWXI',
+    appId: '1:1080340252277:web:2696cf9531f832e0ea5a3c',
+    messagingSenderId: '1080340252277',
+    projectId: 'afro-health-oyks8y',
+    authDomain: 'afro-health-oyks8y.firebaseapp.com',
+    storageBucket: 'afro-health-oyks8y.firebasestorage.app',
+  );
 }

@@ -17,7 +17,7 @@ void main() {
   // We use regex to match both single (') and double (") quotes.
   // Group 1: The quote character
   // Group 2: The actual string content
-  final stringPattern = r'''((?:(?!\1)[^\\]|\\.)*)''';
+  const stringPattern = r'''((?:(?!\1)[^\\]|\\.)*)''';
   
   final patterns = [
     r'''Text\(\s*(['"])''' + stringPattern + r'''\1''',
@@ -82,5 +82,5 @@ void main() {
   }
 
   outputFile.writeAsStringSync(buffer.toString());
-  print('Successfully extracted $totalStrings text instances to docs/app_texts_for_translation.md');
+  stdout.writeln('Successfully extracted $totalStrings text instances to docs/app_texts_for_translation.md');
 }

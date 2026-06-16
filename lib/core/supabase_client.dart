@@ -3,13 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'logger.dart';
 
 const _supabaseUrl = 'https://njzqcftjzskwcpforwzf.supabase.co';
-const _supabaseAnonKey = 'sb_publishable_2WUTLXygeO3s1FTvBdydwA_24zE-a6R';
+const _supabasePublishableKey = 'sb_publishable_2WUTLXygeO3s1FTvBdydwA_24zE-a6R';
 
 Future<void> initializeSupabase() async {
   appLogger.d('📡 Supabase: initializing | url: $_supabaseUrl');
   await Supabase.initialize(
     url: _supabaseUrl,
-    anonKey: _supabaseAnonKey,
+    publishableKey: _supabasePublishableKey,
   );
   appLogger.i('✅ Supabase: client ready');
 }

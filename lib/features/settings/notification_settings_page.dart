@@ -151,7 +151,7 @@ class NotificationSettingsPage extends ConsumerWidget {
           ),
         ),
       ),
-      bottomNavigationBar: _SaveButton(),
+      bottomNavigationBar: const _SaveButton(),
     );
   }
 }

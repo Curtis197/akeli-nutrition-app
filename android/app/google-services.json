@@ -12,7 +12,12 @@
           "package_name": "io.akeli.com"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB0TkT_y-4K1YtQvzoGheABZL__0HcEoNo"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

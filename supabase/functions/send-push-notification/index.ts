@@ -32,6 +32,14 @@ serve(async (req) => {
 
     const admin = serviceClient();
 
+    const { data: userProfile, error: profileError } = await admin
+      .from("user_profile")
+      .select("notification_prefs")
+      .eq("id", user_id)
+      .single();
+    const prefs = userProfile?.notification_prefs || {};
+    const pushEnabled = prefs.push ?? true;
+
     logger.debug("[STEP 3] Get push token");
     logRLSCheck(logger, "push_token", "SELECT", user_id);
     const { data: pushToken, error: pushTokenError } = await admin
@@ -54,6 +62,11 @@ serve(async (req) => {
     });
     const notificationInserted = !notifInsertError;
     logQueryResult(logger, "notification", "INSERT", notificationInserted ? 1 : 0, notifInsertError ?? undefined);
+
+    if (!pushEnabled) {
+      logger.info("✅ EXIT | FCM skipped (user opted out) | duration: " + (Date.now() - start) + "ms");
+      return ok({ sent: false, notification_inserted: notificationInserted, reason: "user_opted_out" });
+    }
 
     if (pushToken?.token) {
       logger.debug("[STEP 5] Sending FCM v1 push | platform: " + (pushToken.platform ?? "unknown"));

@@ -43,13 +43,34 @@ serve(async (req) => {
     }
 
     // Deduplicate — one notification per user
-    const userIds = [...new Set((entries ?? []).map((e: { meal_plan: { user_id: string } }) => e.meal_plan.user_id))];
-    logger.debug("[STEP 3] Unique users to notify: " + userIds.length);
+    const rawUserIds = [...new Set((entries ?? []).map((e: { meal_plan: { user_id: string } }) => e.meal_plan.user_id))];
+    logger.debug("[STEP 3] Unique users with meals today: " + rawUserIds.length);
+
+    // Fetch user preferences
+    const { data: profiles, error: profilesError } = await admin
+      .from("user_profile")
+      .select("id, notification_prefs")
+      .in("id", rawUserIds);
+
+    if (profilesError) {
+      logger.error("Failed to query user_profile for preferences", { message: profilesError.message });
+      return serverError(profilesError);
+    }
+
+    const userIdsToNotify = rawUserIds.filter(userId => {
+      const profile = profiles?.find(p => p.id === userId);
+      const prefs = profile?.notification_prefs || {};
+      // Default for meal_reminders in the app is false, so it must be explicitly true
+      return prefs.meal_reminders === true;
+    });
+
+    const skipped = rawUserIds.length - userIdsToNotify.length;
+    logger.debug(`[STEP 4] Users to notify after preference check: ${userIdsToNotify.length} (skipped: ${skipped})`);
 
     let notified = 0;
     let failed = 0;
 
-    for (const userId of userIds) {
+    for (const userId of userIdsToNotify) {
       const mealCount = (entries ?? []).filter((e: { meal_plan: { user_id: string } }) => e.meal_plan.user_id === userId).length;
       const bodyText = mealCount === 1
         ? "Vous avez 1 repas planifié aujourd'hui."
@@ -84,7 +105,8 @@ serve(async (req) => {
       }
     }
 
-    const skipped = 0; // reserved for future opt-out logic
+    // skipped is calculated above
+
     logger.info(`✅ EXIT | notified: ${notified} | skipped: ${skipped} | failed: ${failed} | duration: ${Date.now() - start}ms`);
     return ok({ notified, skipped, failed });
   } catch (e) {

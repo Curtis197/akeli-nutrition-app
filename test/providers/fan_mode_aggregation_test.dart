@@ -5,12 +5,12 @@ import 'package:akeli/shared/models/creator.dart';
 void main() {
   group('aggregateConsumption', () {
     final creators = {
-      'c-1': Creator(
+      'c-1': const Creator(
         id: 'c-1', userId: 'u-1', displayName: 'Amara', avatarUrl: 'https://x.com/a.jpg',
         specialties: [], recipeCount: 40, fanCount: 10,
         isFanEligible: true, isMyFanCreator: false, averageRating: 4.5,
       ),
-      'c-2': Creator(
+      'c-2': const Creator(
         id: 'c-2', userId: 'u-2', displayName: 'Kofi', avatarUrl: null,
         specialties: [], recipeCount: 35, fanCount: 5,
         isFanEligible: true, isMyFanCreator: false, averageRating: 4.0,

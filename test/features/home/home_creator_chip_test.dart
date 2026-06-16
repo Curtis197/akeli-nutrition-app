@@ -22,12 +22,12 @@ const _creator = Creator(
 void main() {
   group('HomeCreatorChip', () {
     testWidgets('renders display name', (tester) async {
-      await tester.pumpWidget(_wrap(HomeCreatorChip(creator: _creator)));
+      await tester.pumpWidget(_wrap(const HomeCreatorChip(creator: _creator)));
       expect(find.text('Chef Amina'), findsOneWidget);
     });
 
     testWidgets('shows initials avatar when no avatarUrl', (tester) async {
-      await tester.pumpWidget(_wrap(HomeCreatorChip(creator: _creator)));
+      await tester.pumpWidget(_wrap(const HomeCreatorChip(creator: _creator)));
       // CircleAvatar with initial letter 'C'
       expect(find.text('C'), findsOneWidget);
     });
@@ -43,7 +43,7 @@ void main() {
     });
 
     testWidgets('does not throw when onTap is null', (tester) async {
-      await tester.pumpWidget(_wrap(HomeCreatorChip(creator: _creator)));
+      await tester.pumpWidget(_wrap(const HomeCreatorChip(creator: _creator)));
       await tester.tap(find.byType(HomeCreatorChip));
       await tester.pump();
       // no exception

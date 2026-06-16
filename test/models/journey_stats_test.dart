@@ -20,10 +20,10 @@ const _fullJson = {
     'fat_hit_pct': 69,
   },
   'calendar': [
-    {'date': '2026-06-01', 'status': 'hit'},
-    {'date': '2026-06-02', 'status': 'partial'},
-    {'date': '2026-06-03', 'status': 'missed'},
-    {'date': '2026-06-04', 'status': 'empty'},
+    {'date': '2026-06-01', 'planned': 3, 'consumed': 3},
+    {'date': '2026-06-02', 'planned': 3, 'consumed': 1},
+    {'date': '2026-06-03', 'planned': 3, 'consumed': 0},
+    {'date': '2026-06-04', 'planned': 0, 'consumed': 0},
   ],
 };
 
@@ -74,19 +74,19 @@ void main() {
 
     test('parses calendar with correct statuses', () {
       expect(stats.calendar.length, 4);
-      expect(stats.calendar[0].status, JourneyDayStatus.hit);
-      expect(stats.calendar[1].status, JourneyDayStatus.partial);
-      expect(stats.calendar[2].status, JourneyDayStatus.missed);
-      expect(stats.calendar[3].status, JourneyDayStatus.empty);
+      expect(stats.calendar[0].isFull, isTrue);
+      expect(stats.calendar[1].isPartial, isTrue);
+      expect(stats.calendar[2].isMissed, isTrue);
+      expect(stats.calendar[3].hasNoPlan, isTrue);
     });
 
     test('calendar dates parse correctly', () {
       expect(stats.calendar[0].date, DateTime(2026, 6, 1));
     });
 
-    test('unknown status defaults to empty', () {
-      final day = JourneyCalendarDay.fromJson(const {'date': '2026-06-01', 'status': 'unknown'});
-      expect(day.status, JourneyDayStatus.empty);
+    test('missing fields default to no plan', () {
+      final day = JourneyCalendarDay.fromJson(const {'date': '2026-06-01'});
+      expect(day.hasNoPlan, isTrue);
     });
   });
 
@@ -108,7 +108,7 @@ void main() {
     });
 
     test('handles empty JSON with zero defaults', () {
-      final stats = JourneyStats.fromJson({});
+      final stats = JourneyStats.fromJson(const {});
       expect(stats.totalDays, 0);
       expect(stats.currentStreak, 0);
       expect(stats.calendar, isEmpty);
