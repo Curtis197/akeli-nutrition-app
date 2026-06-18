@@ -256,7 +256,7 @@ const DOCUMENTS = [
   }
 ]
 
-const SLIDES = [
+const SLIDES_PHASES = [
   {
     category: 'AKELI CORP • CADRAGE',
     title: 'Stratégie des Phases & Communication',
@@ -500,6 +500,364 @@ const SLIDES = [
     `
   }
 ]
+
+const SLIDES_LIVE_V1 = [
+  {
+    category: 'LIVE AKELI · PHASE 1 (SUPPORT PRO)',
+    title: 'Vision & Fondations d\'Akeli',
+    type: 'title',
+    content: `
+      <div class="slide-title-layout">
+        <span class="slide-badge">SUPPORT DE PRÉSENTATION • MARS 2026</span>
+        <h1 class="slide-mega-title">Live Phase 1 : Vision & Fondations</h1>
+        <p class="slide-author">Une conversation — pas une présentation. Zoom · 60–75 min</p>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 2 • LE PROBLÈME QU\'ON NE NOMME JAMAIS',
+    title: 'Le décalage de la cuisine de la diaspora',
+    type: 'split',
+    content: `
+      <div class="slide-grid-3col">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon color-platform">🔄</div>
+          <h5>01. La Désynchronisation</h5>
+          <p>La cuisine africaine a été conçue pour des corps actifs et des climats chauds. Elle rencontre aujourd'hui une vie sédentaire en Europe. Ce n'est pas la cuisine qui est le problème — c'est le décalage.</p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon color-platform">📱</div>
+          <h5>02. Le Vide des Outils</h5>
+          <p>Les applications de nutrition classiques ne proposent que du quinoa et du poulet grillé. Rien ne parle le langage culinaire de la diaspora. Personne n'adresse ce problème sérieusement.</p>
+        </div>
+        <div class="slide-mini-card highlight-col">
+          <div class="mini-card-icon color-gold">🌍</div>
+          <h5>03. Un Problème Universel</h5>
+          <p>La France, l'Inde, la Corée ou les États-Unis vivent leur propre version de cette rupture. La diaspora africaine n'est pas seule. Akeli commence ici car le besoin y est le plus urgent.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 3 • LES TROIS PROFILS DE LA DIASPORA',
+    title: 'À qui s\'adresse la plateforme Akeli ?',
+    type: 'split',
+    content: `
+      <div class="slide-grid-3col">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🍲</div>
+          <h5>Le Primo-arrivant (35-55 ans)</h5>
+          <p>Il mange et cuisine africain. Pas de crise identitaire. Son problème : personne ne lui a dit que son alimentation traditionnelle devait s'adapter à son rythme de vie sédentaire en Europe.</p>
+        </div>
+        <div class="slide-mini-card highlight-col">
+          <div class="mini-card-icon">🏃</div>
+          <h5>Le Déraciné (15-35 ans)</h5>
+          <p>Né ou arrivé très jeune, intégré en France. Il cherche la praticité : comment habiter la cuisine de ses parents au quotidien sans friction et de manière simple.</p>
+        </div>
+        <div class="slide-mini-card" style="opacity: 0.6;">
+          <div class="mini-card-icon">📢</div>
+          <h5>Le Diasporant Identitaire</h5>
+          <p>Bruyant sur les réseaux, parle de retour aux sources mais sa fidélité produit/usage est fragile. Akeli ne structure pas son produit ou sa communication autour de ce profil.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 4 • CE QU\'EST AKELI (ET CE QU\'IL N\'EST PAS)',
+    title: 'Une approche basée sur le Réalignment',
+    type: 'split',
+    content: `
+      <blockquote class="slide-blockquote">
+        "Tu n'as pas à choisir entre qui tu es et comment tu veux te sentir."
+      </blockquote>
+      <div class="slide-grid-2col" style="margin-top: 1rem;">
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Un régime classique…</h4>
+          <ul class="slide-bullets">
+            <li>Part du principe que tu manges mal.</li>
+            <li>Impose une rupture avec ta culture.</li>
+            <li>Culpabilise, contraint et frustre.</li>
+            <li>Échoue inévitablement à long terme.</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Le Réalignment Akeli…</h4>
+          <ul class="slide-bullets">
+            <li>Considère que ton alimentation n'est pas l'ennemie.</li>
+            <li>Ajuste les proportions sans changer qui tu es.</li>
+            <li>Respecte l'histoire et le métabolisme du corps.</li>
+            <li>Synchronise ton alimentation avec ton mode de vie.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 4 • CE QU\'EST AKELI (ET CE QU\'IL N\'EST PAS)',
+    title: 'Valeurs fondamentales de la plateforme',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Ce qu'Akeli n'est pas</h4>
+          <ul class="slide-bullets">
+            <li>❌ Pas une application de comptage de calories.</li>
+            <li>❌ Pas un régime restrictif ou temporaire.</li>
+            <li>❌ Pas un mouvement politique ou culturel.</li>
+            <li>❌ Pas une énième solution miracle à la mode.</li>
+            <li>❌ Pas une agence ou plateforme d'influenceurs food.</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Ce qu'Akeli est</h4>
+          <ul class="slide-bullets">
+            <li>✨ Un espace où le savoir culinaire ancestral a de la valeur.</li>
+            <li>✨ Un lieu de réalignment, pas de punition ou correction.</li>
+            <li>✨ La modernité (pgvector) au service de la reconnexion.</li>
+            <li>✨ Un projet construit main dans la main avec les créateurs.</li>
+            <li>✨ Une alternative saine, honnête et paisible.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 5 • LE CRÉATEUR AKELI',
+    title: 'Qu\'est-ce qu\'un créateur Akeli ?',
+    type: 'split',
+    content: `
+      <p class="slide-lead">La grand-mère qui a adapté le ndolé au marché parisien pendant 40 ans détient un savoir culinaire qu'aucun nutritionniste n'a produit.</p>
+      <div class="slide-grid-2col" style="margin-top: 1rem;">
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Un créateur Akeli est…</h4>
+          <ul class="slide-bullets">
+            <li>Quelqu'un qui partage simplement ce qu'il sait cuisiner.</li>
+            <li>Un expert de sa réalité quotidienne et de sa niche.</li>
+            <li>Rémunéré équitablement à la consommation réelle de ses plats.</li>
+            <li>Authentique, ancré dans le vécu et le réel.</li>
+          </ul>
+        </div>
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Un créateur n'est pas…</h4>
+          <ul class="slide-bullets">
+            <li>Un influenceur superficiel ou commercial.</li>
+            <li>Un expert théorique en nutrition ou diplômé.</li>
+            <li>Obligé d'avoir une immense communauté pour démarrer.</li>
+            <li>Un simple vendeur d'abonnements ou de publicité.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 6 • ÉCHANGE ET OUVERTURE',
+    title: 'Échange ouvert avec les participants',
+    type: 'split',
+    content: `
+      <p class="slide-lead" style="text-align: center;">Le bloc le plus important du live : écouter plus qu'on ne parle.</p>
+      <div class="slide-grid-3col" style="margin-top: 1rem;">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🙋</div>
+          <h5>Question 1</h5>
+          <p class="highlight-gold" style="font-style: italic; font-size: 1.1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Est-ce que l'un d'entre vous a personnellement vécu ce décalage dont on parle ?"
+          </p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🍲</div>
+          <h5>Question 2</h5>
+          <p class="highlight-gold" style="font-style: italic; font-size: 1.1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Quel plat traditionnel vous manque le plus dans votre quotidien actuel ?"
+          </p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🚫</div>
+          <h5>Question 3</h5>
+          <p class="highlight-gold" style="font-style: italic; font-size: 1.1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Qu'est-ce qui vous a retenu de partager votre cuisine jusqu'à maintenant ?"
+          </p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'BLOC 7 • CLÔTURE',
+    title: 'Une invitation à nous rejoindre',
+    type: 'split',
+    content: `
+      <blockquote class="slide-blockquote">
+        "Ce qu'on construit ensemble, c'est un espace où votre savoir a de la place. Si ça vous parle, la prochaine étape est simple — on se retrouve."
+      </blockquote>
+      <div class="slide-grid-3col" style="margin-top: 1.5rem;">
+        <div class="slide-mini-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="mini-card-icon" style="color: #ef4444;">✕</div>
+          <h5>Pas de pression</h5>
+          <p>Aucun call-to-action agressif ni sentiment d'urgence artificielle.</p>
+        </div>
+        <div class="slide-mini-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="mini-card-icon" style="color: #ef4444;">✕</div>
+          <h5>Pas de « sign up » forcé</h5>
+          <p>On n'impose pas d'inscription immédiate pendant le live.</p>
+        </div>
+        <div class="slide-mini-card" style="border-color: rgba(239, 68, 68, 0.2);">
+          <div class="mini-card-icon" style="color: #ef4444;">✕</div>
+          <h5>Pas de fausses promesses</h5>
+          <p>Aucune promesse excessive de transformation magique ou rapide.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'POSTURE • RAPPELS POUR L\'ANIMATEUR',
+    title: 'Les règles de posture d\'Akeli',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">La Vérité Tranquille</h4>
+          <p>Garder son calme en toutes circonstances. Éviter les superlatifs, l'excitation forcée ou le ton marketing traditionnel.</p>
+          <h4 class="col-title color-gold" style="margin-top: 1.5rem;">Exposer — ne pas prescrire</h4>
+          <p>Un fait ou une observation est posé sur la table. La conclusion et le choix appartiennent entièrement au membre.</p>
+        </div>
+        <div class="slide-col">
+          <h4 class="col-title color-platform">La Règle des 20% / 80%</h4>
+          <p>L'animateur parle 20% du temps. L'échange et les partages des participants occupent les 80% restants.</p>
+          <h4 class="col-title color-platform" style="margin-top: 1.5rem;">Le langage simple</h4>
+          <p>Si une phrase ou un argument ne peut pas être dit naturellement en mangeant avec un ami, elle doit être reformulée immédiatement.</p>
+        </div>
+      </div>
+    `
+  }
+];
+
+const SLIDES_LIVE_V2 = [
+  {
+    category: 'LIVE AKELI · PHASE 1 V2 (ZOOM CRÉATEURS)',
+    title: 'Les gens ont besoin de ce que tu sais faire',
+    type: 'title',
+    content: `
+      <div class="slide-title-layout">
+        <span class="slide-badge">SUPPORT DE PRÉSENTATION • VERSION CRÉATEURS</span>
+        <h1 class="slide-mega-title">Les gens ont besoin de ce que tu sais faire.</h1>
+        <p class="slide-author">Zoom de Lancement · 30–40 min · Mars 2026</p>
+      </div>
+    `
+  },
+  {
+    category: '01 • LE BESOIN EXISTE',
+    title: 'Un marché entier non adressé par la nutrition',
+    type: 'split',
+    content: `
+      <p class="slide-lead">Des millions de personnes consomment quotidiennement une cuisine que tous les outils modernes de nutrition ignorent royalement.</p>
+      <div class="slide-grid-3col" style="margin-top: 1rem;">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">👩‍⚕️</div>
+          <h5>La soignante de la diaspora</h5>
+          <p>Elle rentre chez elle à 21h fatiguée. Elle veut manger un plat réconfortant qu'elle connaît, mais aucun outil ne l'aide à l'équilibrer de manière réaliste.</p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🎓</div>
+          <h5>L'étudiant au budget serré</h5>
+          <p>Il mange africain avec 50€ par mois. Il ne trouve aucune ressource pour concilier ses contraintes financières, son patrimoine et sa santé.</p>
+        </div>
+        <div class="slide-mini-card highlight-col">
+          <div class="mini-card-icon">🏃</div>
+          <h5>L'athlète de la diaspora</h5>
+          <p>Il veut manger ses plats traditionnels sans compromettre son apport en protéines ou sa performance sportive. Personne n'a construit d'outil pour lui.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: '02 • TU CONNAIS TA NICHE',
+    title: 'Ton vécu et ton savoir sont une expertise irremplaçable',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Ce que tu as déjà</h4>
+          <ul class="slide-bullets">
+            <li><strong>La connaissance intime :</strong> Tu comprends la vie de ta niche de l'intérieur car tu la partages au quotidien.</li>
+            <li><strong>Des recettes spécifiques :</strong> Des secrets culinaires de famille que personne d'autre ne sait adapter ou équilibrer.</li>
+            <li><strong>Une réalité de vie partagée :</strong> Un lien de confiance horizontal instantané avec ton audience.</li>
+          </ul>
+        </div>
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Ce dont tu n'as pas besoin</h4>
+          <ul class="slide-bullets">
+            <li>❌ Pas besoin d'être un chef étoilé ou un professionnel.</li>
+            <li>❌ Pas besoin de dizaines de milliers d'abonnés sur Instagram ou TikTok.</li>
+            <li>❌ Pas besoin d'avoir un diplôme en nutrition ou en marketing.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: '03 • CE SAVOIR VAUT QUELQUE CHOSE',
+    title: 'Une rémunération basée sur la consommation réelle',
+    type: 'split',
+    content: `
+      <p class="slide-lead">Le savoir culinaire a toujours nourri les communautés. Akeli fait en sorte qu'il nourrisse aussi dignement le créateur qui le transmet.</p>
+      <div class="slide-grid-3col" style="margin-top: 1rem;">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">📈</div>
+          <h5>Pas au like ou à la vue</h5>
+          <p>Pas de course aux algorithmes ou de création effrénée de contenus éphémères pour plaire aux régies publicitaires.</p>
+        </div>
+        <div class="slide-mini-card highlight-col">
+          <div class="mini-card-icon">💶</div>
+          <h5>À la consommation réelle</h5>
+          <p>Chaque fois qu'un membre valide un repas issu de tes recettes dans son plan hebdomadaire, tu perçois une rémunération directe et honnête.</p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🛡️</div>
+          <h5>Un actif durable</h5>
+          <p>Tes recettes restent disponibles et continuent de générer un revenu récurrent passif au fil des mois pour ta communauté.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: '04 • ÉCHANGE & INVITATION',
+    title: 'Construisons l\'espace dont ta communauté a besoin',
+    type: 'split',
+    content: `
+      <blockquote class="slide-blockquote">
+        "Ce qu'on construit, c'est un espace où votre savoir a de la place et de la valeur. Si ce soir vous vous êtes reconnu — on se retrouve."
+      </blockquote>
+      <div class="slide-grid-3col" style="margin-top: 1.5rem;">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">👥</div>
+          <h5>Question 1</h5>
+          <p style="font-style: italic; font-size: 1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Est-ce qu'il y a une niche spécifique représentée dans la salle ce soir ?"
+          </p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🚀</div>
+          <h5>Question 2</h5>
+          <p style="font-style: italic; font-size: 1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Qu'est-ce qui vous a motivé à nous rejoindre pour ce lancement ?"
+          </p>
+        </div>
+        <div class="slide-mini-card highlight-col">
+          <div class="mini-card-icon">🍲</div>
+          <h5>Question 3</h5>
+          <p style="font-style: italic; font-size: 1rem; line-height: 1.4; margin-top: 0.5rem;">
+            "Quel plat est pour vous synonyme de lien communautaire fort ?"
+          </p>
+        </div>
+      </div>
+    `
+  }
+];
+
+const SLIDE_DECKS = {
+  phases: SLIDES_PHASES,
+  live_v1: SLIDES_LIVE_V1,
+  live_v2: SLIDES_LIVE_V2
+};
 
 const PERSONAS = {
   p1: {
@@ -1149,21 +1507,28 @@ function setupPresentationSection() {
   const dotsContainer = document.getElementById('slide-dots')
   const prevBtn = document.getElementById('slide-prev')
   const nextBtn = document.getElementById('slide-next')
+  const deckToggle = document.getElementById('deck-selector-toggle')
 
   if (!screen || !dotsContainer || !prevBtn || !nextBtn) return
 
+  let activeDeckId = 'phases'
   let currentSlide = 0
 
+  const getSlides = () => SLIDE_DECKS[activeDeckId] || []
+
   const renderSlide = (index) => {
+    const slides = getSlides()
+    if (!slides.length) return
+
     currentSlide = index
-    const slide = SLIDES[index]
+    const slide = slides[index]
     
     // Render slide layout
     screen.innerHTML = `
       <div class="slide-card">
         <div class="slide-header">
           <span class="slide-category">${slide.category}</span>
-          <span class="slide-number">SLIDE ${String(index + 1).padStart(2, '0')} / ${String(SLIDES.length).padStart(2, '0')}</span>
+          <span class="slide-number">SLIDE ${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}</span>
         </div>
         <div class="slide-content-area">
           ${slide.type !== 'title' ? `<h3 class="slide-title">${slide.title}</h3>` : ''}
@@ -1178,7 +1543,7 @@ function setupPresentationSection() {
     
     // Enable/disable buttons
     prevBtn.disabled = index === 0
-    nextBtn.disabled = index === SLIDES.length - 1
+    nextBtn.disabled = index === slides.length - 1
     
     // Update dots
     const dots = dotsContainer.querySelectorAll('.slide-dot')
@@ -1191,17 +1556,35 @@ function setupPresentationSection() {
     })
   }
 
-  // Create dots
-  dotsContainer.innerHTML = ''
-  SLIDES.forEach((_, idx) => {
-    const dot = document.createElement('div')
-    dot.className = 'slide-dot'
-    if (idx === 0) dot.className += ' active'
-    dot.addEventListener('click', () => {
-      renderSlide(idx)
+  const initDots = () => {
+    const slides = getSlides()
+    dotsContainer.innerHTML = ''
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div')
+      dot.className = 'slide-dot'
+      if (idx === 0) dot.className += ' active'
+      dot.addEventListener('click', () => {
+        renderSlide(idx)
+      })
+      dotsContainer.appendChild(dot)
     })
-    dotsContainer.appendChild(dot)
-  })
+  }
+
+  // Bind deck switcher buttons
+  if (deckToggle) {
+    const buttons = deckToggle.querySelectorAll('.toggle-btn')
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'))
+        btn.classList.add('active')
+        activeDeckId = btn.getAttribute('data-deck')
+        
+        // Reset and re-render for new deck
+        initDots()
+        renderSlide(0)
+      })
+    })
+  }
 
   // Bind button clicks
   prevBtn.addEventListener('click', () => {
@@ -1211,7 +1594,8 @@ function setupPresentationSection() {
   })
 
   nextBtn.addEventListener('click', () => {
-    if (currentSlide < SLIDES.length - 1) {
+    const slides = getSlides()
+    if (currentSlide < slides.length - 1) {
       renderSlide(currentSlide + 1)
     }
   })
@@ -1220,7 +1604,8 @@ function setupPresentationSection() {
   document.addEventListener('keydown', (e) => {
     const presSection = document.getElementById('presentation')
     if (presSection && presSection.classList.contains('active')) {
-      if (e.key === 'ArrowRight' && currentSlide < SLIDES.length - 1) {
+      const slides = getSlides()
+      if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) {
         renderSlide(currentSlide + 1)
       } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
         renderSlide(currentSlide - 1)
@@ -1228,6 +1613,7 @@ function setupPresentationSection() {
     }
   })
 
-  // Render initial slide
+  // Initial render
+  initDots()
   renderSlide(0)
 }

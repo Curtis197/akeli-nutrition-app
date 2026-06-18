@@ -2167,6 +2167,13 @@ html, body {
   box-shadow: 0 0 8px var(--accent-gold);
 }
 
+.deck-selector-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
 
 
 
