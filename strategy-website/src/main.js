@@ -859,6 +859,206 @@ const SLIDE_DECKS = {
   live_v2: SLIDES_LIVE_V2
 };
 
+const AXES_DATA = {
+  axe1: {
+    title: 'Axe I : Enjeux Socioculturels',
+    subtitle: 'Fonction : ATTENTION — Faire reconnaître une réalité vécue',
+    lead: 'Cet axe accroche parce qu\'il nomme des réalités que les gens vivent sans les avoir jamais entendues formulées clairement. La reconnaissance est immédiate et puissante.',
+    cards: [
+      {
+        id: 'I.1',
+        title: 'La désynchronisation alimentaire',
+        idea: 'Nous mangeons en un repas ce que nos ancêtres mangeaient un jour de fête. Et nous faisons beaucoup moins d\'effort physique. Nos cuisines traditionnelles ont été conçues pour des corps actifs dans des contextes précis. La vie moderne a tout changé — sauf ce qu\'on mange.',
+        story: 'Le thiéboudienne du pêcheur vs. le thiéboudienne du cadre parisien — même plat, corps complètement différents. Les régimes échouent car ils s\'attaquent à la mauvaise cible (se priver plutôt que s\'adapter).',
+        debates: [
+          'Le décalage entre métabolisme ancestral et vie sédentaire urbaine.',
+          'Pourquoi la frustration et la culpabilité des régimes ne fonctionnent pas.',
+          'Comment corriger le décalage sans sanctionner sa culture.'
+        ]
+      },
+      {
+        id: 'I.2',
+        title: 'Les trois profils de la diaspora',
+        idea: 'La diaspora africaine n\'est pas un bloc homogène mais un archipel de réalités différentes. Trois profils coexistent avec des besoins nutritionnels non adressés.',
+        story: 'Primo-arrivants (repas trad exclusifs mais non validés diététiquement), Déracinés (veulent retrouver les goûts de leur enfance mais manquent de temps/savoir-faire), et Identitaires (recherche d\'idéal mais usage fragile).',
+        debates: [
+          'Les problématiques de santé et de sédentarité spécifiques à chaque profil.',
+          'Pourquoi les applications classiques ignorent les primo-arrivants.',
+          'Comment Akeli crée une solution unifiée pour ces vécus.'
+        ]
+      },
+      {
+        id: 'I.3',
+        title: 'Le problème global de la modernité',
+        idea: 'La désynchronisation alimentaire n\'est pas un problème de diaspora. C\'est le problème nutritionnel de la modernité — universel, transversal, qui s\'aggrave sur tous les continents.',
+        story: 'La France (gastronomie devenue industrielle), les USA (obésité de masse), l\'Inde (diabète sur une cuisine pourtant sophistiquée), l\'Asie de l\'Est (le mukbang comme réponse à la solitude urbaine des repas).',
+        debates: [
+          'La modernité industrielle comme ennemie de notre horloge biologique.',
+          'Pourquoi les solutions globales échouent face à des particularités locales.',
+          'Ce que signifie "combattre la modernité par la modernité".'
+        ]
+      },
+      {
+        id: 'I.4',
+        title: 'Les niches spécifiques',
+        idea: 'Identifier une niche avec précision crée une connexion immédiate et profonde avec ceux qui la vivent en décrivant leur quotidien.',
+        story: 'La soignante (12h debout, a besoin de protéines et de repas anti-inflammatoires), la jeune pro (sédentaire de bureau, culpabilité alimentaire double), l\'athlète (performance construite par défaut sur des modèles occidentaux).',
+        debates: [
+          'L\'alimentation africaine adaptée au travail physique intense.',
+          'Comment manger sainement quand on travaille dans un bureau parisien.',
+          'Pourquoi la cuisine d\'origine peut être une arme de performance sportive.'
+        ]
+      },
+      {
+        id: 'I.5',
+        title: 'L\'adaptation biologique',
+        idea: 'Notre corps s\'adapte à ce qu\'il mange sur des générations. Manger ce pour quoi il est biologiquement préparé est une question de physiologie, pas seulement de culture.',
+        story: 'Les Japonais (flore intestinale adaptée à la digestion des algues), les Européens (tolérance au lactose qui est une anomalie génétique mondiale chez 70% des adultes), l\'impact du cortisol urbain sur la digestion.',
+        debates: [
+          'Pourquoi les applications occidentales échouent sur les métabolismes de la diaspora.',
+          'Le microbiote et l\'adaptation digestive culturelle.',
+          'Manger pour son corps en respectant son héritage biologique.'
+        ]
+      }
+    ]
+  },
+  axe2: {
+    title: 'Axe II : Ouverture des Horizons Culinaires',
+    subtitle: 'Fonction : INTEREST — Révéler l\'inattendu dans le connu',
+    lead: 'Cet axe maintient l\'engagement en montrant ce que les gens ne savaient pas sur quelque chose qu\'ils croyaient connaître. Il transforme la fierté passive en curiosité active.',
+    cards: [
+      {
+        id: 'II.1',
+        title: 'La cuisine comme système vivant',
+        idea: 'La cuisine africaine n\'est pas un patrimoine figé à préserver — c\'est une intelligence culinaire vivante qui a toujours su s\'adapter et absorber le changement.',
+        story: 'L\'histoire du manioc : arrivé du bassin amazonien au 16e siècle, toxique à l\'état brut, il a été adopté et détoxifié par fermentation/séchage pour devenir un pilier continental. C\'est de l\'ingéniosité active.',
+        debates: [
+          'Qu\'est-ce qui définit une cuisine : ses ingrédients ou ses logiques ?',
+          'Le maïs, la tomate, le piment : tous venus d\'ailleurs, tous devenus africains.',
+          'Comment la cuisine traditionnelle transforme l\'étranger en familier.'
+        ]
+      },
+      {
+        id: 'II.2',
+        title: 'La structure plutôt que la recette',
+        idea: 'Le fufu n\'est pas une recette figée — c\'est une structure (base féculente + liant + texture). Cette structure traverse le continent et s\'adapte aux ressources locales.',
+        story: 'La structure fufu peut utiliser l\'igname ou le plantain, mais s\'adapte en Europe avec le panais, le chou-fleur ou le céleri-rave tout en conservant le geste et la texture.',
+        debates: [
+          'La tradition comme cadre et la créativité locale comme contenu.',
+          'Ce que "respecter une recette" veut réellement dire.',
+          'Les structures adaptables des grands plats (mafé, thiéboudienne).'
+        ]
+      },
+      {
+        id: 'II.3',
+        title: 'L\'ingrédient de demain',
+        idea: 'Si la cuisine africaine a toujours intégré et transformé les ingrédients venus d\'ailleurs, quelles seront ses prochaines absorptions pour allier santé et écologie ?',
+        story: 'Pistes d\'avenir : le tempeh (fermentation proche du néré/soumbala), les légumineuses locales européennes (pois chiches, lentilles), les algues (compatibles bouillons), et le moringa (superfood africain sous-exploité).',
+        debates: [
+          'Quels ingrédients modernes peuvent s\'intégrer naturellement aux plats traditionnels.',
+          'La fermentation traditionnelle comme pont vers de nouveaux aliments.',
+          'Comment concilier écologie locale et authenticité gustative.'
+        ]
+      },
+      {
+        id: 'II.4',
+        title: 'Le paradoxe des cuisines importées',
+        idea: 'Les cuisines asiatiques servies en Occident ont été massivement dénaturées pour plaire aux Européens. La cuisine africaine a le potentiel d\'arriver avec son authenticité intacte.',
+        story: 'Le modèle des restaurants asiatiques occidentalisés vs l\'authenticité vierge de la cuisine africaine. Elle peut s\'adapter aux contraintes nutritionnelles sans se trahir car l\'adaptation fait partie de son ADN.',
+        debates: [
+          'Qu\'est-ce que l\'authenticité culinaire sur une plateforme d\'usage ?',
+          'Pourquoi la cuisine africaine a un potentiel universel commercial vierge.',
+          'Adapter sans dénaturer : la ligne de crête d\'Akeli.'
+        ]
+      },
+      {
+        id: 'II.5',
+        title: 'Créer les nouvelles modes',
+        idea: 'Les grandes chaînes de fast food s\'inspirent de la cuisine africaine sans inclure les créateurs, la culture ou la santé. Il est temps que la communauté prenne le contrôle de ses modes.',
+        story: 'L\'appropriation commerciale des goûts et des fritures sans la conscience nutritionnelle. Akeli redonne le pouvoir aux créateurs d\'écrire les règles de la tendance de demain.',
+        debates: [
+          'La cuisine africaine sur le point de devenir mainstream : qui va en écrire les règles ?',
+          'Inventer les recettes africaines urbaines de demain (accessibles, rapides, saines).',
+          'Comment le digital peut protéger et propulser le patrimoine culinaire.'
+        ]
+      },
+      {
+        id: 'II.6',
+        title: 'Quand l\'Afrique a nourri le monde',
+        idea: 'La cuisine africaine n\'a pas seulement absorbé ce qui venait d\'ailleurs, elle a exporté des solutions vitales qui ont changé l\'histoire de peuples entiers de manière invisible.',
+        story: 'Le mil (originaire d\'Afrique, introduit en Inde où il a sauvé des millions de vies de la famine), le couscous (plat préféré des Français, réussite culinaire totale), la technique de la semoule.',
+        debates: [
+          'L\'histoire invisible du mil africain comme sauveur de l\'Inde.',
+          'Ce que le succès populaire du couscous en France révèle sur le potentiel de notre cuisine.',
+          'Comment valoriser et documenter l\'apport culinaire de l\'Afrique au monde.'
+        ]
+      }
+    ]
+  },
+  axe3: {
+    title: 'Axe III : Ambition et Opportunités',
+    subtitle: 'Fonction : DESIRE — Déclencher le passage à l\'action',
+    lead: 'Cet axe s\'adresse directement au créateur potentiel. Il traduit la vision en opportunité concrète, honnête et accessible, en créant l\'envie d\'agir sans promesse excessive.',
+    cards: [
+      {
+        id: 'III.1',
+        title: 'La valeur du savoir culinaire',
+        idea: 'Pour la première fois, ce que tu sais cuisiner au quotidien peut générer un revenu récurrent prévisible, basé sur l\'impact nutritionnel réel et non sur l\'attention.',
+        story: 'La différence entre la rémunération aux likes/vues des géants de la tech (YouTube/TikTok) et la rémunération à l\'usage réel. Vos recettes deviennent un actif durable qui s\'apprécie avec le temps.',
+        debates: [
+          'Pourquoi la rémunération à la vue maintient les créateurs dans la précarité.',
+          'La notion d\'actif culinaire par rapport au contenu éphémère.',
+          'Comment valoriser économiquement un savoir-faire familial quotidien.'
+        ]
+      },
+      {
+        id: 'III.2',
+        title: 'La faible barrière d\'entrée',
+        idea: 'Tu n\'as pas besoin d\'avoir un studio de tournage professionnel ou des millions d\'abonnés. Une petite audience ultra-ciblée et engagée suffit largement.',
+        story: 'L\'algorithme de TikTok distribue le contenu selon la pertinence de la niche, pas selon la taille du compte. Avoir une niche très précise est un avantage structurel pour bâtir une communauté.',
+        debates: [
+          'Pourquoi les micro-créateurs ont un meilleur taux de conversion.',
+          'Comment identifier et parler à sa niche naturelle de l\'intérieur.',
+          'Les principes simples pour débuter sur les réseaux sans matériel lourd.'
+        ]
+      },
+      {
+        id: 'III.3',
+        title: 'L\'audience diététique & Mode Fan',
+        idea: 'Le Mode Fan crée une audience diététique fidèle : des utilisateurs qui cuisinent vos repas chaque semaine et vous allouent directement 1€/mois de leur abonnement.',
+        story: 'Un modèle de revenu garanti et stable, indépendant des algorithmes. La règle des 90/10 verrouille la fidélité : les abonnés Fan cuisinent majoritairement vos recettes.',
+        debates: [
+          'La différence majeure entre une audience qui regarde et une audience qui mange.',
+          'Comment stabiliser ses revenus grâce au Mode Fan.',
+          'Bâtir une relation de confiance et de co-construction au quotidien.'
+        ]
+      },
+      {
+        id: 'III.4',
+        title: 'La transparence des résultats',
+        idea: 'Après 6 mois de récolte de données d\'observance, Akeli affiche publiquement les taux de réussite réels des programmes. La preuve remplace la promesse.',
+        story: 'La nutrition en ligne est saturée de faux influenceurs aux promesses miracles. Akeli valorise les créateurs authentiques dont les plats permettent des résultats réels et vérifiés.',
+        debates: [
+          'Pourquoi la transparence est le futur de l\'économie de la recommandation.',
+          'Ce que change la publication des scores d\'efficacité pour les créateurs sérieux.',
+          'Bâtir sa réputation sur des résultats de santé mesurés.'
+        ]
+      },
+      {
+        id: 'III.5',
+        title: 'Une progression honnête et réaliste',
+        idea: 'Akeli ne promet pas la richesse facile en 10 jours. Nous proposons une trajectoire réaliste sur 12 mois pour valoriser durablement votre savoir culinaire.',
+        story: 'La progression type : 0-3 mois (constitution du catalogue de 30 recettes), 3-6 mois (premières consommations), 6-12 mois (premiers abonnés Fan, stabilisation), 12 mois+ (revenu complémentaire significatif).',
+        debates: [
+          'Pourquoi la patience éditoriale est indispensable.',
+          'La différence entre une opportunité rapide et un actif à long terme.',
+          'Les étapes clés pour ne pas décrocher lors des premiers mois.'
+        ]
+      }
+    ]
+  }
+};
+
 const PERSONAS = {
   p1: {
     title: 'Fatoumata — Le Primo-arrivant (35-50 ans)',
@@ -917,6 +1117,7 @@ const SECTION_NAMES = {
   philosophy: 'Philosophie & Concepts',
   business: 'Modèle Économique',
   marketing: 'Marketing & Cibles',
+  axes: 'Axes Éditoriaux',
   library: 'Bibliothèque Vault',
   presentation: 'Slides Stratégiques'
 }
@@ -930,6 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDocViewer()
   setupLibrarySection()
   setupPresentationSection()
+  setupAxesSection()
 })
 
 // Navigation logic (with sidebar and bottom tab bar synchronization)
@@ -1617,3 +1819,136 @@ function setupPresentationSection() {
   initDots()
   renderSlide(0)
 }
+
+function setupAxesSection() {
+  const switcherToggle = document.getElementById('axes-switcher-toggle')
+  const axesLeadBox = document.getElementById('axes-lead-box')
+  const axesCardContainer = document.getElementById('axes-card-container')
+  const axesPrev = document.getElementById('axes-prev')
+  const axesNext = document.getElementById('axes-next')
+  const axesDots = document.getElementById('axes-dots')
+
+  if (!switcherToggle || !axesLeadBox || !axesCardContainer || !axesPrev || !axesNext || !axesDots) return
+
+  let activeAxeId = 'axe1'
+  let currentCardIndex = 0
+  let totalCards = 0
+
+  const populateCards = () => {
+    const axe = AXES_DATA[activeAxeId]
+    axesLeadBox.innerHTML = `<p>${axe.lead}</p>`
+    
+    totalCards = axe.cards.length
+    axesCardContainer.innerHTML = ''
+    
+    axe.cards.forEach((card, index) => {
+      const cardEl = document.createElement('div')
+      cardEl.className = 'axes-card'
+      cardEl.innerHTML = `
+        <div class="axes-card-header">
+          <span class="axes-card-id">${card.id}</span>
+          <h4 class="axes-card-title">${card.title}</h4>
+        </div>
+        <div class="axes-card-content">
+          <div>
+            <div class="axes-section-title">Idée Centrale</div>
+            <div class="axes-idea-panel">${card.idea}</div>
+          </div>
+          <div>
+            <div class="axes-section-title">Récit / Illustration</div>
+            <div class="axes-story-panel">${card.story}</div>
+          </div>
+          <div>
+            <div class="axes-section-title">Pistes de Débat</div>
+            <ul class="axes-debates-list">
+              ${card.debates.map(d => `<li>${d}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        <div class="axes-card-footer">
+          <span>AKELI • Ligne Éditoriale</span>
+          <span>Carte ${index + 1} / ${totalCards}</span>
+        </div>
+      `
+      axesCardContainer.appendChild(cardEl)
+    })
+  }
+
+  const renderCard = (index) => {
+    currentCardIndex = index
+    axesCardContainer.style.transform = `translateX(-${currentCardIndex * 100}%)`
+    
+    // Enable/disable buttons
+    axesPrev.disabled = currentCardIndex === 0
+    axesNext.disabled = currentCardIndex === totalCards - 1
+    
+    // Update dots
+    const dots = axesDots.querySelectorAll('.slide-dot')
+    dots.forEach((dot, idx) => {
+      if (idx === currentCardIndex) {
+        dot.classList.add('active')
+      } else {
+        dot.classList.remove('active')
+      }
+    })
+  }
+
+  const initDots = () => {
+    axesDots.innerHTML = ''
+    for (let idx = 0; idx < totalCards; idx++) {
+      const dot = document.createElement('div')
+      dot.className = 'slide-dot'
+      if (idx === 0) dot.className += ' active'
+      dot.addEventListener('click', () => {
+        renderCard(idx)
+      })
+      axesDots.appendChild(dot)
+    }
+  }
+
+  // Bind switcher buttons
+  const buttons = switcherToggle.querySelectorAll('.toggle-btn')
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      activeAxeId = btn.getAttribute('data-axe')
+      
+      // Reset card index, re-populate cards and dots
+      populateCards()
+      initDots()
+      renderCard(0)
+    })
+  })
+
+  // Bind controls
+  axesPrev.addEventListener('click', () => {
+    if (currentCardIndex > 0) {
+      renderCard(currentCardIndex - 1)
+    }
+  })
+
+  axesNext.addEventListener('click', () => {
+    if (currentCardIndex < totalCards - 1) {
+      renderCard(currentCardIndex + 1)
+    }
+  })
+
+  // Bind Keyboard Navigation
+  document.addEventListener('keydown', (e) => {
+    const axesSection = document.getElementById('axes')
+    if (axesSection && axesSection.classList.contains('active')) {
+      if (e.key === 'ArrowRight' && currentCardIndex < totalCards - 1) {
+        renderCard(currentCardIndex + 1)
+      } else if (e.key === 'ArrowLeft' && currentCardIndex > 0) {
+        renderCard(currentCardIndex - 1)
+      }
+    }
+  })
+
+  // Initial render
+  populateCards()
+  initDots()
+  renderCard(0)
+}
+

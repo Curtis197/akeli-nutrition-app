@@ -38,6 +38,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Marketing & Cibles</span>
           </a>
+          <a href="#axes" class="nav-item" data-section="axes">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            <span>Axes Éditoriaux</span>
+          </a>
           <a href="#library" class="nav-item" data-section="library">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
             <span>Bibliothèque Vault</span>
@@ -341,7 +345,58 @@
             </div>
           </section>
 
-          <!-- SECTION 5: REFERENCE LIBRARY -->
+          <!-- SECTION 5: CONTENT AXES (AXES ÉDITORIAUX) -->
+          <section id="axes" class="content-section">
+            <div class="section-intro">
+              <h2>Axes de Contenu & Ligne Éditoriale</h2>
+              <p>Trois grands axes structurant tout le contenu Akeli (lives Zoom, vidéos courtes, et copywriting).</p>
+            </div>
+
+            <!-- Axe Selector -->
+            <div class="deck-selector-container">
+              <div class="toggle-container" id="axes-switcher-toggle">
+                <button class="toggle-btn active" data-axe="axe1">
+                  <span>Axe I : Enjeux Socioculturels</span>
+                </button>
+                <button class="toggle-btn" data-axe="axe2">
+                  <span>Axe II : Ouverture Culinaire</span>
+                </button>
+                <button class="toggle-btn" data-axe="axe3">
+                  <span>Axe III : Ambition & Opportunité</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Axes Carousel Wrapper -->
+            <div class="axes-carousel-wrapper">
+              <div class="axes-lead-box" id="axes-lead-box">
+                <!-- Lead text populated dynamically -->
+              </div>
+              
+              <div class="axes-carousel">
+                <div class="axes-card-container" id="axes-card-container">
+                  <!-- Rendered dynamically via JS -->
+                </div>
+              </div>
+
+              <!-- Carousel Navigation Controls -->
+              <div class="slide-controls">
+                <button class="slide-btn btn-prev" id="axes-prev" aria-label="Carte précédente">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                  <span>Précédent</span>
+                </button>
+                <div class="slide-dots" id="axes-dots">
+                  <!-- Dots populated via JS -->
+                </div>
+                <button class="slide-btn btn-next" id="axes-next" aria-label="Carte suivante">
+                  <span>Suivant</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- SECTION 6: REFERENCE LIBRARY -->
           <section id="library" class="content-section">
             <div class="section-intro">
               <h2>Bibliothèque de Référence (Le Vault)</h2>
@@ -435,6 +490,10 @@
         <a href="#marketing" class="bottom-nav-item" data-section="marketing">
           <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>Marketing</span>
+        </a>
+        <a href="#axes" class="bottom-nav-item" data-section="axes">
+          <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          <span>Axes</span>
         </a>
         <a href="#library" class="bottom-nav-item" data-section="library">
           <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
