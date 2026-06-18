@@ -30,6 +30,29 @@ Future<List<Recipe>> userSavedRecipes(Ref ref, String userId) async {
   return recipesData.map((e) => Recipe.fromJson(e)).toList();
 }
 
+final userLikedRecipesProvider = FutureProvider.autoDispose.family<List<Recipe>, String>((ref, userId) async {
+  appLogger.provider('userLikedRecipesProvider build() | userId: $userId');
+  final client = ref.watch(supabaseClientProvider);
+  
+  final response = await client
+      .from('recipe_like')
+      .select('recipe_id')
+      .eq('user_id', userId);
+
+  final recipeIds = response.cast<Map<String, dynamic>>().map((e) => e['recipe_id'] as String).toList();
+
+  if (recipeIds.isEmpty) return <Recipe>[];
+
+  final recipesData = await client
+      .from('recipe')
+      .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g)')
+      .inFilter('id', recipeIds)
+      .order('created_at', ascending: false);
+
+  return recipesData.map((e) => Recipe.fromJson(e)).toList();
+});
+
+
 @riverpod
 Future<List<Map<String, dynamic>>> userComments(Ref ref, String userId) async {
   appLogger.provider('userCommentsProvider build() | userId: $userId');

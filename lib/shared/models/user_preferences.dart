@@ -13,6 +13,8 @@ class UserPreferencesModel {
   final bool noGluten;
   final bool noLactose;
   final List<AllergenModel> allergens;
+  final bool useSavedRecipesOnly;
+  final bool isSavedRecipeEligible;
 
   const UserPreferencesModel({
     this.cookingTime,
@@ -24,6 +26,8 @@ class UserPreferencesModel {
     this.noGluten = false,
     this.noLactose = false,
     this.allergens = const [],
+    this.useSavedRecipesOnly = false,
+    this.isSavedRecipeEligible = false,
   });
 
   UserPreferencesModel copyWith({
@@ -36,6 +40,8 @@ class UserPreferencesModel {
     bool? noGluten,
     bool? noLactose,
     List<AllergenModel>? allergens,
+    bool? useSavedRecipesOnly,
+    bool? isSavedRecipeEligible,
     bool clearCookingTime = false,
     bool clearCuisineRegion = false,
   }) {
@@ -50,6 +56,8 @@ class UserPreferencesModel {
         noGluten: noGluten ?? this.noGluten,
         noLactose: noLactose ?? this.noLactose,
         allergens: allergens ?? this.allergens,
+        useSavedRecipesOnly: useSavedRecipesOnly ?? this.useSavedRecipesOnly,
+        isSavedRecipeEligible: isSavedRecipeEligible ?? this.isSavedRecipeEligible,
       );
   }
 }

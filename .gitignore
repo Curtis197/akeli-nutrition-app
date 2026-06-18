@@ -63,5 +63,6 @@ test_users.sql
 lib/features/cooking/unsplash
 
 # Local test/debug scripts
-analyze_user_plan.js
+analyze_user*.js
+generate_migrations.js
 test_*.js

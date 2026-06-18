@@ -1,11 +1,80 @@
--- Migration: fix_meal_plan_generator_timezone
--- Description: Replaces CURRENT_DATE with p_start_date in generate_meal_plan 
--- to prevent timezone mismatches from erasing the local "current day" when 
--- regenerated late at night.
+-- Migration: 20260616233400_saved_recipes_meal_plan
+-- Description: Adds user preference, trigger to evaluate eligibility, and new RPC to generate meal plan from saved recipes.
 
-DROP FUNCTION IF EXISTS generate_meal_plan(uuid, integer, integer, date, integer);
+-- 1. Add preference column
+ALTER TABLE user_profile ADD COLUMN IF NOT EXISTS use_saved_recipes_only BOOLEAN NOT NULL DEFAULT false;
 
-CREATE OR REPLACE FUNCTION generate_meal_plan(
+-- 2. Evaluate eligibility RPC
+CREATE OR REPLACE FUNCTION public.evaluate_saved_recipe_eligibility(p_user_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_pref boolean;
+  v_breakfast_count int;
+  v_lunch_count int;
+  v_dinner_count int;
+BEGIN
+  -- Only evaluate if they currently have the preference turned on
+  SELECT use_saved_recipes_only INTO v_pref
+  FROM user_profile WHERE id = p_user_id;
+  
+  IF v_pref IS NULL OR NOT v_pref THEN
+    RETURN;
+  END IF;
+
+  SELECT count(*) INTO v_breakfast_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'breakfast' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_lunch_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'lunch' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_dinner_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'dinner' = ANY(r.meal_types);
+
+  IF v_breakfast_count < 7 OR v_lunch_count < 7 OR v_dinner_count < 7 THEN
+    UPDATE user_profile SET use_saved_recipes_only = false WHERE id = p_user_id;
+  END IF;
+END;
+$$;
+
+-- 3. Trigger to proactively call the evaluation
+CREATE OR REPLACE FUNCTION public.trg_fn_evaluate_saved_recipe_eligibility()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    PERFORM public.evaluate_saved_recipe_eligibility(OLD.user_id);
+    RETURN OLD;
+  ELSIF TG_OP = 'INSERT' THEN
+    PERFORM public.evaluate_saved_recipe_eligibility(NEW.user_id);
+    RETURN NEW;
+  END IF;
+  RETURN NULL;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_evaluate_saved_recipe_eligibility ON recipe_save;
+CREATE TRIGGER trg_evaluate_saved_recipe_eligibility
+  AFTER INSERT OR DELETE ON recipe_save
+  FOR EACH ROW EXECUTE FUNCTION public.trg_fn_evaluate_saved_recipe_eligibility();
+
+
+-- 4. New RPC for generating from saved recipes
+DROP FUNCTION IF EXISTS public.generate_meal_plan_from_saved(uuid, integer, integer, date, integer);
+
+CREATE OR REPLACE FUNCTION public.generate_meal_plan_from_saved(
   p_user_id            uuid,
   p_days               integer,
   p_meals_per_day      integer,
@@ -30,7 +99,6 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  v_user_vector            vector(50);
   v_fan_creator_id         uuid;
   v_plan_id                uuid;
   v_existing_plan_id       uuid;
@@ -44,12 +112,9 @@ DECLARE
   v_used_recipe_ids        uuid[] := ARRAY[]::uuid[];
   v_user_allergens         text[];
   v_calorie_goal           numeric;
-  v_protein_goal           numeric;
-  v_fat_goal               numeric;
   v_target_meal_cal        numeric;
-  v_target_protein_density numeric;
-  v_target_fat_density     numeric;
   v_grams                  integer;
+  v_fan_count              int := 0;
   v_other_count            int := 0;
   v_total_slots            int;
   v_max_other_slots        int;
@@ -67,9 +132,6 @@ BEGIN
     v_meal_types := ARRAY['breakfast', 'lunch', 'dinner', 'snack'];
   END IF;
 
-  SELECT uv.vector INTO v_user_vector
-  FROM user_vector uv WHERE uv.user_id = p_user_id;
-
   SELECT fs.creator_id INTO v_fan_creator_id
   FROM fan_subscription fs
   WHERE fs.user_id = p_user_id AND fs.status = 'active'
@@ -80,22 +142,11 @@ BEGIN
   JOIN allergen a ON a.id = ua.allergen_id
   WHERE ua.user_id = p_user_id;
 
-  SELECT calorie_goal, protein_goal, fat_goal
-  INTO v_calorie_goal, v_protein_goal, v_fat_goal
+  SELECT calorie_goal INTO v_calorie_goal
   FROM user_goal
   WHERE user_id = p_user_id AND is_active = true
   ORDER BY created_at DESC
   LIMIT 1;
-
-  IF v_calorie_goal IS NOT NULL AND v_calorie_goal > 0 AND p_meals_per_day > 0 THEN
-    v_target_protein_density :=
-      COALESCE(v_protein_goal, 0) / (v_calorie_goal / p_meals_per_day) * 100;
-    v_target_fat_density :=
-      COALESCE(v_fat_goal, 0) / (v_calorie_goal / p_meals_per_day) * 100;
-  ELSE
-    v_target_protein_density := 7.5;
-    v_target_fat_density     := 3.3;
-  END IF;
 
   -- ── Plan reuse ──────────────────────────────────────────────────────────────
   SELECT id INTO v_existing_plan_id
@@ -122,8 +173,6 @@ BEGIN
     RETURNING id INTO v_plan_id;
   END IF;
 
-  -- Seed variety counter from preserved past days so the per-week repeat cap
-  -- is enforced over the whole plan, not just the regenerated slice.
   SELECT COALESCE(array_agg(mpec.recipe_id), ARRAY[]::uuid[])
   INTO v_used_recipe_ids
   FROM meal_plan_entry mpe
@@ -149,100 +198,44 @@ BEGIN
         v_target_meal_cal := v_calorie_goal / p_meals_per_day;
       END IF;
 
-      IF v_user_vector IS NOT NULL THEN
-        -- Vector-based scoring: 50% similarity + 25% protein density + 15% meal slot + 10% fat density.
-        -- Macro density ratios (protein/kcal, fat/kcal) are serving-size invariant so the
-        -- existing formula works unchanged in the per-100g model.
-        SELECT r.id, r.title, r.cover_image_url,
-               rm.kcal_per_100g, rm.protein_per_100g, rm.carbs_per_100g, rm.fat_per_100g,
-               rm.total_weight_g,
-               r.creator_id,
-               (
-                 0.50 * (1 - (rv.vector <=> v_user_vector))
-                        * CASE WHEN v_fan_creator_id IS NOT NULL
-                                    AND r.creator_id = v_fan_creator_id
-                               THEN 1.5 ELSE 1.0 END
-                 + 0.25 * GREATEST(0.0, 1.0 - LEAST(
-                     ABS(rm.protein_per_100g / NULLIF(rm.kcal_per_100g, 0) * 100
-                         - v_target_protein_density)
-                     / NULLIF(v_target_protein_density, 0.001),
-                     1.0))
-                 + 0.15 * CASE
-                     WHEN r.preferred_meal_type = v_meal_type THEN 1.0
-                     WHEN r.preferred_meal_type = 'any'       THEN 0.5
-                     ELSE 0.0
-                   END
-                 + 0.10 * GREATEST(0.0, 1.0 - LEAST(
-                     ABS(rm.fat_per_100g / NULLIF(rm.kcal_per_100g, 0) * 100
-                         - v_target_fat_density)
-                     / NULLIF(v_target_fat_density, 0.001),
-                     1.0))
-               ) AS score
-        INTO v_recipe
-        FROM recipe r
-        JOIN recipe_vector rv ON r.id = rv.recipe_id
-        JOIN recipe_macro rm ON r.id = rm.recipe_id
-        WHERE r.is_published = true
-          AND v_meal_type = ANY(r.meal_types)
-          AND rm.kcal_per_100g > 0
-          AND (SELECT count(*) FROM unnest(v_used_recipe_ids) x WHERE x = r.id) < p_max_recipe_repeat
-          AND (
-            v_fan_creator_id IS NULL
-            OR v_other_count < v_max_other_slots
-            OR r.creator_id = v_fan_creator_id
-          )
-          AND (
-            v_target_meal_cal IS NULL
-            OR v_target_meal_cal / (rm.kcal_per_100g / 100) <= 1500
-          )
-          AND NOT (r.allergen_tags && v_user_allergens)
-        ORDER BY score DESC
-        LIMIT 1;
-      ELSE
-        -- No user vector: rank by meal-slot preference then recipe popularity.
-        SELECT r.id, r.title, r.cover_image_url,
-               rm.kcal_per_100g, rm.protein_per_100g, rm.carbs_per_100g, rm.fat_per_100g,
-               rm.total_weight_g,
-               r.creator_id,
-               (
-                 0.15 * CASE
-                   WHEN r.preferred_meal_type = v_meal_type THEN 1.0
-                   WHEN r.preferred_meal_type = 'any'       THEN 0.5
-                   ELSE 0.0
-                 END
-               ) AS score
-        INTO v_recipe
-        FROM recipe r
-        JOIN recipe_macro rm ON r.id = rm.recipe_id
-        LEFT JOIN recipe_like rl ON r.id = rl.recipe_id
-        WHERE r.is_published = true
-          AND v_meal_type = ANY(r.meal_types)
-          AND rm.kcal_per_100g > 0
-          AND (SELECT count(*) FROM unnest(v_used_recipe_ids) x WHERE x = r.id) < p_max_recipe_repeat
-          AND (
-            v_fan_creator_id IS NULL
-            OR v_other_count < v_max_other_slots
-            OR r.creator_id = v_fan_creator_id
-          )
-          AND (
-            v_target_meal_cal IS NULL
-            OR v_target_meal_cal / (rm.kcal_per_100g / 100) <= 1500
-          )
-          AND NOT (r.allergen_tags && v_user_allergens)
-        GROUP BY r.id, r.title, r.cover_image_url, r.creator_id, r.preferred_meal_type,
-                 rm.kcal_per_100g, rm.protein_per_100g, rm.carbs_per_100g, rm.fat_per_100g,
-                 rm.total_weight_g
-        ORDER BY score DESC, COUNT(rl.recipe_id) DESC
-        LIMIT 1;
-      END IF;
+      -- Select randomly from saved recipes, matching constraints
+      SELECT r.id, r.title, r.cover_image_url,
+             rm.kcal_per_100g, rm.protein_per_100g, rm.carbs_per_100g, rm.fat_per_100g,
+             rm.total_weight_g,
+             r.creator_id,
+             (
+               0.15 * CASE
+                 WHEN r.preferred_meal_type = v_meal_type THEN 1.0
+                 WHEN r.preferred_meal_type = 'any'       THEN 0.5
+                 ELSE 0.0
+               END
+             ) AS score
+      INTO v_recipe
+      FROM recipe r
+      INNER JOIN recipe_save rs ON r.id = rs.recipe_id
+      JOIN recipe_macro rm ON r.id = rm.recipe_id
+      WHERE rs.user_id = p_user_id
+        AND r.is_published = true
+        AND v_meal_type = ANY(r.meal_types)
+        AND rm.kcal_per_100g > 0
+        AND (SELECT count(*) FROM unnest(v_used_recipe_ids) x WHERE x = r.id) < p_max_recipe_repeat
+        AND (
+          v_fan_creator_id IS NULL
+          OR v_other_count < v_max_other_slots
+          OR r.creator_id = v_fan_creator_id
+        )
+        AND (
+          v_target_meal_cal IS NULL
+          OR v_target_meal_cal / (rm.kcal_per_100g / 100) <= 1500
+        )
+        AND NOT (r.allergen_tags && v_user_allergens)
+      ORDER BY score DESC, random()
+      LIMIT 1;
 
       IF v_recipe.id IS NULL THEN
-        RAISE EXCEPTION 'insufficient_recipes' USING DETAIL = v_meal_type;
+        RAISE EXCEPTION 'insufficient_saved_recipes' USING DETAIL = v_meal_type;
       END IF;
 
-      -- Compute portion in grams: target_kcal / (kcal_per_100g / 100).
-      -- Bounds 50–1500g guard against degenerate recipes (near-zero density
-      -- or unreachable targets). Default 300g when no calorie target is set.
       IF v_target_meal_cal IS NOT NULL AND v_recipe.kcal_per_100g > 0 THEN
         v_grams := GREATEST(50, LEAST(1500,
           ROUND(v_target_meal_cal / (v_recipe.kcal_per_100g / 100))::integer));
@@ -267,9 +260,6 @@ BEGIN
       VALUES (v_entry_id, v_recipe.id, 'base', 1.0)
       RETURNING id INTO v_component_id;
 
-      -- Scale each ingredient proportionally: ri.quantity is per full recipe
-      -- (total_weight_g grams). Multiply by v_grams / total_weight_g to get the
-      -- quantity for this portion, then round to the configured step.
       INSERT INTO meal_ingredient (meal_plan_entry_id, ingredient_id, ingredient_name, quantity, unit)
       SELECT
         v_entry_id,
@@ -290,8 +280,12 @@ BEGIN
         AND ri.is_optional = false;
 
       v_used_recipe_ids := v_used_recipe_ids || v_recipe.id;
-      IF v_fan_creator_id IS NOT NULL AND v_recipe.creator_id != v_fan_creator_id THEN
-        v_other_count := v_other_count + 1;
+      IF v_fan_creator_id IS NOT NULL THEN
+        IF v_recipe.creator_id = v_fan_creator_id THEN
+          v_fan_count := v_fan_count + 1;
+        ELSE
+          v_other_count := v_other_count + 1;
+        END IF;
       END IF;
 
       RETURN QUERY SELECT
@@ -311,6 +305,6 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION generate_meal_plan(uuid, integer, integer, date, integer) FROM PUBLIC;
-REVOKE ALL ON FUNCTION generate_meal_plan(uuid, integer, integer, date, integer) FROM anon;
-GRANT EXECUTE ON FUNCTION generate_meal_plan(uuid, integer, integer, date, integer) TO authenticated;
+REVOKE ALL ON FUNCTION generate_meal_plan_from_saved(uuid, integer, integer, date, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION generate_meal_plan_from_saved(uuid, integer, integer, date, integer) FROM anon;
+GRANT EXECUTE ON FUNCTION generate_meal_plan_from_saved(uuid, integer, integer, date, integer) TO authenticated;

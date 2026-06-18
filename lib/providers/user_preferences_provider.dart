@@ -33,7 +33,7 @@ class UserPreferencesNotifier
 
       final profileFuture = client
           .from('user_profile')
-          .select('batch_cooking_enabled, batch_cooking_max_portions')
+          .select('batch_cooking_enabled, batch_cooking_max_portions, use_saved_recipes_only, is_saved_recipe_eligible')
           .eq('id', user.id)
           .single();
 
@@ -89,6 +89,8 @@ class UserPreferencesNotifier
         noGluten: restrictionCodes.contains('no_gluten'),
         noLactose: restrictionCodes.contains('no_lactose'),
         allergens: allergens,
+        useSavedRecipesOnly: profile['use_saved_recipes_only'] as bool? ?? false,
+        isSavedRecipeEligible: profile['is_saved_recipe_eligible'] as bool? ?? false,
       );
     } on PostgrestException catch (e, st) {
       if (e.code == '42501') {
@@ -112,6 +114,7 @@ class UserPreferencesNotifier
     _logger.userAction('UserPreferences save', metadata: {
       'batchEnabled': updated.batchCookingEnabled,
       'maxPortions': updated.batchMaxPortions,
+      'useSavedRecipesOnly': updated.useSavedRecipesOnly,
       'cookingTime': updated.cookingTime,
       'region': updated.cuisineRegion,
     });
@@ -131,6 +134,7 @@ class UserPreferencesNotifier
       await client.from('user_profile').update({
         'batch_cooking_enabled': updated.batchCookingEnabled,
         'batch_cooking_max_portions': updated.batchMaxPortions,
+        'use_saved_recipes_only': updated.useSavedRecipesOnly,
       }).eq('id', user.id);
       _logger.db('AFTER | table: user_profile | op: UPDATE | rows: 1');
 

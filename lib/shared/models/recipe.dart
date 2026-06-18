@@ -34,6 +34,7 @@ class Recipe {
   final List<RecipeIngredient> ingredients;
   final List<RecipeStep> steps;
   final List<String> tagIds;
+  final List<String> mealTypes;
   final double? calories100g;
   final double? protein100g;
   final double? carbs100g;
@@ -72,6 +73,7 @@ class Recipe {
     required this.ingredients,
     required this.steps,
     required this.tagIds,
+    this.mealTypes = const [],
     this.calories100g,
     this.protein100g,
     this.carbs100g,
@@ -132,6 +134,7 @@ class Recipe {
                 .toList() ??
             [],
         tagIds: (json['tag_ids'] as List<dynamic>?)?.cast<String>() ?? [],
+        mealTypes: (json['meal_types'] as List<dynamic>?)?.cast<String>() ?? [],
         calories100g: (macro?['calories_per_100g'] as num?)?.toDouble(),
         protein100g:  (macro?['protein_per_100g']  as num?)?.toDouble(),
         carbs100g:    (macro?['carbs_per_100g']    as num?)?.toDouble(),

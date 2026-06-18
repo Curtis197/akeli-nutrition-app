@@ -1,12 +1,12 @@
 -- Migration: Add missing foreign key indexes
 
-CREATE INDEX IF NOT EXISTS idx_auth_mfa_challenges_factor_id ON auth.mfa_challenges (factor_id);
+-- CREATE INDEX IF NOT EXISTS idx_auth_mfa_challenges_factor_id ON auth.mfa_challenges (factor_id);
 CREATE INDEX IF NOT EXISTS idx_specialty_region ON specialty (region);
-CREATE INDEX IF NOT EXISTS idx_auth_saml_relay_states_flow_state_id ON auth.saml_relay_states (flow_state_id);
-CREATE INDEX IF NOT EXISTS idx_auth_oauth_authorizations_client_id ON auth.oauth_authorizations (client_id);
-CREATE INDEX IF NOT EXISTS idx_auth_oauth_authorizations_user_id ON auth.oauth_authorizations (user_id);
-CREATE INDEX IF NOT EXISTS idx_storage_s3_multipart_uploads_parts_upload_id ON storage.s3_multipart_uploads_parts (upload_id);
-CREATE INDEX IF NOT EXISTS idx_storage_s3_multipart_uploads_parts_bucket_id ON storage.s3_multipart_uploads_parts (bucket_id);
+-- CREATE INDEX IF NOT EXISTS idx_auth_saml_relay_states_flow_state_id ON auth.saml_relay_states (flow_state_id);
+-- CREATE INDEX IF NOT EXISTS idx_auth_oauth_authorizations_client_id ON auth.oauth_authorizations (client_id);
+-- CREATE INDEX IF NOT EXISTS idx_auth_oauth_authorizations_user_id ON auth.oauth_authorizations (user_id);
+-- CREATE INDEX IF NOT EXISTS idx_storage_s3_multipart_uploads_parts_upload_id ON storage.s3_multipart_uploads_parts (upload_id);
+-- CREATE INDEX IF NOT EXISTS idx_storage_s3_multipart_uploads_parts_bucket_id ON storage.s3_multipart_uploads_parts (bucket_id);
 CREATE INDEX IF NOT EXISTS idx_ingredient_submission_ingredient_id ON ingredient_submission (ingredient_id);
 CREATE INDEX IF NOT EXISTS idx_conversation_community_group_id ON conversation (community_group_id);
 CREATE INDEX IF NOT EXISTS idx_recipe_parent_recipe_id ON recipe (parent_recipe_id);

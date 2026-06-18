@@ -45,7 +45,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     logRLSCheck(logger, 'user_profile', 'SELECT', 'service_role');
     const { data, error: usersError } = await supabase
       .from('user_profile')
-      .select('id')
+      .select('id, use_saved_recipes_only, is_saved_recipe_eligible')
       .range(offset, offset + BATCH_SIZE - 1);
     logQueryResult(logger, 'user_profile', 'SELECT', data?.length ?? 0, usersError ?? undefined);
 
@@ -67,13 +67,38 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const errors: { userId: string; error: string }[] = [];
 
     for (const user of users) {
-      logger.debug('[STEP 3] generate_meal_plan_internal | userId: ' + user.id);
-      const { error } = await supabase.rpc('generate_meal_plan_internal', {
-        p_user_id: user.id,
-        p_start_date: nextMonday,
-        p_days: 7,
-        p_meals_per_day: 3,
-      });
+      let isSavedEligible = user.is_saved_recipe_eligible ?? false;
+      let useSavedRecipes = user.use_saved_recipes_only ?? false;
+      let error = null;
+
+      if (useSavedRecipes && isSavedEligible) {
+        logger.debug('[STEP 3a] generate_meal_plan_from_saved | userId: ' + user.id);
+        const res = await supabase.rpc('generate_meal_plan_from_saved', {
+          p_user_id: user.id,
+          p_start_date: nextMonday,
+          p_days: 7,
+          p_meals_per_day: 3,
+        });
+        error = res.error;
+        if (error && (error.message === 'insufficient_saved_recipes' || error.code === 'P0001')) {
+          logger.warn('FALLBACK | userId: ' + user.id + ' | reason: insufficient_saved_recipes');
+          await supabase.from('user_profile').update({ use_saved_recipes_only: false }).eq('id', user.id);
+          useSavedRecipes = false;
+          error = null;
+        }
+      }
+
+      if (!useSavedRecipes || !isSavedEligible) {
+        logger.debug('[STEP 3b] generate_meal_plan_internal | userId: ' + user.id);
+        const res = await supabase.rpc('generate_meal_plan_internal', {
+          p_user_id: user.id,
+          p_start_date: nextMonday,
+          p_days: 7,
+          p_meals_per_day: 3,
+        });
+        error = res.error;
+      }
+
       if (error) {
         if (error.code === 'P0001' && error.message.includes('insufficient_recipes')) {
           skipped++;

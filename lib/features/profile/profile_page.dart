@@ -54,7 +54,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
         : targetProfileAsync?.valueOrNull;
     final isPrivate = !isCurrentUser && (displayProfile?.isPrivate ?? false);
 
-    final userSavedRecipesAsync = ref.watch(userSavedRecipesProvider(targetUserId));
+    final userLikedRecipesAsync = ref.watch(userLikedRecipesProvider(targetUserId));
     final userCommentsAsync = ref.watch(userCommentsProvider(targetUserId));
     final userGroupsAsync = ref.watch(userGroupsProvider(targetUserId));
     
@@ -479,7 +479,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                           controller: _tabController,
                           children: [
                             // Recettes Tab
-                            userSavedRecipesAsync.when(
+                            userLikedRecipesAsync.when(
                               loading: () => const Center(child: CircularProgressIndicator()),
                               error: (_, __) => const Center(
                                 child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
@@ -487,7 +487,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                               data: (recipes) {
                                 if (recipes.isEmpty) {
                                   return const Center(
-                                    child: Text('Aucune recette enregistrée', style: TextStyle(color: AkeliColors.outline)),
+                                    child: Text('Aucune recette aimée', style: TextStyle(color: AkeliColors.outline)),
                                   );
                                 }
                                 return ListView.separated(
@@ -533,11 +533,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                     final recipeTitle = recipe?['title'] as String? ?? 'Recette inconnue';
                                     final recipeImage = recipe?['cover_image_url'] as String? ?? '';
                                     final content = c['content'] as String? ?? '';
+                                    final rating = c['rating'] as int?;
                                     
                                     return _ProfileCommentCard(
                                       recipeTitle: recipeTitle,
                                       recipeImage: recipeImage,
                                       content: content,
+                                      rating: rating,
                                     );
                                   },
                                 );
@@ -679,11 +681,13 @@ class _ProfileCommentCard extends StatelessWidget {
   final String recipeTitle;
   final String recipeImage;
   final String content;
+  final int? rating;
 
   const _ProfileCommentCard({
     required this.recipeTitle,
     required this.recipeImage,
     required this.content,
+    this.rating,
   });
 
   @override
@@ -717,15 +721,41 @@ class _ProfileCommentCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  recipeTitle,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AkeliColors.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        recipeTitle,
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AkeliColors.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (rating != null) ...[
+                      const SizedBox(width: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star_rounded, size: 16, color: AkeliColors.accentAmber),
+                          const SizedBox(width: 4),
+                          Text(
+                            rating.toString(),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AkeliColors.onSurface,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 4),
                 Text(

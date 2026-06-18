@@ -37,6 +37,9 @@ serve(async (req) => {
       .select("notification_prefs")
       .eq("id", user_id)
       .single();
+    if (profileError) {
+      logger.warn("[STEP 2b] Failed to fetch user prefs — defaulting push to enabled | " + profileError.message);
+    }
     const prefs = userProfile?.notification_prefs || {};
     const pushEnabled = prefs.push ?? true;
 

@@ -1,7 +1,7 @@
-const SUPABASE_URL = 'https://njzqcftjzskwcpforwzf.supabase.co';
-const ANON_KEY = 'sb_publishable_2WUTLXygeO3s1FTvBdydwA_24zE-a6R';
-const EMAIL = 'test_3@client.com';
-const PASS = 'jehojada';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://njzqcftjzskwcpforwzf.supabase.co';
+const ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_2WUTLXygeO3s1FTvBdydwA_24zE-a6R';
+const EMAIL = process.env.TEST_EMAIL || 'test_3@client.com';
+const PASS = process.env.TEST_PASS || (() => { throw new Error('Set TEST_PASS env var'); })();
 
 let authToken = '';
 

@@ -245,6 +245,14 @@ class SettingsPage extends ConsumerWidget {
                           },
                         ),
                         _MenuItem(
+                          icon: Icons.bookmark_outline_rounded,
+                          label: 'Recettes Sauvegardées',
+                          onTap: () {
+                            appLogger.userAction('Saved recipes menu tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.savedRecipes);
+                          },
+                        ),
+                        _MenuItem(
                           icon: Icons.manage_accounts_outlined,
                           label: 'Mon compte',
                           onTap: () {

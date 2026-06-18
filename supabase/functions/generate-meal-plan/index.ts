@@ -40,7 +40,7 @@ serve(async (req) => {
     logger.debug("[STEP 1.5] Fetch batch cooking preference");
     const { data: profileData, error: profileError } = await client
       .from("user_profile")
-      .select("batch_cooking_enabled, batch_cooking_max_portions")
+      .select("batch_cooking_enabled, batch_cooking_max_portions, use_saved_recipes_only, is_saved_recipe_eligible")
       .eq("id", user.id)
       .single();
     if (profileError) {
@@ -48,22 +48,55 @@ serve(async (req) => {
     }
     const batchEnabled = profileData?.batch_cooking_enabled ?? false;
     const maxPortions = profileData?.batch_cooking_max_portions ?? 4;
-    logger.debug("[STEP 1.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions);
+    const isSavedEligible = profileData?.is_saved_recipe_eligible ?? false;
+    let useSavedRecipes = profileData?.use_saved_recipes_only ?? false;
+    logger.debug("[STEP 1.5] batchEnabled: " + batchEnabled + " | maxPortions: " + maxPortions + " | useSavedRecipes: " + useSavedRecipes + " | isSavedEligible: " + isSavedEligible);
 
     // When batch cooking is on, honour the user's recipe-repetition cap.
     // When off, fall back to the default of 3 (hardcoded legacy behaviour).
     const maxRecipeRepeat = batchEnabled ? maxPortions : 3;
 
-    logger.debug("[STEP 2] RPC call | fn: generate_meal_plan | maxRecipeRepeat: " + maxRecipeRepeat);
-    logRLSCheck(logger, "generate_meal_plan", "RPC", user.id);
-    const { data, error } = await client.rpc("generate_meal_plan", {
-      p_user_id: user.id,
-      p_days: days,
-      p_meals_per_day: meals_per_day,
-      p_start_date: start_date,
-      p_max_recipe_repeat: maxRecipeRepeat,
-    });
-    logQueryResult(logger, "generate_meal_plan", "RPC", data?.length ?? 0, error ?? undefined);
+    let data, error;
+    
+    if (useSavedRecipes && isSavedEligible) {
+      logger.debug("[STEP 2a] RPC call | fn: generate_meal_plan_from_saved | maxRecipeRepeat: " + maxRecipeRepeat);
+      logRLSCheck(logger, "generate_meal_plan_from_saved", "RPC", user.id);
+      const res = await client.rpc("generate_meal_plan_from_saved", {
+        p_user_id: user.id,
+        p_days: days,
+        p_meals_per_day: meals_per_day,
+        p_start_date: start_date,
+        p_max_recipe_repeat: maxRecipeRepeat,
+      });
+      data = res.data;
+      error = res.error;
+      logQueryResult(logger, "generate_meal_plan_from_saved", "RPC", data?.length ?? 0, error ?? undefined);
+
+      if (error && (error.message === "insufficient_saved_recipes" || error.code === "P0001")) {
+        logger.warn("FALLBACK | reason: insufficient_saved_recipes | meal_type: " + (error.details ?? "unknown"));
+        // Toggle preference off and fallback
+        await client.from("user_profile").update({ use_saved_recipes_only: false }).eq("id", user.id);
+        useSavedRecipes = false;
+        error = null; // Clear error to allow fallback
+      } else if (error) {
+        throw error;
+      }
+    }
+
+    if (!useSavedRecipes || !isSavedEligible) {
+      logger.debug("[STEP 2b] RPC call | fn: generate_meal_plan | maxRecipeRepeat: " + maxRecipeRepeat);
+      logRLSCheck(logger, "generate_meal_plan", "RPC", user.id);
+      const res = await client.rpc("generate_meal_plan", {
+        p_user_id: user.id,
+        p_days: days,
+        p_meals_per_day: meals_per_day,
+        p_start_date: start_date,
+        p_max_recipe_repeat: maxRecipeRepeat,
+      });
+      data = res.data;
+      error = res.error;
+      logQueryResult(logger, "generate_meal_plan", "RPC", data?.length ?? 0, error ?? undefined);
+    }
 
     if (error) {
       // All-or-nothing: not enough recipes for a meal type

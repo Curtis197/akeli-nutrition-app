@@ -60,8 +60,8 @@ serve(async (req) => {
     const userIdsToNotify = rawUserIds.filter(userId => {
       const profile = profiles?.find(p => p.id === userId);
       const prefs = profile?.notification_prefs || {};
-      // Default for meal_reminders in the app is false, so it must be explicitly true
-      return prefs.meal_reminders === true;
+      // Default is true (opt-out model, consistent with chat/dm_requests).
+      return prefs.meal_reminders !== false;
     });
 
     const skipped = rawUserIds.length - userIdsToNotify.length;

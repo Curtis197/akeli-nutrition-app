@@ -1,5 +1,8 @@
 // lib/core/quantity_formatter.dart
 import 'package:collection/collection.dart';
+import 'package:akeli/core/logger.dart';
+
+final _logger = appLogger;
 
 // Units rendered as fractions (1/2, 1/4 etc.) rather than plain decimals.
 const _countableUnits = {
@@ -42,6 +45,9 @@ String formatQuantity(double qty, String unit) {
   }
 
   if (!_countableUnits.contains(unit)) {
+    if (!_unitTranslations.containsKey(unit)) {
+      _logger.provider('formatQuantity | unknown unit: $unit — rendering as-is');
+    }
     if (qty % 1 == 0) return '${qty.toInt()} $translatedUnit'.trim();
     return '${qty.toStringAsFixed(1)} $translatedUnit'.trim();
   }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../providers/creator_provider.dart';
@@ -719,6 +720,39 @@ class _HomePageState extends ConsumerState<HomePage> {
                 },
               ),
 
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      _logger.userAction('Create recipe button tapped', screen: 'HomePage');
+                      final url = Uri.parse('https://www.a-keli.com');
+                      try {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } catch (e) {
+                        _logger.userAction('Could not launch url', screen: 'HomePage', metadata: {'url': url.toString(), 'error': e.toString()});
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AkeliColors.primary,
+                      foregroundColor: AkeliColors.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                      ),
+                    ),
+                    child: Text(
+                      'Créez et partagez vos propre recette',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 80),
             ],
           ),

@@ -8,6 +8,7 @@ import '../features/auth/auth_page.dart';
 import '../features/auth/onboarding_page.dart';
 import '../features/recipes/feed_page.dart';
 import '../features/recipes/recipe_detail_page.dart';
+import '../features/recipes/saved_recipes_page.dart';
 import '../features/meal_planner/meal_planner_page.dart';
 import '../features/meal_planner/shopping_list_page.dart';
 import '../features/nutrition/nutrition_page.dart';
@@ -57,6 +58,7 @@ abstract class AkeliRoutes {
   static const profile = "/profile";
   static const settings = "/settings";
   static const recipeDetail = "/recipe/:id";
+  static const savedRecipes = "/saved-recipes";
   static const shoppingList = "/shopping-list";
   static const nutrition = "/nutrition";
   static const fanMode = "/fan-mode";
@@ -204,6 +206,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: AkeliRoutes.savedRecipes,
+        builder: (context, state) => const SavedRecipesPage(),
       ),
       GoRoute(
         path: AkeliRoutes.shoppingList,

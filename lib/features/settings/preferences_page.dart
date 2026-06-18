@@ -10,6 +10,7 @@ import '../../providers/user_preferences_provider.dart';
 import '../../shared/models/user_preferences.dart';
 import 'widgets/allergen_picker_widget.dart';
 import 'widgets/settings_widgets.dart';
+import 'saved_recipes_eligibility_page.dart';
 
 class PreferencesPage extends ConsumerStatefulWidget {
   const PreferencesPage({super.key});
@@ -116,6 +117,33 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── Plan de repas ───────────────────────────────────────────
+                const SettingsSectionHeader(title: 'PLAN DE REPAS'),
+                const SizedBox(height: 8),
+                SettingsCard(
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.bookmark_rounded, color: AkeliColors.primary),
+                    title: const Text(
+                      'Générer depuis les favoris',
+                      style: TextStyle(fontWeight: FontWeight.w500, color: AkeliColors.onSurface),
+                    ),
+                    subtitle: const Text(
+                      'Utiliser uniquement vos recettes enregistrées',
+                      style: TextStyle(fontSize: 13, color: AkeliColors.onSurfaceVariant),
+                    ),
+                    trailing: const Icon(Icons.chevron_right_rounded, color: AkeliColors.onSurfaceVariant),
+                    onTap: () {
+                      _logger.userAction('Navigate to SavedRecipesEligibilityPage', screen: 'PreferencesPage');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SavedRecipesEligibilityPage()),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+
                 // ── Cuisson ─────────────────────────────────────────────
                 const SettingsSectionHeader(title: 'CUISSON'),
                 const SizedBox(height: 8),
