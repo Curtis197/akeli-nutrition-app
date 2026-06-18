@@ -256,6 +256,251 @@ const DOCUMENTS = [
   }
 ]
 
+const SLIDES = [
+  {
+    category: 'AKELI CORP • CADRAGE',
+    title: 'Stratégie des Phases & Communication',
+    type: 'title',
+    content: `
+      <div class="slide-title-layout">
+        <span class="slide-badge">DOCUMENT INTERNE • MARS 2026</span>
+        <h1 class="slide-mega-title">Pourquoi Akeli communique comme il le fait — et pas autrement.</h1>
+        <p class="slide-author">Auteur : Curtis, Fondateur d'Akeli</p>
+      </div>
+    `
+  },
+  {
+    category: 'PHASE 0 • CHANGEMENT DE PARADIGME',
+    title: 'De la friction à l\'accumulation de confiance',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title color-platform">L'Ancien Modèle</h4>
+          <span class="col-subtitle">La conversion par friction</span>
+          <ul class="slide-bullets">
+            <li><strong>Publicité intrusive :</strong> Créer une émotion forte mais éphémère.</li>
+            <li><strong>Landing page forcée :</strong> Forcer le clic et la décision à froid.</li>
+            <li><strong>Méfiance :</strong> L'interaction est verticale et unilatérale.</li>
+            <li><strong>Volume nécessaire :</strong> Taux de conversion faible compensé par la masse.</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Le Nouveau Modèle</h4>
+          <span class="col-subtitle">La conversion par accumulation</span>
+          <ul class="slide-bullets">
+            <li><strong>Présence régulière :</strong> Bâtir une familiarité constante dans le temps.</li>
+            <li><strong>Confiance progressive :</strong> Rendre la décision d'achat naturelle.</li>
+            <li><strong>Légitimité :</strong> Chaque contenu dépose une couche de crédibilité.</li>
+            <li><strong>Landing page de confirmation :</strong> Confirmer une décision déjà prise.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'PHASE 0.5 • VISION DES RÉSEAUX',
+    title: 'Les réseaux sociaux comme lieu de rassemblement',
+    type: 'text',
+    content: `
+      <p class="slide-lead">Le besoin de la diaspora est préexistant. Nous ne le créons pas, nous y répondons. Les réseaux sont un espace de parole, pas un panneau publicitaire.</p>
+      <div class="slide-grid-3col">
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🔐</div>
+          <h5>Espace de reconnaissance</h5>
+          <p>L'utilisateur découvre que son décalage a un nom et qu'il n'est pas seul.</p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">💬</div>
+          <h5>Espace de parole</h5>
+          <p>Chaque commentaire contribue à enrichir l'intelligence culinaire collective.</p>
+        </div>
+        <div class="slide-mini-card">
+          <div class="mini-card-icon">🤝</div>
+          <h5>Rassemblement horizontal</h5>
+          <p>Les abonnés échangent entre eux, créant le lien communautaire.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'PRINCIPIEL • MARKETING RELATIONNEL',
+    title: 'La Règle des 7 Contacts',
+    type: 'text',
+    content: `
+      <blockquote class="slide-blockquote">
+        "Un contenu isolé ne convertit pas. Une présence constante convertit."
+      </blockquote>
+      <div class="slide-grid-2col" style="margin-top: 20px;">
+        <div class="slide-text-block">
+          <h5>Déposer des couches</h5>
+          <p>Chaque contact n'a pas à vendre. Il dépose une couche de familiarité, une couche de crédibilité, une couche de reconnaissance. La somme produit la confiance.</p>
+        </div>
+        <div class="slide-text-block">
+          <h5>Fréquence > Intensité</h5>
+          <p>Le bon contenu est celui qui reste en tête. Mieux vaut 7 expositions simples et justes qu'une seule publicité spectaculaire mais oubliée le lendemain.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'STRATÉGIE • LES DEUX JAMBES',
+    title: 'Jambe 1 (La Niche) & Jambe 2 (Les Résultats)',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title color-infra">Jambe 1 : La Niche Diaspora</h4>
+          <span class="col-subtitle">Maintenant — Immédiat</span>
+          <ul class="slide-bullets">
+            <li><strong>Ancrage :</strong> Réalité sociologique et marché identifiable.</li>
+            <li><strong>Action :</strong> Donne à Akeli le droit d'entrer dans la conversation.</li>
+            <li><strong>Crédibilité :</strong> Construit la familiarité de marque initiale.</li>
+            <li><strong>Sécurité :</strong> Éviter le discours identitaire trop clivant.</li>
+          </ul>
+        </div>
+        <div class="slide-col">
+          <h4 class="col-title color-gold">Jambe 2 : Preuve par les Résultats</h4>
+          <span class="col-subtitle">Après 6 mois de données</span>
+          <ul class="slide-bullets">
+            <li><strong>Ancrage :</strong> Taux d'observance réels mesurés sur l'application.</li>
+            <li><strong>Action :</strong> Donne à Akeli une place unique sur le marché.</li>
+            <li><strong>Crédibilité :</strong> Preuve objective, vérité tranquille.</li>
+            <li><strong>Sécurité :</strong> Ne pas promettre de résultats avant d'avoir les données.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'STRATÉGIE • LA PORTE D\'ENTRÉE',
+    title: 'Pourquoi s\'adresser d\'abord à la diaspora ?',
+    type: 'text',
+    content: `
+      <div class="slide-grid-2col" style="align-items: center; height: 100%;">
+        <div>
+          <ul class="slide-bullets-large">
+            <li><strong>Le marché le plus mal servi :</strong> Aucun outil existant ne comprend leur cuisine.</li>
+            <li><strong>Le marché le plus identifiable :</strong> Fiches et réalités sociologiques précises.</li>
+            <li><strong>Facile à convaincre :</strong> Le décalage est si fort que la reconnaissance suffit.</li>
+            <li><strong>Données riches :</strong> Permet de poser les bases de la "Preuve par les Résultats".</li>
+          </ul>
+        </div>
+        <div class="slide-highlight-box">
+          <h4>La diaspora n'est pas la destination finale.</h4>
+          <p>C'est la porte d'entrée universelle qui rend possible la validation de notre modèle de réalignment avant expansion.</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'PRINCIPIEL • GRANULARITÉ',
+    title: 'La granularité est supérieure au générique',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title">Contenu Générique</h4>
+          <p class="slide-desc">Chercher à plaire à tout le monde pour maximiser la portée.</p>
+          <ul class="slide-bullets">
+            <li>Reconnaissance faible ("c'est sympa").</li>
+            <li>Mémorisation faible (le contenu glisse).</li>
+            <li>Faible taux de partage organique.</li>
+            <li>Ne construit pas de relation durable.</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Contenu Granulaire</h4>
+          <p class="slide-desc">S'adresser précisément à un profil et une réalité vécue.</p>
+          <ul class="slide-bullets">
+            <li>Reconnaissance forte ("c'est exactement ma vie").</li>
+            <li>Mémorisation forte (le contenu reste en tête).</li>
+            <li>Partage organique élevé ("tu dois voir ça").</li>
+            <li>Contribution relationnelle majeure.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'STRATÉGIE • VOIX DE MARQUE',
+    title: 'La carte des 5 registres émotionnels',
+    type: 'text',
+    content: `
+      <p class="slide-lead" style="margin-bottom: 16px;">La constance exige de la variété. Nous activons alternativement 5 registres pour bâtir une relation complète.</p>
+      <div class="slide-registers-list">
+        <div class="register-item"><span class="reg-num">1</span><div><strong>La reconnaissance :</strong> "C'est exactement ma vie" (Soignante de nuit, décalage semaine).</div></div>
+        <div class="register-item"><span class="reg-num">2</span><div><strong>La curiosité :</strong> "Je ne savais pas ça" (Manioc d'Amazonie, fufu universel).</div></div>
+        <div class="register-item"><span class="reg-num">3</span><div><strong>La fierté :</strong> "Ma cuisine est forte" (La cuisine africaine a nourri l'Inde).</div></div>
+        <div class="register-item"><span class="reg-num">4</span><div><strong>L'interrogation :</strong> "Je n'y avais pas pensé" (Mon alimentation travaille-t-elle pour moi ?).</div></div>
+        <div class="register-item"><span class="reg-num">5</span><div><strong>La surprise :</strong> "Vraiment ?" (70% des adultes intolérants au lactose, mil en Afrique).</div></div>
+      </div>
+    `
+  },
+  {
+    category: 'VUE D\'ENSEMBLE • SYSTÈME',
+    title: 'Comment l\'architecture s\'articule',
+    type: 'text',
+    content: `
+      <div class="slide-system-flow">
+        <div class="flow-step">
+          <span class="step-icon">⏱️</span>
+          <h6>Constance (7 contacts)</h6>
+          <p>Crée le terrain de jeu</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">🎯</span>
+          <h6>Granularité (Spécifique)</h6>
+          <p>Produit la mémorisation</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">🎨</span>
+          <h6>5 Registres Émotionnels</h6>
+          <p>Bâtit une relation riche</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">🚀</span>
+          <h6>Deux Jambes (Données)</h6>
+          <p>Assure la légitimité finale</p>
+        </div>
+      </div>
+      <div class="slide-flow-footer">
+        <p class="highlight-gold">&there4; La conversion arrive naturellement, elle n'est pas forcée.</p>
+      </div>
+    `
+  },
+  {
+    category: 'STRATÉGIE • CRITÈRES D\'ÉVALUATION',
+    title: 'Changer la mesure de succès des contenus',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Mauvaises questions</h4>
+          <ul class="slide-bullets">
+            <li>Ce contenu a-t-il généré des inscriptions immédiates ?</li>
+            <li>Pourquoi ce contenu n'a pas eu plus de vues ?</li>
+            <li>Ce contenu parle-t-il à assez de monde ?</li>
+            <li>Avons-nous publié quelque chose de viral ?</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Bonnes questions</h4>
+          <ul class="slide-bullets">
+            <li>Ce contenu a-t-il contribué à la relation ?</li>
+            <li>Quel registre émotionnel ce contenu a-t-il activé ?</li>
+            <li>Ce contenu parle-t-il précisément à qui il doit parler ?</li>
+            <li>Avons-nous maintenu notre présence cette semaine ?</li>
+          </ul>
+        </div>
+      </div>
+    `
+  }
+]
+
 const PERSONAS = {
   p1: {
     title: 'Fatoumata — Le Primo-arrivant (35-50 ans)',
@@ -314,7 +559,8 @@ const SECTION_NAMES = {
   philosophy: 'Philosophie & Concepts',
   business: 'Modèle Économique',
   marketing: 'Marketing & Cibles',
-  library: 'Bibliothèque Vault'
+  library: 'Bibliothèque Vault',
+  presentation: 'Slides Stratégiques'
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -325,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupMobileMenu()
   setupDocViewer()
   setupLibrarySection()
+  setupPresentationSection()
 })
 
 // Navigation logic (with sidebar and bottom tab bar synchronization)
@@ -895,4 +1142,92 @@ function setupLibrarySection() {
 
   // Initial render
   renderDocs('all')
+}
+
+function setupPresentationSection() {
+  const screen = document.getElementById('slide-screen')
+  const dotsContainer = document.getElementById('slide-dots')
+  const prevBtn = document.getElementById('slide-prev')
+  const nextBtn = document.getElementById('slide-next')
+
+  if (!screen || !dotsContainer || !prevBtn || !nextBtn) return
+
+  let currentSlide = 0
+
+  const renderSlide = (index) => {
+    currentSlide = index
+    const slide = SLIDES[index]
+    
+    // Render slide layout
+    screen.innerHTML = `
+      <div class="slide-card">
+        <div class="slide-header">
+          <span class="slide-category">${slide.category}</span>
+          <span class="slide-number">SLIDE ${String(index + 1).padStart(2, '0')} / ${String(SLIDES.length).padStart(2, '0')}</span>
+        </div>
+        <div class="slide-content-area">
+          ${slide.type !== 'title' ? `<h3 class="slide-title">${slide.title}</h3>` : ''}
+          ${slide.content}
+        </div>
+        <div class="slide-footer">
+          <span>AKELI CORP • Vault Stratégique</span>
+          <span>CURTIS • CONFIDENTIEL</span>
+        </div>
+      </div>
+    `
+    
+    // Enable/disable buttons
+    prevBtn.disabled = index === 0
+    nextBtn.disabled = index === SLIDES.length - 1
+    
+    // Update dots
+    const dots = dotsContainer.querySelectorAll('.slide-dot')
+    dots.forEach((dot, idx) => {
+      if (idx === index) {
+        dot.classList.add('active')
+      } else {
+        dot.classList.remove('active')
+      }
+    })
+  }
+
+  // Create dots
+  dotsContainer.innerHTML = ''
+  SLIDES.forEach((_, idx) => {
+    const dot = document.createElement('div')
+    dot.className = 'slide-dot'
+    if (idx === 0) dot.className += ' active'
+    dot.addEventListener('click', () => {
+      renderSlide(idx)
+    })
+    dotsContainer.appendChild(dot)
+  })
+
+  // Bind button clicks
+  prevBtn.addEventListener('click', () => {
+    if (currentSlide > 0) {
+      renderSlide(currentSlide - 1)
+    }
+  })
+
+  nextBtn.addEventListener('click', () => {
+    if (currentSlide < SLIDES.length - 1) {
+      renderSlide(currentSlide + 1)
+    }
+  })
+
+  // Bind Keyboard Navigation (Left/Right arrow keys)
+  document.addEventListener('keydown', (e) => {
+    const presSection = document.getElementById('presentation')
+    if (presSection && presSection.classList.contains('active')) {
+      if (e.key === 'ArrowRight' && currentSlide < SLIDES.length - 1) {
+        renderSlide(currentSlide + 1)
+      } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+        renderSlide(currentSlide - 1)
+      }
+    }
+  })
+
+  // Render initial slide
+  renderSlide(0)
 }
