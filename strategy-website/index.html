@@ -42,6 +42,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
             <span>Bibliothèque Vault</span>
           </a>
+          <a href="#presentation" class="nav-item" data-section="presentation">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span>Slides Stratégiques</span>
+          </a>
         </nav>
         <div class="sidebar-footer">
           <p>Usage Interne & Partenaires</p>
@@ -366,6 +370,36 @@
             </div>
           </section>
 
+          <!-- SECTION 6: STRATEGY PRESENTATION (SLIDES) -->
+          <section id="presentation" class="content-section">
+            <div class="section-intro">
+              <h2>Slides Stratégiques : Stratégie des Phases</h2>
+              <p>Une présentation interactive de la charte de communication et du plan de transition d'Akeli.</p>
+            </div>
+
+            <div class="slides-container-wrapper">
+              <!-- Slide Screen -->
+              <div class="slide-screen" id="slide-screen">
+                <!-- Slides will be rendered dynamically via JS -->
+              </div>
+
+              <!-- Slide Controls -->
+              <div class="slide-controls">
+                <button class="slide-btn btn-prev" id="slide-prev" aria-label="Slide précédente">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                  <span>Précédent</span>
+                </button>
+                <div class="slide-dots" id="slide-dots">
+                  <!-- Dots populated via JS -->
+                </div>
+                <button class="slide-btn btn-next" id="slide-next" aria-label="Slide suivante">
+                  <span>Suivant</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
         </div>
       </main>
 
@@ -390,6 +424,10 @@
         <a href="#library" class="bottom-nav-item" data-section="library">
           <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
           <span>Docs</span>
+        </a>
+        <a href="#presentation" class="bottom-nav-item" data-section="presentation">
+          <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          <span>Slides</span>
         </a>
       </nav>
 
