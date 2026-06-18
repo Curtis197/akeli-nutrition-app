@@ -38,6 +38,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>Marketing & Cibles</span>
           </a>
+          <a href="#library" class="nav-item" data-section="library">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+            <span>Bibliothèque Vault</span>
+          </a>
         </nav>
         <div class="sidebar-footer">
           <p>Usage Interne & Partenaires</p>
@@ -333,6 +337,35 @@
             </div>
           </section>
 
+          <!-- SECTION 5: REFERENCE LIBRARY -->
+          <section id="library" class="content-section">
+            <div class="section-intro">
+              <h2>Bibliothèque de Référence (Le Vault)</h2>
+              <p>Consultez en texte intégral tous les documents philosophiques, sociologiques, opérationnels et de modélisation économique d'Akeli.</p>
+            </div>
+
+            <!-- Library Category Selector -->
+            <div class="toggle-container" id="lib-categories-container">
+              <button class="toggle-btn active" data-lib-cat="all">
+                <span>Tous</span>
+              </button>
+              <button class="toggle-btn" data-lib-cat="vision">
+                <span>Vision & Philosophie</span>
+              </button>
+              <button class="toggle-btn" data-lib-cat="business">
+                <span>Modèle & Expansion</span>
+              </button>
+              <button class="toggle-btn" data-lib-cat="comm">
+                <span>Communication & Cibles</span>
+              </button>
+            </div>
+
+            <!-- Documents Grid -->
+            <div class="library-grid" id="library-display-grid">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </section>
+
         </div>
       </main>
 
@@ -353,6 +386,10 @@
         <a href="#marketing" class="bottom-nav-item" data-section="marketing">
           <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span>Marketing</span>
+        </a>
+        <a href="#library" class="bottom-nav-item" data-section="library">
+          <svg class="bottom-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10M6 10h10"/></svg>
+          <span>Docs</span>
         </a>
       </nav>
 

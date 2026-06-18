@@ -128,6 +128,134 @@ const CONCEPTS = [
   }
 ]
 
+const DOCUMENTS = [
+  // Category: vision (Vision & Philosophie)
+  {
+    fileName: 'AKELI_PHILOSOPHIE_REALIGNMENT.md',
+    title: 'Philosophie du Réalignment',
+    desc: 'Définition du concept de réalignment nutritionnel contre la notion punitive de régime, et analyse de la désynchronisation métabolique.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_VISION_UNIVERSELLE.md',
+    title: 'Vision Universelle d\'Akeli',
+    desc: 'Pourquoi Akeli a vocation à s\'adresser à toutes les communautés sédentarisées subissant la malbouffe industrielle.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_SESSION_FONDATION_MARS2026.md',
+    title: 'Session de Fondation (Mars 2026)',
+    desc: 'Orientations stratégiques initiales, choix techniques fondamentaux et principes du positionnement Bic/Gillette.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_REALITE_SOCIOLOGIQUE.md',
+    title: 'Réalité Sociologique & Personas',
+    desc: 'Modélisation de la diaspora en trois profils d\'utilisateurs (Primo-arrivant, Déraciné, Identitaire) pour guider le produit.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_CUISINE_SYSTEME_VIVANT.md',
+    title: 'La Cuisine comme Système Vivant',
+    desc: 'Comment concilier la tradition culinaire avec l\'adaptation constante aux ingrédients locaux et de saison.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_CUISINE_ADAPTATION.md',
+    title: 'Guide d\'Adaptation Culinaire',
+    desc: 'Méthodes concrètes de substitution d\'ingrédients pour équilibrer la charge glycémique des repas traditionnels.',
+    category: 'vision'
+  },
+  {
+    fileName: 'AKELI_CONCEPT_INDEX.md',
+    title: 'Index Complet des Concepts',
+    desc: 'Le registre de tous les concepts internes et publics créés et théorisés pour l\'écosystème Akeli.',
+    category: 'vision'
+  },
+  {
+    fileName: 'Vision_personnel.md',
+    title: 'Ma Vision Personnelle (Curtis)',
+    desc: 'Le document intime du fondateur sur ses motivations profondes, ses responsabilités et son ambition financière et sociale.',
+    category: 'vision'
+  },
+
+  // Category: business (Modèle & Expansion)
+  {
+    fileName: 'AKELI_MODE_FAN.md',
+    title: 'Spécifications du Mode Fan',
+    desc: 'Règles d\'observance des 90/10 et mécanisme technique du soutien direct de 1€/mois par abonné.',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_MARCHES_EXPANSION.md',
+    title: 'Stratégie de Marché & Expansion',
+    desc: 'Plan de déploiement à long terme vers d\'autres diasporas et vers le continent africain.',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_MODELE_CREATEUR.md',
+    title: 'Le Modèle Créateur Akeli',
+    desc: 'Analyse économique de la rémunération au repas pour le créateur standard vs le créateur en Mode Fan.',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_NICHES.md',
+    title: 'Analyse Fine des Niches Diaspora',
+    desc: 'Contraintes spécifiques des sous-groupes de notre audience (sportifs, étudiants, soignants de nuit).',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_PERSONAS_UTILISATEURS.md',
+    title: 'Personas Utilisateurs Détaillés',
+    desc: 'Fiches biographiques complètes et problématiques de santé spécifiques à chacun de nos personas.',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_STRATEGIE_COMMUNAUTE.md',
+    title: 'Stratégie d\'Acquisition Organique',
+    desc: 'Bâtir un réseau de confiance sans dépendre des canaux d\'attention payants traditionnels.',
+    category: 'business'
+  },
+  {
+    fileName: 'AKELI_STRATEGIE_CREATEUR.md',
+    title: 'Stratégie Créateurs & Recrutement',
+    desc: 'Comment onboarder les créateurs culinaires et les transformer en partenaires de confiance d\'Akeli.',
+    category: 'business'
+  },
+  {
+    fileName: 'SESSION_SYNTHESIS.md',
+    title: 'Synthèse Brute de Session',
+    desc: 'Prise de notes et décisions prises lors des ateliers de cadrage de mars 2026.',
+    category: 'business'
+  },
+
+  // Category: comm (Communication & Cibles)
+  {
+    fileName: 'AKELI_COMMUNICATION_CREATEUR.md',
+    title: 'Charte de Communication Créateur',
+    desc: 'Comment les créateurs partenaires doivent structurer leur communication et leur image publique pour Akeli.',
+    category: 'comm'
+  },
+  {
+    fileName: 'AKELI_AXES_CONTENU.md',
+    title: 'Axes de Contenu & Ligne Éditoriale',
+    desc: 'Exemples concrets de narration pour les réseaux sociaux, basés sur l\'émotion collective et le pragmatisme.',
+    category: 'comm'
+  },
+  {
+    fileName: 'AKELI_LIVE_PHASE1_PLAN_FR_EN.md',
+    title: 'Plan de Lancement Live (Phase 1)',
+    desc: 'Objectifs initiaux de lancement public et étapes clés de la phase de test.',
+    category: 'comm'
+  },
+  {
+    fileName: 'AKELI_LIVE_PHASE1_PLAN_V2_FR_EN.md',
+    title: 'Plan de Lancement Live V2',
+    desc: 'Version mise à jour de la stratégie de lancement opérationnelle après retours d\'audits.',
+    category: 'comm'
+  }
+]
+
 const PERSONAS = {
   p1: {
     title: 'Fatoumata — Le Primo-arrivant (35-50 ans)',
@@ -185,7 +313,8 @@ const SECTION_NAMES = {
   vision: 'Vision & Fondation',
   philosophy: 'Philosophie & Concepts',
   business: 'Modèle Économique',
-  marketing: 'Marketing & Cibles'
+  marketing: 'Marketing & Cibles',
+  library: 'Bibliothèque Vault'
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -195,6 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupPersonaSwitcher()
   setupMobileMenu()
   setupDocViewer()
+  setupLibrarySection()
 })
 
 // Navigation logic (with sidebar and bottom tab bar synchronization)
@@ -708,4 +838,61 @@ function formatInline(text) {
   safeText = safeText.replace(/ → /g, ' &rarr; ')
 
   return restoreTags(safeText)
+}
+
+function setupLibrarySection() {
+  const displayGrid = document.getElementById('library-display-grid')
+  const categoriesContainer = document.getElementById('lib-categories-container')
+  
+  if (!displayGrid || !categoriesContainer) return
+
+  const renderDocs = (filterCat) => {
+    displayGrid.innerHTML = ''
+    
+    const filtered = filterCat === 'all' 
+      ? DOCUMENTS 
+      : DOCUMENTS.filter(d => d.category === filterCat)
+      
+    filtered.forEach(d => {
+      const card = document.createElement('div')
+      card.className = 'doc-card'
+      
+      let catLabel = ''
+      let catClass = ''
+      if (d.category === 'vision') { catLabel = 'Vision & Philosophie'; catClass = 'cat-vision' }
+      else if (d.category === 'business') { catLabel = 'Modèle & Expansion'; catClass = 'cat-business' }
+      else if (d.category === 'comm') { catLabel = 'Communication & Cibles'; catClass = 'cat-comm' }
+
+      card.innerHTML = `
+        <div class="doc-card-top">
+          <h4 class="doc-card-title">${d.title}</h4>
+          <p class="doc-card-desc">${d.desc}</p>
+        </div>
+        <div class="doc-card-footer">
+          <span class="doc-card-cat ${catClass}">${catLabel}</span>
+          <span class="doc-card-read">Lire le document &rarr;</span>
+        </div>
+      `
+      
+      card.addEventListener('click', () => {
+        openDocument(d.fileName, d.title)
+      })
+      
+      displayGrid.appendChild(card)
+    })
+  }
+
+  // Bind category button clicks
+  const buttons = categoriesContainer.querySelectorAll('.toggle-btn')
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      const cat = btn.getAttribute('data-lib-cat')
+      renderDocs(cat)
+    })
+  })
+
+  // Initial render
+  renderDocs('all')
 }
