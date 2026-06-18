@@ -1136,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Navigation logic (with sidebar and bottom tab bar synchronization)
 function setupNavigation() {
-  const navItems = document.querySelectorAll('.nav-item, .bottom-nav-item')
+  const navItems = document.querySelectorAll('.nav-item, .bottom-nav-item, .mobile-dropdown-item')
   const sections = document.querySelectorAll('.content-section')
   const headerTitle = document.querySelector('.header-title-wrapper h1')
 
@@ -1177,12 +1177,12 @@ function setupNavigation() {
       // Scroll to top of the content area
       document.querySelector('.sections-container').scrollTop = 0
 
-      // Close mobile menu if open
-      const sidebar = document.getElementById('sidebar')
-      const backdrop = document.getElementById('sidebar-backdrop')
-      if (sidebar && sidebar.classList.contains('open')) {
-        sidebar.classList.remove('open')
-        backdrop.classList.remove('active')
+      // Close mobile dropdown menu if open
+      const dropdownMenu = document.getElementById('mobile-dropdown-menu')
+      const menuToggle = document.getElementById('menu-toggle')
+      if (dropdownMenu && dropdownMenu.classList.contains('open')) {
+        dropdownMenu.classList.remove('open')
+        menuToggle.classList.remove('open')
       }
     })
   })
@@ -1203,22 +1203,26 @@ function setupNavigation() {
   }
 }
 
-// Mobile Menu toggle logic (sidebar drawer)
+// Mobile Menu toggle logic (top dropdown overlay)
 function setupMobileMenu() {
   const menuToggle = document.getElementById('menu-toggle')
-  const sidebar = document.getElementById('sidebar')
-  const backdrop = document.getElementById('sidebar-backdrop')
+  const dropdownMenu = document.getElementById('mobile-dropdown-menu')
+  
+  if (!menuToggle || !dropdownMenu) return
 
-  if (!menuToggle || !sidebar || !backdrop) return
-
-  menuToggle.addEventListener('click', () => {
-    sidebar.classList.add('open')
-    backdrop.classList.add('active')
+  // Toggle dropdown when clicking burger
+  menuToggle.addEventListener('click', (e) => {
+    e.stopPropagation()
+    dropdownMenu.classList.toggle('open')
+    menuToggle.classList.toggle('open')
   })
 
-  backdrop.addEventListener('click', () => {
-    sidebar.classList.remove('open')
-    backdrop.classList.remove('active')
+  // Close dropdown when clicking anywhere else
+  document.addEventListener('click', (e) => {
+    if (!dropdownMenu.contains(e.target) && e.target !== menuToggle) {
+      dropdownMenu.classList.remove('open')
+      menuToggle.classList.remove('open')
+    }
   })
 }
 
