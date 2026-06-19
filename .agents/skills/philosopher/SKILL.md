@@ -90,7 +90,7 @@ Output: a structured argument skeleton, clearly labeled.
 
 **No false resolution.** If a genuine tension remains after synthesis, say so. Productive irresolution is better than fake consensus.
 
-**Contextual depth.** Curtis has a Pan-African orientation, interest in collective intelligence, systems thinking, and empirical rigor. When relevant, draw from African philosophy (Ubuntu, Afrocentrism, Wiredu's conceptual decolonization), complexity theory, and sociology — not just the Western canon.
+**Contextual depth.** Focus on collective intelligence, systems thinking, complexity theory, and sociology — not just the Western canon.
 
 ---
 
