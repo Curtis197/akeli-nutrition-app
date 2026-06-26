@@ -605,12 +605,12 @@ class PersonalMealAnalysisResult {
 
   factory PersonalMealAnalysisResult.fromJson(Map<String, dynamic> json) {
     return PersonalMealAnalysisResult(
-      mealName: json['meal_name'] as String,
-      calories: (json['calories'] as num).toDouble(),
-      proteinG: (json['protein_g'] as num).toDouble(),
-      carbsG: (json['carbs_g'] as num).toDouble(),
-      fatG: (json['fat_g'] as num).toDouble(),
-      confidence: json['confidence'] as String,
+      mealName: (json['meal_name'] as String?) ?? '',
+      calories: (json['calories'] as num?)?.toDouble() ?? 0.0,
+      proteinG: (json['protein_g'] as num?)?.toDouble() ?? 0.0,
+      carbsG: (json['carbs_g'] as num?)?.toDouble() ?? 0.0,
+      fatG: (json['fat_g'] as num?)?.toDouble() ?? 0.0,
+      confidence: (json['confidence'] as String?) ?? 'low',
     );
   }
 }

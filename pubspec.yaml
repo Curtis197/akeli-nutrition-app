@@ -67,6 +67,8 @@ dev_dependencies:
   custom_lint: ^0.7.6
   riverpod_lint: ^2.6.4
   mocktail: ^1.0.5
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
 
 flutter:
   uses-material-design: true
@@ -77,3 +79,13 @@ flutter:
 dependency_overrides:
   path_provider_foundation: '>=2.3.2 <2.6.0'
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: "assets/icons/app_icon.png"
+  android: true
+  ios: true

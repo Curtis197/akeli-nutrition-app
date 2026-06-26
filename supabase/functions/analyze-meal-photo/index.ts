@@ -5,7 +5,7 @@ import { getAuthUser } from '../_shared/supabase.ts';
 import { createLogger } from '../_shared/logger.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')!;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 const SYSTEM_PROMPT =
   `Tu es un expert en nutrition africaine et internationale.
@@ -96,6 +96,14 @@ serve(async (req) => {
     } catch {
       logger.warn('EARLY RETURN | reason: Gemini response not valid JSON | raw: ' + textResult.slice(0, 100));
       return err('AI analysis failed — invalid response', 422);
+    }
+
+    const requiredFields = ['meal_name', 'calories', 'protein_g', 'carbs_g', 'fat_g', 'confidence'];
+    for (const field of requiredFields) {
+      if (parsedResult[field] === undefined || parsedResult[field] === null) {
+        logger.warn('EARLY RETURN | reason: missing field: ' + field + ' | raw: ' + textResult.slice(0, 200));
+        return err('AI analysis failed — incomplete response', 422);
+      }
     }
 
     logger.info('✅ EXIT | status: 200 | confidence: ' + parsedResult.confidence + ' | duration: ' + (Date.now() - start) + 'ms');

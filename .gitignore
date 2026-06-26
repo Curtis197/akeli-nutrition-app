@@ -12,6 +12,7 @@ token.txt
 # Editors
 .vscode/
 .idea/
+.obsidian/
 *.swp
 *.tmp
 
@@ -46,13 +47,7 @@ __pycache__/
 
 # Supabase local state
 supabase/.branches/
-supabase/.temp/gotrue-version
-supabase/.temp/pooler-url
-supabase/.temp/postgres-version
-supabase/.temp/project-ref
-supabase/.temp/rest-version
-supabase/.temp/storage-migration
-supabase/.temp/storage-version
+supabase/.temp/
 
 # Utility scripts (may contain embedded credentials)
 migration_out.txt

@@ -32,9 +32,16 @@ Deno.serve(async (req: Request): Promise<Response> => {
   try {
     const body = await req.json().catch(() => ({}));
     const offset: number = typeof body.offset === 'number' ? body.offset : 0;
+    // "weekly" (default): next Monday, 7 days — used by the Monday cron
+    // "initial": today → coming Sunday — used for manual recovery or new-user backfill
+    const mode: 'weekly' | 'initial' =
+      body.mode === 'initial' ? 'initial' : 'weekly';
 
-    logger.debug('[STEP 1] Computing next Monday start date');
+    logger.debug('[STEP 1] mode: ' + mode);
+
     const nextMonday = getNextMonday();
+    const startDate = mode === 'weekly' ? nextMonday : getTodayUTC();
+    logger.debug('[STEP 1] start_date: ' + startDate + ' | mode: ' + mode);
 
     logger.debug('[STEP 2] Fetching user batch | offset: ' + offset + ' | batch_size: ' + BATCH_SIZE);
     const supabase = createClient(
@@ -59,7 +66,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     const users = data ?? [];
 
-    logger.info('[STEP 3] Processing ' + users.length + ' users | start_date: ' + nextMonday);
+    logger.info('[STEP 3] Processing ' + users.length + ' users | mode: ' + mode + ' | start_date: ' + startDate);
 
     let success = 0;
     let skipped = 0;
@@ -67,36 +74,49 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const errors: { userId: string; error: string }[] = [];
 
     for (const user of users) {
-      let isSavedEligible = user.is_saved_recipe_eligible ?? false;
-      let useSavedRecipes = user.use_saved_recipes_only ?? false;
       let error = null;
 
-      if (useSavedRecipes && isSavedEligible) {
-        logger.debug('[STEP 3a] generate_meal_plan_from_saved | userId: ' + user.id);
-        const res = await supabase.rpc('generate_meal_plan_from_saved', {
+      if (mode === 'initial') {
+        // generate_initial_meal_plan_internal computes today → Sunday internally
+        logger.debug('[STEP 3a] generate_initial_meal_plan_internal | userId: ' + user.id);
+        const res = await supabase.rpc('generate_initial_meal_plan_internal', {
           p_user_id: user.id,
-          p_start_date: nextMonday,
-          p_days: 7,
           p_meals_per_day: 3,
+          p_max_recipe_repeat: 2,
         });
         error = res.error;
-        if (error && (error.message === 'insufficient_saved_recipes' || error.code === 'P0001')) {
-          logger.warn('FALLBACK | userId: ' + user.id + ' | reason: insufficient_saved_recipes');
-          await supabase.from('user_profile').update({ use_saved_recipes_only: false }).eq('id', user.id);
-          useSavedRecipes = false;
-          error = null;
-        }
-      }
+      } else {
+        // Weekly mode: honour saved-recipes preference, fall back to internal generator
+        let isSavedEligible = user.is_saved_recipe_eligible ?? false;
+        let useSavedRecipes = user.use_saved_recipes_only ?? false;
 
-      if (!useSavedRecipes || !isSavedEligible) {
-        logger.debug('[STEP 3b] generate_meal_plan_internal | userId: ' + user.id);
-        const res = await supabase.rpc('generate_meal_plan_internal', {
-          p_user_id: user.id,
-          p_start_date: nextMonday,
-          p_days: 7,
-          p_meals_per_day: 3,
-        });
-        error = res.error;
+        if (useSavedRecipes && isSavedEligible) {
+          logger.debug('[STEP 3a] generate_meal_plan_from_saved | userId: ' + user.id);
+          const res = await supabase.rpc('generate_meal_plan_from_saved', {
+            p_user_id: user.id,
+            p_start_date: nextMonday,
+            p_days: 7,
+            p_meals_per_day: 3,
+          });
+          error = res.error;
+          if (error && (error.message === 'insufficient_saved_recipes' || error.code === 'P0001')) {
+            logger.warn('FALLBACK | userId: ' + user.id + ' | reason: insufficient_saved_recipes');
+            await supabase.from('user_profile').update({ use_saved_recipes_only: false }).eq('id', user.id);
+            useSavedRecipes = false;
+            error = null;
+          }
+        }
+
+        if (!useSavedRecipes || !isSavedEligible) {
+          logger.debug('[STEP 3b] generate_meal_plan_internal | userId: ' + user.id);
+          const res = await supabase.rpc('generate_meal_plan_internal', {
+            p_user_id: user.id,
+            p_start_date: nextMonday,
+            p_days: 7,
+            p_meals_per_day: 3,
+          });
+          error = res.error;
+        }
       }
 
       if (error) {
@@ -128,7 +148,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${secret}`,
         },
-        body: JSON.stringify({ offset: nextOffset }),
+        body: JSON.stringify({ offset: nextOffset, mode }),
       }).catch((e: Error) =>
         logger.error('💥 Self-chain request failed', { message: e.message })
       );
@@ -136,7 +156,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
     logger.info('✅ EXIT | status: 200 | duration: ' + (Date.now() - start) + 'ms');
     return new Response(
-      JSON.stringify({ offset, success, skipped, failed, errors: errors.slice(0, 20) }),
+      JSON.stringify({ mode, offset, success, skipped, failed, errors: errors.slice(0, 20) }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (e) {
@@ -156,4 +176,8 @@ function getNextMonday(): string {
   const nextMonday = new Date(today);
   nextMonday.setUTCDate(today.getUTCDate() + daysUntilMonday);
   return nextMonday.toISOString().split('T')[0];
+}
+
+function getTodayUTC(): string {
+  return new Date().toISOString().split('T')[0];
 }

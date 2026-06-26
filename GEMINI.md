@@ -4,12 +4,13 @@ These guidelines define the operational principles and capabilities of the AI ag
 
 ## **1. Project Phase & Migration Workflow (CRITICAL)**
 
-The project is currently in a strict 4-phase migration process. **Phases do not overlap**.
+The project has transitioned out of the initial migration process and is now preparing for production release. **Phases do not overlap**.
 
 * **Phase 1 (Pure UI):** Completed.
 * **Phase 2 (Design System):** Completed.
 * **Phase 3 (Backend Reconnection):** Completed.
-* **Phase 4 (Live Testing & Debugging):** The current phase. Monitor real-time logs, fix layout bugs, optimize queries, and resolve edge cases found during live usage against the real Supabase database.
+* **Phase 4 (Live Testing & Debugging):** Completed.
+* **Phase 5 (Deployment, External Testing & Marketing):** The current phase. Focus on preparing production release builds, deploying/publishing to stores (App Store, Google Play), managing external test tracks (TestFlight, Google Play Closed Beta), final production database checks, and preparing marketing assets.
 
 ### **The 8-Step Audit Workflow (Phase 1)**
 For every UI page you migrate, you MUST follow this exact sequence:
