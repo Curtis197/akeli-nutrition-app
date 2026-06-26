@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:akeli/core/logger.dart';
+import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/providers/creator_provider.dart';
 import 'package:akeli/shared/widgets/badge.dart';
 
 // ---------------------------------------------------------------------------
@@ -20,6 +25,7 @@ class AkeliRecipeCard extends StatelessWidget {
   final bool hasImage;
   final bool isMinimalist;
   final bool horizontal;
+  final String? creatorId;
   final VoidCallback? onTap;
 
   const AkeliRecipeCard({
@@ -37,6 +43,7 @@ class AkeliRecipeCard extends StatelessWidget {
     this.hasImage = true,
     this.isMinimalist = false,
     this.horizontal = false,
+    this.creatorId,
     this.onTap,
   });
 
@@ -136,6 +143,10 @@ class _ImageVariant extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (!card.isMinimalist && card.creatorId != null) ...[
+                const SizedBox(height: 4),
+                _AkeliCreatorRow(creatorId: card.creatorId!),
+              ],
               if (card.isMinimalist && card.calories100g != null) ...[
                 const SizedBox(height: 4),
                 Text(
@@ -237,6 +248,10 @@ class _HorizontalVariant extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (card.creatorId != null) ...[
+                    const SizedBox(height: 4),
+                    _AkeliCreatorRow(creatorId: card.creatorId!),
+                  ],
                   const SizedBox(height: 8),
                   _StatsRow(card: card),
                 ],
@@ -343,6 +358,74 @@ class _StatsRow extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Creator row — shown below title when creatorId is provided
+// ---------------------------------------------------------------------------
+
+class _AkeliCreatorRow extends ConsumerWidget {
+  final String creatorId;
+
+  const _AkeliCreatorRow({required this.creatorId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final creatorAsync = ref.watch(creatorByIdProvider(creatorId));
+
+    return creatorAsync.when(
+      loading: () => const SizedBox(height: 18),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (creator) {
+        if (creator == null) return const SizedBox.shrink();
+        return GestureDetector(
+          onTap: () {
+            appLogger.userAction(
+              'Creator row tapped',
+              screen: 'AkeliRecipeCard',
+              metadata: {'creatorId': creatorId},
+            );
+            context.push(AkeliRoutes.creatorDetailPath(creatorId));
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircleAvatar(
+                radius: 10,
+                backgroundImage: creator.avatarUrl != null
+                    ? NetworkImage(creator.avatarUrl!)
+                    : null,
+                backgroundColor: AkeliColors.primary.withValues(alpha: 0.15),
+                child: creator.avatarUrl == null
+                    ? Text(
+                        creator.displayName.isNotEmpty
+                            ? creator.displayName[0].toUpperCase()
+                            : 'C',
+                        style: const TextStyle(
+                          fontSize: 9,
+                          color: AkeliColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  creator.displayName,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: AkeliColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
