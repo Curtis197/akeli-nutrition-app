@@ -626,6 +626,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               region: recipe.regionId != null ? regionNames[recipe.regionId!] ?? recipe.regionId : null,
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
+                              creatorId: recipe.creatorId,
                               onTap: () {
                                 _logger.userAction('Recipe card tapped',
                                     screen: 'HomePage',
