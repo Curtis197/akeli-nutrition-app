@@ -198,7 +198,11 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                                           saves: recipe.saveCount,
                                           imageUrl: recipe.thumbnailUrl,
                                           isMinimalist: true,
+                                          creatorId: recipe.creatorId,
                                           onTap: () {
+                                            appLogger.userAction('Eligibility recipe tapped',
+                                                screen: 'SavedRecipesEligibilityPage',
+                                                metadata: {'recipeId': recipe.id});
                                             context.push(
                                               AkeliRoutes.recipeDetailPath(recipe.id),
                                             );
