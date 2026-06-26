@@ -1067,6 +1067,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         ? regionNames[recipe.regionId!] ?? recipe.regionId
                         : null,
                     tags: recipe.tagIds.take(2).toList(),
+                    creatorId: recipe.creatorId,
                     onTap: () async {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
 
