@@ -114,6 +114,7 @@ final creatorsListProvider = FutureProvider.autoDispose<List<Creator>>((ref) asy
 final creatorByIdProvider =
     FutureProvider.autoDispose.family<Creator?, String>((ref, creatorId) async {
   _logger.provider('creatorByIdProvider build() | creatorId: $creatorId');
+  ref.keepAlive();
   ref.onDispose(() => _logger.provider('creatorByIdProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);

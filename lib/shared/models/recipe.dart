@@ -94,8 +94,8 @@ class Recipe {
     final macroRaw = json['recipe_macro'];
     final macro = macroRaw is Map<String, dynamic>
         ? macroRaw
-        : (macroRaw is List && (macroRaw as List).isNotEmpty)
-            ? (macroRaw as List).first as Map<String, dynamic>
+        : (macroRaw is List<dynamic> && macroRaw.isNotEmpty)
+            ? macroRaw.first as Map<String, dynamic>
             : null;
     return Recipe(
         id: json['id'] as String,
