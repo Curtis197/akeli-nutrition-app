@@ -1,3 +1,4 @@
+import 'package:akeli/core/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +31,18 @@ class SavedRecipesPage extends ConsumerWidget {
       backgroundColor: AkeliColors.background,
       body: savedRecipesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Erreur: $err', style: const TextStyle(color: AkeliColors.outline))),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 40, color: AkeliColors.error),
+              const SizedBox(height: 8),
+              Text('Erreur: $err',
+                  style: const TextStyle(color: AkeliColors.onSurface),
+                  textAlign: TextAlign.center),
+            ],
+          ),
+        ),
         data: (recipes) {
           if (recipes.isEmpty) {
             return const Center(
@@ -54,7 +66,11 @@ class SavedRecipesPage extends ConsumerWidget {
                 comments: recipe.commentCount,
                 saves: recipe.saveCount,
                 imageUrl: recipe.thumbnailUrl,
+                creatorId: recipe.creatorId,
                 onTap: () {
+                  appLogger.userAction('Saved recipe tapped',
+                      screen: 'SavedRecipesPage',
+                      metadata: {'recipeId': recipe.id});
                   context.push(
                     AkeliRoutes.recipeDetailPath(recipe.id),
                     extra: TrackingSource.feed,
