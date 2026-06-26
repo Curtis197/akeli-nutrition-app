@@ -91,7 +91,12 @@ class Recipe {
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     appLogger.db('Recipe.fromJson | id: ${json['id']}');
-    final macro = json['recipe_macro'] as Map<String, dynamic>?;
+    final macroRaw = json['recipe_macro'];
+    final macro = macroRaw is Map<String, dynamic>
+        ? macroRaw
+        : (macroRaw is List && (macroRaw as List).isNotEmpty)
+            ? (macroRaw as List).first as Map<String, dynamic>
+            : null;
     return Recipe(
         id: json['id'] as String,
         creatorId: json['creator_id'] as String,
