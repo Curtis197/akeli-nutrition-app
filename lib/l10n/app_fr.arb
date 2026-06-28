@@ -591,5 +591,21 @@
   "cookingSessionSubtitle": "Organisez vos repas de la semaine",
   "cookingSessionComingSoon": "Bientôt disponible",
   "cookingSessionComingSoonDesc": "Cette fonctionnalité sera disponible dans une prochaine mise à jour",
-  "cookingSessionGotIt": "Compris"
+  "cookingSessionGotIt": "Compris",
+
+  "journeyCalendarLegendAll": "Tous",
+  "journeyCalendarLegendPartial": "Partiel",
+  "journeyCalendarLegendNone": "Aucun",
+
+  "journeySummaryDays": "Jours de parcours",
+  "journeySummaryTracked": "Jours suivis",
+  "journeySummaryMeals": "Repas consommés",
+  "journeySummaryConsistency": "Régularité",
+
+  "journeyGoalsWeight": "⚖️  Poids",
+  "journeyGoalsCalories": "🎯  Calories",
+  "journeyGoalsProtein": "💪  Protéines",
+  "journeyGoalsCarbs": "🌾  Glucides",
+  "journeyGoalsFat": "🥑  Lipides",
+  "journeyGoalsCalorieHitSubtitle": "Vous avez atteint votre objectif calorique {pct}% des jours logués."
 }

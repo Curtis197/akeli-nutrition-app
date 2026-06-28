@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/shared/models/journey_stats.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
@@ -13,6 +14,7 @@ class JourneySummaryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _logger.provider('JourneySummaryRow build()');
+    final l10n = AppLocalizations.of(context);
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -21,10 +23,10 @@ class JourneySummaryRow extends StatelessWidget {
       crossAxisSpacing: 8,
       childAspectRatio: 1.6,
       children: [
-        _StatCard(icon: '📅', value: '${stats.totalDays}', label: 'Jours de parcours'),
-        _StatCard(icon: '✅', value: '${stats.daysLogged}', label: 'Jours suivis'),
-        _StatCard(icon: '🍽️', value: '${stats.mealsConsumed}', label: 'Repas consommés'),
-        _StatCard(icon: '📊', value: '${stats.consistencyPct}%', label: 'Régularité'),
+        _StatCard(icon: '📅', value: '${stats.totalDays}', label: l10n.journeySummaryDays),
+        _StatCard(icon: '✅', value: '${stats.daysLogged}', label: l10n.journeySummaryTracked),
+        _StatCard(icon: '🍽️', value: '${stats.mealsConsumed}', label: l10n.journeySummaryMeals),
+        _StatCard(icon: '📊', value: '${stats.consistencyPct}%', label: l10n.journeySummaryConsistency),
       ],
     );
   }

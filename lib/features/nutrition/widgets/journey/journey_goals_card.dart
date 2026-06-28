@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/shared/models/journey_stats.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 class JourneyGoalsCard extends StatelessWidget {
   final JourneyStats stats;
@@ -11,6 +12,7 @@ class JourneyGoalsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     appLogger.provider('JourneyGoalsCard build()');
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -22,7 +24,7 @@ class JourneyGoalsCard extends StatelessWidget {
         children: [
           if (stats.hasWeightGoal) ...[
             _GoalBar(
-              label: '⚖️  Poids',
+              label: l10n.journeyGoalsWeight,
               value:
                   '${stats.weightCurrentKg?.toStringAsFixed(1)} kg → ${stats.weightTargetKg?.toStringAsFixed(1)} kg',
               progress: stats.weightProgressPct,
@@ -33,29 +35,29 @@ class JourneyGoalsCard extends StatelessWidget {
             const SizedBox(height: 12),
           ],
           _GoalBar(
-            label: '🎯  Calories',
+            label: l10n.journeyGoalsCalories,
             value: '${stats.calorieHitPct}%',
             progress: stats.calorieHitPct / 100,
             color: AkeliColors.primary,
-            subtitle: 'Vous avez atteint votre objectif calorique ${stats.calorieHitPct}% des jours logués.',
+            subtitle: l10n.journeyGoalsCalorieHitSubtitle(stats.calorieHitPct),
           ),
           const SizedBox(height: 12),
           _GoalBar(
-            label: '💪  Protéines',
+            label: l10n.journeyGoalsProtein,
             value: '${stats.proteinHitPct}%',
             progress: stats.proteinHitPct / 100,
             color: AkeliColors.secondary,
           ),
           const SizedBox(height: 12),
           _GoalBar(
-            label: '🌾  Glucides',
+            label: l10n.journeyGoalsCarbs,
             value: '${stats.carbsHitPct}%',
             progress: stats.carbsHitPct / 100,
             color: AkeliColors.accentAmber,
           ),
           const SizedBox(height: 12),
           _GoalBar(
-            label: '🥑  Lipides',
+            label: l10n.journeyGoalsFat,
             value: '${stats.fatHitPct}%',
             progress: stats.fatHitPct / 100,
             color: AkeliColors.warning,

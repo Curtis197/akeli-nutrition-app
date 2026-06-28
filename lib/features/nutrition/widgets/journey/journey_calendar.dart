@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/shared/models/journey_stats.dart';
+import 'package:akeli/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class JourneyCalendar extends StatelessWidget {
   final int year;
@@ -21,15 +23,19 @@ class JourneyCalendar extends StatelessWidget {
     required this.canGoNext,
   });
 
-  static const _monthNames = [
-    '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
-  ];
-  static const _dayHeaders = ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'];
-
   @override
   Widget build(BuildContext context) {
     appLogger.provider('JourneyCalendar build() | $year-$month');
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+
+    final monthName = DateFormat('MMMM', locale).format(DateTime(year, month));
+    final dayHeaders = List.generate(7, (i) {
+      // Jan 5 2025 = Sunday; iterate Sun→Sat
+      final date = DateTime(2025, 1, 5 + i);
+      final abbr = DateFormat('EE', locale).format(date);
+      return abbr.length >= 2 ? abbr.substring(0, 2) : abbr;
+    });
 
     final firstOfMonth = DateTime(year, month, 1);
     final startDow    = firstOfMonth.weekday % 7; // 0=Sun … 6=Sat
@@ -57,7 +63,7 @@ class JourneyCalendar extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
               ),
               Text(
-                '${_monthNames[month]} $year',
+                '${monthName[0].toUpperCase()}${monthName.substring(1)} $year',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -77,7 +83,7 @@ class JourneyCalendar extends StatelessWidget {
           const SizedBox(height: 8),
           // ── Day-of-week headers ──
           Row(
-            children: _dayHeaders
+            children: dayHeaders
                 .map((h) => Expanded(
                       child: Center(
                         child: Text(
@@ -121,14 +127,14 @@ class JourneyCalendar extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           // ── Legend ──
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _LegendItem(color: Color(0xFF4ADE80), label: 'Tous'),
-              SizedBox(width: 14),
-              _LegendItem(color: Color(0xFFFACC15), label: 'Partiel'),
-              SizedBox(width: 14),
-              _LegendItem(color: Color(0xFFEF4444), label: 'Aucun'),
+              _LegendItem(color: const Color(0xFF4ADE80), label: l10n.journeyCalendarLegendAll),
+              const SizedBox(width: 14),
+              _LegendItem(color: const Color(0xFFFACC15), label: l10n.journeyCalendarLegendPartial),
+              const SizedBox(width: 14),
+              _LegendItem(color: const Color(0xFFEF4444), label: l10n.journeyCalendarLegendNone),
             ],
           ),
         ],

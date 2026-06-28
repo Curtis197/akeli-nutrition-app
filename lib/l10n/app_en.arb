@@ -1685,5 +1685,46 @@
   "@cookingSessionComingSoonDesc": {},
 
   "cookingSessionGotIt": "Got it",
-  "@cookingSessionGotIt": {}
+  "@cookingSessionGotIt": {},
+
+  "journeyCalendarLegendAll": "All",
+  "@journeyCalendarLegendAll": {},
+
+  "journeyCalendarLegendPartial": "Partial",
+  "@journeyCalendarLegendPartial": {},
+
+  "journeyCalendarLegendNone": "None",
+  "@journeyCalendarLegendNone": {},
+
+  "journeySummaryDays": "Journey days",
+  "@journeySummaryDays": {},
+
+  "journeySummaryTracked": "Days tracked",
+  "@journeySummaryTracked": {},
+
+  "journeySummaryMeals": "Meals consumed",
+  "@journeySummaryMeals": {},
+
+  "journeySummaryConsistency": "Consistency",
+  "@journeySummaryConsistency": {},
+
+  "journeyGoalsWeight": "⚖️  Weight",
+  "@journeyGoalsWeight": {},
+
+  "journeyGoalsCalories": "🎯  Calories",
+  "@journeyGoalsCalories": {},
+
+  "journeyGoalsProtein": "💪  Protein",
+  "@journeyGoalsProtein": {},
+
+  "journeyGoalsCarbs": "🌾  Carbs",
+  "@journeyGoalsCarbs": {},
+
+  "journeyGoalsFat": "🥑  Fat",
+  "@journeyGoalsFat": {},
+
+  "journeyGoalsCalorieHitSubtitle": "You hit your calorie goal {pct}% of tracked days.",
+  "@journeyGoalsCalorieHitSubtitle": {
+    "placeholders": { "pct": { "type": "int" } }
+  }
 }
