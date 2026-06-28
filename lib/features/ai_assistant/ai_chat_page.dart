@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // Model
@@ -99,7 +100,7 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
         ChatMessage(
           id: 'error_${DateTime.now().millisecondsSinceEpoch}',
           role: 'assistant',
-          content: 'Désolé, une erreur est survenue. Réessayez dans un moment.',
+          content: '__error__',
           createdAt: DateTime.now(),
         ),
       ];
@@ -167,6 +168,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
     final messages = ref.watch(aiChatProvider);
     final hasLoading = messages.any((m) => m.isLoading);
     _logger.provider('AiChatPage build() | messageCount: ${messages.length} | hasLoading: $hasLoading');
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -198,18 +200,18 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                     child: const Icon(Icons.auto_awesome_rounded, color: AkeliColors.primary),
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Assistant Akeli',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5),
+                          l10n.aiAssistantTitle,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5),
                         ),
                         Text(
-                          'En ligne',
-                          style: TextStyle(fontSize: 12, color: AkeliColors.primary, letterSpacing: 0.5),
+                          l10n.aiAssistantOnline,
+                          style: const TextStyle(fontSize: 12, color: AkeliColors.primary, letterSpacing: 0.5),
                         ),
                       ],
                     ),
@@ -225,7 +227,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                         _logger.userAction('Clear conversation tapped', screen: 'AiChatPage');
                         ref.read(aiChatProvider.notifier).clear();
                       },
-                      tooltip: 'Nouvelle conversation',
+                      tooltip: l10n.aiAssistantNewConversation,
                     ),
                 ],
               ),
@@ -241,6 +243,12 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                     _inputCtrl.text = s;
                     _sendMessage();
                   },
+                  suggestions: [
+                    l10n.aiAssistantSuggestion1,
+                    l10n.aiAssistantSuggestion2,
+                    l10n.aiAssistantSuggestion3,
+                    l10n.aiAssistantSuggestion4,
+                  ],
                 )
               : ListView.builder(
                   controller: _scrollCtrl,
@@ -261,9 +269,9 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                             color: AkeliColors.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: const Text(
-                            "AUJOURD'HUI",
-                            style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant, fontWeight: FontWeight.bold, letterSpacing: 1.5),
+                          child: Text(
+                            l10n.aiAssistantToday,
+                            style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant, fontWeight: FontWeight.bold, letterSpacing: 1.5),
                           ),
                         ),
                       );
@@ -307,13 +315,13 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                                   controller: _inputCtrl,
                                   minLines: 1,
                                   maxLines: 4,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Message...',
-                                    hintStyle: TextStyle(color: AkeliColors.onSurfaceVariant),
+                                  decoration: InputDecoration(
+                                    hintText: l10n.aiAssistantMessageHint,
+                                    hintStyle: const TextStyle(color: AkeliColors.onSurfaceVariant),
                                     border: InputBorder.none,
                                     enabledBorder: InputBorder.none,
                                     focusedBorder: InputBorder.none,
-                                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                                   ),
                                   style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface),
                                   textInputAction: TextInputAction.send,
@@ -380,19 +388,14 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
 
 class _WelcomeView extends StatelessWidget {
   final void Function(String) onSuggestion;
+  final List<String> suggestions;
 
-  const _WelcomeView({required this.onSuggestion});
-
-  static const _suggestions = [
-    'Quels aliments riches en protéines pour ma culture ?',
-    'Quel est mon apport calorique recommandé ?',
-    'Comment perdre du poids avec la cuisine africaine ?',
-    'Donne-moi une recette pour ce soir.',
-  ];
+  const _WelcomeView({required this.onSuggestion, required this.suggestions});
 
   @override
   Widget build(BuildContext context) {
     appLogger.d('WelcomeView build()');
+    final l10n = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + kToolbarHeight + 64,
@@ -411,27 +414,27 @@ class _WelcomeView extends StatelessWidget {
             child: const Icon(Icons.auto_awesome_rounded, color: AkeliColors.primary, size: 48),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Bonjour, je suis votre assistant nutritionnel Akeli.',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5, height: 1.2),
+          Text(
+            l10n.aiAssistantWelcomeTitle,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5, height: 1.2),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Posez-moi vos questions sur la nutrition, les recettes africaines ou votre plan alimentaire.',
-            style: TextStyle(fontSize: 16, color: AkeliColors.onSurfaceVariant),
+          Text(
+            l10n.aiAssistantWelcomeSubtitle,
+            style: const TextStyle(fontSize: 16, color: AkeliColors.onSurfaceVariant),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 48),
-          const Align(
+          Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Suggestions',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.5),
+              l10n.aiAssistantSuggestions,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.5),
             ),
           ),
           const SizedBox(height: 16),
-          ..._suggestions.map(
+          ...suggestions.map(
             (s) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: InkWell(
@@ -477,6 +480,9 @@ class _MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUser = message.role == 'user';
     final timeStr = "${message.createdAt.hour.toString().padLeft(2, '0')}:${message.createdAt.minute.toString().padLeft(2, '0')}";
+    final displayContent = message.content == '__error__'
+        ? AppLocalizations.of(context).aiAssistantError
+        : message.content;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -517,7 +523,7 @@ class _MessageBubble extends StatelessWidget {
                   message.isLoading
                       ? const _TypingIndicator()
                       : Text(
-                          message.content,
+                          displayContent,
                           style: TextStyle(
                             fontSize: 16,
                             height: 1.5,

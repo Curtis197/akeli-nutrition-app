@@ -7,6 +7,7 @@ import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Referral Management Page - Editorial Design
 /// Displays user's referral code, stats, and allows code customization
@@ -78,6 +79,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
   }
 
   Future<void> _saveCode() async {
+    final l10n = AppLocalizations.of(context);
     _logger.userAction('Save referral code tapped', screen: 'ReferralPage');
     final user = ref.read(currentUserProvider);
     if (user == null) return;
@@ -99,7 +101,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Code mis à jour avec succès!'),
+            content: Text(l10n.referralCodeUpdated),
             backgroundColor: AkeliColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -125,6 +127,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -137,7 +140,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Parrainage',
+          l10n.referralTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -186,7 +189,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                   ),
                   const SizedBox(height: AkeliSpacing.lg),
                   Text(
-                    'Votre code de parrainage',
+                    l10n.referralCodeLabel,
                     style: GoogleFonts.inter(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -251,7 +254,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                         ),
                         const SizedBox(width: AkeliSpacing.xs),
                         Text(
-                          '$_referralCount filleul(s)',
+                          l10n.referralReferreeCount(_referralCount),
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -273,7 +276,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Partagez l\'Oasis',
+                    l10n.referralShareTitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -282,7 +285,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                   ),
                   const SizedBox(height: AkeliSpacing.sm),
                   Text(
-                    'Invitez vos amis à découvrir Akeli Oasis. Pour chaque ami qui s\'inscrit avec votre code, vous recevrez une invitation à un rituel de bien-être exclusif, et ils bénéficieront d\'un accueil privilégié.',
+                    l10n.referralShareBody,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       color: AkeliColors.onSurfaceVariant,
@@ -312,7 +315,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Changer de code',
+                    l10n.referralChangeCodeTitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -361,7 +364,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                                   ),
                                   const SizedBox(width: AkeliSpacing.sm),
                                   Text(
-                                    'Modifier le code',
+                                    l10n.referralEditCode,
                                     style: GoogleFonts.plusJakartaSans(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -379,14 +382,14 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                     TextField(
                       controller: _codeController,
                       decoration: InputDecoration(
-                        labelText: 'Nouveau code',
+                        labelText: l10n.referralNewCodeLabel,
                         labelStyle: GoogleFonts.inter(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           color: AkeliColors.onSurfaceVariant,
                           letterSpacing: 0.8,
                         ),
-                        hintText: 'Entrez un nouveau code',
+                        hintText: l10n.referralNewCodeHint,
                         hintStyle: GoogleFonts.inter(
                           color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
@@ -432,7 +435,7 @@ class _ReferralPageState extends ConsumerState<ReferralPage> {
                                       ),
                                     )
                                   : Text(
-                                      'Enregistrer',
+                                      l10n.commonSave,
                                       style: GoogleFonts.plusJakartaSans(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,

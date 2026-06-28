@@ -10,6 +10,7 @@ import '../../providers/profile_tabs_provider.dart';
 import '../../providers/saved_recipe_progress_provider.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class SavedRecipesEligibilityPage extends ConsumerWidget {
   const SavedRecipesEligibilityPage({super.key});
@@ -17,10 +18,11 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     appLogger.provider('SavedRecipesEligibilityPage build()');
+    final l10n = AppLocalizations.of(context);
     
     final currentUser = ref.watch(currentUserProvider);
     if (currentUser == null) {
-      return const Scaffold(body: Center(child: Text('Not logged in')));
+      return Scaffold(body: Center(child: Text(l10n.savedRecipesEligibilityNotLoggedIn)));
     }
 
     final progressAsync = ref.watch(savedRecipeProgressProvider);
@@ -59,10 +61,10 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Recettes Enregistrées',
-                      style: TextStyle(
+                      l10n.savedRecipesTitle,
+                      style: const TextStyle(
                         fontFamily: 'Plus Jakarta Sans',
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -80,21 +82,21 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
       ),
       body: progressAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Erreur: $e')),
+        error: (e, _) => Center(child: Text(l10n.homeErrorGeneric(e.toString()))),
         data: (progressData) {
           if (progressData == null) {
-            return const Center(child: Text('Aucune donnée trouvée'));
+            return Center(child: Text(l10n.savedRecipesEligibilityNoData));
           }
 
           final isEligible = progressData.isEligible;
           
           return prefsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Erreur: $e')),
+            error: (e, _) => Center(child: Text(l10n.homeErrorGeneric(e.toString()))),
             data: (prefs) {
               return savedRecipesAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, _) => Center(child: Text('Erreur: $e')),
+                error: (e, _) => Center(child: Text(l10n.homeErrorGeneric(e.toString()))),
                 data: (savedRecipes) {
                   return ListView(
                     padding: EdgeInsets.only(
@@ -104,26 +106,26 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                       bottom: 32,
                     ),
                     children: [
-                      const Text(
-                        'Générer avec vos favoris',
-                        style: TextStyle(
+                      Text(
+                        l10n.savedRecipesEligibilityTitle,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: AkeliColors.onSurface,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Si vous avez suffisamment de recettes enregistrées, vous pouvez demander à Akeli de générer vos plans de repas uniquement à partir de vos favoris, plutôt que via nos recommandations.',
-                        style: TextStyle(
+                      Text(
+                        l10n.savedRecipesEligibilityDesc,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: AkeliColors.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(height: 32),
-                      const Text(
-                        'Progression',
-                        style: TextStyle(
+                      Text(
+                        l10n.savedRecipesEligibilityProgress,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AkeliColors.onSurface,
@@ -173,7 +175,7 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4.0),
                                   child: Text(
-                                    'Il manque ${p.targetCount - p.savedCount} recette(s)',
+                                    l10n.savedRecipesEligibilityMissing(p.targetCount - p.savedCount),
                                     style: const TextStyle(fontSize: 12, color: Colors.orange),
                                   ),
                                 ),
@@ -225,11 +227,11 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                           border: Border.all(color: AkeliColors.surfaceContainerHighest),
                         ),
                         child: SwitchListTile(
-                          title: const Text('Utiliser uniquement les favoris'),
+                          title: Text(l10n.savedRecipesEligibilityToggleTitle),
                           subtitle: Text(
                             isEligible
-                                ? 'Activé'
-                                : 'Bloqué: Vous devez atteindre 7 recettes pour chaque catégorie ci-dessus.',
+                                ? l10n.savedRecipesEligibilityEnabled
+                                : l10n.savedRecipesEligibilityBlocked,
                           ),
                           value: prefs.useSavedRecipesOnly,
                           onChanged: isEligible

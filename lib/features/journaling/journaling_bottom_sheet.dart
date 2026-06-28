@@ -9,6 +9,7 @@ import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Journaling Bottom Sheet - Editorial Design
 /// Modal for daily journal entry with media upload, description, and meal type selection
@@ -33,11 +34,21 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
   final _logger = appLogger;
   final _descriptionController = TextEditingController();
   final _picker = ImagePicker();
-  String _selectedMealType = 'Déjeuner';
+  String _selectedMealType = 'lunch';
   bool _isSaving = false;
   List<XFile> _selectedImages = [];
 
-  final List<String> _mealTypes = ['Petit-déjeuner', 'Déjeuner', 'Dîner', 'Collation'];
+  static const _mealTypeKeys = ['breakfast', 'lunch', 'dinner', 'snack'];
+
+  String _mealTypeLabel(String key, AppLocalizations l) {
+    switch (key) {
+      case 'breakfast': return l.mealTypeBreakfast;
+      case 'lunch':     return l.mealTypeLunch;
+      case 'dinner':    return l.mealTypeDinner;
+      case 'snack':     return l.mealTypeSnack;
+      default:          return key;
+    }
+  }
 
   @override
   void initState() {
@@ -53,11 +64,12 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
   }
 
   Future<void> _saveEntry() async {
+    final l10n = AppLocalizations.of(context);
     if (_descriptionController.text.isEmpty) {
       _logger.provider('JournalingBottomSheet | save blocked | empty description');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Veuillez ajouter une description'),
+          content: Text(l10n.journalingDescriptionRequired),
           backgroundColor: AkeliColors.error,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -88,7 +100,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Entrée enregistrée avec succès!'),
+            content: Text(l10n.journalingEntrySaved),
             backgroundColor: AkeliColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -104,7 +116,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
         setState(() => _isSaving = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Erreur lors de l\'enregistrement'),
+            content: Text(l10n.journalingSaveError),
             backgroundColor: AkeliColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -131,6 +143,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: AkeliColors.surface,
@@ -185,7 +198,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Nouvelle entrée',
+                              l10n.journalingNewEntry,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -193,7 +206,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                               ),
                             ),
                             Text(
-                              'Notez votre expérience culinaire',
+                              l10n.journalingNewEntrySubtitle,
                               style: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: AkeliColors.onSurfaceVariant,
@@ -208,7 +221,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
 
                   // Media Upload
                   Text(
-                    'Photos',
+                    l10n.journalingPhotos,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -239,7 +252,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Ajouter des photos',
+                                  l10n.journalingAddPhotos,
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 14,
                                     color: AkeliColors.primary,
@@ -270,7 +283,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
 
                   // Meal Type Selector
                   Text(
-                    'Type de repas',
+                    l10n.journalingMealType,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -281,15 +294,15 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _mealTypes.map((type) {
-                      final isSelected = _selectedMealType == type;
+                    children: _mealTypeKeys.map((key) {
+                      final isSelected = _selectedMealType == key;
                       return ChoiceChip(
-                        label: Text(type),
+                        label: Text(_mealTypeLabel(key, l10n)),
                         selected: isSelected,
                         onSelected: (selected) {
                           if (selected) {
-                            _logger.userAction('Meal type selected: $type', screen: 'JournalingBottomSheet');
-                            setState(() => _selectedMealType = type);
+                            _logger.userAction('Meal type selected: $key', screen: 'JournalingBottomSheet');
+                            setState(() => _selectedMealType = key);
                           }
                         },
                         selectedColor: AkeliColors.primary,
@@ -305,7 +318,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
 
                   // Description Field
                   Text(
-                    'Description',
+                    l10n.journalingDescription,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -317,7 +330,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                     controller: _descriptionController,
                     maxLines: 4,
                     decoration: InputDecoration(
-                      hintText: 'Comment s\'est passé ce repas? Goûts, textures, émotions...',
+                      hintText: l10n.journalingDescriptionHint,
                       filled: true,
                       fillColor: AkeliColors.surfaceContainerHighest.withValues(alpha: 0.5),
                       border: OutlineInputBorder(
@@ -349,7 +362,7 @@ class _JournalingBottomSheetState extends ConsumerState<JournalingBottomSheet> {
                             )
                           : const Icon(Icons.save_outlined),
                       label: Text(
-                        _isSaving ? 'Enregistrement...' : 'Enregistrer l\'entrée',
+                        _isSaving ? l10n.journalingSaving : l10n.journalingSaveEntry,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

@@ -9,6 +9,7 @@ import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 class SupportPage extends ConsumerStatefulWidget {
   const SupportPage({super.key});
@@ -87,6 +88,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
   }
 
   Future<void> _submitForm() async {
+    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) {
       _logger.provider('SupportPage | form validation failed');
       return;
@@ -119,7 +121,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Message envoyé avec succès!'),
+            content: Text(l10n.supportMessageSent),
             backgroundColor: AkeliColors.success,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -149,9 +151,10 @@ class _SupportPageState extends ConsumerState<SupportPage> {
   }
 
   void _showErrorSnackbar() {
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Erreur lors de l\'envoi. Veuillez réessayer.'),
+        content: Text(l10n.supportSendError),
         backgroundColor: AkeliColors.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -163,6 +166,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AkeliColors.surface,
       appBar: AppBar(
@@ -175,7 +179,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Support',
+          l10n.supportTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -208,7 +212,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                         size: 48, color: AkeliColors.onPrimary),
                     const SizedBox(height: 16),
                     Text(
-                      'Comment pouvons-nous vous aider?',
+                      l10n.supportHeaderTitle,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -217,7 +221,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Notre équipe est là pour répondre à vos questions',
+                      l10n.supportHeaderSubtitle,
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         color: AkeliColors.onPrimary.withValues(alpha: 0.9),
@@ -230,7 +234,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
 
               // Subject field
               Text(
-                'Sujet',
+                l10n.supportSubjectLabel,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -240,10 +244,10 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _subjectController,
-                decoration: _fieldDecoration('Ex: Problème de connexion...'),
+                decoration: _fieldDecoration(l10n.supportSubjectHint),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un sujet';
+                    return l10n.supportSubjectRequired;
                   }
                   return null;
                 },
@@ -252,7 +256,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
 
               // Email field
               Text(
-                'Email',
+                l10n.accountEmail,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -263,13 +267,13 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: _fieldDecoration('votre@email.com'),
+                decoration: _fieldDecoration(l10n.supportEmailHint),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre email';
+                    return l10n.supportEmailRequired;
                   }
                   if (!value.contains('@')) {
-                    return 'Veuillez entrer un email valide';
+                    return l10n.supportEmailInvalid;
                   }
                   return null;
                 },
@@ -278,7 +282,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
 
               // Message field
               Text(
-                'Message',
+                l10n.supportMessageLabel,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -289,13 +293,13 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               TextFormField(
                 controller: _messageController,
                 maxLines: 5,
-                decoration: _fieldDecoration('Décrivez votre problème...'),
+                decoration: _fieldDecoration(l10n.supportMessageHint),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer votre message';
+                    return l10n.supportMessageRequired;
                   }
                   if (value.length < 10) {
-                    return 'Le message doit contenir au moins 10 caractères';
+                    return l10n.supportMessageTooShort;
                   }
                   return null;
                 },
@@ -309,7 +313,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                       icon: const Icon(Icons.add_photo_alternate_outlined,
                           color: AkeliColors.primary),
                       label: Text(
-                        'Ajouter une capture d\'écran',
+                        l10n.supportAddScreenshot,
                         style: GoogleFonts.plusJakartaSans(
                           color: AkeliColors.primary,
                           fontWeight: FontWeight.w600,
@@ -360,7 +364,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
                           ),
                         )
                       : Text(
-                          'Envoyer le message',
+                          l10n.supportSendMessage,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -446,12 +450,12 @@ class _ScreenshotPreview extends StatelessWidget {
           ),
           InkWell(
             onTap: onReplace,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
-                'Changer la capture',
+                AppLocalizations.of(context).supportChangeScreenshot,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 13,
                   color: AkeliColors.primary,
                   fontWeight: FontWeight.w600,
