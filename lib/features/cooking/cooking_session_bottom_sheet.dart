@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
@@ -22,6 +23,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: AkeliColors.surface,
@@ -71,7 +73,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                 
                 // Title
                 Text(
-                  'Session de cuisine',
+                  l10n.cookingSessionTitle,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -82,7 +84,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                 
                 // Subtitle
                 Text(
-                  'Organisez vos repas de la semaine',
+                  l10n.cookingSessionSubtitle,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     color: AkeliColors.onSurfaceVariant,
@@ -108,7 +110,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Bientôt disponible',
+                              l10n.cookingSessionComingSoon,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -117,7 +119,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Cette fonctionnalité sera disponible dans une prochaine mise à jour',
+                              l10n.cookingSessionComingSoonDesc,
                               style: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: AkeliColors.onSecondaryContainer.withValues(alpha: 0.8),
@@ -148,7 +150,7 @@ class CookingSessionBottomSheet extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Compris',
+                      l10n.cookingSessionGotIt,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:akeli/core/quantity_formatter.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 class IngredientDetailSheet extends ConsumerWidget {
   final RecipeIngredient ingredient;
@@ -42,11 +43,20 @@ class IngredientDetailSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     appLogger.provider(
         'IngredientDetailSheet build() | ingredientId: ${ingredient.ingredientId}');
     final detailAsync =
         ref.watch(ingredientDetailProvider(ingredient.ingredientId));
     final bottomPad = MediaQuery.of(context).padding.bottom + 24;
+
+    final tagLabels = {
+      'high_protein': l10n.ingredientDetailTagHighProtein,
+      'low_fat': l10n.ingredientDetailTagLowFat,
+      'gluten_free': l10n.ingredientDetailTagGlutenFree,
+      'african_staple': l10n.ingredientDetailTagAfricanStaple,
+      'very_hard_to_find_eu': l10n.ingredientDetailTagHardToFindEu,
+    };
 
     return Container(
       decoration: const BoxDecoration(
@@ -117,7 +127,7 @@ class IngredientDetailSheet extends ConsumerWidget {
                               BorderRadius.circular(AkeliRadius.pill),
                         ),
                         child: Text(
-                          'Optionnel',
+                          l10n.ingredientDetailOptional,
                           style: GoogleFonts.inter(
                               fontSize: 12,
                               color: AkeliColors.onSurfaceVariant),
@@ -135,7 +145,10 @@ class IngredientDetailSheet extends ConsumerWidget {
                         spacing: 6,
                         runSpacing: 6,
                         children: detail.tags
-                            .map((tag) => _TagPill(tag: tag))
+                            .map((tag) => _TagPill(
+                                  tag: tag,
+                                  label: tagLabels[tag] ?? tag.replaceAll('_', ' '),
+                                ))
                             .toList(),
                       ),
                     );
@@ -196,7 +209,8 @@ class IngredientDetailSheet extends ConsumerWidget {
 
 class _TagPill extends StatelessWidget {
   final String tag;
-  const _TagPill({required this.tag});
+  final String label;
+  const _TagPill({required this.tag, required this.label});
 
   static const _tagColors = {
     'high_protein': Color(0xFF2E7D32),
@@ -205,16 +219,6 @@ class _TagPill extends StatelessWidget {
     'african_staple': Color(0xFFE65100),
     'very_hard_to_find_eu': Color(0xFF78350F),
   };
-
-  static const _tagLabels = {
-    'high_protein': 'Riche en protéines',
-    'low_fat': 'Pauvre en graisses',
-    'gluten_free': 'Sans gluten',
-    'african_staple': 'Aliment de base',
-    'very_hard_to_find_eu': 'Difficile à trouver en Europe',
-  };
-
-  String get _label => _tagLabels[tag] ?? tag.replaceAll('_', ' ');
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +231,7 @@ class _TagPill extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text(
-        _label,
+        label,
         style: GoogleFonts.inter(
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -265,11 +269,12 @@ class _NutritionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Valeurs nutritives (pour 100g)',
+          l10n.ingredientDetailNutritionTitle,
           style: GoogleFonts.plusJakartaSans(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -281,21 +286,21 @@ class _NutritionSection extends StatelessWidget {
             if (detail.caloriesPer100g != null)
               Expanded(
                   child: _MacroChip(
-                      label: 'Énergie',
+                      label: l10n.ingredientDetailEnergy,
                       value:
                           '${detail.caloriesPer100g!.toStringAsFixed(0)} kcal')),
             if (detail.proteinPer100g != null) ...[
               const SizedBox(width: 8),
               Expanded(
                   child: _MacroChip(
-                      label: 'Protéines',
+                      label: l10n.nutritionProtein,
                       value: '${detail.proteinPer100g!.toStringAsFixed(1)} g')),
             ],
             if (detail.carbsPer100g != null) ...[
               const SizedBox(width: 8),
               Expanded(
                   child: _MacroChip(
-                      label: 'Glucides',
+                      label: l10n.nutritionCarbs,
                       value: '${detail.carbsPer100g!.toStringAsFixed(1)} g')),
             ],
           ],
@@ -306,7 +311,7 @@ class _NutritionSection extends StatelessWidget {
             children: [
               Expanded(
                   child: _MacroChip(
-                      label: 'Lipides',
+                      label: l10n.nutritionFat,
                       value: '${detail.fatPer100g!.toStringAsFixed(1)} g')),
               const SizedBox(width: 8),
               const Expanded(child: SizedBox()),

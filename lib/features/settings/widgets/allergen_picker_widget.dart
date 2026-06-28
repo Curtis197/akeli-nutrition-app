@@ -6,6 +6,7 @@ import '../../../core/logger.dart';
 import '../../../providers/search_allergen_provider.dart';
 import '../models/allergen_model.dart';
 import '../../../core/supabase_client.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AllergenPickerWidget extends ConsumerStatefulWidget {
   final List<AllergenModel> selectedAllergens;
@@ -60,6 +61,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
     _searchCtrl.clear();
     _focusNode.unfocus();
 
+    final l10n = AppLocalizations.of(context);
     final client = ref.read(supabaseClientProvider);
     try {
       _logger.edge('submit-allergen-suggestion', 'BEFORE | label: $txt');
@@ -67,7 +69,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
       _logger.edge('submit-allergen-suggestion', 'AFTER | success');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Suggestion envoyée pour révision.')),
+          SnackBar(content: Text(l10n.allergenPickerSuggestionSent)),
         );
       }
     } catch (e, st) {
@@ -77,6 +79,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final searchResultsAsync = ref.watch(searchAllergenProvider(_query));
 
     return Column(
@@ -90,7 +93,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
                 focusNode: _focusNode,
                 style: GoogleFonts.inter(fontSize: 14, color: AkeliColors.onSurface),
                 decoration: InputDecoration(
-                  hintText: 'Ex: arachides, noix...',
+                  hintText: l10n.allergenPickerHint,
                   filled: true,
                   fillColor: AkeliColors.surfaceContainerHighest,
                   border: OutlineInputBorder(
@@ -134,7 +137,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
               data: (results) {
                 if (results.isEmpty) {
                   return ListTile(
-                    title: Text('Ajouter "$_query"', style: GoogleFonts.inter(fontSize: 14)),
+                    title: Text(l10n.allergenPickerAdd(_query), style: GoogleFonts.inter(fontSize: 14)),
                     leading: const Icon(Icons.add, size: 20),
                     onTap: _submitSuggestion,
                   );
@@ -157,7 +160,7 @@ class _AllergenPickerWidgetState extends ConsumerState<AllergenPickerWidget> {
               ),
               error: (e, _) => Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text('Erreur', style: GoogleFonts.inter(color: Colors.red)),
+                child: Text(l10n.commonError, style: GoogleFonts.inter(color: Colors.red)),
               ),
             ),
           ),

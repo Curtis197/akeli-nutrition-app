@@ -1,0 +1,1689 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Akeli",
+  "@appTitle": {},
+
+  "appVersion": "Akeli V1.0",
+  "@appVersion": {},
+
+  "notificationSeeLabel": "View",
+  "@notificationSeeLabel": {},
+
+  "navHome": "Home",
+  "@navHome": {},
+
+  "navMeals": "Meals",
+  "@navMeals": {},
+
+  "navRecipes": "Recipes",
+  "@navRecipes": {},
+
+  "navCommunity": "Community",
+  "@navCommunity": {},
+
+  "tooltipSettings": "Settings",
+  "@tooltipSettings": {},
+
+  "tooltipNotifications": "Notifications",
+  "@tooltipNotifications": {},
+
+  "authWelcome": "Welcome to Akeli",
+  "@authWelcome": {},
+
+  "authSignUp": "Sign Up",
+  "@authSignUp": {},
+
+  "authLogIn": "Log In",
+  "@authLogIn": {},
+
+  "authCreateAccount": "Create your account",
+  "@authCreateAccount": {},
+
+  "authJoinCommunity": "Join the Akeli community",
+  "@authJoinCommunity": {},
+
+  "authEmailPlaceholder": "Enter your email",
+  "@authEmailPlaceholder": {},
+
+  "authEmailRequired": "Email required",
+  "@authEmailRequired": {},
+
+  "authEmailInvalid": "Invalid email",
+  "@authEmailInvalid": {},
+
+  "authPasswordCreate": "Create a password",
+  "@authPasswordCreate": {},
+
+  "authPasswordRequired": "Password required",
+  "@authPasswordRequired": {},
+
+  "authPasswordMinLength": "Minimum 8 characters",
+  "@authPasswordMinLength": {},
+
+  "authConfirmPassword": "Confirm your password",
+  "@authConfirmPassword": {},
+
+  "authPasswordMismatch": "Passwords do not match",
+  "@authPasswordMismatch": {},
+
+  "authGetStarted": "Get Started",
+  "@authGetStarted": {},
+
+  "authWelcomeBack": "Welcome back!",
+  "@authWelcomeBack": {},
+
+  "authSignInToAccount": "Sign in to your account",
+  "@authSignInToAccount": {},
+
+  "authEmailField": "Email",
+  "@authEmailField": {},
+
+  "authPasswordField": "Password",
+  "@authPasswordField": {},
+
+  "authPasswordReset": "Password reset — coming soon",
+  "@authPasswordReset": {},
+
+  "authForgotPassword": "Forgot password?",
+  "@authForgotPassword": {},
+
+  "authSignIn": "Sign In",
+  "@authSignIn": {},
+
+  "authErrorInvalidCredentials": "Incorrect email or password.",
+  "@authErrorInvalidCredentials": {},
+
+  "authErrorEmailInUse": "This email is already in use.",
+  "@authErrorEmailInUse": {},
+
+  "authErrorPasswordShort": "Password must be at least 6 characters.",
+  "@authErrorPasswordShort": {},
+
+  "authErrorEmailNotConfirmed": "Please confirm your email address before signing in.",
+  "@authErrorEmailNotConfirmed": {},
+
+  "authErrorGeneric": "An error occurred. Please try again.",
+  "@authErrorGeneric": {},
+
+  "homeGreeting": "Hello, {name}!",
+  "@homeGreeting": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "homeGreetingFallback": "Hello!",
+  "@homeGreetingFallback": {},
+
+  "homeWelcomeBack": "Happy to see you again.",
+  "@homeWelcomeBack": {},
+
+  "homeWeightLabel": "Weight",
+  "@homeWeightLabel": {},
+
+  "homeWeightCurrent": "Current Weight",
+  "@homeWeightCurrent": {},
+
+  "homeCaloriesLabel": "Calories",
+  "@homeCaloriesLabel": {},
+
+  "homeViewProgress": "View my progress →",
+  "@homeViewProgress": {},
+
+  "homeTodayMeals": "Today's Meals",
+  "@homeTodayMeals": {},
+
+  "homeNoMealsToday": "No meals planned for today.",
+  "@homeNoMealsToday": {},
+
+  "homeMealDefault": "Meal",
+  "@homeMealDefault": {},
+
+  "homeMealUpdateError": "Unable to update meal. Try again.",
+  "@homeMealUpdateError": {},
+
+  "homeShoppingList": "Shopping List",
+  "@homeShoppingList": {},
+
+  "homeViewAll": "View All",
+  "@homeViewAll": {},
+
+  "homeFilterAll": "All",
+  "@homeFilterAll": {},
+
+  "homeFilterToBuy": "To Buy",
+  "@homeFilterToBuy": {},
+
+  "homeFilterBought": "Already Bought",
+  "@homeFilterBought": {},
+
+  "homeNoItemsFound": "No items found",
+  "@homeNoItemsFound": {},
+
+  "homeRecommendedRecipes": "Recommended Recipes",
+  "@homeRecommendedRecipes": {},
+
+  "homeNoRecipes": "No recipes available.",
+  "@homeNoRecipes": {},
+
+  "homeErrorGeneric": "Error: {error}",
+  "@homeErrorGeneric": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "homeCreatorsForYou": "Creators for You",
+  "@homeCreatorsForYou": {},
+
+  "homeCreateRecipe": "Create and share your own recipe",
+  "@homeCreateRecipe": {},
+
+  "feedTitle": "Discover",
+  "@feedTitle": {},
+
+  "feedSearchHint": "Search recipes...",
+  "@feedSearchHint": {},
+
+  "feedTabRecipes": "Recipes",
+  "@feedTabRecipes": {},
+
+  "feedTabCreators": "Creators",
+  "@feedTabCreators": {},
+
+  "feedNoResults": "No results found",
+  "@feedNoResults": {},
+
+  "feedNoResultsSubtitle": "Try different search terms or filters",
+  "@feedNoResultsSubtitle": {},
+
+  "feedEmptyTitle": "No recipes yet",
+  "@feedEmptyTitle": {},
+
+  "feedFilters": "Filters",
+  "@feedFilters": {},
+
+  "feedFilterRegion": "Region",
+  "@feedFilterRegion": {},
+
+  "feedFilterDifficulty": "Difficulty",
+  "@feedFilterDifficulty": {},
+
+  "feedFilterTime": "Max Time",
+  "@feedFilterTime": {},
+
+  "feedFilterMealType": "Meal Type",
+  "@feedFilterMealType": {},
+
+  "feedFilterCalories": "Calories",
+  "@feedFilterCalories": {},
+
+  "feedSortBy": "Sort by",
+  "@feedSortBy": {},
+
+  "feedAllRegions": "All regions",
+  "@feedAllRegions": {},
+
+  "feedAllDifficulties": "All difficulties",
+  "@feedAllDifficulties": {},
+
+  "feedAllMealTypes": "All types",
+  "@feedAllMealTypes": {},
+
+  "feedApplyFilters": "Apply",
+  "@feedApplyFilters": {},
+
+  "feedResetFilters": "Reset",
+  "@feedResetFilters": {},
+
+  "feedLoadMore": "Load more",
+  "@feedLoadMore": {},
+
+  "feedCreatorSearch": "Search creators...",
+  "@feedCreatorSearch": {},
+
+  "feedCreatorSpecialty": "Specialty",
+  "@feedCreatorSpecialty": {},
+
+  "feedNoCreators": "No creators found",
+  "@feedNoCreators": {},
+
+  "feedAddToMealPlan": "Add to Meal Plan",
+  "@feedAddToMealPlan": {},
+
+  "feedAddedToMealPlan": "Added to meal plan",
+  "@feedAddedToMealPlan": {},
+
+  "feedSwapRecipe": "Swap",
+  "@feedSwapRecipe": {},
+
+  "feedSwapDone": "Recipe swapped",
+  "@feedSwapDone": {},
+
+  "recipeDetailIngredients": "Ingredients",
+  "@recipeDetailIngredients": {},
+
+  "recipeDetailInstructions": "Instructions",
+  "@recipeDetailInstructions": {},
+
+  "recipeDetailNutrition": "Nutrition Info",
+  "@recipeDetailNutrition": {},
+
+  "recipeDetailPrepTime": "Prep Time",
+  "@recipeDetailPrepTime": {},
+
+  "recipeDetailCookTime": "Cook Time",
+  "@recipeDetailCookTime": {},
+
+  "recipeDetailServings": "Servings",
+  "@recipeDetailServings": {},
+
+  "recipeDetailDifficulty": "Difficulty",
+  "@recipeDetailDifficulty": {},
+
+  "recipeDetailCalories": "Calories",
+  "@recipeDetailCalories": {},
+
+  "recipeDetailProtein": "Protein",
+  "@recipeDetailProtein": {},
+
+  "recipeDetailCarbs": "Carbs",
+  "@recipeDetailCarbs": {},
+
+  "recipeDetailFat": "Fat",
+  "@recipeDetailFat": {},
+
+  "recipeDetailSave": "Save",
+  "@recipeDetailSave": {},
+
+  "recipeDetailSaved": "Saved",
+  "@recipeDetailSaved": {},
+
+  "recipeDetailLike": "Like",
+  "@recipeDetailLike": {},
+
+  "recipeDetailShare": "Share",
+  "@recipeDetailShare": {},
+
+  "recipeDetailComments": "Comments",
+  "@recipeDetailComments": {},
+
+  "recipeDetailNoComments": "No comments yet",
+  "@recipeDetailNoComments": {},
+
+  "recipeDetailAddComment": "Add a comment...",
+  "@recipeDetailAddComment": {},
+
+  "recipeDetailSendComment": "Send",
+  "@recipeDetailSendComment": {},
+
+  "recipeDetailLoadError": "Error loading recipe",
+  "@recipeDetailLoadError": {},
+
+  "recipeDetailMin": "min",
+  "@recipeDetailMin": {},
+
+  "recipeDetailPer100g": "per 100g",
+  "@recipeDetailPer100g": {},
+
+  "recipeDetailStepLabel": "Step {step}",
+  "@recipeDetailStepLabel": {
+    "placeholders": { "step": { "type": "int" } }
+  },
+
+  "recipeDetailRegion": "Region",
+  "@recipeDetailRegion": {},
+
+  "recipeDetailTags": "Tags",
+  "@recipeDetailTags": {},
+
+  "recipeDetailVideoTitle": "Recipe Video",
+  "@recipeDetailVideoTitle": {},
+
+  "recipeDetailAddToMealPlan": "Add to Meal Plan",
+  "@recipeDetailAddToMealPlan": {},
+
+  "recipeDetailAddedToMealPlan": "Added to your meal plan",
+  "@recipeDetailAddedToMealPlan": {},
+
+  "recipeDetailErrorAddPlan": "Error adding to meal plan",
+  "@recipeDetailErrorAddPlan": {},
+
+  "recipeDetailBy": "by",
+  "@recipeDetailBy": {},
+
+  "profileTitle": "Profile",
+  "@profileTitle": {},
+
+  "profileDefaultName": "User",
+  "@profileDefaultName": {},
+
+  "profileLoadError": "Error: {error}",
+  "@profileLoadError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "profilePrivateTitle": "This profile is private",
+  "@profilePrivateTitle": {},
+
+  "profilePrivateMessage": "Send a message to connect.",
+  "@profilePrivateMessage": {},
+
+  "profileTabRecipes": "Recipes",
+  "@profileTabRecipes": {},
+
+  "profileTabComments": "Comments",
+  "@profileTabComments": {},
+
+  "profileTabGroups": "Groups",
+  "@profileTabGroups": {},
+
+  "profileLoadError2": "Loading error",
+  "@profileLoadError2": {},
+
+  "profileNoLikedRecipes": "No liked recipes",
+  "@profileNoLikedRecipes": {},
+
+  "profileNoComments": "No comments",
+  "@profileNoComments": {},
+
+  "profileNoGroups": "No groups",
+  "@profileNoGroups": {},
+
+  "profileUnknownRecipe": "Unknown recipe",
+  "@profileUnknownRecipe": {},
+
+  "profileGroupDefault": "Group",
+  "@profileGroupDefault": {},
+
+  "profileMemberCount": "{count, plural, one{{count} member} other{{count} members}}",
+  "@profileMemberCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "profileStartConversation": "Start a conversation",
+  "@profileStartConversation": {},
+
+  "profileMessageSent": "Request sent",
+  "@profileMessageSent": {},
+
+  "profileMessageError": "Error sending request",
+  "@profileMessageError": {},
+
+  "profilePending": "Pending",
+  "@profilePending": {},
+
+  "profileMessage": "Message",
+  "@profileMessage": {},
+
+  "profileCloseConversationTitle": "Close conversation?",
+  "@profileCloseConversationTitle": {},
+
+  "profileCloseConversationContent": "You will leave this conversation. The other user will keep their history.",
+  "@profileCloseConversationContent": {},
+
+  "profileConversationClosed": "Conversation closed",
+  "@profileConversationClosed": {},
+
+  "profileCloseError": "Error closing conversation",
+  "@profileCloseError": {},
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {},
+
+  "settingsEdit": "Edit",
+  "@settingsEdit": {},
+
+  "settingsPremium": "Premium",
+  "@settingsPremium": {},
+
+  "settingsSectionMenu": "Menu",
+  "@settingsSectionMenu": {},
+
+  "settingsNutritionTracking": "Nutrition Tracking",
+  "@settingsNutritionTracking": {},
+
+  "settingsSavedRecipes": "Saved Recipes",
+  "@settingsSavedRecipes": {},
+
+  "settingsAccount": "My Account",
+  "@settingsAccount": {},
+
+  "settingsFanMode": "Fan Mode",
+  "@settingsFanMode": {},
+
+  "settingsPreferences": "Preferences",
+  "@settingsPreferences": {},
+
+  "settingsHealthGoals": "Health & Goals",
+  "@settingsHealthGoals": {},
+
+  "settingsSectionApp": "Application",
+  "@settingsSectionApp": {},
+
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {},
+
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {},
+
+  "settingsLanguageCurrent": "English",
+  "@settingsLanguageCurrent": {},
+
+  "settingsSectionPrivacy": "Privacy",
+  "@settingsSectionPrivacy": {},
+
+  "settingsPrivateProfile": "Private Profile",
+  "@settingsPrivateProfile": {},
+
+  "settingsSectionSupport": "Support",
+  "@settingsSectionSupport": {},
+
+  "settingsHelpFaq": "Help & FAQ",
+  "@settingsHelpFaq": {},
+
+  "settingsPrivacyPolicy": "Privacy Policy",
+  "@settingsPrivacyPolicy": {},
+
+  "settingsTerms": "Terms of Use",
+  "@settingsTerms": {},
+
+  "settingsSignOut": "Sign Out",
+  "@settingsSignOut": {},
+
+  "settingsSignOutTitle": "Sign Out",
+  "@settingsSignOutTitle": {},
+
+  "settingsSignOutConfirm": "Are you sure you want to sign out?",
+  "@settingsSignOutConfirm": {},
+
+  "settingsSignOutConfirmBtn": "Sign Out",
+  "@settingsSignOutConfirmBtn": {},
+
+  "settingsEditProfile": "Edit Profile",
+  "@settingsEditProfile": {},
+
+  "settingsName": "Name",
+  "@settingsName": {},
+
+  "settingsDescription": "Description",
+  "@settingsDescription": {},
+
+  "settingsDescriptionHint": "Tell us a bit about yourself...",
+  "@settingsDescriptionHint": {},
+
+  "settingsSave": "Save",
+  "@settingsSave": {},
+
+  "settingsAvatarError": "Error: {error}",
+  "@settingsAvatarError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "mealPlannerTitle": "Your Meals",
+  "@mealPlannerTitle": {},
+
+  "mealPlannerWeekTitle": "Your meals this week",
+  "@mealPlannerWeekTitle": {},
+
+  "mealPlannerDaysTitle": "Your upcoming meals",
+  "@mealPlannerDaysTitle": {},
+
+  "mealPlannerViewDietPlan": "View my diet plan",
+  "@mealPlannerViewDietPlan": {},
+
+  "mealPlannerViewShoppingList": "View my shopping list",
+  "@mealPlannerViewShoppingList": {},
+
+  "mealPlannerViewBatchCooking": "Batch cooking",
+  "@mealPlannerViewBatchCooking": {},
+
+  "mealPlannerEmpty": "No meal plan yet",
+  "@mealPlannerEmpty": {},
+
+  "mealPlannerEmptySubtitle": "Generate a personalized plan",
+  "@mealPlannerEmptySubtitle": {},
+
+  "mealPlannerGenerate": "Generate my plan",
+  "@mealPlannerGenerate": {},
+
+  "mealPlannerError": "Error: {error}",
+  "@mealPlannerError": {
+    "placeholders": { "error": { "type": "String" } }
+  },
+
+  "mealPlannerConsumptionError": "Unable to update. Try again.",
+  "@mealPlannerConsumptionError": {},
+
+  "mealTypeBreakfast": "Breakfast",
+  "@mealTypeBreakfast": {},
+
+  "mealTypeLunch": "Lunch",
+  "@mealTypeLunch": {},
+
+  "mealTypeDinner": "Dinner",
+  "@mealTypeDinner": {},
+
+  "mealTypeSnack": "Snack",
+  "@mealTypeSnack": {},
+
+  "nutritionTitle": "Nutrition",
+  "@nutritionTitle": {},
+
+  "nutritionTabToday": "Today",
+  "@nutritionTabToday": {},
+
+  "nutritionTabWeek": "Week",
+  "@nutritionTabWeek": {},
+
+  "nutritionTabJourney": "Journey",
+  "@nutritionTabJourney": {},
+
+  "nutritionCalories": "Calories",
+  "@nutritionCalories": {},
+
+  "nutritionProtein": "Protein",
+  "@nutritionProtein": {},
+
+  "nutritionCarbs": "Carbs",
+  "@nutritionCarbs": {},
+
+  "nutritionFat": "Fat",
+  "@nutritionFat": {},
+
+  "nutritionNoData": "No nutrition data today",
+  "@nutritionNoData": {},
+
+  "nutritionNoPlan": "No nutrition plan",
+  "@nutritionNoPlan": {},
+
+  "nutritionGoal": "Goal",
+  "@nutritionGoal": {},
+
+  "nutritionConsumed": "Consumed",
+  "@nutritionConsumed": {},
+
+  "nutritionRemaining": "Remaining",
+  "@nutritionRemaining": {},
+
+  "nutritionWeightTracking": "Weight Tracking",
+  "@nutritionWeightTracking": {},
+
+  "nutritionCurrentWeight": "Current weight",
+  "@nutritionCurrentWeight": {},
+
+  "nutritionTargetWeight": "Target weight",
+  "@nutritionTargetWeight": {},
+
+  "nutritionAddWeight": "Log Weight",
+  "@nutritionAddWeight": {},
+
+  "nutritionWeightAdded": "Weight logged",
+  "@nutritionWeightAdded": {},
+
+  "communityTitle": "Community",
+  "@communityTitle": {},
+
+  "communityMyGroups": "My Groups",
+  "@communityMyGroups": {},
+
+  "communityPrivateGroups": "Private",
+  "@communityPrivateGroups": {},
+
+  "communityPublicGroups": "Public",
+  "@communityPublicGroups": {},
+
+  "communityDiscoverGroups": "Discover Groups",
+  "@communityDiscoverGroups": {},
+
+  "communityNoGroups": "No groups yet",
+  "@communityNoGroups": {},
+
+  "communityCreateGroup": "Create",
+  "@communityCreateGroup": {},
+
+  "communityJoinSuccess": "Group joined successfully",
+  "@communityJoinSuccess": {},
+
+  "communityJoinError": "Error joining group",
+  "@communityJoinError": {},
+
+  "communityRegionFilter": "Region",
+  "@communityRegionFilter": {},
+
+  "communityAllRegions": "All regions",
+  "@communityAllRegions": {},
+
+  "communityRegionError": "Region error",
+  "@communityRegionError": {},
+
+  "communityNoCriteria": "No groups match these criteria.",
+  "@communityNoCriteria": {},
+
+  "communityGroupImageError": "Error selecting image",
+  "@communityGroupImageError": {},
+
+  "communityGeneralChannel": "General",
+  "@communityGeneralChannel": {},
+
+  "communitySending": "Sending…",
+  "@communitySending": {},
+
+  "cookingModeTitle": "Cooking Mode",
+  "@cookingModeTitle": {},
+
+  "cookingModeStep": "Step {step} of {total}",
+  "@cookingModeStep": {
+    "placeholders": {
+      "step": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "cookingModeIngredients": "Ingredients",
+  "@cookingModeIngredients": {},
+
+  "cookingModeTimer": "Timer",
+  "@cookingModeTimer": {},
+
+  "cookingModeComplete": "Recipe complete!",
+  "@cookingModeComplete": {},
+
+  "cookingModeStart": "Start Cooking",
+  "@cookingModeStart": {},
+
+  "dietPlanTitle": "Diet Plan",
+  "@dietPlanTitle": {},
+
+  "dietPlanNoPlan": "No diet plan",
+  "@dietPlanNoPlan": {},
+
+  "dietPlanCalorieGoal": "Calorie Goal",
+  "@dietPlanCalorieGoal": {},
+
+  "dietPlanProteinGoal": "Protein Goal",
+  "@dietPlanProteinGoal": {},
+
+  "dietPlanCarbGoal": "Carb Goal",
+  "@dietPlanCarbGoal": {},
+
+  "dietPlanFatGoal": "Fat Goal",
+  "@dietPlanFatGoal": {},
+
+  "dietPlanWeeks": "Duration (weeks)",
+  "@dietPlanWeeks": {},
+
+  "dietPlanActivity": "Activity Level",
+  "@dietPlanActivity": {},
+
+  "shoppingListTitle": "Shopping List",
+  "@shoppingListTitle": {},
+
+  "shoppingListEmpty": "Your shopping list is empty",
+  "@shoppingListEmpty": {},
+
+  "shoppingListItems": "{count, plural, one{{count} item} other{{count} items}}",
+  "@shoppingListItems": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "shoppingListAll": "All",
+  "@shoppingListAll": {},
+
+  "shoppingListChecked": "Checked",
+  "@shoppingListChecked": {},
+
+  "shoppingListRemaining": "Remaining",
+  "@shoppingListRemaining": {},
+
+  "notificationsTitle": "Notifications",
+  "@notificationsTitle": {},
+
+  "notificationsEmpty": "No notifications",
+  "@notificationsEmpty": {},
+
+  "notificationsMarkAllRead": "Mark all as read",
+  "@notificationsMarkAllRead": {},
+
+  "accountTitle": "My Account",
+  "@accountTitle": {},
+
+  "accountEmail": "Email",
+  "@accountEmail": {},
+
+  "accountDeleteAccount": "Delete account",
+  "@accountDeleteAccount": {},
+
+  "accountDeleteConfirmTitle": "Delete account",
+  "@accountDeleteConfirmTitle": {},
+
+  "accountDeleteConfirmContent": "This action is irreversible. All your data will be deleted.",
+  "@accountDeleteConfirmContent": {},
+
+  "accountChangePassword": "Change password",
+  "@accountChangePassword": {},
+
+  "accountInfoSection": "INFORMATION",
+  "@accountInfoSection": {},
+
+  "accountPasswordSection": "PASSWORD",
+  "@accountPasswordSection": {},
+
+  "accountCurrentPassword": "Current password",
+  "@accountCurrentPassword": {},
+
+  "accountNewPassword": "New password",
+  "@accountNewPassword": {},
+
+  "accountConfirmPassword": "Confirm password",
+  "@accountConfirmPassword": {},
+
+  "accountUpdatePassword": "Update",
+  "@accountUpdatePassword": {},
+
+  "accountDangerZone": "DANGER ZONE",
+  "@accountDangerZone": {},
+
+  "accountPasswordRequired": "Please fill in all fields.",
+  "@accountPasswordRequired": {},
+
+  "accountPasswordTooShort": "Password must be at least 8 characters.",
+  "@accountPasswordTooShort": {},
+
+  "accountPasswordMismatch": "Passwords don't match.",
+  "@accountPasswordMismatch": {},
+
+  "accountPasswordUpdated": "Password updated successfully.",
+  "@accountPasswordUpdated": {},
+
+  "accountDeleteError": "Error deleting account. Please try again.",
+  "@accountDeleteError": {},
+
+  "accountErrorInvalidPassword": "Incorrect current password.",
+  "@accountErrorInvalidPassword": {},
+
+  "accountErrorTooManyRequests": "Too many attempts. Please wait.",
+  "@accountErrorTooManyRequests": {},
+
+  "accountErrorGeneric": "An error occurred. Please try again.",
+  "@accountErrorGeneric": {},
+
+  "healthProfileTitle": "Health & Goals",
+  "@healthProfileTitle": {},
+
+  "healthProfileAge": "Age",
+  "@healthProfileAge": {},
+
+  "healthProfileWeight": "Weight (kg)",
+  "@healthProfileWeight": {},
+
+  "healthProfileHeight": "Height (cm)",
+  "@healthProfileHeight": {},
+
+  "healthProfileGender": "Gender",
+  "@healthProfileGender": {},
+
+  "healthProfileActivity": "Activity Level",
+  "@healthProfileActivity": {},
+
+  "healthProfileGoal": "Goal",
+  "@healthProfileGoal": {},
+
+  "healthProfileTargetWeight": "Target Weight (kg)",
+  "@healthProfileTargetWeight": {},
+
+  "healthProfileSave": "Save",
+  "@healthProfileSave": {},
+
+  "healthProfileSaved": "Health profile saved",
+  "@healthProfileSaved": {},
+
+  "healthProfileError": "Error saving",
+  "@healthProfileError": {},
+
+  "healthParamsSection": "HEALTH PARAMETERS",
+  "@healthParamsSection": {},
+
+  "healthSex": "Sex",
+  "@healthSex": {},
+
+  "healthBirthDate": "Date of birth",
+  "@healthBirthDate": {},
+
+  "healthBirthDateEmpty": "Not set",
+  "@healthBirthDateEmpty": {},
+
+  "healthHeight": "Height",
+  "@healthHeight": {},
+
+  "healthCurrentWeight": "Current weight",
+  "@healthCurrentWeight": {},
+
+  "healthTargetWeight": "Target weight",
+  "@healthTargetWeight": {},
+
+  "healthActivityLevel": "Activity level",
+  "@healthActivityLevel": {},
+
+  "healthGoalSection": "GOAL",
+  "@healthGoalSection": {},
+
+  "healthGoalType": "Goal type",
+  "@healthGoalType": {},
+
+  "healthWeightGoal": "Weight goal",
+  "@healthWeightGoal": {},
+
+  "healthMuscleGoal": "Muscle goal",
+  "@healthMuscleGoal": {},
+
+  "healthTargetDuration": "Target duration",
+  "@healthTargetDuration": {},
+
+  "healthWeeks": "{count} weeks",
+  "@healthWeeks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "healthWeeksShort": "{count} wks",
+  "@healthWeeksShort": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "healthActivitySedentary": "Sedentary",
+  "@healthActivitySedentary": {},
+
+  "healthActivityLight": "Lightly active",
+  "@healthActivityLight": {},
+
+  "healthActivityModerate": "Moderately active",
+  "@healthActivityModerate": {},
+
+  "healthActivityActive": "Active",
+  "@healthActivityActive": {},
+
+  "healthActivityVeryActive": "Very active",
+  "@healthActivityVeryActive": {},
+
+  "healthGoalWeightLoss": "Weight loss",
+  "@healthGoalWeightLoss": {},
+
+  "healthGoalMuscleGain": "Muscle gain",
+  "@healthGoalMuscleGain": {},
+
+  "healthGoalMaintenance": "Maintenance",
+  "@healthGoalMaintenance": {},
+
+  "healthGoalHealth": "Health",
+  "@healthGoalHealth": {},
+
+  "healthGoalPerformance": "Performance",
+  "@healthGoalPerformance": {},
+
+  "healthGoalLose": "Lose",
+  "@healthGoalLose": {},
+
+  "healthGoalMaintain": "Maintain",
+  "@healthGoalMaintain": {},
+
+  "healthGoalGain": "Gain",
+  "@healthGoalGain": {},
+
+  "healthSexMale": "Male",
+  "@healthSexMale": {},
+
+  "healthSexFemale": "Female",
+  "@healthSexFemale": {},
+
+  "healthSexOther": "Other",
+  "@healthSexOther": {},
+
+  "notifSettingsIntro": "Configure your preferences to stay connected without feeling overwhelmed.",
+  "@notifSettingsIntro": {},
+
+  "notifPushLabel": "Push Notifications",
+  "@notifPushLabel": {},
+
+  "notifPushSubtitle": "Receive notifications on your device",
+  "@notifPushSubtitle": {},
+
+  "notifChatLabel": "Chat",
+  "@notifChatLabel": {},
+
+  "notifChatSubtitle": "Messages and conversations",
+  "@notifChatSubtitle": {},
+
+  "notifMealLabel": "Meal reminders",
+  "@notifMealLabel": {},
+
+  "notifMealSubtitle": "Scheduled meal times",
+  "@notifMealSubtitle": {},
+
+  "notifDmLabel": "Conversation requests",
+  "@notifDmLabel": {},
+
+  "notifDmSubtitle": "New connection requests",
+  "@notifDmSubtitle": {},
+
+  "notifLoadError": "Unable to load preferences.",
+  "@notifLoadError": {},
+
+  "preferencesTitle": "Preferences",
+  "@preferencesTitle": {},
+
+  "preferencesDiet": "Diet",
+  "@preferencesDiet": {},
+
+  "preferencesAllergens": "Allergens & Intolerances",
+  "@preferencesAllergens": {},
+
+  "preferencesFavoriteRegions": "Favorite Regions",
+  "@preferencesFavoriteRegions": {},
+
+  "preferencesSave": "Save",
+  "@preferencesSave": {},
+
+  "preferencesSaved": "Preferences saved",
+  "@preferencesSaved": {},
+
+  "preferencesError": "Error saving preferences",
+  "@preferencesError": {},
+
+  "preferencesMealPlanSection": "MEAL PLAN",
+  "@preferencesMealPlanSection": {},
+
+  "preferencesMealPlanFromFavorites": "Generate from favorites",
+  "@preferencesMealPlanFromFavorites": {},
+
+  "preferencesMealPlanFromFavoritesDesc": "Only use your saved recipes",
+  "@preferencesMealPlanFromFavoritesDesc": {},
+
+  "preferencesCookingSection": "COOKING",
+  "@preferencesCookingSection": {},
+
+  "preferencesCookingTimeLabel": "Preparation time",
+  "@preferencesCookingTimeLabel": {},
+
+  "preferencesCookingTimeQuick": "Quick (< 30 min)",
+  "@preferencesCookingTimeQuick": {},
+
+  "preferencesCookingTimeMedium": "Medium (30–60 min)",
+  "@preferencesCookingTimeMedium": {},
+
+  "preferencesCookingTimeAny": "No preference",
+  "@preferencesCookingTimeAny": {},
+
+  "preferencesBatchCookingLabel": "Batch cooking",
+  "@preferencesBatchCookingLabel": {},
+
+  "preferencesBatchCookingDesc": "Prepare several meals at once",
+  "@preferencesBatchCookingDesc": {},
+
+  "preferencesBatchCookingDetail": "Cook in bulk for the week",
+  "@preferencesBatchCookingDetail": {},
+
+  "preferencesBatchPortions": "Max portions per session",
+  "@preferencesBatchPortions": {},
+
+  "preferencesCuisineSection": "CUISINE REGION",
+  "@preferencesCuisineSection": {},
+
+  "preferencesRegionWestAfrica": "West Africa",
+  "@preferencesRegionWestAfrica": {},
+
+  "preferencesRegionEastAfrica": "East Africa",
+  "@preferencesRegionEastAfrica": {},
+
+  "preferencesRegionNorthAfrica": "North Africa",
+  "@preferencesRegionNorthAfrica": {},
+
+  "preferencesRegionCentralAfrica": "Central Africa",
+  "@preferencesRegionCentralAfrica": {},
+
+  "preferencesRegionSouthAfrica": "South Africa",
+  "@preferencesRegionSouthAfrica": {},
+
+  "preferencesRegionCaribbean": "Caribbean",
+  "@preferencesRegionCaribbean": {},
+
+  "preferencesRegionWestern": "Western",
+  "@preferencesRegionWestern": {},
+
+  "preferencesDietSection": "DIETARY RESTRICTIONS",
+  "@preferencesDietSection": {},
+
+  "preferencesNoPork": "No pork",
+  "@preferencesNoPork": {},
+
+  "preferencesNoMeat": "No meat",
+  "@preferencesNoMeat": {},
+
+  "preferencesNoGluten": "No gluten",
+  "@preferencesNoGluten": {},
+
+  "preferencesNoLactose": "No lactose",
+  "@preferencesNoLactose": {},
+
+  "notificationSettingsTitle": "Notifications",
+  "@notificationSettingsTitle": {},
+
+  "notificationSettingsMealReminders": "Meal Reminders",
+  "@notificationSettingsMealReminders": {},
+
+  "notificationSettingsNewRecipes": "New Recipes",
+  "@notificationSettingsNewRecipes": {},
+
+  "notificationSettingsCommunity": "Community",
+  "@notificationSettingsCommunity": {},
+
+  "notificationSettingsSave": "Save",
+  "@notificationSettingsSave": {},
+
+  "savedRecipesTitle": "Saved Recipes",
+  "@savedRecipesTitle": {},
+
+  "savedRecipesEmpty": "No saved recipes yet",
+  "@savedRecipesEmpty": {},
+
+  "savedRecipesEmptySubtitle": "Save recipes to find them easily",
+  "@savedRecipesEmptySubtitle": {},
+
+  "fanModeTitle": "Fan Mode",
+  "@fanModeTitle": {},
+
+  "fanModeSubscribe": "Subscribe",
+  "@fanModeSubscribe": {},
+
+  "fanModeUnsubscribe": "Unsubscribe",
+  "@fanModeUnsubscribe": {},
+
+  "fanModeMyCreators": "My Creators",
+  "@fanModeMyCreators": {},
+
+  "fanModeNoCreators": "No creators followed yet",
+  "@fanModeNoCreators": {},
+
+  "subscriptionTitle": "Go Premium",
+  "@subscriptionTitle": {},
+
+  "subscriptionSubtitle": "Unlock all features",
+  "@subscriptionSubtitle": {},
+
+  "subscriptionMonthly": "Monthly",
+  "@subscriptionMonthly": {},
+
+  "subscriptionAnnual": "Annual",
+  "@subscriptionAnnual": {},
+
+  "subscriptionSubscribe": "Subscribe",
+  "@subscriptionSubscribe": {},
+
+  "referralTitle": "Refer a Friend",
+  "@referralTitle": {},
+
+  "referralCopyCode": "Copy Code",
+  "@referralCopyCode": {},
+
+  "referralCodeCopied": "Code copied!",
+  "@referralCodeCopied": {},
+
+  "supportTitle": "Help & FAQ",
+  "@supportTitle": {},
+
+  "aiAssistantTitle": "AI Assistant",
+  "@aiAssistantTitle": {},
+
+  "aiAssistantPlaceholder": "Ask me anything about nutrition...",
+  "@aiAssistantPlaceholder": {},
+
+  "aiAssistantSend": "Send",
+  "@aiAssistantSend": {},
+
+  "batchCookingTitle": "Batch Cooking",
+  "@batchCookingTitle": {},
+
+  "batchCookingEmpty": "No batch cooking sessions",
+  "@batchCookingEmpty": {},
+
+  "ratingTitle": "Rate this meal",
+  "@ratingTitle": {},
+
+  "ratingSubmit": "Submit",
+  "@ratingSubmit": {},
+
+  "ratingSkip": "Skip",
+  "@ratingSkip": {},
+
+  "journeyTitle": "My Journey",
+  "@journeyTitle": {},
+
+  "journeyStreak": "{count, plural, one{{count} day streak} other{{count} day streak}}",
+  "@journeyStreak": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "journeyNoData": "Start your journey today",
+  "@journeyNoData": {},
+
+  "commonCancel": "Cancel",
+  "@commonCancel": {},
+
+  "commonOk": "OK",
+  "@commonOk": {},
+
+  "commonSave": "Save",
+  "@commonSave": {},
+
+  "commonDelete": "Delete",
+  "@commonDelete": {},
+
+  "commonEdit": "Edit",
+  "@commonEdit": {},
+
+  "commonClose": "Close",
+  "@commonClose": {},
+
+  "commonRetry": "Retry",
+  "@commonRetry": {},
+
+  "commonLoading": "Loading...",
+  "@commonLoading": {},
+
+  "commonError": "Error",
+  "@commonError": {},
+
+  "commonSuccess": "Success",
+  "@commonSuccess": {},
+
+  "commonNext": "Next",
+  "@commonNext": {},
+
+  "commonPrevious": "Previous",
+  "@commonPrevious": {},
+
+  "commonSkip": "Skip",
+  "@commonSkip": {},
+
+  "commonYes": "Yes",
+  "@commonYes": {},
+
+  "commonNo": "No",
+  "@commonNo": {},
+
+  "difficultyEasy": "Easy",
+  "@difficultyEasy": {},
+
+  "difficultyMedium": "Medium",
+  "@difficultyMedium": {},
+
+  "difficultyHard": "Hard",
+  "@difficultyHard": {},
+
+  "dietVegetarian": "Vegetarian",
+  "@dietVegetarian": {},
+
+  "dietVegan": "Vegan",
+  "@dietVegan": {},
+
+  "dietPescatarian": "Pescatarian",
+  "@dietPescatarian": {},
+
+  "dietHalal": "Halal",
+  "@dietHalal": {},
+
+  "dietKosher": "Kosher",
+  "@dietKosher": {},
+
+  "dietGlutenFree": "Gluten Free",
+  "@dietGlutenFree": {},
+
+  "dietLactoseFree": "Lactose Free",
+  "@dietLactoseFree": {},
+
+  "dietNutFree": "Nut Free",
+  "@dietNutFree": {},
+
+  "languageSelectorTitle": "Choose Language",
+  "@languageSelectorTitle": {},
+
+  "languageEnglish": "English",
+  "@languageEnglish": {},
+
+  "languageFrench": "Français",
+  "@languageFrench": {},
+
+  "onboardingWelcome": "Welcome to Akeli",
+  "@onboardingWelcome": {},
+
+  "onboardingSubtitle": "Let's personalize your experience",
+  "@onboardingSubtitle": {},
+
+  "onboardingAge": "What is your age?",
+  "@onboardingAge": {},
+
+  "onboardingEstimatedDeadline": "ESTIMATED DEADLINE",
+  "@onboardingEstimatedDeadline": {},
+
+  "onboardingBatchPrepMeals": "Prepare several meals at once",
+  "@onboardingBatchPrepMeals": {},
+
+  "onboardingBatchCookWeek": "Cook in bulk for the week",
+  "@onboardingBatchCookWeek": {},
+
+  "onboardingPreferences": "Your Preferences",
+  "@onboardingPreferences": {},
+
+  "onboardingPreferencesSubtitle": "Let's personalize your culinary experience.",
+  "@onboardingPreferencesSubtitle": {},
+
+  "onboardingDietLabel": "Dietary Preferences",
+  "@onboardingDietLabel": {},
+
+  "onboardingAllergens": "Allergies & Intolerances",
+  "@onboardingAllergens": {},
+
+  "onboardingAllergensHint": "Add ingredients to avoid.",
+  "@onboardingAllergensHint": {},
+
+  "onboardingSummary": "Summary",
+  "@onboardingSummary": {},
+
+  "onboardingSummarySubtitle": "Your profile is ready. Let's check the details before we begin.",
+  "@onboardingSummarySubtitle": {},
+
+  "onboardingDietaryPreferences": "Dietary Preferences",
+  "@onboardingDietaryPreferences": {},
+
+  "feedSortBestRated": "Best rated",
+  "@feedSortBestRated": {},
+
+  "feedSortPopular": "Most popular",
+  "@feedSortPopular": {},
+
+  "feedSortNewest": "Newest",
+  "@feedSortNewest": {},
+
+  "feedFilterTimeMax": "< {min} min",
+  "@feedFilterTimeMax": {
+    "placeholders": { "min": { "type": "int" } }
+  },
+
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": {},
+
+  "onboardingStep": "Step {current} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
+  "onboardingBack": "Back",
+  "@onboardingBack": {},
+
+  "onboardingNext": "Next",
+  "@onboardingNext": {},
+
+  "onboardingFinish": "Get Started",
+  "@onboardingFinish": {},
+
+  "onboardingProfileTitle": "Your Profile",
+  "@onboardingProfileTitle": {},
+
+  "onboardingDisplayNameHint": "How should we call you?",
+  "@onboardingDisplayNameHint": {},
+
+  "onboardingActivityTitle": "Activity Level",
+  "@onboardingActivityTitle": {},
+
+  "mealDetailNotFound": "Meal not found",
+  "@mealDetailNotFound": {},
+
+  "mealDetailConsumed": "Meal consumed",
+  "@mealDetailConsumed": {},
+
+  "mealDetailMarkConsumed": "Mark as consumed",
+  "@mealDetailMarkConsumed": {},
+
+  "mealDetailDescription": "Description",
+  "@mealDetailDescription": {},
+
+  "mealDetailSwapRecipe": "Change recipe",
+  "@mealDetailSwapRecipe": {},
+
+  "mealDetailPersonalMeal": "Personal Meal (AI)",
+  "@mealDetailPersonalMeal": {},
+
+  "mealDetailConsumeFirst": "Consume this meal first",
+  "@mealDetailConsumeFirst": {},
+
+  "mealDetailEditReview": "Edit your review",
+  "@mealDetailEditReview": {},
+
+  "mealDetailLeaveReview": "Leave a review",
+  "@mealDetailLeaveReview": {},
+
+  "mealDetailViewFullRecipe": "View full recipe",
+  "@mealDetailViewFullRecipe": {},
+
+  "mealDetailBatchPrep": "Batch preparation",
+  "@mealDetailBatchPrep": {},
+
+  "mealDetailBatchSession": "Batch cooking session",
+  "@mealDetailBatchSession": {},
+
+  "recipeDetailTotalRecipe": "Total recipe",
+  "@recipeDetailTotalRecipe": {},
+
+  "recipeDetailPerServing": "Per serving",
+  "@recipeDetailPerServing": {},
+
+  "recipeDetailReviews": "Reviews",
+  "@recipeDetailReviews": {},
+
+  "recipeDetailRatingTaste": "Taste",
+  "@recipeDetailRatingTaste": {},
+
+  "recipeDetailRatingEase": "Ease",
+  "@recipeDetailRatingEase": {},
+
+  "recipeDetailRatingSatiety": "Satiety",
+  "@recipeDetailRatingSatiety": {},
+
+  "batchCookingThisWeek": "This week",
+  "@batchCookingThisWeek": {},
+
+  "batchCookingOngoing": "Your ongoing preparations",
+  "@batchCookingOngoing": {},
+
+  "batchCookingNoSessionsTitle": "No sessions this week",
+  "@batchCookingNoSessionsTitle": {},
+
+  "batchCookingNoSessionsBody": "Your batch sessions will appear here automatically when a recipe is planned multiple times.",
+  "@batchCookingNoSessionsBody": {},
+
+  "batchCookingDefaultRecipe": "Recipe",
+  "@batchCookingDefaultRecipe": {},
+
+  "batchDetailPreparation": "Preparation",
+  "@batchDetailPreparation": {},
+
+  "batchDetailPortionsUsed": "Portions used",
+  "@batchDetailPortionsUsed": {},
+
+  "batchDetailPortionsUsedCount": "{count} used",
+  "@batchDetailPortionsUsedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "batchDetailStartCooking": "Start cooking",
+  "@batchDetailStartCooking": {},
+
+  "commonAdd": "Add",
+  "@commonAdd": {},
+
+  "mealPlannerAddSnack": "Add a snack",
+  "@mealPlannerAddSnack": {},
+
+  "mealPlannerAddAnotherSnack": "Add another snack",
+  "@mealPlannerAddAnotherSnack": {},
+
+  "snackPickerTitle": "Choose a snack",
+  "@snackPickerTitle": {},
+
+  "snackPickerEstimatedQty": "Estimated quantity",
+  "@snackPickerEstimatedQty": {},
+
+  "snackPickerPersonal": "Personal snack",
+  "@snackPickerPersonal": {},
+
+  "snackPickerNoResults": "No recipe found",
+  "@snackPickerNoResults": {},
+
+  "fanModeLoadError": "Loading error",
+  "@fanModeLoadError": {},
+
+  "fanModeCreatorsTitle": "Creators to support",
+  "@fanModeCreatorsTitle": {},
+
+  "fanModeCreatorsSubtitle": "Your dominant creator is highlighted.",
+  "@fanModeCreatorsSubtitle": {},
+
+  "fanModeNoCreatorsTitle": "No eligible creators",
+  "@fanModeNoCreatorsTitle": {},
+
+  "fanModeNoCreatorsSubtitle": "Creators must publish 30 recipes to be eligible.",
+  "@fanModeNoCreatorsSubtitle": {},
+
+  "fanModeActivateTitle": "Activate Fan Mode",
+  "@fanModeActivateTitle": {},
+
+  "fanModeActivateContent": "You are about to support {name} with €1/month, included in your Akeli subscription.\n\nRule 90/10: 90% of your meals must come from this creator's catalog (max 9 external recipes per month).\n\nActive from the 1st of next month.",
+  "@fanModeActivateContent": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fanModeConfirm": "Confirm",
+  "@fanModeConfirm": {},
+
+  "fanModeActivateError": "Error during activation.",
+  "@fanModeActivateError": {},
+
+  "fanModeActivateSuccess": "You are now supporting {name}!",
+  "@fanModeActivateSuccess": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "fanModeRecipesThisMonth": "Your recipes this month",
+  "@fanModeRecipesThisMonth": {},
+
+  "fanModeNoRecipesThisMonth": "No recipes recorded this month",
+  "@fanModeNoRecipesThisMonth": {},
+
+  "fanModeTotalMeals": "{count} meals recorded",
+  "@fanModeTotalMeals": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "fanModeRecipeCount": "{count} recipes",
+  "@fanModeRecipeCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "fanModeFanCount": "{count} fans",
+  "@fanModeFanCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "fanModeSupport": "Support",
+  "@fanModeSupport": {},
+
+  "fanModeQuit": "Leave Fan Mode",
+  "@fanModeQuit": {},
+
+  "fanModeQuitContent": "Your support will end at the end of the current month.",
+  "@fanModeQuitContent": {},
+
+  "fanModeKeep": "Keep",
+  "@fanModeKeep": {},
+
+  "fanModeQuitConfirm": "Leave",
+  "@fanModeQuitConfirm": {},
+
+  "fanModeCancelled": "Fan Mode cancelled.",
+  "@fanModeCancelled": {},
+
+  "fanModeStatusPending": "⏳ Active from the 1st of next month",
+  "@fanModeStatusPending": {},
+
+  "fanModeStatusActive": "❤️ Fan Mode active",
+  "@fanModeStatusActive": {},
+
+  "fanModeExternalTitle": "External recipes this month",
+  "@fanModeExternalTitle": {},
+
+  "fanModeExternalSubtitle": "Recipes outside catalog",
+  "@fanModeExternalSubtitle": {},
+
+  "fanModeEngagementTitle": "Fan Mode Commitment",
+  "@fanModeEngagementTitle": {},
+
+  "fanModeEngagementYouSupport": "You support ",
+  "@fanModeEngagementYouSupport": {},
+
+  "fanModeEngagementWith": " with ",
+  "@fanModeEngagementWith": {},
+
+  "fanModeEngagementGuaranteed": "€1/month guaranteed",
+  "@fanModeEngagementGuaranteed": {},
+
+  "fanModeEngagementIncluded": ", included in your subscription.\n\nFan Rule 90/10: 90% of your meals must come from this creator's catalog. You can use up to ",
+  "@fanModeEngagementIncluded": {},
+
+  "fanModeEngagementExternalCount": "9 external recipes",
+  "@fanModeEngagementExternalCount": {},
+
+  "fanModeEngagementPerMonth": " per month.",
+  "@fanModeEngagementPerMonth": {},
+
+  "fanModeDefaultCreator": "your creator",
+  "@fanModeDefaultCreator": {},
+
+  "commonLoadError": "Loading error",
+  "@commonLoadError": {},
+
+  "commonGenericError": "An error occurred. Please try again.",
+  "@commonGenericError": {},
+
+  "groupDetailTitle": "Group Details",
+  "@groupDetailTitle": {},
+
+  "groupDetailUnknownGroup": "Unknown group",
+  "@groupDetailUnknownGroup": {},
+
+  "groupDetailTabMembers": "Members",
+  "@groupDetailTabMembers": {},
+
+  "groupDetailTabPhotos": "Photos",
+  "@groupDetailTabPhotos": {},
+
+  "groupDetailTabRecipes": "Recipes",
+  "@groupDetailTabRecipes": {},
+
+  "groupDetailDmAlreadySent": "Request already sent",
+  "@groupDetailDmAlreadySent": {},
+
+  "groupDetailDmSentTo": "Request sent to {name}",
+  "@groupDetailDmSentTo": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "groupDetailExcludeTitle": "Exclude {name}?",
+  "@groupDetailExcludeTitle": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "groupDetailExcludeContent": "This person will lose access to the group and group chat.",
+  "@groupDetailExcludeContent": {},
+
+  "groupDetailExclude": "Exclude",
+  "@groupDetailExclude": {},
+
+  "groupDetailMemberExcluded": "Member excluded from group",
+  "@groupDetailMemberExcluded": {},
+
+  "groupDetailNotAdmin": "You are no longer an administrator of this group",
+  "@groupDetailNotAdmin": {},
+
+  "groupDetailInvite": "Invite",
+  "@groupDetailInvite": {},
+
+  "groupDetailNoMembersTitle": "No members",
+  "@groupDetailNoMembersTitle": {},
+
+  "groupDetailNoMembersSubtitle": "Members will appear here.",
+  "@groupDetailNoMembersSubtitle": {},
+
+  "groupDetailNoPhotosTitle": "No shared photos",
+  "@groupDetailNoPhotosTitle": {},
+
+  "groupDetailNoPhotosSubtitle": "Photos sent in the chat will appear here.",
+  "@groupDetailNoPhotosSubtitle": {},
+
+  "groupDetailNoRecipesTitle": "No shared recipes",
+  "@groupDetailNoRecipesTitle": {},
+
+  "groupDetailNoRecipesSubtitle": "Recipes shared in the chat will appear here.",
+  "@groupDetailNoRecipesSubtitle": {},
+
+  "groupDetailInvitesSent": "Invitations sent",
+  "@groupDetailInvitesSent": {},
+
+  "groupDetailInviteTitle": "Invite members",
+  "@groupDetailInviteTitle": {},
+
+  "groupDetailNoEligibleTitle": "No eligible contacts",
+  "@groupDetailNoEligibleTitle": {},
+
+  "groupDetailNoEligibleSubtitle": "You don't have any private conversations with users to invite yet.",
+  "@groupDetailNoEligibleSubtitle": {},
+
+  "groupDetailInviteCount": "Invite ({count})",
+  "@groupDetailInviteCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "groupDetailPrivateMessage": "Private message",
+  "@groupDetailPrivateMessage": {},
+
+  "groupDetailExcludeFromGroup": "Exclude from group",
+  "@groupDetailExcludeFromGroup": {},
+
+  "allergenPickerHint": "e.g. peanuts, nuts...",
+  "@allergenPickerHint": {},
+
+  "allergenPickerAdd": "Add \"{query}\"",
+  "@allergenPickerAdd": {
+    "placeholders": { "query": { "type": "String" } }
+  },
+
+  "allergenPickerSuggestionSent": "Suggestion sent for review.",
+  "@allergenPickerSuggestionSent": {},
+
+  "ingredientDetailOptional": "Optional",
+  "@ingredientDetailOptional": {},
+
+  "ingredientDetailTagHighProtein": "High protein",
+  "@ingredientDetailTagHighProtein": {},
+
+  "ingredientDetailTagLowFat": "Low fat",
+  "@ingredientDetailTagLowFat": {},
+
+  "ingredientDetailTagGlutenFree": "Gluten free",
+  "@ingredientDetailTagGlutenFree": {},
+
+  "ingredientDetailTagAfricanStaple": "African staple",
+  "@ingredientDetailTagAfricanStaple": {},
+
+  "ingredientDetailTagHardToFindEu": "Hard to find in Europe",
+  "@ingredientDetailTagHardToFindEu": {},
+
+  "ingredientDetailNutritionTitle": "Nutrition (per 100g)",
+  "@ingredientDetailNutritionTitle": {},
+
+  "ingredientDetailEnergy": "Energy",
+  "@ingredientDetailEnergy": {},
+
+  "cookingSessionTitle": "Cooking Session",
+  "@cookingSessionTitle": {},
+
+  "cookingSessionSubtitle": "Organize your meals for the week",
+  "@cookingSessionSubtitle": {},
+
+  "cookingSessionComingSoon": "Coming soon",
+  "@cookingSessionComingSoon": {},
+
+  "cookingSessionComingSoonDesc": "This feature will be available in a future update",
+  "@cookingSessionComingSoonDesc": {},
+
+  "cookingSessionGotIt": "Got it",
+  "@cookingSessionGotIt": {}
+}
