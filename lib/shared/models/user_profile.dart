@@ -17,6 +17,7 @@ class UserProfile {
   final DateTime createdAt;
   final DateTime? consentPrivacyAt;
   final DateTime? consentCguAt;
+  final bool hasDismissedMealScheduleHint;
 
   const UserProfile({
     required this.id,
@@ -34,6 +35,7 @@ class UserProfile {
     required this.createdAt,
     this.consentPrivacyAt,
     this.consentCguAt,
+    this.hasDismissedMealScheduleHint = false,
   });
 
   String get displayName =>
@@ -59,6 +61,8 @@ class UserProfile {
         consentCguAt: json['consent_cgu_at'] != null
             ? DateTime.parse(json['consent_cgu_at'] as String)
             : null,
+        hasDismissedMealScheduleHint:
+            (json['has_dismissed_meal_schedule_hint'] as bool?) ?? false,
       );
 
   UserProfile copyWith({

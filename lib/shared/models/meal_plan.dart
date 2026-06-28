@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../core/quantity_formatter.dart';
+import '../../l10n/app_localizations.dart';
+import '../../core/meal_type_l10n.dart' as meal_type_l10n;
 
 // ---------------------------------------------------------------------------
 // MealPlan
@@ -54,6 +56,9 @@ class MealPlan {
       );
       map.putIfAbsent(day, () => []).add(entry);
     }
+    for (final list in map.values) {
+      list.sort((a, b) => (a.sortOrder ?? 0).compareTo(b.sortOrder ?? 0));
+    }
     return map;
   }
 }
@@ -84,6 +89,8 @@ class MealPlanEntry {
   final double? fatGComputed;
   final List<MealIngredient> ingredients;
   final List<MealPlanEntryComponent> components;
+  final String? nickname;
+  final int? sortOrder;
 
   const MealPlanEntry({
     required this.id,
@@ -105,6 +112,8 @@ class MealPlanEntry {
     this.fatGComputed,
     required this.ingredients,
     required this.components,
+    this.nickname,
+    this.sortOrder,
   });
 
   factory MealPlanEntry.fromJson(Map<String, dynamic> json, {Set<String> ratedRecipeIds = const {}}) {
@@ -135,6 +144,8 @@ class MealPlanEntry {
               .toList() ??
           [],
       components: components,
+      nickname: json['nickname'] as String?,
+      sortOrder: (json['sort_order'] as num?)?.toInt(),
     );
   }
 
@@ -145,6 +156,12 @@ class MealPlanEntry {
 
   String? get recipeTitle =>
       isCustomMeal ? customMealName : (_base?.recipeTitle);
+
+  String? localizedTitle(String locale) {
+    if (isCustomMeal) return customMealName;
+    if (locale == 'en') return _base?.recipeTitleEn ?? _base?.recipeTitle;
+    return _base?.recipeTitle;
+  }
   String? get recipeThumbnail => _base?.recipeThumbnail;
 
   // Macros — pre-computed backend values when available; fall through to
@@ -191,6 +208,11 @@ class MealPlanEntry {
         return mealType;
     }
   }
+
+  String displayLabel(AppLocalizations l10n) =>
+      (nickname != null && nickname!.isNotEmpty)
+          ? nickname!
+          : meal_type_l10n.mealTypeLabel(l10n, mealType);
 }
 
 // ---------------------------------------------------------------------------
@@ -204,6 +226,7 @@ class MealPlanEntryComponent {
   final String mealPlanEntryId;
   final String recipeId;
   final String? recipeTitle;
+  final String? recipeTitleEn;
   final String? recipeThumbnail;
   final String role; // 'base' | 'starch' | 'side'
   final double consumptionWeight; // 1/N — for revenue computation
@@ -219,6 +242,7 @@ class MealPlanEntryComponent {
     required this.mealPlanEntryId,
     required this.recipeId,
     this.recipeTitle,
+    this.recipeTitleEn,
     this.recipeThumbnail,
     required this.role,
     required this.consumptionWeight,
@@ -246,6 +270,12 @@ class MealPlanEntryComponent {
       mealPlanEntryId: json['meal_plan_entry_id'] as String,
       recipeId: json['recipe_id'] as String,
       recipeTitle: recipe?['title'] as String?,
+      recipeTitleEn: (recipe?['recipe_translation'] as List?)
+          ?.whereType<Map<String, dynamic>>()
+          .where((t) => t['locale'] == 'en')
+          .map((t) => t['title'] as String?)
+          .whereType<String>()
+          .firstOrNull,
       recipeThumbnail: recipe?['cover_image_url'] as String?,
       role: json['role'] as String,
       consumptionWeight:
@@ -276,6 +306,7 @@ class CookingSessionIngredient {
   final String cookingSessionId;
   final String? ingredientId;
   final String ingredientName;
+  final String? ingredientNameEn;
   final double quantityNeeded;
   final String unit;
 
@@ -284,20 +315,26 @@ class CookingSessionIngredient {
     required this.cookingSessionId,
     this.ingredientId,
     required this.ingredientName,
+    this.ingredientNameEn,
     required this.quantityNeeded,
     required this.unit,
   });
 
   factory CookingSessionIngredient.fromJson(Map<String, dynamic> json) {
+    final nested = json['ingredient'] as Map<String, dynamic>?;
     return CookingSessionIngredient(
       id: json['id'] as String,
       cookingSessionId: json['cooking_session_id'] as String,
       ingredientId: json['ingredient_id'] as String?,
       ingredientName: json['ingredient_name'] as String,
+      ingredientNameEn: nested?['name_en'] as String?,
       quantityNeeded: (json['quantity_needed'] as num).toDouble(),
       unit: json['unit'] as String,
     );
   }
+
+  String localizedName(String locale) =>
+      (locale == 'en' ? ingredientNameEn : null) ?? ingredientName;
 
   String get quantityDisplay => formatQuantity(quantityNeeded, unit);
 }
@@ -311,6 +348,7 @@ class CookingSession {
   final String mealPlanId;
   final String? recipeId;
   final String? recipeTitle;
+  final String? recipeTitleEn;
   final String? recipeThumbnail;
   final DateTime plannedDate;
   final int totalPortions;
@@ -326,6 +364,7 @@ class CookingSession {
     required this.mealPlanId,
     this.recipeId,
     this.recipeTitle,
+    this.recipeTitleEn,
     this.recipeThumbnail,
     required this.plannedDate,
     required this.totalPortions,
@@ -345,6 +384,12 @@ class CookingSession {
       mealPlanId: json['meal_plan_id'] as String,
       recipeId: json['recipe_id'] as String?,
       recipeTitle: recipe?['title'] as String?,
+      recipeTitleEn: (recipe?['recipe_translation'] as List?)
+          ?.whereType<Map<String, dynamic>>()
+          .where((t) => t['locale'] == 'en')
+          .map((t) => t['title'] as String?)
+          .whereType<String>()
+          .firstOrNull,
       recipeThumbnail: recipe?['cover_image_url'] as String?,
       plannedDate: DateTime.parse(json['planned_date'] as String),
       totalPortions: (json['total_portions'] as num).toInt(),
@@ -361,6 +406,9 @@ class CookingSession {
   }
 
   int get portionsAvailable => totalPortions - portionsUsed;
+
+  String? localizedTitle(String locale) =>
+      (locale == 'en' ? recipeTitleEn : null) ?? recipeTitle;
   bool get hasAvailablePortions => portionsAvailable > 0;
 
   CookingSession copyWith({
@@ -442,6 +490,7 @@ class MealIngredient {
   final String mealPlanEntryId;
   final String? ingredientId;
   final String ingredientName;
+  final String? ingredientNameEn;
   final double quantity;
   final String unit;
 
@@ -450,18 +499,23 @@ class MealIngredient {
     required this.mealPlanEntryId,
     this.ingredientId,
     required this.ingredientName,
+    this.ingredientNameEn,
     required this.quantity,
     required this.unit,
   });
 
-  factory MealIngredient.fromJson(Map<String, dynamic> json) => MealIngredient(
-        id: json['id'] as String,
-        mealPlanEntryId: json['meal_plan_entry_id'] as String,
-        ingredientId: json['ingredient_id'] as String?,
-        ingredientName: json['ingredient_name'] as String,
-        quantity: (json['quantity'] as num).toDouble(),
-        unit: json['unit'] as String,
-      );
+  factory MealIngredient.fromJson(Map<String, dynamic> json) {
+    final nested = json['ingredient'] as Map<String, dynamic>?;
+    return MealIngredient(
+      id: json['id'] as String,
+      mealPlanEntryId: json['meal_plan_entry_id'] as String,
+      ingredientId: json['ingredient_id'] as String?,
+      ingredientName: json['ingredient_name'] as String,
+      ingredientNameEn: nested?['name_en'] as String?,
+      quantity: (json['quantity'] as num).toDouble(),
+      unit: json['unit'] as String,
+    );
+  }
 
   String get quantityDisplay => formatQuantity(quantity, unit);
 }

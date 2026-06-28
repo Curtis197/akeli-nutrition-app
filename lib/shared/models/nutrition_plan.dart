@@ -7,6 +7,11 @@ class MealDistribution {
   final double? calorieTarget;
   final int minPortionG;
   final int maxPortionG;
+  // NEW fields
+  final String? nickname;
+  final double? proteinPct;
+  final double? carbsPct;
+  final double? fatPct;
 
   MealDistribution({
     this.id,
@@ -17,6 +22,10 @@ class MealDistribution {
     this.calorieTarget,
     this.minPortionG = 50,
     this.maxPortionG = 1500,
+    this.nickname,
+    this.proteinPct,
+    this.carbsPct,
+    this.fatPct,
   });
 
   factory MealDistribution.fromJson(Map<String, dynamic> json) {
@@ -26,9 +35,15 @@ class MealDistribution {
       mealType: json['meal_type'] as String,
       sortOrder: json['sort_order'] as int,
       caloriePct: (json['calorie_pct'] as num).toDouble(),
-      calorieTarget: json['calorie_target'] != null ? (json['calorie_target'] as num).toDouble() : null,
+      calorieTarget: json['calorie_target'] != null
+          ? (json['calorie_target'] as num).toDouble()
+          : null,
       minPortionG: (json['min_portion_g'] as int?) ?? 50,
       maxPortionG: (json['max_portion_g'] as int?) ?? 1500,
+      nickname: json['nickname'] as String?,
+      proteinPct: (json['protein_pct'] as num?)?.toDouble(),
+      carbsPct: (json['carbs_pct'] as num?)?.toDouble(),
+      fatPct: (json['fat_pct'] as num?)?.toDouble(),
     );
   }
 
@@ -42,6 +57,10 @@ class MealDistribution {
       if (calorieTarget != null) 'calorie_target': calorieTarget,
       'min_portion_g': minPortionG,
       'max_portion_g': maxPortionG,
+      if (nickname != null) 'nickname': nickname,
+      if (proteinPct != null) 'protein_pct': proteinPct,
+      if (carbsPct != null) 'carbs_pct': carbsPct,
+      if (fatPct != null) 'fat_pct': fatPct,
     };
   }
 
@@ -54,6 +73,10 @@ class MealDistribution {
     double? calorieTarget,
     int? minPortionG,
     int? maxPortionG,
+    String? nickname,
+    double? proteinPct,
+    double? carbsPct,
+    double? fatPct,
   }) {
     return MealDistribution(
       id: id ?? this.id,
@@ -64,6 +87,10 @@ class MealDistribution {
       calorieTarget: calorieTarget ?? this.calorieTarget,
       minPortionG: minPortionG ?? this.minPortionG,
       maxPortionG: maxPortionG ?? this.maxPortionG,
+      nickname: nickname ?? this.nickname,
+      proteinPct: proteinPct ?? this.proteinPct,
+      carbsPct: carbsPct ?? this.carbsPct,
+      fatPct: fatPct ?? this.fatPct,
     );
   }
 }
