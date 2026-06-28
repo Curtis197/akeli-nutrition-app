@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/locale_provider.dart';
 import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/meal_plan.dart';
@@ -32,7 +33,7 @@ final activeMealPlanProvider =
     final data = await client
         .from('meal_plan')
         .select(
-          '*, meal_plan_entry(*, meal_ingredient(*), meal_plan_entry_component(*, recipe(id, title, cover_image_url, prep_time_min, cook_time_min, recipe_macro(calories, protein_g, carbs_g, fat_g))))',
+          '*, meal_plan_entry(*, meal_ingredient(*, ingredient:ingredient_id(name_en)), meal_plan_entry_component(*, recipe(id, title, cover_image_url, prep_time_min, cook_time_min, recipe_macro(calories, protein_g, carbs_g, fat_g), recipe_translation(title, locale))))',
         )
         .eq('user_id', user.id)
         .eq('is_active', true)
@@ -100,7 +101,7 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
     return null;
   }
 
-  Future<void> generate({int? days, int mealsPerDay = 3}) async {
+  Future<void> generate({int? days}) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
@@ -111,8 +112,8 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
         '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
     final effectiveDays = days ?? (8 - now.weekday);
 
-    _logger.userAction('Generate meal plan', metadata: {'days': effectiveDays, 'mealsPerDay': mealsPerDay});
-    _logger.edge('generate-meal-plan', 'BEFORE | days: $effectiveDays | mealsPerDay: $mealsPerDay | userId: ${user.id}');
+    _logger.userAction('Generate meal plan', metadata: {'days': effectiveDays});
+    _logger.edge('generate-meal-plan', 'BEFORE | days: $effectiveDays | userId: ${user.id}');
     _logger.provider('MealPlanGeneratorNotifier → loading (generate)');
 
     final client = ref.read(supabaseClientProvider);
@@ -121,7 +122,7 @@ class MealPlanGeneratorNotifier extends AutoDisposeAsyncNotifier<MealPlan?> {
       try {
         final res = await client.functions.invoke(
           'generate-meal-plan',
-          body: {'days': effectiveDays, 'meals_per_day': mealsPerDay, 'start_date': todayStr},
+          body: {'days': effectiveDays, 'start_date': todayStr},
         );
         _logger.edge('generate-meal-plan', 'AFTER | success | responseType: ${res.data.runtimeType}');
 
@@ -236,6 +237,7 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
     _logger.provider('ShoppingListNotifier build()');
     ref.onDispose(() => _logger.provider('ShoppingListNotifier disposed'));
 
+    final locale = ref.watch(localeProvider).languageCode;
     final plan = await ref.watch(activeMealPlanProvider.future);
     if (plan == null) {
       _logger.provider('ShoppingListNotifier EARLY RETURN | reason: no active meal plan');
@@ -243,12 +245,12 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
     }
 
     final client = ref.watch(supabaseClientProvider);
-    _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id}');
+    _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id} | locale: $locale');
     
     try {
       final existingList = await client
           .from('shopping_list')
-          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, category))')
+          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
           .eq('meal_plan_id', plan.id)
           .maybeSingle();
 
@@ -264,7 +266,7 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
          
          final newList = await client
           .from('shopping_list')
-          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, category))')
+          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
           .eq('meal_plan_id', plan.id)
           .maybeSingle();
          
@@ -275,10 +277,12 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
 
       final items = itemsData.map((e) {
          final ingredient = e['ingredient'] as Map<String, dynamic>?;
+         final nameFr = (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown';
+         final nameEn = ingredient?['name_en'] as String?;
          return ShoppingItem(
             id: e['id'] as String,
             ingredientId: e['ingredient_id'] as String?,
-            name: (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown',
+            name: (locale == 'en' && nameEn != null) ? nameEn : nameFr,
             quantity: (e['quantity'] as num).toDouble(),
             unit: (e['unit'] as String?) ?? '',
             category: ingredient?['category'] as String?,
@@ -461,7 +465,7 @@ class CookingSessionsNotifier extends AutoDisposeAsyncNotifier<List<CookingSessi
     try {
       final data = await client
           .from('cooking_session')
-          .select('*, recipe(id, title, cover_image_url), cooking_session_ingredient(*)')
+          .select('*, recipe(id, title, cover_image_url, recipe_translation(title, locale)), cooking_session_ingredient(*, ingredient:ingredient_id(name_en))')
           .eq('meal_plan_id', plan.id)
           .order('planned_date');
 
@@ -802,6 +806,7 @@ class SnackEntryNotifier extends AsyncNotifier<void> {
     required String mealPlanId,
     required String recipeId,
     required DateTime scheduledDate,
+    double weightG = 150.0,
   }) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
@@ -815,14 +820,15 @@ class SnackEntryNotifier extends AsyncNotifier<void> {
       final dateStr =
           '${scheduledDate.year}-${scheduledDate.month.toString().padLeft(2, '0')}-${scheduledDate.day.toString().padLeft(2, '0')}';
       try {
-        _logger.db('BEFORE | table: meal_plan_entry | op: INSERT | meal_type: snack | mealPlanId: $mealPlanId | date: $dateStr');
+        final servings = weightG / 100.0;
+        _logger.db('BEFORE | table: meal_plan_entry | op: INSERT | meal_type: snack | mealPlanId: $mealPlanId | date: $dateStr | weightG: $weightG');
         final entryData = await client
             .from('meal_plan_entry')
             .insert({
               'meal_plan_id': mealPlanId,
               'meal_type': 'snack',
               'scheduled_date': dateStr,
-              'servings': 1.0,
+              'servings': servings,
               'is_consumed': false,
               'is_custom_meal': false,
             })
@@ -836,7 +842,7 @@ class SnackEntryNotifier extends AsyncNotifier<void> {
           'meal_plan_entry_id': entryId,
           'recipe_id': recipeId,
           'role': 'base',
-          'consumption_weight': 1.0,
+          'consumption_weight': servings,
         });
         _logger.db('AFTER | table: meal_plan_entry_component | op: INSERT | success');
         _logger.provider('SnackEntryNotifier → data (addSnack success)');

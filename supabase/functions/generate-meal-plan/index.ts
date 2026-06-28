@@ -28,9 +28,9 @@ serve(async (req) => {
     const {
       start_date = new Date().toISOString().split("T")[0],
       days = 7,
-      meals_per_day = 3,
     } = body;
-    logger.debug("[STEP 1] Body parsed", { start_date, days, meals_per_day });
+    const meals_per_day = 3; // kept for RPC signature compat; SQL reads distribution instead
+    logger.debug("[STEP 1] Body parsed", { start_date, days });
 
     if (days < 1 || days > 14) {
       logger.warn("EARLY RETURN | reason: days out of range | days: " + days);
