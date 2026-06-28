@@ -101,7 +101,7 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
           .savePlan(plan, _distributions!);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).mealScheduleSave)),
+          SnackBar(content: Text(AppLocalizations.of(context).mealScheduleSavedSuccess)),
         );
         Navigator.of(context).pop();
       }

@@ -2216,5 +2216,9 @@
   "mealScheduleCarbsPct": "Carbs %",
   "@mealScheduleCarbsPct": {},
   "mealScheduleFatPct": "Fat %",
-  "@mealScheduleFatPct": {}
+  "@mealScheduleFatPct": {},
+  "mealScheduleSavedSuccess": "Schedule saved",
+  "@mealScheduleSavedSuccess": {},
+  "nutritionPlanSaveButton": "Save plan",
+  "@nutritionPlanSaveButton": {}
 }

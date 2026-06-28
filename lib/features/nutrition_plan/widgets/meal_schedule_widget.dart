@@ -83,7 +83,19 @@ class _MealScheduleWidgetState extends State<MealScheduleWidget> {
     _logger.userAction('MealScheduleWidget remove slot | index: $index');
     setState(() {
       _slots = List.of(_slots)..removeAt(index);
-      _expandedMacroIndices.remove(index);
+      // Shift expanded indices after the removed slot
+      final shifted = <int>{};
+      for (final i in _expandedMacroIndices) {
+        if (i < index) {
+          shifted.add(i);
+        } else if (i > index) {
+          shifted.add(i - 1);
+        }
+        // i == index is the removed slot, drop it
+      }
+      _expandedMacroIndices
+        ..clear()
+        ..addAll(shifted);
     });
     _emit();
   }

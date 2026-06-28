@@ -4297,6 +4297,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version 1.0 • Last updated: January 2026'**
   String get legalTermsVersion;
+
+  /// No description provided for @mealScheduleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal Schedule'**
+  String get mealScheduleTitle;
+
+  /// No description provided for @mealScheduleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Define which meals you want each day'**
+  String get mealScheduleSubtitle;
+
+  /// No description provided for @mealScheduleAddSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a meal slot'**
+  String get mealScheduleAddSlot;
+
+  /// No description provided for @mealScheduleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save schedule'**
+  String get mealScheduleSave;
+
+  /// No description provided for @mealScheduleCalorieTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{total}% of daily calories'**
+  String mealScheduleCalorieTotal(String total);
+
+  /// No description provided for @mealScheduleCalorieTotalError.
+  ///
+  /// In en, this message translates to:
+  /// **'Total must equal 100%'**
+  String get mealScheduleCalorieTotalError;
+
+  /// No description provided for @mealScheduleMacroSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Macro targets for this slot'**
+  String get mealScheduleMacroSection;
+
+  /// No description provided for @mealScheduleMacroError.
+  ///
+  /// In en, this message translates to:
+  /// **'Macros must equal 100%'**
+  String get mealScheduleMacroError;
+
+  /// No description provided for @mealScheduleNicknamePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom label (optional)'**
+  String get mealScheduleNicknamePlaceholder;
+
+  /// No description provided for @mealScheduleCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal type'**
+  String get mealScheduleCategoryLabel;
+
+  /// No description provided for @mealScheduleApplyDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'When to apply?'**
+  String get mealScheduleApplyDialogTitle;
+
+  /// No description provided for @mealScheduleApplyFromToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply from today'**
+  String get mealScheduleApplyFromToday;
+
+  /// No description provided for @mealScheduleApplyFromNextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply from next week'**
+  String get mealScheduleApplyFromNextWeek;
+
+  /// No description provided for @mealScheduleHintBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize your meal schedule anytime — tap the settings icon above'**
+  String get mealScheduleHintBanner;
+
+  /// No description provided for @mealScheduleHintDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get mealScheduleHintDismiss;
+
+  /// No description provided for @mealScheduleOnboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize your meal schedule'**
+  String get mealScheduleOnboardingTitle;
+
+  /// No description provided for @mealScheduleOnboardingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose which meals you want each day. You can change this anytime in Settings.'**
+  String get mealScheduleOnboardingSubtitle;
+
+  /// No description provided for @mealScheduleOnboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip, use default (3 meals)'**
+  String get mealScheduleOnboardingSkip;
+
+  /// No description provided for @mealScheduleCustomizeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize meal structure'**
+  String get mealScheduleCustomizeButton;
+
+  /// No description provided for @mealScheduleDeleteSlotTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this slot'**
+  String get mealScheduleDeleteSlotTooltip;
+
+  /// No description provided for @mealScheduleCaloriePct.
+  ///
+  /// In en, this message translates to:
+  /// **'Calorie share'**
+  String get mealScheduleCaloriePct;
+
+  /// No description provided for @mealScheduleProteinPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein %'**
+  String get mealScheduleProteinPct;
+
+  /// No description provided for @mealScheduleCarbsPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs %'**
+  String get mealScheduleCarbsPct;
+
+  /// No description provided for @mealScheduleFatPct.
+  ///
+  /// In en, this message translates to:
+  /// **'Fat %'**
+  String get mealScheduleFatPct;
+
+  /// No description provided for @mealScheduleSavedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule saved'**
+  String get mealScheduleSavedSuccess;
+
+  /// No description provided for @nutritionPlanSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save plan'**
+  String get nutritionPlanSaveButton;
 }
 
 class _AppLocalizationsDelegate

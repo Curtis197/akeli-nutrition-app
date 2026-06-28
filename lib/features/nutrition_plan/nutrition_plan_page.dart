@@ -170,13 +170,13 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     if ((totalMacros - 100).abs() > 1.0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Les macros doivent totaliser 100%')));
+          SnackBar(content: Text(l10n.mealScheduleMacroError)));
       return false;
     }
     final totalDist = _distributions.fold(0.0, (s, d) => s + d.caloriePct);
     if ((totalDist - 100).abs() > 1.0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('La répartition des repas doit totaliser 100%')));
+          SnackBar(content: Text(l10n.mealScheduleCalorieTotalError)));
       return false;
     }
 
@@ -387,9 +387,9 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                         ? const SizedBox(
                             height: 20, width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Text(
-                            'Enregistrer mon plan',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
+                        : Text(
+                            AppLocalizations.of(context).nutritionPlanSaveButton,
+                            style: const TextStyle(fontSize: 16, color: Colors.white),
                           ),
                   ),
                 ),

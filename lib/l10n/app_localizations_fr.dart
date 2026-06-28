@@ -2280,4 +2280,92 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get legalTermsVersion =>
       'Version 1.0 • Dernière mise à jour: Janvier 2026';
+
+  @override
+  String get mealScheduleTitle => 'Planning des repas';
+
+  @override
+  String get mealScheduleSubtitle =>
+      'Définissez les repas que vous souhaitez chaque jour';
+
+  @override
+  String get mealScheduleAddSlot => 'Ajouter un repas';
+
+  @override
+  String get mealScheduleSave => 'Enregistrer';
+
+  @override
+  String mealScheduleCalorieTotal(String total) {
+    return '$total% des calories journalières';
+  }
+
+  @override
+  String get mealScheduleCalorieTotalError => 'Le total doit être égal à 100%';
+
+  @override
+  String get mealScheduleMacroSection => 'Objectifs macros pour ce repas';
+
+  @override
+  String get mealScheduleMacroError => 'Les macros doivent totaliser 100%';
+
+  @override
+  String get mealScheduleNicknamePlaceholder =>
+      'Libellé personnalisé (optionnel)';
+
+  @override
+  String get mealScheduleCategoryLabel => 'Type de repas';
+
+  @override
+  String get mealScheduleApplyDialogTitle => 'Quand appliquer ?';
+
+  @override
+  String get mealScheduleApplyFromToday => 'Appliquer dès aujourd\'hui';
+
+  @override
+  String get mealScheduleApplyFromNextWeek =>
+      'Appliquer à partir de la semaine prochaine';
+
+  @override
+  String get mealScheduleHintBanner =>
+      'Personnalisez votre planning repas — appuyez sur l\'icône réglages ci-dessus';
+
+  @override
+  String get mealScheduleHintDismiss => 'Compris';
+
+  @override
+  String get mealScheduleOnboardingTitle =>
+      'Personnalisez votre planning repas';
+
+  @override
+  String get mealScheduleOnboardingSubtitle =>
+      'Choisissez les repas que vous souhaitez chaque jour. Vous pouvez modifier cela à tout moment dans les Réglages.';
+
+  @override
+  String get mealScheduleOnboardingSkip =>
+      'Passer, utiliser les 3 repas par défaut';
+
+  @override
+  String get mealScheduleCustomizeButton =>
+      'Personnaliser la structure des repas';
+
+  @override
+  String get mealScheduleDeleteSlotTooltip => 'Supprimer ce repas';
+
+  @override
+  String get mealScheduleCaloriePct => 'Part calorique';
+
+  @override
+  String get mealScheduleProteinPct => '% Protéines';
+
+  @override
+  String get mealScheduleCarbsPct => '% Glucides';
+
+  @override
+  String get mealScheduleFatPct => '% Lipides';
+
+  @override
+  String get mealScheduleSavedSuccess => 'Planning enregistré';
+
+  @override
+  String get nutritionPlanSaveButton => 'Enregistrer mon plan';
 }

@@ -809,5 +809,9 @@
   "mealScheduleCarbsPct": "% Glucides",
   "@mealScheduleCarbsPct": {},
   "mealScheduleFatPct": "% Lipides",
-  "@mealScheduleFatPct": {}
+  "@mealScheduleFatPct": {},
+  "mealScheduleSavedSuccess": "Planning enregistré",
+  "@mealScheduleSavedSuccess": {},
+  "nutritionPlanSaveButton": "Enregistrer mon plan",
+  "@nutritionPlanSaveButton": {}
 }

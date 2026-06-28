@@ -2253,4 +2253,86 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get legalTermsVersion => 'Version 1.0 • Last updated: January 2026';
+
+  @override
+  String get mealScheduleTitle => 'Meal Schedule';
+
+  @override
+  String get mealScheduleSubtitle => 'Define which meals you want each day';
+
+  @override
+  String get mealScheduleAddSlot => 'Add a meal slot';
+
+  @override
+  String get mealScheduleSave => 'Save schedule';
+
+  @override
+  String mealScheduleCalorieTotal(String total) {
+    return '$total% of daily calories';
+  }
+
+  @override
+  String get mealScheduleCalorieTotalError => 'Total must equal 100%';
+
+  @override
+  String get mealScheduleMacroSection => 'Macro targets for this slot';
+
+  @override
+  String get mealScheduleMacroError => 'Macros must equal 100%';
+
+  @override
+  String get mealScheduleNicknamePlaceholder => 'Custom label (optional)';
+
+  @override
+  String get mealScheduleCategoryLabel => 'Meal type';
+
+  @override
+  String get mealScheduleApplyDialogTitle => 'When to apply?';
+
+  @override
+  String get mealScheduleApplyFromToday => 'Apply from today';
+
+  @override
+  String get mealScheduleApplyFromNextWeek => 'Apply from next week';
+
+  @override
+  String get mealScheduleHintBanner =>
+      'Customize your meal schedule anytime — tap the settings icon above';
+
+  @override
+  String get mealScheduleHintDismiss => 'Got it';
+
+  @override
+  String get mealScheduleOnboardingTitle => 'Customize your meal schedule';
+
+  @override
+  String get mealScheduleOnboardingSubtitle =>
+      'Choose which meals you want each day. You can change this anytime in Settings.';
+
+  @override
+  String get mealScheduleOnboardingSkip => 'Skip, use default (3 meals)';
+
+  @override
+  String get mealScheduleCustomizeButton => 'Customize meal structure';
+
+  @override
+  String get mealScheduleDeleteSlotTooltip => 'Remove this slot';
+
+  @override
+  String get mealScheduleCaloriePct => 'Calorie share';
+
+  @override
+  String get mealScheduleProteinPct => 'Protein %';
+
+  @override
+  String get mealScheduleCarbsPct => 'Carbs %';
+
+  @override
+  String get mealScheduleFatPct => 'Fat %';
+
+  @override
+  String get mealScheduleSavedSuccess => 'Schedule saved';
+
+  @override
+  String get nutritionPlanSaveButton => 'Save plan';
 }
