@@ -210,7 +210,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                       ),
                       child: Text(
                         weeklyLoss != null
-                            ? '${weeklyLoss > 0 ? "-" : "+"}${(isUs ? UnitConverter.kgToLb(weeklyLoss.abs()) : weeklyLoss.abs()).toStringAsFixed(1)} $unit / semaine'
+                            ? '${weeklyLoss > 0 ? "-" : "+"}${weeklyLoss.abs().toStringAsFixed(1)} $unit / semaine'
                             : '-- $unit / semaine',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.primary),
                       ),
