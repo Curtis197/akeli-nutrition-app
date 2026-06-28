@@ -183,7 +183,20 @@ Overlay: for each ingredient, if a matching row exists:
 - Non-header: replace `quantity` + `unit`
 - Header: replace `sectionTitle` with translated `title`
 
-### 5.4 `quantity_formatter.dart` — locale-aware formatting
+### 5.4 `UnitConverter` — shared Dart utility
+
+New file: `lib/core/unit_converter.dart`
+
+Implements the conversion table from §2 as a pure static utility. Used by both the recipe ingredient overlay (§5.3) and the generated-quantity display contexts (§5.5–§5.7).
+
+```dart
+// ({quantity, unit}) → ({quantity, unit}) in imperial
+({double quantity, String unit}) toImperial(double qty, String unit)
+```
+
+Pass-through units (`tsp`, `tbsp`, `cup`, `piece`, `clove`, `bunch`, `can`, `pot`, `pinch`) return unchanged. Metric units apply threshold logic from §2.
+
+### 5.5 `quantity_formatter.dart` — locale-aware formatting
 
 `formatQuantity` gains a `locale` parameter (`String locale = 'fr'`).
 
@@ -197,16 +210,36 @@ Overlay: for each ingredient, if a matching row exists:
 
 All call sites of `formatQuantity` that are inside a widget `build()` pass `AppLocalizations.of(context).localeName` as `locale`.
 
-### 5.5 Settings — locale picker
+### 5.6 Shopping list — imperial display
+
+`shopping_list_item` stores `quantity numeric` + `unit text` (metric, written by the SQL shopping list generator). No DB change needed.
+
+In `ShoppingListPage`, when `isUsLocale`, each item's `(quantity, unit)` is passed through `UnitConverter.toImperial()` before being handed to `formatQuantity`. The DB value is never mutated — conversion is display-only.
+
+### 5.7 Meal plan entry ingredients — imperial display
+
+`meal_ingredient` stores `quantity numeric(10,3)` + `unit text` (metric, written by the SQL meal plan generator at plan creation time).
+
+In `MealDetailPage` (and any other widget rendering `meal_ingredient` rows), when `isUsLocale`, pass each `(quantity, unit)` through `UnitConverter.toImperial()` before `formatQuantity`.
+
+### 5.8 Cooking mode & batch cooking — imperial display
+
+`cooking_session_ingredient` stores `quantity_needed numeric(10,3)` + `unit text` (metric, written at cooking session creation).
+
+In `CookingModePage` and `BatchCookingDetailPage`, when `isUsLocale`, pass `(quantity_needed, unit)` through `UnitConverter.toImperial()` before `formatQuantity`.
+
+**Note:** Macros (`calories_computed`, `protein_g_computed`, `carbs_g_computed`, `fat_g_computed`) are nutritional values universally displayed in kcal/g — no conversion applied.
+
+### 5.9 Settings — locale picker
 
 Add `'en-US'` option in `PreferencesPage` locale selector:
 - `'fr'` → Français
 - `'en'` → English
 - `'en-US'` → English (US · Imperial)
 
-When user switches to `'en-US'`, update `user_profile.locale = 'en-US'`. Invalidate recipe providers so quantities reload.
+When user switches to `'en-US'`, update `user_profile.locale = 'en-US'`. Invalidate recipe, meal plan, shopping list, and cooking session providers so quantities reload.
 
-### 5.6 US creator unit picker
+### 5.10 US creator unit picker
 
 In the recipe ingredient form, if `locale == 'en-US'`, the unit `DropdownButton` shows imperial options first:
 `[oz, lb, fl_oz, cup, tbsp, tsp, piece, clove, bunch, can, pot, pinch]`
@@ -233,6 +266,5 @@ Both `app_en.arb` and `app_fr.arb` updated before any Dart reference.
 
 - Locales: `es`, `pt`, `wo`, `bm`, `ln`, `ar`
 - `recipe.translation_status` tracking column
-- Shopping list quantity display in imperial
-- Meal plan entry macro display in imperial
+- Macro display conversion (kcal/g stay universal)
 - Batch backfill for existing published recipes (separate one-off job)
