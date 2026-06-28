@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/features/nutrition_plan/widgets/meal_schedule_widget.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:collection/collection.dart';
@@ -13,16 +15,6 @@ import '../../providers/user_profile_provider.dart';
 import '../../shared/models/nutrition_plan.dart';
 import '../auth/onboarding_data.dart';
 
-const _mealTypeLabels = {
-  'breakfast': 'Petit-déjeuner',
-  'lunch': 'Déjeuner',
-  'dinner': 'Dîner',
-  'snack_1': 'Collation 1',
-  'snack_2': 'Collation 2',
-  'snack_3': 'Collation 3',
-};
-
-String _mealLabel(String type) => _mealTypeLabels[type] ?? type;
 
 class NutritionPlanPage extends ConsumerStatefulWidget {
   final bool isOnboarding;
@@ -59,7 +51,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   List<MealDistribution> _distributions = [];
   bool _isCalculated = false;
   bool _isSaving = false;
-  final Set<int> _expandedBoundsIndices = {};
+  bool _isScheduleValid = true;
 
   @override
   void initState() {
@@ -160,74 +152,20 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       _carbPct = defaultMacros['carbs']!;
       _fatPct = defaultMacros['fat']!;
       _distributions = newDistributions;
-      _expandedBoundsIndices.clear();
       _isCalculated = true;
-    });
-  }
-
-  void _addMealSlot() {
-    _logger.userAction('Add meal slot tapped', screen: 'NutritionPlanPage');
-    final nextIndex = _distributions.length;
-    final newType = nextIndex <= 2
-        ? ['breakfast', 'lunch', 'dinner'][nextIndex]
-        : 'snack_${nextIndex - 2}';
-    setState(() {
-      _distributions = [
-        ..._distributions,
-        MealDistribution(
-          mealType: newType,
-          sortOrder: nextIndex,
-          caloriePct: 0,
-          calorieTarget: 0,
-        ),
-      ];
-    });
-  }
-
-  void _removeMealSlot(int index) {
-    _logger.userAction('Remove meal slot tapped | index: $index', screen: 'NutritionPlanPage');
-    setState(() {
-      _distributions = [..._distributions]..removeAt(index);
-      _expandedBoundsIndices.remove(index);
-      final shifted = _expandedBoundsIndices
-          .where((i) => i > index)
-          .map((i) => i - 1)
-          .toSet();
-      _expandedBoundsIndices.removeWhere((i) => i > index);
-      _expandedBoundsIndices.addAll(shifted);
-    });
-  }
-
-  void _updateSlotPct(int index, double newPct) {
-    _logger.userAction('Meal pct changed', screen: 'NutritionPlanPage',
-        metadata: {'index': index, 'pct': newPct});
-    setState(() {
-      final updated = [..._distributions];
-      updated[index] = updated[index].copyWith(
-        caloriePct: newPct,
-        calorieTarget: _calorieGoal * (newPct / 100),
-      );
-      _distributions = updated;
-    });
-  }
-
-  void _updateSlotBounds(int index, int minG, int maxG) {
-    _logger.userAction('Portion bounds changed', screen: 'NutritionPlanPage',
-        metadata: {'index': index, 'minG': minG, 'maxG': maxG});
-    if (minG < 0 || maxG <= minG) {
-      _logger.w('_updateSlotBounds | invalid bounds ignored | minG: $minG maxG: $maxG');
-      return;
-    }
-    setState(() {
-      final updated = [..._distributions];
-      updated[index] = updated[index].copyWith(minPortionG: minG, maxPortionG: maxG);
-      _distributions = updated;
-      _logger.provider('NutritionPlanPage → bounds updated | index: $index minG: $minG maxG: $maxG');
     });
   }
 
   Future<bool> savePlan() async {
     _logger.userAction('Save plan button tapped', screen: 'NutritionPlanPage');
+    final l10n = AppLocalizations.of(context);
+
+    if (!_isScheduleValid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mealScheduleCalorieTotalError)),
+      );
+      return false;
+    }
 
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     if ((totalMacros - 100).abs() > 1.0) {
@@ -291,8 +229,6 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
 
   @override
   Widget build(BuildContext context) {
-    final totalDist = _distributions.fold(0.0, (s, d) => s + d.caloriePct);
-    final isValidDist = (totalDist - 100).abs() <= 1.0;
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;
 
@@ -425,105 +361,15 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               const SizedBox(height: 24),
 
               // ── Section 4: Meal Distribution ───────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('3. Répartition des repas',
-                      style: GoogleFonts.plusJakartaSans(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(
-                    '${totalDist.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                        color: isValidDist ? Colors.green : Colors.red,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              if (!isValidDist)
-                const Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Text('La répartition doit totaliser 100%',
-                      style: TextStyle(color: Colors.red, fontSize: 12)),
-                ),
+              Text('3. Répartition des repas',
+                  style: GoogleFonts.plusJakartaSans(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              ..._distributions.asMap().entries.map((entry) {
-                final i = entry.key;
-                final dist = entry.value;
-                final kcal = (_calorieGoal * (dist.caloriePct / 100)).round();
-                final expanded = _expandedBoundsIndices.contains(i);
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 90,
-                          child: Text(_mealLabel(dist.mealType),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          color: dist.caloriePct > 0 ? AkeliColors.primary : Colors.grey,
-                          onPressed: dist.caloriePct > 0 ? () => _updateSlotPct(i, dist.caloriePct - 1) : null,
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              '${dist.caloriePct.toStringAsFixed(0)}%',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: AkeliColors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          color: dist.caloriePct < 100 ? AkeliColors.primary : Colors.grey,
-                          onPressed: dist.caloriePct < 100 ? () => _updateSlotPct(i, dist.caloriePct + 1) : null,
-                        ),
-                        SizedBox(
-                          width: 65,
-                          child: Text('$kcal kcal',
-                              style: const TextStyle(fontSize: 12),
-                              textAlign: TextAlign.right),
-                        ),
-                        _BoundsChip(
-                          minG: dist.minPortionG,
-                          maxG: dist.maxPortionG,
-                          expanded: expanded,
-                          onTap: () {
-                            _logger.userAction('Bounds chip tapped', screen: 'NutritionPlanPage',
-                                metadata: {'index': i, 'expanded': !expanded});
-                            setState(() {
-                              if (expanded) {
-                                _expandedBoundsIndices.remove(i);
-                              } else {
-                                _expandedBoundsIndices.add(i);
-                              }
-                            });
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                          onPressed: _distributions.length > 1 ? () => _removeMealSlot(i) : null,
-                        ),
-                      ],
-                    ),
-                    if (expanded)
-                      _PortionBoundsPanel(
-                        minG: dist.minPortionG,
-                        maxG: dist.maxPortionG,
-                        onChanged: (min, max) => _updateSlotBounds(i, min, max),
-                      ),
-                  ],
-                );
-              }),
-              TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: const Text('Ajouter un repas'),
-                onPressed: _distributions.length < 6 ? _addMealSlot : null,
+              MealScheduleWidget(
+                initialDistributions: _distributions,
+                totalCalorieGoal: _calorieGoal,
+                onChanged: (dists) => setState(() => _distributions = dists),
+                onSaveEnabled: (valid) => setState(() => _isScheduleValid = valid),
               ),
               const SizedBox(height: 32),
 
@@ -532,7 +378,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (isValidDist && isValidMacros && !_isSaving) ? savePlan : null,
+                    onPressed: (_isScheduleValid && isValidMacros && !_isSaving) ? savePlan : null,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: AkeliColors.primary,
@@ -610,127 +456,5 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   }
 }
 
-class _BoundsChip extends StatelessWidget {
-  final int minG;
-  final int maxG;
-  final bool expanded;
-  final VoidCallback onTap;
 
-  const _BoundsChip({
-    required this.minG,
-    required this.maxG,
-    required this.expanded,
-    required this.onTap,
-  });
-
-  bool get _isCustom => minG != 50 || maxG != 1500;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _isCustom ? AkeliColors.primary : AkeliColors.onSurfaceVariant;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-        decoration: BoxDecoration(
-          color: _isCustom
-              ? AkeliColors.primaryContainer
-              : AkeliColors.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(AkeliRadius.pill),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.tune_rounded, size: 11, color: color),
-            const SizedBox(width: 3),
-            Text(
-              '$minG–${maxG}g',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-            const SizedBox(width: 2),
-            Icon(
-              expanded ? Icons.expand_less_rounded : Icons.expand_more_rounded,
-              size: 13,
-              color: color,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PortionBoundsPanel extends StatelessWidget {
-  final int minG;
-  final int maxG;
-  final void Function(int minG, int maxG) onChanged;
-
-  const _PortionBoundsPanel({
-    required this.minG,
-    required this.maxG,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 4, bottom: 8),
-      padding: const EdgeInsets.fromLTRB(
-          AkeliSpacing.md, AkeliSpacing.sm, AkeliSpacing.md, AkeliSpacing.sm),
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AkeliRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'QUANTITÉ DE PORTION',
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: AkeliColors.onSurfaceVariant,
-              letterSpacing: 0.08,
-            ),
-          ),
-          SliderTheme(
-            data: SliderThemeData(
-              activeTrackColor: AkeliColors.secondaryContainer,
-              inactiveTrackColor: AkeliColors.surfaceContainerHighest,
-              thumbColor: AkeliColors.surfaceContainerLowest,
-              overlayColor: AkeliColors.primary.withValues(alpha: 0.1),
-              trackHeight: 8,
-            ),
-            child: RangeSlider(
-              values: RangeValues(minG.toDouble(), maxG.toDouble()),
-              min: 50,
-              max: 1500,
-              divisions: 58,
-              onChanged: (v) => onChanged(v.start.round(), v.end.round()),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Min : $minG g',
-                style: GoogleFonts.inter(
-                    fontSize: 12, color: AkeliColors.onSurfaceVariant),
-              ),
-              Text(
-                'Max : $maxG g',
-                style: GoogleFonts.inter(
-                    fontSize: 12, color: AkeliColors.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
