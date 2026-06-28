@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/avatar.dart';
@@ -16,6 +18,7 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(userProfileProvider);
     final isPremium = ref.watch(isPremiumProvider);
     appLogger.provider('SettingsPage build() | isPremium: $isPremium');
@@ -56,9 +59,9 @@ class SettingsPage extends ConsumerWidget {
                       },
                     ),
                   ),
-                  const Text(
-                    'Paramètres',
-                    style: TextStyle(
+                  Text(
+                    l10n.settingsTitle,
+                    style: const TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -75,7 +78,7 @@ class SettingsPage extends ConsumerWidget {
       ),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Erreur: $err')),
+        error: (err, _) => Center(child: Text(l10n.settingsAvatarError(err.toString()))),
         data: (profile) => SingleChildScrollView(
           child: Column(
             children: [
@@ -151,7 +154,7 @@ class SettingsPage extends ConsumerWidget {
                         const SizedBox(height: 24),
                         // Identity
                         Text(
-                          profile?.displayName ?? 'Utilisateur',
+                          profile?.displayName ?? '',
                           style: const TextStyle(
                             fontFamily: 'Plus Jakarta Sans',
                             fontSize: 24,
@@ -179,14 +182,14 @@ class SettingsPage extends ConsumerWidget {
                               color: AkeliColors.secondary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(24),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.star_rounded, color: AkeliColors.secondary, size: 16),
-                                SizedBox(width: 4),
+                                const Icon(Icons.star_rounded, color: AkeliColors.secondary, size: 16),
+                                const SizedBox(width: 4),
                                 Text(
-                                  'Premium',
-                                  style: TextStyle(color: AkeliColors.secondary, fontSize: 14, fontWeight: FontWeight.bold),
+                                  l10n.settingsPremium,
+                                  style: const TextStyle(color: AkeliColors.secondary, fontSize: 14, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -201,7 +204,7 @@ class SettingsPage extends ConsumerWidget {
                               _editProfile(context, ref);
                             },
                             icon: const Icon(Icons.edit_rounded, size: 20),
-                            label: const Text('Modifier', style: TextStyle(fontWeight: FontWeight.bold)),
+                            label: Text(l10n.settingsEdit, style: const TextStyle(fontWeight: FontWeight.bold)),
                             style: FilledButton.styleFrom(
                               backgroundColor: AkeliColors.primary,
                               foregroundColor: AkeliColors.onPrimary,
@@ -234,11 +237,11 @@ class SettingsPage extends ConsumerWidget {
                 child: Column(
                   children: [
                     _Section(
-                      title: 'Menu',
+                      title: l10n.settingsSectionMenu,
                       items: [
                         _MenuItem(
                           icon: Icons.monitor_weight_outlined,
-                          label: 'Suivi nutritionnel',
+                          label: l10n.settingsNutritionTracking,
                           onTap: () {
                             appLogger.userAction('Nutrition tracking menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.nutrition);
@@ -246,7 +249,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.bookmark_outline_rounded,
-                          label: 'Recettes Sauvegardées',
+                          label: l10n.settingsSavedRecipes,
                           onTap: () {
                             appLogger.userAction('Saved recipes menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.savedRecipes);
@@ -254,7 +257,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.manage_accounts_outlined,
-                          label: 'Mon compte',
+                          label: l10n.settingsAccount,
                           onTap: () {
                             appLogger.userAction('Account menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.account);
@@ -262,7 +265,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.favorite_outline_rounded,
-                          label: 'Mode Fan',
+                          label: l10n.settingsFanMode,
                           onTap: () {
                             appLogger.userAction('Fan mode menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.fanMode);
@@ -270,7 +273,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.tune_rounded,
-                          label: 'Préférences',
+                          label: l10n.settingsPreferences,
                           onTap: () {
                             appLogger.userAction('Preferences menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.preferences);
@@ -278,21 +281,29 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.monitor_heart_outlined,
-                          label: 'Santé & Objectifs',
+                          label: l10n.settingsHealthGoals,
                           onTap: () {
                             appLogger.userAction('Health profile menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.healthProfile);
+                          },
+                        ),
+                        _MenuItem(
+                          icon: Icons.restaurant_outlined,
+                          label: l10n.mealScheduleTitle,
+                          onTap: () {
+                            appLogger.userAction('Meal schedule settings tapped', screen: 'SettingsPage');
+                            context.push(AkeliRoutes.mealSchedule);
                           },
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     _Section(
-                      title: 'Application',
+                      title: l10n.settingsSectionApp,
                       items: [
                         _MenuItem(
                           icon: Icons.notifications_outlined,
-                          label: 'Notifications',
+                          label: l10n.settingsNotifications,
                           onTap: () {
                             appLogger.userAction('Notifications menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.notificationSettings);
@@ -300,21 +311,51 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: Icons.language_rounded,
-                          label: 'Langue',
-                          trailing: const Text('Français', style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
+                          label: l10n.settingsLanguage,
+                          trailing: Text(l10n.settingsLanguageCurrent, style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
                           onTap: () {
                             appLogger.userAction('Language menu tapped', screen: 'SettingsPage');
+                            showDialog<void>(
+                              context: context,
+                              builder: (ctx) {
+                                final dialogL10n = AppLocalizations.of(ctx);
+                                return AlertDialog(
+                                  title: Text(dialogL10n.languageSelectorTitle),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        title: Text(dialogL10n.languageEnglish),
+                                        onTap: () {
+                                          appLogger.userAction('Language selected: en', screen: 'SettingsPage');
+                                          ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                                          Navigator.pop(ctx);
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: Text(dialogL10n.languageFrench),
+                                        onTap: () {
+                                          appLogger.userAction('Language selected: fr', screen: 'SettingsPage');
+                                          ref.read(localeProvider.notifier).setLocale(const Locale('fr'));
+                                          Navigator.pop(ctx);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
                           },
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
                     _Section(
-                      title: 'Confidentialité',
+                      title: l10n.settingsSectionPrivacy,
                       items: [
                         _SwitchItem(
                           icon: Icons.lock_outline_rounded,
-                          label: 'Profil privé',
+                          label: l10n.settingsPrivateProfile,
                           value: profile?.isPrivate ?? false,
                           onChanged: (val) {
                             appLogger.userAction('Private profile toggled',
@@ -328,11 +369,11 @@ class SettingsPage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     _Section(
-                      title: 'Support',
+                      title: l10n.settingsSectionSupport,
                       items: [
                         _MenuItem(
                           icon: Icons.help_outline_rounded,
-                          label: 'Aide & FAQ',
+                          label: l10n.settingsHelpFaq,
                           onTap: () {
                             appLogger.userAction('Help FAQ menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.support);
@@ -348,9 +389,9 @@ class SettingsPage extends ConsumerWidget {
                                   appLogger.userAction('Privacy policy link tapped', screen: 'SettingsPage');
                                   context.push(AkeliRoutes.privacyPolicy);
                                 },
-                                child: const Text(
-                                  'Politique de confidentialité',
-                                  style: TextStyle(
+                                child: Text(
+                                  l10n.settingsPrivacyPolicy,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: AkeliColors.primary,
                                     decoration: TextDecoration.underline,
@@ -363,9 +404,9 @@ class SettingsPage extends ConsumerWidget {
                                   appLogger.userAction('Terms link tapped', screen: 'SettingsPage');
                                   context.push(AkeliRoutes.termsOfService);
                                 },
-                                child: const Text(
-                                  'Conditions d\'utilisation',
-                                  style: TextStyle(
+                                child: Text(
+                                  l10n.settingsTerms,
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: AkeliColors.primary,
                                     decoration: TextDecoration.underline,
@@ -387,7 +428,7 @@ class SettingsPage extends ConsumerWidget {
                           _signOut(context, ref);
                         },
                         icon: const Icon(Icons.logout_rounded),
-                        label: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.bold)),
+                        label: Text(l10n.settingsSignOut, style: const TextStyle(fontWeight: FontWeight.bold)),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AkeliColors.error,
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -397,9 +438,9 @@ class SettingsPage extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Akeli V1.0',
-                      style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 12),
+                    Text(
+                      l10n.appVersion,
+                      style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 12),
                     ),
                   ],
                 ),
@@ -412,24 +453,25 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Future<void> _signOut(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Se déconnecter', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Voulez-vous vraiment vous déconnecter ?'),
+        title: Text(l10n.settingsSignOutTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(l10n.settingsSignOutConfirm),
         actions: [
           TextButton(
             onPressed: () {
               appLogger.userAction('Sign out cancelled', screen: 'SettingsPage');
               Navigator.pop(ctx, false);
             },
-            child: const Text('Annuler'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: AkeliColors.error),
-            child: const Text('Déconnecter'),
+            child: Text(l10n.settingsSignOutConfirmBtn),
           ),
         ],
       ),
@@ -593,6 +635,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
   final _logger = appLogger;
 
   Future<void> _pickAndUploadImage() async {
+    final l10n = AppLocalizations.of(context);
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
     if (pickedFile != null) {
@@ -604,7 +647,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
       } catch (e, st) {
         _logger.db('ERROR | avatar upload | $e', error: e, stackTrace: st);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: $e')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.settingsAvatarError(e.toString()))));
         }
       } finally {
         if (mounted) setState(() => _isUploading = false);
@@ -634,6 +677,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('EditProfileSheet build()');
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: const BoxDecoration(
         color: AkeliColors.background,
@@ -652,9 +696,9 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
           children: [
             Row(
               children: [
-                const Text(
-                  'Modifier le profil',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.primary, letterSpacing: -0.5),
+                Text(
+                  l10n.settingsEditProfile,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.primary, letterSpacing: -0.5),
                 ),
                 const Spacer(),
                 Container(
@@ -738,7 +782,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Nom', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
+                  Text(l10n.settingsName, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
@@ -757,7 +801,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text('Description', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
+                  Text(l10n.settingsDescription, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AkeliColors.onSurface)),
                   const SizedBox(height: 8),
                   Container(
                     decoration: BoxDecoration(
@@ -768,15 +812,15 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
                     child: TextField(
                       controller: _bioCtrl,
                       maxLines: 3,
-                      decoration: const InputDecoration(
-                        prefixIcon: Padding(
+                      decoration: InputDecoration(
+                        prefixIcon: const Padding(
                           padding: EdgeInsets.only(bottom: 32), // Align icon to top
                           child: Icon(Icons.description_outlined, color: AkeliColors.outline),
                         ),
-                        hintText: 'Parlez-nous un peu de vous...',
-                        hintStyle: TextStyle(color: AkeliColors.outline),
+                        hintText: l10n.settingsDescriptionHint,
+                        hintStyle: const TextStyle(color: AkeliColors.outline),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       ),
                       style: const TextStyle(fontSize: 16, color: AkeliColors.onSurface),
                     ),
@@ -803,7 +847,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
                       width: 24,
                       child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
                     )
-                  : const Text('Enregistrer', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  : Text(l10n.settingsSave, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
             ),
           ],
         ),

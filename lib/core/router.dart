@@ -35,6 +35,7 @@ import '../features/referral/referral_page.dart';
 import '../features/settings/preferences_page.dart';
 import '../features/settings/health_profile_page.dart';
 import '../features/settings/account_page.dart';
+import '../features/settings/meal_schedule_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
 import '../features/recipes/creator_detail_page.dart';
@@ -82,6 +83,7 @@ abstract class AkeliRoutes {
   static const healthProfile = '/health-profile';
   static const notificationSettings = '/notification-settings';
   static const account = '/account';
+  static const mealSchedule = '/meal-schedule';
   static const dmChat = '/dm/:conversationId';
   static String dmChatPath(String id) => '/dm/$id';
   static const creatorDetail = '/creators/:creatorId';
@@ -334,6 +336,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.healthProfile,
         builder: (context, state) => const HealthProfilePage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.mealSchedule,
+        builder: (context, state) => const MealSchedulePage(),
       ),
       GoRoute(
         path: AkeliRoutes.creatorDetail,
