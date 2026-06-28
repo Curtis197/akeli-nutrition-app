@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/meal_plan_provider.dart';
@@ -64,6 +66,8 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final localeState = ref.watch(localeProvider);
     final profileAsync = ref.watch(userProfileProvider);
     final healthAsync = ref.watch(healthProfileProvider);
     final nutritionAsync = ref.watch(todayNutritionProvider);
@@ -155,7 +159,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Bonjour, $name!',
+                          l10n.homeGreeting(name),
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
@@ -165,7 +169,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Heureux de vous revoir.',
+                          l10n.homeWelcomeBack,
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: AkeliColors.onSurfaceVariant,
@@ -181,7 +185,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   error: (e, st) {
                     _logger.provider('[profile] ERROR: $e', error: e, stackTrace: st);
                     return Text(
-                      'Bonjour!',
+                      l10n.homeGreetingFallback,
                       style: GoogleFonts.plusJakartaSans(
                           fontSize: 28, fontWeight: FontWeight.w800),
                     );
@@ -228,7 +232,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           final profileTarget = health?.targetWeightKg;
                                           _logger.provider('Weight graph → data (no entries) | health.weightKg: $profileWeight | health.targetWeightKg: $profileTarget');
                                           return AkeliModernMetric(
-                                            label: 'Poids actuel',
+                                            label: l10n.homeWeightCurrent,
                                             subtitle: profileWeight != null
                                                 ? '${profileWeight.toStringAsFixed(1)}kg → ${profileTarget?.toStringAsFixed(1) ?? '--'}kg'
                                                 : '--kg → --kg',
@@ -255,7 +259,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           'Weight graph → data | current: ${currentWeight}kg | starting: ${startingWeight.toStringAsFixed(1)}kg (health profile) | target: ${targetWeight?.toStringAsFixed(1) ?? "--"}kg | progress: ${(progress * 100).toInt()}%');
 
                                         return AkeliModernMetric(
-                                          label: 'Poids',
+                                          label: l10n.homeWeightLabel,
                                           subtitle: '${currentWeight.toStringAsFixed(1)}kg → ${targetWeight?.toStringAsFixed(1) ?? '--'}kg',
                                           value: '${(progress * 100).toInt()}',
                                           unit: '%',
@@ -266,7 +270,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                       orElse: () {
                                         _logger.provider('[weight-ring] orElse (loading or error) | weightAsync: ${_ps(weightAsync)}');
                                         return AkeliModernMetric(
-                                          label: 'Poids actuel',
+                                          label: l10n.homeWeightCurrent,
                                           subtitle: '--kg → --kg',
                                           value: '0',
                                           unit: '%',
@@ -293,7 +297,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         _logger.provider('[calorie-ring] data | consumed: $consumed kcal | target: ${target.toInt()} kcal | plan: ${nutritionPlanAsync.valueOrNull?.calorieGoal ?? "null(using 2000)"} | progress: ${(progress * 100).toInt()}%');
 
                                         return AkeliModernMetric(
-                                          label: 'Calories',
+                                          label: l10n.homeCaloriesLabel,
                                           subtitle: '$consumed → ${target.toInt()} kcal',
                                           value: '${(progress * 100).toInt()}',
                                           unit: '%',
@@ -319,7 +323,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 Text(
-                                  'Voir mes progrès →',
+                                  l10n.homeViewProgress,
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -353,10 +357,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               const SizedBox(height: 32),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: AkeliSectionHeader(
-                  title: 'Vos repas du jour',
+                  title: l10n.homeTodayMeals,
                   color: AkeliColors.primary,
                 ),
               ),
@@ -375,7 +379,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           padding:
                               const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            "Aucun repas planifié pour aujourd'hui.",
+                            l10n.homeNoMealsToday,
                             style: GoogleFonts.inter(
                                 color: AkeliColors.onSurfaceVariant),
                           ),
@@ -392,7 +396,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         final effectiveIsConsumed = overrides[entry.id] ?? entry.isConsumed;
                         return AkeliMealCard(
                           key: ValueKey(entry.id),
-                          title: entry.recipeTitle ?? 'Repas',
+                          title: entry.localizedTitle(Localizations.localeOf(context).languageCode) ?? l10n.homeMealDefault,
                           mealType: entry.mealType,
                           calories: entry.calories,
                           imageUrl: entry.recipeThumbnail,
@@ -418,8 +422,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                               _logger.db('toggleConsumption catch | $e', error: e, stackTrace: st);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Impossible de mettre à jour le repas. Réessayez.'),
+                                  SnackBar(
+                                    content: Text(l10n.homeMealUpdateError),
                                   ),
                                 );
                               }
@@ -444,7 +448,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('Erreur: $error',
+                        child: Text(l10n.homeErrorGeneric(error.toString()),
                             style: GoogleFonts.inter(
                                 color: AkeliColors.onSurfaceVariant)),
                       ),
@@ -457,8 +461,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: AkeliSectionHeader(
-                  title: 'Liste de courses',
-                  trailingLabel: 'Voir tout',
+                  title: l10n.homeShoppingList,
+                  trailingLabel: l10n.homeViewAll,
                   onTrailingTap: () {
                     _logger.userAction('View all shopping tapped',
                         screen: 'HomePage');
@@ -474,7 +478,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: Row(
                   children: [
                     _FilterChip(
-                      label: 'Tout',
+                      label: l10n.homeFilterAll,
                       isActive: _activeFilter == 'tout',
                       onTap: () {
                         HapticFeedback.selectionClick();
@@ -485,7 +489,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       },
                     ),
                     _FilterChip(
-                      label: 'À acheter',
+                      label: l10n.homeFilterToBuy,
                       isActive: _activeFilter == 'acheter',
                       onTap: () {
                         HapticFeedback.selectionClick();
@@ -496,7 +500,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       },
                     ),
                     _FilterChip(
-                      label: 'Déjà acheté',
+                      label: l10n.homeFilterBought,
                       isActive: _activeFilter == 'pris',
                       onTap: () {
                         HapticFeedback.selectionClick();
@@ -528,7 +532,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           boxShadow: const [AkeliShadows.sm],
                         ),
                         child: Text(
-                          'Aucun article trouvé',
+                          l10n.homeNoItemsFound,
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             color: AkeliColors.onSurfaceVariant
@@ -550,6 +554,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                           return AkeliShoppingRow(
                             item: item,
                             isChecked: isChecked,
+                            isUsLocale: localeState.isUsLocale,
+                            locale: l10n.localeName,
                             onToggle: () {
                               HapticFeedback.mediumImpact();
                               _logger.userAction('Shopping item toggled',
@@ -577,17 +583,17 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               const SizedBox(height: 24),
 
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: AkeliSectionHeader(
-                  title: 'Recettes recommandées',
+                  title: l10n.homeRecommendedRecipes,
                   color: AkeliColors.secondary,
                 ),
               ),
               const SizedBox(height: 12),
 
               SizedBox(
-                height: 300,
+                height: 340,
                 child: recipesAsync.when(
                   data: (recipes) {
                     _logger.provider('[recipes] data | count: ${recipes.length}');
@@ -597,7 +603,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           padding:
                               const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
-                            'Aucune recette disponible.',
+                            l10n.homeNoRecipes,
                             style: GoogleFonts.inter(
                                 color: AkeliColors.onSurfaceVariant),
                           ),
@@ -613,7 +619,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                         return SizedBox(
                           key: ValueKey(recipe.id),
                           width: 300,
-                          height: 300,
                           child: Padding(
                             padding: const EdgeInsets.only(right: 16),
                             child: AkeliRecipeCard(
@@ -648,7 +653,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text('Erreur: $error',
+                        child: Text(l10n.homeErrorGeneric(error.toString()),
                             style: GoogleFonts.inter(
                                 color: AkeliColors.onSurfaceVariant)),
                       ),
@@ -669,10 +674,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       '[home-creators] data | total rpc: ${creators.length} | after fan filter + take5: ${shown.length}');
                   if (shown.isEmpty) return [];
                   return [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: AkeliSectionHeader(
-                        title: 'Créateurs pour vous',
+                        title: l10n.homeCreatorsForYou,
                         color: AkeliColors.primary,
                       ),
                     ),
@@ -745,7 +750,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ),
                     child: Text(
-                      'Créez et partagez vos propre recette',
+                      l10n.homeCreateRecipe,
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
