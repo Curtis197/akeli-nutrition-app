@@ -58,8 +58,13 @@ CREATE POLICY "group members read other members" ON group_member
     group_id IN (SELECT _get_user_group_ids(auth.uid()))
   );
 
--- 5. conversation_request: fix wrong column names from previous policy,
---    split into per-operation policies with correct checks
+-- 5. conversation_request: rename columns then fix RLS policies
+-- Rename from initial schema names to the canonical model names
+ALTER TABLE conversation_request
+  RENAME COLUMN from_user_id TO requester_id;
+ALTER TABLE conversation_request
+  RENAME COLUMN to_user_id TO recipient_id;
+
 DROP POLICY IF EXISTS "participant reads conversation_request" ON conversation_request;
 DROP POLICY IF EXISTS "requester inserts conversation_request" ON conversation_request;
 DROP POLICY IF EXISTS "participant updates conversation_request" ON conversation_request;
