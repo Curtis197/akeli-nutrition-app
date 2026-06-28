@@ -60,7 +60,7 @@ Future<void> main() async {
           action: SnackBarAction(
             label: rootScaffoldMessengerKey.currentContext != null
                 ? AppLocalizations.of(rootScaffoldMessengerKey.currentContext!).notificationSeeLabel
-                : 'Voir',
+                : 'View',
             onPressed: () {
               rootScaffoldMessengerKey.currentContext?.push(AkeliRoutes.notifications);
             },
