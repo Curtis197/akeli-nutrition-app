@@ -328,3 +328,25 @@ final isPremiumProvider = Provider.autoDispose<bool>((ref) {
   appLogger.provider('isPremiumProvider → isPremium: $isPremium');
   return isPremium;
 });
+
+// ---------------------------------------------------------------------------
+// Hint dismissal — fire-and-forget upsert
+// ---------------------------------------------------------------------------
+
+final dismissMealScheduleHintProvider =
+    FutureProvider.autoDispose.family<void, String>((ref, userId) async {
+  appLogger.provider('dismissMealScheduleHintProvider | userId: ${LogHelper.maskUuid(userId)}');
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db('BEFORE | table: user_profile | op: UPDATE has_dismissed_meal_schedule_hint=true | userId: ${LogHelper.maskUuid(userId)}');
+  try {
+    await client
+        .from('user_profile')
+        .update({'has_dismissed_meal_schedule_hint': true})
+        .eq('id', userId);
+    appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
+    ref.invalidate(userProfileProvider);
+  } on PostgrestException catch (e, st) {
+    appLogger.db('ERROR | table: user_profile | UPDATE | ${e.message}', error: e, stackTrace: st);
+    rethrow;
+  }
+});

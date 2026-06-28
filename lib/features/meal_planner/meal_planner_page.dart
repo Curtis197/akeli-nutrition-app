@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:akeli/features/nutrition_plan/widgets/meal_schedule_widget.dart';
+import 'package:akeli/providers/nutrition_plan_provider.dart';
+import 'package:akeli/providers/user_profile_provider.dart';
+import 'package:akeli/shared/models/nutrition_plan.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';
@@ -15,6 +20,8 @@ class MealPlannerPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+
     ref.listen(mealConsumptionProvider, (_, next) {
       if (next.hasError) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -44,7 +51,7 @@ class MealPlannerPage extends ConsumerWidget {
       backgroundColor: AkeliColors.surface,
       body: planAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Erreur: $error', style: const TextStyle(color: AkeliColors.error))),
+        error: (error, _) => Center(child: Text(l10n.mealPlannerError(error.toString()), style: const TextStyle(color: AkeliColors.error))),
         data: (plan) {
           if (plan == null) {
             return _buildEmptyState(context, ref);
@@ -60,13 +67,27 @@ class MealPlannerPage extends ConsumerWidget {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             sliver: SliverToBoxAdapter(
-              child: Text(
-                'Vos repas ${dayKeys.length > 3 ? 'de la semaine' : 'des prochains jours'}',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  height: 1.1,
-                  letterSpacing: -1.0,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    dayKeys.length > 3 ? l10n.mealPlannerWeekTitle : l10n.mealPlannerDaysTitle,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      height: 1.1,
+                      letterSpacing: -1.0,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.tune_rounded),
+                    tooltip: l10n.mealScheduleCustomizeButton,
+                    color: AkeliColors.primary,
+                    onPressed: () {
+                      appLogger.userAction('Customize meal structure tapped', screen: 'MealPlannerPage');
+                      _showCustomizeSheet(context, ref);
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -80,7 +101,7 @@ class MealPlannerPage extends ConsumerWidget {
                   _buildNavigationCard(
                     context,
                     icon: Icons.restaurant_menu,
-                    title: 'Voir mon plan diététique',
+                    title: l10n.mealPlannerViewDietPlan,
                     onTap: () {
                       appLogger.userAction('Diet plan card tapped', screen: 'MealPlannerPage');
                       context.push(AkeliRoutes.dietPlan);
@@ -90,7 +111,7 @@ class MealPlannerPage extends ConsumerWidget {
                   _buildNavigationCard(
                     context,
                     icon: Icons.shopping_basket,
-                    title: 'Voir ma liste de course',
+                    title: l10n.mealPlannerViewShoppingList,
                     onTap: () {
                       appLogger.userAction('Shopping list card tapped', screen: 'MealPlannerPage');
                       context.push(AkeliRoutes.shoppingList);
@@ -100,7 +121,7 @@ class MealPlannerPage extends ConsumerWidget {
                   _buildNavigationCard(
                     context,
                     icon: Icons.soup_kitchen_outlined,
-                    title: 'Session de cuisine',
+                    title: l10n.mealPlannerViewBatchCooking,
                     onTap: () {
                       appLogger.userAction('Batch cooking card tapped', screen: 'MealPlannerPage');
                       context.push(AkeliRoutes.batchCooking);
@@ -116,6 +137,28 @@ class MealPlannerPage extends ConsumerWidget {
           top: false,
           child: CustomScrollView(
             slivers: [
+              // ── HINT BANNER ─────────────────────────────────────────────
+              Consumer(builder: (context, ref, _) {
+                final profileAsync = ref.watch(userProfileProvider);
+                final profile = profileAsync.valueOrNull;
+                if (profile == null || profile.hasDismissedMealScheduleHint) {
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
+                }
+                return SliverToBoxAdapter(
+                  child: MaterialBanner(
+                    content: Text(l10n.mealScheduleHintBanner),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          appLogger.userAction('Meal schedule hint dismissed', screen: 'MealPlannerPage');
+                          ref.read(dismissMealScheduleHintProvider(profile.id));
+                        },
+                        child: Text(l10n.mealScheduleHintDismiss),
+                      ),
+                    ],
+                  ),
+                );
+              }),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
               // ── DAILY MEAL LIST ─────────────────────────────────────────
               SliverList(
@@ -147,8 +190,8 @@ class MealPlannerPage extends ConsumerWidget {
                               screen: 'MealPlannerPage', metadata: {'error': e.toString()});
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Impossible de mettre à jour le repas. Réessayez.'),
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).mealPlannerConsumptionError),
                               ),
                             );
                           }
@@ -169,7 +212,7 @@ class MealPlannerPage extends ConsumerWidget {
                       _generatePlan(context, ref);
                     },
                     icon: const Icon(Icons.auto_awesome),
-                    label: const Text('Nouveau plan de repas'),
+                    label: Text(l10n.mealPlannerGenerate),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AkeliColors.primary,
                       foregroundColor: Colors.white,
@@ -192,6 +235,7 @@ class MealPlannerPage extends ConsumerWidget {
   Future<void> _addSnack(BuildContext context, WidgetRef ref, String mealPlanId, DateTime date) async {
     appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage',
         metadata: {'date': date.toIso8601String()});
+    final l10n = AppLocalizations.of(context);
 
     final selection = await showModalBottomSheet<SnackSelection>(
       context: context,
@@ -203,11 +247,12 @@ class MealPlannerPage extends ConsumerWidget {
 
     try {
       switch (selection) {
-        case RecipeSnackSelection(:final recipeId):
+        case RecipeSnackSelection(:final recipeId, :final weightG):
           await ref.read(snackEntryProvider.notifier).addSnack(
             mealPlanId: mealPlanId,
             recipeId: recipeId,
             scheduledDate: date,
+            weightG: weightG,
           );
         case CustomSnackSelection(:final name, :final calories,
             :final proteinG, :final carbsG, :final fatG):
@@ -223,8 +268,8 @@ class MealPlannerPage extends ConsumerWidget {
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Collation ajoutée !'),
+          SnackBar(
+            content: Text(l10n.feedAddedToMealPlan),
             backgroundColor: AkeliColors.primary,
           ),
         );
@@ -234,7 +279,7 @@ class MealPlannerPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: $e'),
+            content: Text(l10n.mealPlannerError(e.toString())),
             backgroundColor: AkeliColors.error,
           ),
         );
@@ -243,6 +288,7 @@ class MealPlannerPage extends ConsumerWidget {
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -250,13 +296,13 @@ class MealPlannerPage extends ConsumerWidget {
           const Icon(Icons.restaurant_menu, size: 64, color: AkeliColors.outline),
           const SizedBox(height: 16),
           Text(
-            'Aucun plan alimentaire',
+            l10n.mealPlannerEmpty,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Générez votre premier plan pour commencer',
-            style: TextStyle(color: AkeliColors.onSurfaceVariant),
+          Text(
+            l10n.mealPlannerEmptySubtitle,
+            style: const TextStyle(color: AkeliColors.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
@@ -265,7 +311,7 @@ class MealPlannerPage extends ConsumerWidget {
               _generatePlan(context, ref);
             },
             icon: const Icon(Icons.auto_awesome),
-            label: const Text('Générer un plan'),
+            label: Text(l10n.mealPlannerGenerate),
             style: ElevatedButton.styleFrom(
               backgroundColor: AkeliColors.primary,
               foregroundColor: Colors.white,
@@ -319,11 +365,130 @@ class MealPlannerPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _showCustomizeSheet(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final nutritionPlan = ref.read(activeNutritionPlanProvider).valueOrNull;
+    if (nutritionPlan == null) return;
+
+    List<MealDistribution> pending = nutritionPlan.distributions ?? [
+      MealDistribution(mealType: 'breakfast', sortOrder: 0, caloriePct: 30, calorieTarget: nutritionPlan.calorieGoal * 0.30),
+      MealDistribution(mealType: 'lunch',     sortOrder: 1, caloriePct: 35, calorieTarget: nutritionPlan.calorieGoal * 0.35),
+      MealDistribution(mealType: 'dinner',    sortOrder: 2, caloriePct: 35, calorieTarget: nutritionPlan.calorieGoal * 0.35),
+    ];
+    bool isValid = true;
+
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => DraggableScrollableSheet(
+          initialChildSize: 0.75,
+          maxChildSize: 0.95,
+          builder: (_, controller) => Container(
+            decoration: const BoxDecoration(
+              color: AkeliColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                const SizedBox(width: 40, height: 4,
+                    child: DecoratedBox(decoration: BoxDecoration(
+                      color: AkeliColors.outline,
+                      borderRadius: BorderRadius.all(Radius.circular(2)),
+                    ))),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    l10n.mealScheduleTitle,
+                    style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: controller,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: MealScheduleWidget(
+                      initialDistributions: pending,
+                      totalCalorieGoal: nutritionPlan.calorieGoal,
+                      onChanged: (dists) => setModalState(() => pending = dists),
+                      onSaveEnabled: (v) => setModalState(() => isValid = v),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  child: ElevatedButton(
+                    onPressed: isValid ? () => Navigator.of(ctx).pop(true) : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AkeliColors.primary,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 52),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AkeliRadius.lg),
+                      ),
+                    ),
+                    child: Text(l10n.mealScheduleSave),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    // Save distributions
+    await ref.read(nutritionPlanNotifierProvider.notifier)
+        .savePlan(nutritionPlan, pending);
+
+    if (!context.mounted) return;
+
+    // Ask when to apply
+    final applyNow = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.mealScheduleApplyDialogTitle),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.mealScheduleApplyFromNextWeek),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: AkeliColors.primary),
+            child: Text(l10n.mealScheduleApplyFromToday),
+          ),
+        ],
+      ),
+    );
+
+    if (applyNow == true && context.mounted) {
+      try {
+        await ref.read(mealPlanGeneratorProvider.notifier).generate();
+      } catch (e) {
+        appLogger.edge('generate-meal-plan', 'ERROR | $e', error: e);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context).mealPlannerError(e.toString())),
+              backgroundColor: AkeliColors.error,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<void> _generatePlan(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     HapticFeedback.heavyImpact();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Génération de votre nouveau plan...'),
+      SnackBar(
+        content: Text(l10n.commonLoading),
         backgroundColor: AkeliColors.primary,
       ),
     );
@@ -332,8 +497,8 @@ class MealPlannerPage extends ConsumerWidget {
       await ref.read(mealPlanGeneratorProvider.notifier).generate();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Plan généré avec succès !'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).mealPlannerGenerate),
             backgroundColor: AkeliColors.primary,
           ),
         );
@@ -343,7 +508,7 @@ class MealPlannerPage extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur lors de la génération : $e'),
+            content: Text(AppLocalizations.of(context).mealPlannerError(e.toString())),
             backgroundColor: AkeliColors.error,
           ),
         );
