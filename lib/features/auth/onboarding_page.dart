@@ -10,7 +10,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
+import '../../core/unit_converter.dart';
 import '../../l10n/app_localizations.dart';
 import '../nutrition_plan/nutrition_plan_page.dart';
 import '../settings/widgets/allergen_picker_widget.dart';
@@ -851,6 +853,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
     final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
+    final isUs = ref.watch(localeProvider).isUsLocale;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -946,10 +949,20 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                                   color: AkeliColors.onSurface)),
                           const SizedBox(height: AkeliSpacing.sm),
                           _MetricField(
-                            value: data.weight?.toString() ?? '',
-                            suffix: 'kg',
-                            onChanged: (v) => notifier.updateProfile(
-                                weight: double.tryParse(v)),
+                            value: data.weight != null
+                                ? (isUs
+                                    ? UnitConverter.kgToLb(data.weight!).toString()
+                                    : data.weight!.toString())
+                                : '',
+                            suffix: isUs ? 'lb' : 'kg',
+                            onChanged: (v) {
+                              final entered = double.tryParse(v);
+                              notifier.updateProfile(
+                                weight: entered == null
+                                    ? null
+                                    : (isUs ? UnitConverter.lbToKg(entered) : entered),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -1089,23 +1102,28 @@ class _MetricField extends StatefulWidget {
 
 class _MetricFieldState extends State<_MetricField> {
   late final TextEditingController _ctrl;
+  late final FocusNode _focus;
 
   @override
   void initState() {
     super.initState();
     _ctrl = TextEditingController(text: widget.value);
+    _focus = FocusNode();
   }
 
   @override
   void dispose() {
     _ctrl.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(_MetricField old) {
     super.didUpdateWidget(old);
-    if (widget.value != _ctrl.text) {
+    // Only sync from provider when the field is not focused — avoids
+    // fighting the user while they type (e.g. mid-conversion round-trips).
+    if (!_focus.hasFocus && widget.value != _ctrl.text) {
       _ctrl.text = widget.value;
     }
   }
@@ -1122,6 +1140,7 @@ class _MetricFieldState extends State<_MetricField> {
           Expanded(
             child: TextField(
               controller: _ctrl,
+              focusNode: _focus,
               onChanged: widget.onChanged,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               textAlign: TextAlign.center,
@@ -1275,6 +1294,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
     _logger.provider('_StepGoals build()');
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
+    final isUs = ref.watch(localeProvider).isUsLocale;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -1408,16 +1428,25 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                         letterSpacing: 0.1)),
                 const SizedBox(height: AkeliSpacing.md),
                 _MetricField(
-                  value: data.targetWeight?.toString() ?? '',
-                  suffix: 'kg',
+                  value: data.targetWeight != null
+                      ? (isUs
+                          ? UnitConverter.kgToLb(data.targetWeight!).toString()
+                          : data.targetWeight!.toString())
+                      : '',
+                  suffix: isUs ? 'lb' : 'kg',
                   onChanged: (v) {
                     _logger.userAction('Target weight changed',
                         screen: 'OnboardingPage',
-                        metadata: {'value': v});
+                        metadata: {'value': v, 'isUs': isUs});
                     if (v.isEmpty) {
                       notifier.clearTargetWeight();
                     } else {
-                      notifier.updateGoals(targetWeight: double.tryParse(v));
+                      final entered = double.tryParse(v);
+                      notifier.updateGoals(
+                        targetWeight: entered == null
+                            ? null
+                            : (isUs ? UnitConverter.lbToKg(entered) : entered),
+                      );
                     }
                   },
                 ),
@@ -1988,6 +2017,7 @@ class _StepSummary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(onboardingProvider);
+    final isUs = ref.watch(localeProvider).isUsLocale;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -2070,7 +2100,9 @@ class _StepSummary extends ConsumerWidget {
                                     if (data.height != null)
                                       _SummaryChip('${data.height?.toInt()} cm'),
                                     if (data.weight != null)
-                                      _SummaryChip('${data.weight?.toInt()} kg'),
+                                      _SummaryChip(isUs
+                                          ? '${UnitConverter.kgToLb(data.weight!).toStringAsFixed(1)} lb'
+                                          : '${data.weight?.toInt()} kg'),
                                   ],
                                 ),
                               ],
