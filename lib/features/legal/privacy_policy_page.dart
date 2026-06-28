@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
@@ -14,6 +15,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _logger.provider('PrivacyPolicyPage build()');
+    final l10n = AppLocalizations.of(context);
     
     return Scaffold(
       backgroundColor: AkeliColors.surface,
@@ -40,7 +42,7 @@ class PrivacyPolicyPage extends StatelessWidget {
           },
         ),
         title: Text(
-          'Politique de Confidentialité',
+          l10n.legalPrivacyTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -70,7 +72,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                   const Icon(Icons.security_rounded, size: 48, color: AkeliColors.onPrimary),
                   const SizedBox(height: 16),
                   Text(
-                    'Vos données sont protégées',
+                    l10n.legalPrivacyHeroTitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -79,7 +81,7 @@ class PrivacyPolicyPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Nous nous engageons à protéger votre vie privée conformément au RGPD',
+                    l10n.legalPrivacyHeroSubtitle,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: AkeliColors.onPrimary.withValues(alpha: 0.9),
@@ -91,55 +93,45 @@ class PrivacyPolicyPage extends StatelessWidget {
             const SizedBox(height: 32),
 
             // Summary Highlights
-            _buildSectionTitle('En bref'),
+            _buildSectionTitle(l10n.legalPrivacySummaryTitle),
             const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.data_usage_outlined,
-              title: 'Collecte minimale',
-              description: 'Seules les données nécessaires au fonctionnement de l\'application',
+              title: l10n.legalPrivacyCollectionTitle,
+              description: l10n.legalPrivacyCollectionDesc,
             ),
             const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.lock_outline,
-              title: 'Sécurité maximale',
-              description: 'Chiffrement de bout en bout et stockage sécurisé',
+              title: l10n.legalPrivacySecurityTitle,
+              description: l10n.legalPrivacySecurityDesc,
             ),
             const SizedBox(height: 12),
             _buildHighlightCard(
               icon: Icons.person_outline,
-              title: 'Contrôle total',
-              description: 'Vous pouvez accéder, modifier ou supprimer vos données à tout moment',
+              title: l10n.legalPrivacyControlTitle,
+              description: l10n.legalPrivacyControlDesc,
             ),
             const SizedBox(height: 32),
 
             // Section 1
-            _buildSectionTitle('1. Collecte de données'),
+            _buildSectionTitle(l10n.legalPrivacySection1Title),
             const SizedBox(height: 12),
             _buildContentCard(
-              content: '''Nous collectons uniquement les données nécessaires pour vous offrir la meilleure expérience :
-
-• Informations de profil (nom, email, préférences alimentaires)
-• Historique de navigation dans l'application
-• Données de santé que vous choisissez de partager
-• Préférences de contenu et interactions''',
+              content: l10n.legalPrivacySection1Content,
             ),
             const SizedBox(height: 24),
 
             // Section 2
-            _buildSectionTitle('2. Utilisation des données'),
+            _buildSectionTitle(l10n.legalPrivacySection2Title),
             const SizedBox(height: 12),
             _buildContentCard(
-              content: '''Vos données nous permettent de :
-
-• Personnaliser vos recommandations de recettes
-• Améliorer continuellement notre service
-• Vous envoyer des notifications pertinentes
-• Assurer la sécurité de votre compte''',
+              content: l10n.legalPrivacySection2Content,
             ),
             const SizedBox(height: 24),
 
             // Section 3 - RGPD Rights Grid
-            _buildSectionTitle('3. Vos droits RGPD'),
+            _buildSectionTitle(l10n.legalPrivacySection3Title),
             const SizedBox(height: 12),
             GridView.count(
               shrinkWrap: true,
@@ -150,54 +142,46 @@ class PrivacyPolicyPage extends StatelessWidget {
               children: [
                 _buildRightsCard(
                   icon: Icons.visibility_outlined,
-                  title: 'Accès',
-                  description: 'Consulter vos données',
+                  title: l10n.legalPrivacyRightAccess,
+                  description: l10n.legalPrivacyRightAccessDesc,
                 ),
                 _buildRightsCard(
                   icon: Icons.edit_outlined,
-                  title: 'Rectification',
-                  description: 'Modifier vos informations',
+                  title: l10n.legalPrivacyRightRectification,
+                  description: l10n.legalPrivacyRightRectificationDesc,
                 ),
                 _buildRightsCard(
                   icon: Icons.delete_outline,
-                  title: 'Effacement',
-                  description: 'Supprimer votre compte',
+                  title: l10n.legalPrivacyRightErasure,
+                  description: l10n.legalPrivacyRightErasureDesc,
                 ),
                 _buildRightsCard(
                   icon: Icons.download_outlined,
-                  title: 'Portabilité',
-                  description: 'Exporter vos données',
+                  title: l10n.legalPrivacyRightPortability,
+                  description: l10n.legalPrivacyRightPortabilityDesc,
                 ),
               ],
             ),
             const SizedBox(height: 24),
 
             // Section 4
-            _buildSectionTitle('4. Partage des données'),
+            _buildSectionTitle(l10n.legalPrivacySection4Title),
             const SizedBox(height: 12),
             _buildContentCard(
-              content: '''Nous ne vendons jamais vos données personnelles.
-
-Elles peuvent être partagées uniquement avec :
-• Nos prestataires techniques hébergés en UE
-• Les autorités légales si requis par la loi
-• Vos créateurs favoris (uniquement avec votre consentement explicite)''',
+              content: l10n.legalPrivacySection4Content,
             ),
             const SizedBox(height: 24),
 
             // Section 5
-            _buildSectionTitle('5. Conservation'),
+            _buildSectionTitle(l10n.legalPrivacySection5Title),
             const SizedBox(height: 12),
             _buildContentCard(
-              content: '''Vos données sont conservées :
-• Tant que votre compte est actif
-• Jusqu'à 3 ans après votre dernière connexion
-• Immédiatement supprimées après demande de suppression de compte''',
+              content: l10n.legalPrivacySection5Content,
             ),
             const SizedBox(height: 24),
 
             // Contact Card
-            _buildSectionTitle('Contact DPO'),
+            _buildSectionTitle(l10n.legalPrivacyDpoTitle),
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.all(20),
@@ -214,7 +198,7 @@ Elles peuvent être partagées uniquement avec :
                       const Icon(Icons.mail_outline, color: AkeliColors.primary, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        'dpo@akeli.app',
+                        l10n.legalPrivacyDpoEmail,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -225,7 +209,7 @@ Elles peuvent être partagées uniquement avec :
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Notre délégué à la protection des données répond sous 48h ouvrées à toute demande concernant vos données personnelles.',
+                    l10n.legalPrivacyDpoDesc,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: AkeliColors.onSurfaceVariant,
@@ -245,7 +229,7 @@ Elles peuvent être partagées uniquement avec :
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
-                  'Version 1.0 • Dernière mise à jour: Janvier 2026',
+                  l10n.legalPrivacyVersion,
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     color: AkeliColors.onSecondaryContainer,

@@ -1726,5 +1726,398 @@
   "journeyGoalsCalorieHitSubtitle": "You hit your calorie goal {pct}% of tracked days.",
   "@journeyGoalsCalorieHitSubtitle": {
     "placeholders": { "pct": { "type": "int" } }
-  }
+  },
+
+  "subscriptionMyTitle": "My Subscription",
+  "@subscriptionMyTitle": {},
+
+  "subscriptionActiveTitle": "Active Subscription",
+  "@subscriptionActiveTitle": {},
+
+  "subscriptionPremiumBadge": "Akeli Premium",
+  "@subscriptionPremiumBadge": {},
+
+  "subscriptionActiveThankYou": "Thank you for being part of the Akeli community.",
+  "@subscriptionActiveThankYou": {},
+
+  "subscriptionTagline": "Personalized African nutrition",
+  "@subscriptionTagline": {},
+
+  "subscriptionIncludedTitle": "What's included",
+  "@subscriptionIncludedTitle": {},
+
+  "subscriptionPerMonth": "/ month",
+  "@subscriptionPerMonth": {},
+
+  "subscriptionCancelAnytime": "Cancel anytime via the Store",
+  "@subscriptionCancelAnytime": {},
+
+  "subscriptionSubscribeViaStore": "Subscribe via the Store",
+  "@subscriptionSubscribeViaStore": {},
+
+  "subscriptionMobileOnly": "Subscription available on iOS and Android only.",
+  "@subscriptionMobileOnly": {},
+
+  "subscriptionFeature1": "Personalized African recipes with AI",
+  "@subscriptionFeature1": {},
+
+  "subscriptionFeature2": "Adapted weekly meal plan",
+  "@subscriptionFeature2": {},
+
+  "subscriptionFeature3": "Detailed nutritional tracking",
+  "@subscriptionFeature3": {},
+
+  "subscriptionFeature4": "Nutritional AI assistant",
+  "@subscriptionFeature4": {},
+
+  "subscriptionFeature5": "Fan Mode — support your creators",
+  "@subscriptionFeature5": {},
+
+  "subscriptionFeature6": "Community and discussion groups",
+  "@subscriptionFeature6": {},
+
+  "subscriptionFeature7": "Automatic shopping list",
+  "@subscriptionFeature7": {},
+
+  "subscriptionActiveBadge": "Active Premium Subscription",
+  "@subscriptionActiveBadge": {},
+
+  "subscriptionRenewalDate": "Next renewal: {date}",
+  "@subscriptionRenewalDate": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+
+  "subscriptionPlatformIos": "Subscription via App Store",
+  "@subscriptionPlatformIos": {},
+
+  "subscriptionPlatformAndroid": "Subscription via Google Play",
+  "@subscriptionPlatformAndroid": {},
+
+  "journalingNewEntry": "New entry",
+  "@journalingNewEntry": {},
+
+  "journalingNewEntrySubtitle": "Note your culinary experience",
+  "@journalingNewEntrySubtitle": {},
+
+  "journalingPhotos": "Photos",
+  "@journalingPhotos": {},
+
+  "journalingAddPhotos": "Add photos",
+  "@journalingAddPhotos": {},
+
+  "journalingMealType": "Meal type",
+  "@journalingMealType": {},
+
+  "journalingDescription": "Description",
+  "@journalingDescription": {},
+
+  "journalingDescriptionHint": "How was this meal? Tastes, textures, emotions...",
+  "@journalingDescriptionHint": {},
+
+  "journalingDescriptionRequired": "Please add a description",
+  "@journalingDescriptionRequired": {},
+
+  "journalingSaving": "Saving...",
+  "@journalingSaving": {},
+
+  "journalingSaveEntry": "Save entry",
+  "@journalingSaveEntry": {},
+
+  "journalingEntrySaved": "Entry saved successfully!",
+  "@journalingEntrySaved": {},
+
+  "journalingSaveError": "Error saving entry",
+  "@journalingSaveError": {},
+
+  "aiAssistantOnline": "Online",
+  "@aiAssistantOnline": {},
+
+  "aiAssistantNewConversation": "New conversation",
+  "@aiAssistantNewConversation": {},
+
+  "aiAssistantToday": "TODAY",
+  "@aiAssistantToday": {},
+
+  "aiAssistantError": "Sorry, an error occurred. Please try again in a moment.",
+  "@aiAssistantError": {},
+
+  "aiAssistantWelcomeTitle": "Hello, I'm your Akeli nutritional assistant.",
+  "@aiAssistantWelcomeTitle": {},
+
+  "aiAssistantWelcomeSubtitle": "Ask me your questions about nutrition, African recipes or your meal plan.",
+  "@aiAssistantWelcomeSubtitle": {},
+
+  "aiAssistantSuggestions": "Suggestions",
+  "@aiAssistantSuggestions": {},
+
+  "aiAssistantMessageHint": "Message...",
+  "@aiAssistantMessageHint": {},
+
+  "aiAssistantSuggestion1": "Which protein-rich foods suit my culture?",
+  "@aiAssistantSuggestion1": {},
+
+  "aiAssistantSuggestion2": "What is my recommended caloric intake?",
+  "@aiAssistantSuggestion2": {},
+
+  "aiAssistantSuggestion3": "How to lose weight with African cuisine?",
+  "@aiAssistantSuggestion3": {},
+
+  "aiAssistantSuggestion4": "Give me a recipe for tonight.",
+  "@aiAssistantSuggestion4": {},
+
+  "referralCodeLabel": "Your referral code",
+  "@referralCodeLabel": {},
+
+  "referralReferreeCount": "{count, plural, one{{count} referral} other{{count} referrals}}",
+  "@referralReferreeCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "referralShareTitle": "Share the Oasis",
+  "@referralShareTitle": {},
+
+  "referralShareBody": "Invite your friends to discover Akeli Oasis. For every friend who signs up with your code, you'll receive an exclusive wellness ritual invitation, and they'll get a privileged welcome.",
+  "@referralShareBody": {},
+
+  "referralChangeCodeTitle": "Change code",
+  "@referralChangeCodeTitle": {},
+
+  "referralEditCode": "Edit code",
+  "@referralEditCode": {},
+
+  "referralNewCodeLabel": "New code",
+  "@referralNewCodeLabel": {},
+
+  "referralNewCodeHint": "Enter a new code",
+  "@referralNewCodeHint": {},
+
+  "referralCodeUpdated": "Code updated successfully!",
+  "@referralCodeUpdated": {},
+
+  "supportHeaderTitle": "How can we help you?",
+  "@supportHeaderTitle": {},
+
+  "supportHeaderSubtitle": "Our team is here to answer your questions",
+  "@supportHeaderSubtitle": {},
+
+  "supportSubjectLabel": "Subject",
+  "@supportSubjectLabel": {},
+
+  "supportSubjectHint": "e.g. Login issue...",
+  "@supportSubjectHint": {},
+
+  "supportSubjectRequired": "Please enter a subject",
+  "@supportSubjectRequired": {},
+
+  "supportEmailHint": "your@email.com",
+  "@supportEmailHint": {},
+
+  "supportEmailRequired": "Please enter your email",
+  "@supportEmailRequired": {},
+
+  "supportEmailInvalid": "Please enter a valid email",
+  "@supportEmailInvalid": {},
+
+  "supportMessageLabel": "Message",
+  "@supportMessageLabel": {},
+
+  "supportMessageHint": "Describe your issue...",
+  "@supportMessageHint": {},
+
+  "supportMessageRequired": "Please enter your message",
+  "@supportMessageRequired": {},
+
+  "supportMessageTooShort": "Message must be at least 10 characters",
+  "@supportMessageTooShort": {},
+
+  "supportAddScreenshot": "Add a screenshot",
+  "@supportAddScreenshot": {},
+
+  "supportSendMessage": "Send message",
+  "@supportSendMessage": {},
+
+  "supportMessageSent": "Message sent successfully!",
+  "@supportMessageSent": {},
+
+  "supportSendError": "Error sending. Please try again.",
+  "@supportSendError": {},
+
+  "supportChangeScreenshot": "Change screenshot",
+  "@supportChangeScreenshot": {},
+
+  "savedRecipesEligibilityNotLoggedIn": "Not logged in",
+  "@savedRecipesEligibilityNotLoggedIn": {},
+
+  "savedRecipesEligibilityNoData": "No data found",
+  "@savedRecipesEligibilityNoData": {},
+
+  "savedRecipesEligibilityTitle": "Generate from your favorites",
+  "@savedRecipesEligibilityTitle": {},
+
+  "savedRecipesEligibilityDesc": "If you have enough saved recipes, you can ask Akeli to generate your meal plans only from your favorites, rather than through our recommendations.",
+  "@savedRecipesEligibilityDesc": {},
+
+  "savedRecipesEligibilityProgress": "Progress",
+  "@savedRecipesEligibilityProgress": {},
+
+  "savedRecipesEligibilityMissing": "{count, plural, one{{count} recipe missing} other{{count} recipes missing}}",
+  "@savedRecipesEligibilityMissing": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "savedRecipesEligibilityToggleTitle": "Use favorites only",
+  "@savedRecipesEligibilityToggleTitle": {},
+
+  "savedRecipesEligibilityEnabled": "Enabled",
+  "@savedRecipesEligibilityEnabled": {},
+
+  "savedRecipesEligibilityBlocked": "Locked: You must reach 7 recipes for each category above.",
+  "@savedRecipesEligibilityBlocked": {},
+
+  "legalPrivacyTitle": "Privacy Policy",
+  "@legalPrivacyTitle": {},
+
+  "legalPrivacyHeroTitle": "Your data is protected",
+  "@legalPrivacyHeroTitle": {},
+
+  "legalPrivacyHeroSubtitle": "We are committed to protecting your privacy in accordance with GDPR",
+  "@legalPrivacyHeroSubtitle": {},
+
+  "legalPrivacySummaryTitle": "In brief",
+  "@legalPrivacySummaryTitle": {},
+
+  "legalPrivacyCollectionTitle": "Minimal collection",
+  "@legalPrivacyCollectionTitle": {},
+
+  "legalPrivacyCollectionDesc": "Only data necessary for the app to function",
+  "@legalPrivacyCollectionDesc": {},
+
+  "legalPrivacySecurityTitle": "Maximum security",
+  "@legalPrivacySecurityTitle": {},
+
+  "legalPrivacySecurityDesc": "End-to-end encryption and secure storage",
+  "@legalPrivacySecurityDesc": {},
+
+  "legalPrivacyControlTitle": "Total control",
+  "@legalPrivacyControlTitle": {},
+
+  "legalPrivacyControlDesc": "You can access, modify or delete your data at any time",
+  "@legalPrivacyControlDesc": {},
+
+  "legalPrivacySection1Title": "1. Data collection",
+  "@legalPrivacySection1Title": {},
+
+  "legalPrivacySection1Content": "We collect only the data needed to provide you with the best experience:\n\n• Profile information (name, email, dietary preferences)\n• Navigation history within the app\n• Health data you choose to share\n• Content preferences and interactions",
+  "@legalPrivacySection1Content": {},
+
+  "legalPrivacySection2Title": "2. Data use",
+  "@legalPrivacySection2Title": {},
+
+  "legalPrivacySection2Content": "Your data allows us to:\n\n• Personalize your recipe recommendations\n• Continuously improve our service\n• Send you relevant notifications\n• Ensure the security of your account",
+  "@legalPrivacySection2Content": {},
+
+  "legalPrivacySection3Title": "3. Your GDPR rights",
+  "@legalPrivacySection3Title": {},
+
+  "legalPrivacyRightAccess": "Access",
+  "@legalPrivacyRightAccess": {},
+
+  "legalPrivacyRightAccessDesc": "View your data",
+  "@legalPrivacyRightAccessDesc": {},
+
+  "legalPrivacyRightRectification": "Rectification",
+  "@legalPrivacyRightRectification": {},
+
+  "legalPrivacyRightRectificationDesc": "Modify your information",
+  "@legalPrivacyRightRectificationDesc": {},
+
+  "legalPrivacyRightErasure": "Erasure",
+  "@legalPrivacyRightErasure": {},
+
+  "legalPrivacyRightErasureDesc": "Delete your account",
+  "@legalPrivacyRightErasureDesc": {},
+
+  "legalPrivacyRightPortability": "Portability",
+  "@legalPrivacyRightPortability": {},
+
+  "legalPrivacyRightPortabilityDesc": "Export your data",
+  "@legalPrivacyRightPortabilityDesc": {},
+
+  "legalPrivacySection4Title": "4. Data sharing",
+  "@legalPrivacySection4Title": {},
+
+  "legalPrivacySection4Content": "We never sell your personal data.\n\nIt may only be shared with:\n• Our technical providers hosted in the EU\n• Legal authorities if required by law\n• Your favourite creators (only with your explicit consent)",
+  "@legalPrivacySection4Content": {},
+
+  "legalPrivacySection5Title": "5. Retention",
+  "@legalPrivacySection5Title": {},
+
+  "legalPrivacySection5Content": "Your data is retained:\n• As long as your account is active\n• Up to 3 years after your last login\n• Immediately deleted upon account deletion request",
+  "@legalPrivacySection5Content": {},
+
+  "legalPrivacyDpoTitle": "DPO Contact",
+  "@legalPrivacyDpoTitle": {},
+
+  "legalPrivacyDpoEmail": "dpo@akeli.app",
+  "@legalPrivacyDpoEmail": {},
+
+  "legalPrivacyDpoDesc": "Our data protection officer responds within 48 business hours to any request regarding your personal data.",
+  "@legalPrivacyDpoDesc": {},
+
+  "legalPrivacyVersion": "Version 1.0 • Last updated: January 2026",
+  "@legalPrivacyVersion": {},
+
+  "legalTermsTitle": "Terms of Service",
+  "@legalTermsTitle": {},
+
+  "legalTermsHeroTitle": "Welcome to Akeli",
+  "@legalTermsHeroTitle": {},
+
+  "legalTermsHeroSubtitle": "By using our app, you accept these terms",
+  "@legalTermsHeroSubtitle": {},
+
+  "legalTermsArticle1Title": "Access to service",
+  "@legalTermsArticle1Title": {},
+
+  "legalTermsArticle1Content": "Akeli is a free mobile app dedicated to African nutrition and traditional recipes.\n\nAccess to the service requires:\n• A compatible iOS or Android smartphone\n• An internet connection to sync data\n• Creating a user account\n\nCertain premium features (Fan Mode, personalized plans) are available via subscription.",
+  "@legalTermsArticle1Content": {},
+
+  "legalTermsArticle2Title": "User account",
+  "@legalTermsArticle2Title": {},
+
+  "legalTermsArticle2Content": "You are responsible for:\n• The confidentiality of your credentials\n• The accuracy of the information provided\n• All activities carried out from your account\n\nWe reserve the right to suspend or delete any account that violates these terms.",
+  "@legalTermsArticle2Content": {},
+
+  "legalTermsArticle3Title": "Intellectual property",
+  "@legalTermsArticle3Title": {},
+
+  "legalTermsArticle3Content": "All content on Akeli (recipes, texts, images, logos) is the exclusive property of Akeli or its partners.\n\nProhibited:\n• Reproduction without authorization\n• Unauthorized commercial use\n• Modification or alteration of content\n\nCreators retain rights to their published recipes.",
+  "@legalTermsArticle3Content": {},
+
+  "legalTermsArticle4Title": "Liability",
+  "@legalTermsArticle4Title": {},
+
+  "legalTermsArticle4Content": "Akeli provides nutritional information for informational purposes only.\n\nWe cannot be held responsible for:\n• Errors in nutritional information\n• Allergic reactions or health problems related to recipes\n• Temporary service interruptions for maintenance\n\nAlways consult a healthcare professional for medical advice.",
+  "@legalTermsArticle4Content": {},
+
+  "legalTermsArticle5Title": "Subscriptions and payments",
+  "@legalTermsArticle5Title": {},
+
+  "legalTermsArticle5Content": "Fan Mode subscriptions (€3/month) are billed monthly via the stores (Google Play / App Store).\n\n• Cancellation possible at any time\n• Access maintained until the end of the paid period\n• No partial refund\n\nCreators receive 70% of revenue generated by their subscribers.",
+  "@legalTermsArticle5Content": {},
+
+  "legalTermsArticle6Title": "Modifications",
+  "@legalTermsArticle6Title": {},
+
+  "legalTermsArticle6Content": "We reserve the right to modify these terms at any time.\n\nUsers will be notified:\n• By push notification for major changes\n• By email if the modification impacts personal data\n\nContinued use constitutes acceptance of the new terms.",
+  "@legalTermsArticle6Content": {},
+
+  "legalTermsContactTitle": "Contact",
+  "@legalTermsContactTitle": {},
+
+  "legalTermsContactEmail": "legal@akeli.app",
+  "@legalTermsContactEmail": {},
+
+  "legalTermsVersion": "Version 1.0 • Last updated: January 2026",
+  "@legalTermsVersion": {}
 }

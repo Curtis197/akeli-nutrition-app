@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'firebase_options.dart';
+import 'core/locale_provider.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
 import 'core/theme.dart';
 import 'core/logger.dart';
 import 'core/notification_handler.dart';
+import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   appLogger.i('🚀 Akeli app starting | initializing Supabase & Firebase');
 
   await initializeDateFormatting('fr_FR', null);
+  await initializeDateFormatting('en_US', null);
 
   RemoteMessage? initialMessage;
 
@@ -54,7 +58,9 @@ Future<void> main() async {
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 4),
           action: SnackBarAction(
-            label: 'Voir',
+            label: rootScaffoldMessengerKey.currentContext != null
+                ? AppLocalizations.of(rootScaffoldMessengerKey.currentContext!).notificationSeeLabel
+                : 'Voir',
             onPressed: () {
               rootScaffoldMessengerKey.currentContext?.push(AkeliRoutes.notifications);
             },
@@ -102,12 +108,21 @@ class AkeliApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     appLogger.d('🔄 AkeliApp.build() | evaluating router');
     final router = ref.watch(routerProvider);
+    final locale = ref.watch(localeProvider);
     return MaterialApp.router(
       title: 'Akeli',
       debugShowCheckedModeBanner: false,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       themeMode: ThemeMode.system,
+      locale: locale,
+      supportedLocales: LocaleNotifier.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: router,
       scaffoldMessengerKey: rootScaffoldMessengerKey,
     );
