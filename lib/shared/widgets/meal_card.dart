@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/core/logger.dart';
+import 'package:akeli/core/meal_type_l10n.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 // ---------------------------------------------------------------------------
 // AkeliMealCard - Digital Editorial Style
@@ -7,6 +10,8 @@ import 'package:akeli/core/theme.dart';
 // Used in the Dashboard for "Vos repas du jour".
 // Features high-fidelity imagery, a meal type badge, and metadata.
 // ---------------------------------------------------------------------------
+
+final _logger = appLogger;
 
 class AkeliMealCard extends StatelessWidget {
   final String title;
@@ -33,16 +38,6 @@ class AkeliMealCard extends StatelessWidget {
   });
 
 
-  String get _mealTypeLabel {
-    switch (mealType.toLowerCase()) {
-      case 'breakfast': return 'Petit-Déjeuner';
-      case 'lunch':     return 'Déjeuner';
-      case 'dinner':    return 'Dîner';
-      case 'snack':     return 'Collation';
-      default:          return mealType;
-    }
-  }
-
   Color get _mealTypeColor {
     switch (mealType.toLowerCase()) {
       case 'breakfast': return const Color(0xFFF59E0B);
@@ -64,6 +59,10 @@ class AkeliMealCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _logger.provider(
+      'AkeliMealCard build() | title: "$title" | mealType: $mealType | '
+      'calories: ${calories.toInt()} | isConsumed: $isConsumed | variant: ${isPlanner ? "planner" : "dashboard"}',
+    );
     if (isPlanner) {
       return _buildPlannerCard(context);
     } else {
@@ -72,8 +71,13 @@ class AkeliMealCard extends StatelessWidget {
   }
 
   Widget _buildPlannerCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null ? null : () {
+        _logger.userAction('Meal card tapped', screen: 'AkeliMealCard',
+            metadata: {'title': title, 'mealType': mealType, 'variant': 'planner'});
+        onTap!();
+      },
       child: Container(
         width: 300,
         height: 300,
@@ -132,7 +136,11 @@ class AkeliMealCard extends StatelessWidget {
                     // Consumption Toggle
                     if (onConsumedToggle != null)
                       GestureDetector(
-                        onTap: onConsumedToggle,
+                        onTap: () {
+                          _logger.userAction('Consumed toggle tapped', screen: 'AkeliMealCard',
+                              metadata: {'title': title, 'wasConsumed': isConsumed, 'variant': 'planner'});
+                          onConsumedToggle!();
+                        },
                         child: Container(
                           key: const Key('consumed-toggle'),
                           width: 32,
@@ -157,7 +165,7 @@ class AkeliMealCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        _mealTypeLabel.toUpperCase(),
+                        mealTypeLabel(l10n, mealType).toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -227,8 +235,13 @@ class AkeliMealCard extends StatelessWidget {
   }
 
   Widget _buildDashboardCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap == null ? null : () {
+        _logger.userAction('Meal card tapped', screen: 'AkeliMealCard',
+            metadata: {'title': title, 'mealType': mealType, 'variant': 'dashboard'});
+        onTap!();
+      },
       child: Container(
         width: 300,
         margin: const EdgeInsets.only(right: 16),
@@ -288,7 +301,7 @@ class AkeliMealCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      _mealTypeLabel.toUpperCase(),
+                      mealTypeLabel(l10n, mealType).toUpperCase(),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
@@ -303,7 +316,11 @@ class AkeliMealCard extends StatelessWidget {
                   top: 12,
                   left: 12,
                   child: GestureDetector(
-                    onTap: onConsumedToggle,
+                    onTap: onConsumedToggle == null ? null : () {
+                      _logger.userAction('Consumed toggle tapped', screen: 'AkeliMealCard',
+                          metadata: {'title': title, 'wasConsumed': isConsumed, 'variant': 'dashboard'});
+                      onConsumedToggle!();
+                    },
                     child: Container(
                       key: const Key('consumed-toggle-dashboard'),
                       width: 32,
@@ -383,9 +400,9 @@ class AkeliMealCard extends StatelessWidget {
                             color: AkeliColors.success.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'Consommé',
-                            style: TextStyle(
+                          child: Text(
+                            l10n.nutritionConsumed,
+                            style: const TextStyle(
                               color: AkeliColors.success,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
