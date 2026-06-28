@@ -4,6 +4,7 @@
   "appTitle": "Akeli",
   "appVersion": "Akeli V1.0",
   "notificationSeeLabel": "Voir",
+  "notificationDefaultTitle": "Nouvelle notification",
 
   "navHome": "Accueil",
   "navMeals": "Repas",

@@ -42,7 +42,10 @@ Future<void> main() async {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       appLogger.i('FCM Foreground Message received: ${message.notification?.title}');
 
-      final title = message.notification?.title ?? 'Nouvelle notification';
+      final title = message.notification?.title ??
+          (rootScaffoldMessengerKey.currentContext != null
+              ? AppLocalizations.of(rootScaffoldMessengerKey.currentContext!).notificationDefaultTitle
+              : 'Nouvelle notification');
       final body = message.notification?.body ?? '';
 
       rootScaffoldMessengerKey.currentState?.showSnackBar(

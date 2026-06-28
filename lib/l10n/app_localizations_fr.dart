@@ -18,6 +18,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get notificationSeeLabel => 'Voir';
 
   @override
+  String get notificationDefaultTitle => 'Nouvelle notification';
+
+  @override
   String get navHome => 'Accueil';
 
   @override

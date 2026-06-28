@@ -10,6 +10,9 @@
   "notificationSeeLabel": "View",
   "@notificationSeeLabel": {},
 
+  "notificationDefaultTitle": "New Notification",
+  "@notificationDefaultTitle": {},
+
   "navHome": "Home",
   "@navHome": {},
 

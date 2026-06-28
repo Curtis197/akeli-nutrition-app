@@ -116,6 +116,12 @@ abstract class AppLocalizations {
   /// **'View'**
   String get notificationSeeLabel;
 
+  /// No description provided for @notificationDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Notification'**
+  String get notificationDefaultTitle;
+
   /// No description provided for @navHome.
   ///
   /// In en, this message translates to:
