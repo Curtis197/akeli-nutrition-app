@@ -254,7 +254,85 @@ mealScheduleOnboardingSkip
 
 ---
 
-## 8. Files Changed
+## 8. Verification Tests
+
+Tests are written in pgTAP (SQL) for the generator function and in Flutter's `flutter_test` package for the widget layer. All SQL tests run against a local Supabase instance with seeded data.
+
+### 8.1 Generator SQL — pgTAP test cases
+
+File: `supabase/tests/generate_meal_plan_custom_schedule_test.sql`
+
+Each test case seeds a `nutrition_plan` + `meal_distribution` rows for a test user, calls `generate_meal_plan(...)`, then asserts on the resulting `meal_plan_entry` rows.
+
+| # | Scenario | Distribution seeded | Expected entries per day |
+|---|---|---|---|
+| T1 | **Default fallback — no distribution** | No `meal_distribution` rows exist | 3 entries: breakfast, lunch, dinner |
+| T2 | **Standard 3-meal explicit** | breakfast 30%, lunch 35%, dinner 35% | 3 entries: breakfast, lunch, dinner |
+| T3 | **No breakfast** | lunch 40%, dinner 60% | 2 entries: lunch, dinner only |
+| T4 | **3 collations + lunch + dinner** | lunch 25%, dinner 35%, snack 15%, snack 15%, snack 10% (5 rows) | 5 entries: lunch, dinner, snack×3 |
+| T5 | **Heavy dinner, light lunch** | lunch 20%, dinner 55%, snack 25% | 3 entries; dinner `calorie_target` ≈ 2.75× lunch target |
+| T6 | **Single meal per day** | dinner 100% | 1 entry per day: dinner |
+| T7 | **All snacks (extreme)** | snack 25% × 4 rows | 4 snack entries per day; no breakfast/lunch/dinner |
+| T8 | **Max slots (6/day)** | breakfast 20%, snack 10%, lunch 25%, snack 10%, dinner 25%, snack 10% | 6 entries per day in sort_order sequence |
+| T9 | **Nickname propagation** | snack nickname='Collation du matin', snack nickname='Collation du soir' | Entries have matching `nickname` values in `meal_plan_entry` |
+| T10 | **Per-slot macro targets respected** | breakfast protein_pct=40 fat_pct=20 carbs_pct=40; dinner protein_pct=20 fat_pct=30 carbs_pct=50 | Breakfast recipes score higher on protein density than dinner recipes |
+| T11 | **sort_order preserved** | 5 slots with explicit sort_order 0–4 | Entries inserted with matching `sort_order` values |
+| T12 | **Multi-day consistency** | lunch 40%, dinner 60% (7-day plan) | Each of 7 days has exactly 2 entries; no cross-day leakage |
+| T13 | **Past entries preserved on regenerate** | Any distribution, plan already has consumed entries for day -1 | Consumed past entries untouched; future entries regenerated with new structure |
+| T14 | **Allergen filter still applies** | breakfast 100%; user has peanut allergy | No peanut-containing recipe in any breakfast entry |
+| T15 | **generate_meal_plan_from_saved — same structure** | Saved-recipes eligible user; lunch 40%, dinner 60% | Same structural assertions as T3 but sourced from saved recipes |
+
+**Assertions per test (where applicable):**
+- `entry_count_per_day` = expected count
+- `meal_types_per_day` = expected sorted array of `meal_type` values
+- `sort_order` values match distribution `sort_order`
+- `nickname` values match distribution `nickname`
+- `calorie_target` on each entry is within 5% of `total_goal × calorie_pct / 100`
+- No allergen-flagged recipe appears (T14)
+- No duplicate recipe within the same day (variety constraint)
+
+### 8.2 Flutter Widget — unit tests
+
+File: `test/features/nutrition_plan/meal_schedule_widget_test.dart`
+
+| # | Scenario | What is verified |
+|---|---|---|
+| W1 | **Calorie % total = 100% → save enabled** | Save button active when sliders sum to 100 |
+| W2 | **Calorie % total ≠ 100% → save disabled** | Save button inactive + error indicator shown |
+| W3 | **Per-slot macro total = 100% → valid** | Macro section shows green indicator |
+| W4 | **Per-slot macro total ≠ 100% → invalid** | Macro section shows red indicator; save blocked |
+| W5 | **Add slot** | Slot count increments; new slot defaults to `snack`, 0% |
+| W6 | **Remove slot** | Slot count decrements; remaining percentages unaffected |
+| W7 | **Cannot remove last slot** | Delete button absent when only 1 slot remains |
+| W8 | **Nickname field optional** | Saving with empty nickname field succeeds |
+| W9 | **Reorder changes sort_order** | `onChanged` callback emits list in new order |
+| W10 | **Category picker changes meal_type** | Selecting "Dinner" sets `mealType = 'dinner'` in model |
+
+### 8.3 Integration — mid-week structure change
+
+Manual test script (or Flutter integration test):
+
+1. Generate a 7-day plan with the default 3-meal structure. Confirm 3 entries/day.
+2. Mark today's breakfast as consumed.
+3. Open Meal Planner → Customize → remove breakfast, add a snack. Save.
+4. **"Apply from today"** path:
+   - Past consumed entry untouched.
+   - Remaining days of the week regenerated with 2-meal structure (lunch + snack).
+   - `MealPlannerPage` reloads and shows updated structure.
+5. Repeat steps 1–3 but choose **"Apply from next week"**:
+   - Current week unchanged.
+   - On next Monday, `generate_meal_plan` uses the new distribution.
+
+### 8.4 Onboarding smoke test
+
+1. Fresh install → onboarding reaches the "Customize your meal schedule" step.
+2. Tap **Skip** → plan generates with 3-meal default. Hint banner appears on `MealPlannerPage`.
+3. Dismiss banner → `has_dismissed_meal_schedule_hint = true` in `user_profile`. Banner does not reappear.
+4. Repeat with a new account → complete the custom schedule step (set 2 slots) → plan generates with 2 slots/day from first generation.
+
+---
+
+## 9. Files Changed
 
 **New:**
 - `lib/features/nutrition_plan/widgets/meal_schedule_widget.dart`
