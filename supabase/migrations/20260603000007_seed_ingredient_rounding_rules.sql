@@ -1,6 +1,9 @@
 -- Per-ingredient rounding overrides.
 -- Only rows that differ from the unit_rounding_config default are inserted.
 -- unit defaults: unit=0.5, piece=0.5, g=5, ml=5, kg=0.1, l=0.1
+-- Wrapped in DO block: on a fresh local DB the ingredient table is empty,
+-- so FK violations are silently skipped.
+DO $seed$ BEGIN
 
 INSERT INTO public.ingredient_rounding_rule (ingredient_id, unit, rounding_step) VALUES
 
@@ -84,3 +87,7 @@ INSERT INTO public.ingredient_rounding_rule (ingredient_id, unit, rounding_step)
 ('036fa17b-7abf-4846-bd9f-a4d31ef09cdd', 'g',   25)    -- Poisson fumé (g)
 
 ON CONFLICT (ingredient_id, unit) DO UPDATE SET rounding_step = EXCLUDED.rounding_step;
+
+EXCEPTION WHEN foreign_key_violation THEN
+  RAISE WARNING 'seed_ingredient_rounding_rules: skipped — ingredient table not populated locally';
+END $seed$;

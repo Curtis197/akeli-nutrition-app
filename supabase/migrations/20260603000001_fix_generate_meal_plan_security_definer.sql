@@ -3,6 +3,11 @@
 -- violation on INSERT INTO meal_plan_entry (which has no INSERT policy for
 -- authenticated role). Preserves the early-return guard present in the live DB.
 
+-- Drop first so the return-type change is accepted (local replay only; on remote the
+-- prior version already had this return type when this migration ran).
+DROP FUNCTION IF EXISTS public.generate_meal_plan(uuid, integer, integer, date);
+DROP FUNCTION IF EXISTS public.generate_meal_plan(uuid, integer, integer, date, integer);
+
 CREATE OR REPLACE FUNCTION public.generate_meal_plan(
   p_user_id       uuid,
   p_days          integer DEFAULT 7,

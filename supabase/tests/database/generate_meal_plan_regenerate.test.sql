@@ -13,6 +13,10 @@ SELECT plan(4);
 
 -- ─── Seed: minimal reference data ───────────────────────────────────────────
 
+-- Measurement units (FK required by recipe_ingredient.unit)
+INSERT INTO public.measurement_unit (code, name_fr, name_en)
+VALUES ('g', 'g', 'g') ON CONFLICT (code) DO NOTHING;
+
 -- Ingredient
 INSERT INTO public.ingredient (id, name, name_fr)
 VALUES ('00000000-0000-0000-0000-000000000010'::uuid, 'Rice', 'Riz');
@@ -23,16 +27,23 @@ INSERT INTO public.recipe (id, title, is_published, servings, meal_types, allerg
 VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 'Anytime Recipe', true, 1,
         ARRAY['breakfast', 'lunch', 'dinner'], ARRAY[]::text[]);
 
-INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g)
-VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 500, 20, 60, 15);
+-- total_weight_g required so the GENERATED kcal_per_100g column is > 0
+-- (generator filters rm.kcal_per_100g > 0)
+INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
+VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 500, 20, 60, 15, 300);
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid,
         '00000000-0000-0000-0000-000000000010'::uuid, 100, 'g', false);
 
--- User
-INSERT INTO public.user_profile (id, display_name)
-VALUES ('cccccccc-0000-0000-0000-000000000010'::uuid, 'Regen User');
+-- User (auth.users required before user_profile FK)
+INSERT INTO auth.users (id, email, role, created_at, updated_at)
+VALUES ('cccccccc-0000-0000-0000-000000000010'::uuid, 'regen@test.local', 'authenticated', now(), now())
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.user_profile (id, first_name)
+VALUES ('cccccccc-0000-0000-0000-000000000010'::uuid, 'Regen')
+ON CONFLICT (id) DO NOTHING;
 
 -- Pre-existing ACTIVE plan for today — this is the condition that used to make
 -- the function bail out with zero rows.
@@ -57,11 +68,13 @@ SELECT is(
   'regenerate builds 3 entries even though an active plan already existed for the date'
 );
 
+-- Migration 20260628000002 uses plan-reuse: the existing overlapping plan is
+-- reused (same ID, future entries replaced) rather than deactivated.
 SELECT is(
   (SELECT is_active FROM public.meal_plan
    WHERE id = 'dddddddd-0000-0000-0000-000000000010'::uuid),
-  false,
-  'the previously active plan was deactivated'
+  true,
+  'existing plan is still active (reused, not deactivated)'
 );
 
 SELECT is(
@@ -72,10 +85,10 @@ SELECT is(
   'exactly one active plan remains for the user'
 );
 
-SELECT isnt(
+SELECT is(
   (SELECT meal_plan_id FROM gen_result LIMIT 1),
   'dddddddd-0000-0000-0000-000000000010'::uuid,
-  'a brand-new plan (different id) was created'
+  'existing plan was reused (same id)'
 );
 
 SELECT * FROM finish();

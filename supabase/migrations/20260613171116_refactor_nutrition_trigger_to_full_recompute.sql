@@ -8,8 +8,8 @@
 
 DROP TRIGGER IF EXISTS trg_update_daily_nutrition_on_consumption ON meal_consumption;
 DROP TRIGGER IF EXISTS trg_decrement_daily_nutrition_on_unconsume ON meal_consumption;
-DROP FUNCTION IF EXISTS update_daily_nutrition_on_consumption();
-DROP FUNCTION IF EXISTS decrement_daily_nutrition_on_unconsume();
+DROP FUNCTION IF EXISTS update_daily_nutrition_on_consumption() CASCADE;
+DROP FUNCTION IF EXISTS decrement_daily_nutrition_on_unconsume() CASCADE;
 
 CREATE OR REPLACE FUNCTION sync_daily_nutrition_for_date()
 RETURNS trigger LANGUAGE plpgsql AS $$

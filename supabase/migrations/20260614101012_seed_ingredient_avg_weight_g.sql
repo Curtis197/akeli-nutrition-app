@@ -1,3 +1,6 @@
+-- Ensure avg_weight_g column exists (was added directly to remote without a migration).
+ALTER TABLE public.ingredient ADD COLUMN IF NOT EXISTS avg_weight_g numeric;
+
 -- Seed avg_weight_g for unit/piece/bunch/can/pot ingredients used in published
 -- recipes that currently have NULL avg_weight_g.
 --

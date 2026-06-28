@@ -76,6 +76,40 @@ RETURNS text[] LANGUAGE sql AS $$
   WHERE mp.user_id = p_user_id AND mpe.scheduled_date = p_date;
 $$;
 
+-- Seed: measurement unit (FK required by recipe_ingredient.unit)
+INSERT INTO public.measurement_unit (code, name_fr, name_en)
+VALUES ('g', 'g', 'g') ON CONFLICT (code) DO NOTHING;
+
+-- Seed: ingredients used in recipe_ingredient rows
+INSERT INTO public.ingredient (id, name, name_fr) VALUES
+  ('f0000000-0000-0000-0000-000000000001'::uuid, 'Millet',  'Millet'),
+  ('f0000000-0000-0000-0000-000000000002'::uuid, 'Peanut',  'Arachide'),
+  ('f0000000-0000-0000-0000-000000000003'::uuid, 'Yam',     'Igname')
+ON CONFLICT (id) DO NOTHING;
+
+-- Seed: 3 recipes covering every meal type (breakfast/lunch/dinner/snack).
+-- 3 recipes × max_repeat=3 = 9 available slots — covers the 5-slot T4 test.
+INSERT INTO public.recipe (id, title, is_published, meal_types, allergen_tags) VALUES
+  ('e0000000-1000-0000-0000-000000000001'::uuid, 'Test Recipe A', true, ARRAY['breakfast','lunch','dinner','snack'], ARRAY[]::text[]),
+  ('e0000000-1000-0000-0000-000000000002'::uuid, 'Test Recipe B', true, ARRAY['breakfast','lunch','dinner','snack'], ARRAY[]::text[]),
+  ('e0000000-1000-0000-0000-000000000003'::uuid, 'Test Recipe C', true, ARRAY['breakfast','lunch','dinner','snack'], ARRAY[]::text[])
+ON CONFLICT (id) DO NOTHING;
+
+-- Seed: recipe_macro with total_weight_g so GENERATED kcal_per_100g > 0
+-- (generator filters rm.kcal_per_100g > 0; requires total_weight_g IS NOT NULL and > 0)
+INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g) VALUES
+  ('e0000000-1000-0000-0000-000000000001'::uuid, 500, 25, 60, 15, 300),
+  ('e0000000-1000-0000-0000-000000000002'::uuid, 600, 30, 70, 18, 350),
+  ('e0000000-1000-0000-0000-000000000003'::uuid, 450, 20, 55, 12, 270)
+ON CONFLICT (recipe_id) DO NOTHING;
+
+-- Seed: one recipe_ingredient each (needed for meal_ingredient population in generator)
+INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional) VALUES
+  ('e0000000-1000-0000-0000-000000000001'::uuid, 'f0000000-0000-0000-0000-000000000001'::uuid, 100, 'g', false),
+  ('e0000000-1000-0000-0000-000000000002'::uuid, 'f0000000-0000-0000-0000-000000000002'::uuid, 120, 'g', false),
+  ('e0000000-1000-0000-0000-000000000003'::uuid, 'f0000000-0000-0000-0000-000000000003'::uuid, 150, 'g', false)
+ON CONFLICT DO NOTHING;
+
 -- Set auth.uid() context for all calls
 SET LOCAL "request.jwt.claims" TO '{"sub": "00000000-0000-0000-0000-000000000001"}';
 
@@ -96,7 +130,7 @@ SELECT is(
 );
 
 -- ── T2: Standard 3-meal explicit ─────────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"breakfast","calorie_pct":30,"calorie_target":600}'::JSONB,
   '{"meal_type":"lunch","calorie_pct":35,"calorie_target":700}'::JSONB,
   '{"meal_type":"dinner","calorie_pct":35,"calorie_target":700}'::JSONB
@@ -115,7 +149,7 @@ SELECT is(
 );
 
 -- ── T3: No breakfast ─────────────────────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"lunch","calorie_pct":40,"calorie_target":800}'::JSONB,
   '{"meal_type":"dinner","calorie_pct":60,"calorie_target":1200}'::JSONB
 ]);
@@ -137,7 +171,7 @@ SELECT ok(
 );
 
 -- ── T4: 3 collations + lunch + dinner ────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"lunch","calorie_pct":25,"calorie_target":500}'::JSONB,
   '{"meal_type":"dinner","calorie_pct":35,"calorie_target":700}'::JSONB,
   '{"meal_type":"snack","calorie_pct":15,"calorie_target":300,"nickname":"Collation matin"}'::JSONB,
@@ -158,7 +192,7 @@ SELECT is(
 );
 
 -- ── T5: Heavy dinner, light lunch ────────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"lunch","calorie_pct":20,"calorie_target":400}'::JSONB,
   '{"meal_type":"dinner","calorie_pct":55,"calorie_target":1100}'::JSONB,
   '{"meal_type":"snack","calorie_pct":25,"calorie_target":500}'::JSONB
@@ -177,7 +211,7 @@ SELECT is(
 );
 
 -- ── T9: Nickname propagation ──────────────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"snack","calorie_pct":50,"calorie_target":1000,"nickname":"Collation du matin"}'::JSONB,
   '{"meal_type":"snack","calorie_pct":50,"calorie_target":1000,"nickname":"Collation du soir"}'::JSONB
 ]);
@@ -200,7 +234,7 @@ SELECT ok(
 );
 
 -- ── T11: sort_order preserved ─────────────────────────────────────────────────
-PERFORM _test_setup_plan(ARRAY[
+SELECT _test_setup_plan(ARRAY[
   '{"meal_type":"lunch","calorie_pct":40,"calorie_target":800}'::JSONB,
   '{"meal_type":"dinner","calorie_pct":60,"calorie_target":1200}'::JSONB
 ]);

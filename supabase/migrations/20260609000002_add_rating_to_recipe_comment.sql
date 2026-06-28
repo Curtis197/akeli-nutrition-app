@@ -9,37 +9,34 @@ ALTER TABLE public.recipe_comment
   ADD COLUMN IF NOT EXISTS rating_ease integer CHECK (rating_ease BETWEEN 1 AND 5),
   ADD COLUMN IF NOT EXISTS rating_satiety integer CHECK (rating_satiety BETWEEN 1 AND 5);
 
--- 2. Migrate existing ratings from meal_consumption to recipe_comment
--- We pick the latest meal_consumption rating for a user/recipe combination.
-INSERT INTO public.recipe_comment (
-  user_id,
-  recipe_id,
-  rating,
-  rating_taste,
-  rating_ease,
-  rating_satiety,
-  created_at,
-  updated_at
-)
-SELECT
-  mc.user_id,
-  mc.recipe_id,
-  mc.rating,
-  mc.rating_taste,
-  mc.rating_ease,
-  mc.rating_satiety,
-  mc.created_at,
-  mc.created_at
-FROM public.meal_consumption mc
-WHERE mc.rating IS NOT NULL
-ON CONFLICT (user_id, recipe_id) DO UPDATE
-SET
-  rating = EXCLUDED.rating,
-  rating_taste = EXCLUDED.rating_taste,
-  rating_ease = EXCLUDED.rating_ease,
-  rating_satiety = EXCLUDED.rating_satiety,
-  updated_at = EXCLUDED.updated_at
-WHERE EXCLUDED.created_at > public.recipe_comment.updated_at;
+-- 2. Migrate existing ratings from meal_consumption to recipe_comment.
+-- Skipped on local reset: meal_consumption.created_at may not exist yet and
+-- the table is empty anyway, so the backfill produces no rows.
+DO $backfill$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'meal_consumption' AND column_name = 'created_at'
+  ) THEN
+    INSERT INTO public.recipe_comment (
+      user_id, recipe_id, rating, rating_taste, rating_ease, rating_satiety,
+      created_at, updated_at
+    )
+    SELECT
+      mc.user_id, mc.recipe_id, mc.rating, mc.rating_taste, mc.rating_ease,
+      mc.rating_satiety, mc.created_at, mc.created_at
+    FROM public.meal_consumption mc
+    WHERE mc.rating IS NOT NULL
+    ON CONFLICT (user_id, recipe_id) DO UPDATE
+    SET
+      rating         = EXCLUDED.rating,
+      rating_taste   = EXCLUDED.rating_taste,
+      rating_ease    = EXCLUDED.rating_ease,
+      rating_satiety = EXCLUDED.rating_satiety,
+      updated_at     = EXCLUDED.updated_at
+    WHERE EXCLUDED.created_at > public.recipe_comment.updated_at;
+  END IF;
+END $backfill$;
 
 -- 3. Update the trg_fn_recipe_rating_stats function to calculate from recipe_comment
 CREATE OR REPLACE FUNCTION public.trg_fn_recipe_rating_stats()

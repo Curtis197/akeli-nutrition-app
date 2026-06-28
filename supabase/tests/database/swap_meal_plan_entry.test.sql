@@ -11,6 +11,10 @@ SELECT plan(8);
 
 -- ─── Seed: minimal reference data ───────────────────────────────────────────
 
+-- Measurement units (FK required by recipe_ingredient.unit)
+INSERT INTO public.measurement_unit (code, name_fr, name_en)
+VALUES ('g', 'g', 'g'), ('ml', 'ml', 'ml') ON CONFLICT (code) DO NOTHING;
+
 -- Ingredient
 INSERT INTO public.ingredient (id, name, name_fr)
 VALUES
@@ -32,16 +36,23 @@ VALUES ('aaaaaaaa-0000-0000-0000-000000000001'::uuid,
 INSERT INTO public.recipe (id, title, is_published, servings, meal_types)
 VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'New Recipe', true, 1, ARRAY['dinner']);
 
-INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g)
-VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 800, 40, 90, 25);
+-- total_weight_g = 300 so kcal_per_100g = ROUND(800/300*100,2) = 266.67
+-- With v_grams = 300 (default, no calorie goal): calories_computed = ROUND(266.67*300/100,1) = 800.0
+INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
+VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 800, 40, 90, 25, 300);
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid,
         '00000000-0000-0000-0000-000000000002'::uuid, 200, 'g', false);
 
--- User
-INSERT INTO public.user_profile (id, display_name)
-VALUES ('cccccccc-0000-0000-0000-000000000001'::uuid, 'Test User');
+-- User (auth.users required before user_profile FK)
+INSERT INTO auth.users (id, email, role, created_at, updated_at)
+VALUES ('cccccccc-0000-0000-0000-000000000001'::uuid, 'swapuser@test.local', 'authenticated', now(), now())
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.user_profile (id, first_name)
+VALUES ('cccccccc-0000-0000-0000-000000000001'::uuid, 'Test')
+ON CONFLICT (id) DO NOTHING;
 
 -- Calorie goal (no active goal → servings defaults to 1.0)
 -- (intentionally omitted so v_new_servings stays 1.0 and math is trivial)

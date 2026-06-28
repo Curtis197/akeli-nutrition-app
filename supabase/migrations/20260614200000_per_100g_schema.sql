@@ -1,3 +1,6 @@
+-- Ensure total_weight_g exists on recipe_macro (was added directly to remote without a migration).
+ALTER TABLE public.recipe_macro ADD COLUMN IF NOT EXISTS total_weight_g numeric;
+
 -- Switch the portion model from per-serving to per-100g.
 --
 -- Two schema changes:

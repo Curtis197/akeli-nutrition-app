@@ -27,8 +27,13 @@ SET like_count = (
 );
 
 -- ---------------------------------------------------------------------------
--- 3. Backfill rating stats from existing meal_consumption rows
+-- 3. Ensure rating column exists, then backfill rating stats
+-- (rating was added directly to remote before this migration was written;
+--  ensure it exists locally so the backfill and trigger can reference it)
 -- ---------------------------------------------------------------------------
+ALTER TABLE public.meal_consumption
+  ADD COLUMN IF NOT EXISTS rating integer CHECK (rating BETWEEN 1 AND 5);
+
 UPDATE public.recipe r
 SET
   average_rating = COALESCE(

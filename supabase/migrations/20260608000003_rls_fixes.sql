@@ -7,6 +7,7 @@
 -- ============================================================
 
 -- 1. support_message INSERT — authenticated users may insert their own messages
+DROP POLICY IF EXISTS "authenticated inserts support_message" ON public.support_message;
 CREATE POLICY "authenticated inserts support_message"
   ON public.support_message
   FOR INSERT
