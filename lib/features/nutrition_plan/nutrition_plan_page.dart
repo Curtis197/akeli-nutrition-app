@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:collection/collection.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/unit_converter.dart';
 import '../../core/nutrition_calculator.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/nutrition_plan_provider.dart';
@@ -34,6 +36,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   final _logger = appLogger;
 
   double _weightKg = 70.0;
+  late final TextEditingController _weightCtrl;
   double _heightCm = 170.0;
   int _age = 30;
   String _sex = 'female';
@@ -56,8 +59,22 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   @override
   void initState() {
     super.initState();
+    _weightCtrl = TextEditingController(text: '70');
     _logger.provider('NutritionPlanPage initState | isOnboarding: ${widget.isOnboarding}');
     _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _weightCtrl.dispose();
+    super.dispose();
+  }
+
+  void _syncWeightCtrl() {
+    final isUs = ref.read(localeProvider).isUsLocale;
+    _weightCtrl.text = isUs
+        ? UnitConverter.kgToLb(_weightKg).toStringAsFixed(1)
+        : _weightKg.toStringAsFixed(1);
   }
 
   Future<void> _loadInitialData() async {
@@ -75,7 +92,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         _age = obData.age ?? 30;
         _sex = obData.sex ?? 'female';
         _activityLevel = obData.activityLevel ?? 'moderately_active';
-        
+
         if (obData.targetWeight != null && obData.weight != null) {
           if (obData.targetWeight! < obData.weight!) {
             _primaryGoal = 'weight_loss';
@@ -88,6 +105,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
           _primaryGoal = 'maintenance';
         }
       });
+      _syncWeightCtrl();
     } else if (healthProfile != null) {
       setState(() {
         _weightKg = healthProfile.weightKg ?? 70.0;
@@ -97,6 +115,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         _activityLevel = healthProfile.activityLevel ?? 'moderately_active';
         _primaryGoal = healthProfile.primaryGoal ?? 'maintenance';
       });
+      _syncWeightCtrl();
     }
 
     if (activePlan != null && activePlan.distributions != null && activePlan.distributions!.isNotEmpty) {
@@ -229,6 +248,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isUs = ref.watch(localeProvider).isUsLocale;
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;
 
@@ -256,7 +276,22 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Expanded(child: _numInput('Poids (kg)', _weightKg, (v) => setState(() => _weightKg = v))),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _weightCtrl,
+                      decoration: InputDecoration(
+                        labelText: isUs ? 'Weight (lb)' : 'Poids (kg)',
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (v) {
+                        final parsed = double.tryParse(v);
+                        if (parsed != null) {
+                          setState(() => _weightKg = isUs ? UnitConverter.lbToKg(parsed) : parsed);
+                        }
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(child: _numInput('Taille (cm)', _heightCm, (v) => setState(() => _heightCm = v))),
                   const SizedBox(width: 8),
