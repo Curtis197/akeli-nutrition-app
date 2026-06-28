@@ -11,9 +11,11 @@ import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';
 import '../../core/logger.dart';
+import '../../l10n/app_localizations.dart';
 import '../nutrition_plan/nutrition_plan_page.dart';
 import '../settings/widgets/allergen_picker_widget.dart';
 import '../settings/widgets/intensity_badge.dart';
+import 'widgets/meal_schedule_onboarding_step.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -26,8 +28,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final _pageController = PageController();
   final GlobalKey<NutritionPlanPageState> _nutritionPlanKey = GlobalKey<NutritionPlanPageState>();
   int _currentStep = 0;
-  static const int _totalSteps = 7;
+  static const int _totalSteps = 8;
   static const int _nutritionPlanStep = 5;
+  static const int _mealScheduleStep = 6;
   bool _isSubmitting = false;
   final _logger = appLogger;
 
@@ -206,17 +209,24 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     isOnboarding: true,
                     onCompleted: _next,
                   ),
+                  MealScheduleOnboardingStep(
+                    onCompleted: _next,
+                    onSkipped: _next,
+                  ),
                   _StepSummary(step: _currentStep),
                 ],
               ),
             ),
-            _OnboardingBottomBar(
-              step: _currentStep,
-              totalSteps: _totalSteps,
-              onBack: _currentStep > 0 ? _back : null,
-              onNext: _currentStep == _nutritionPlanStep ? _saveNutritionPlanAndNext : _next,
-              isLoading: _isSubmitting,
-            ),
+            if (_currentStep != _mealScheduleStep)
+              _OnboardingBottomBar(
+                step: _currentStep,
+                totalSteps: _totalSteps,
+                onBack: _currentStep > 0 ? _back : null,
+                onNext: _currentStep == _nutritionPlanStep
+                    ? _saveNutritionPlanAndNext
+                    : _next,
+                isLoading: _isSubmitting,
+              ),
           ],
         ),
       ),
@@ -241,6 +251,7 @@ class _OnboardingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final progress = (step + 1) / totalSteps;
     return Column(
       children: [
@@ -271,7 +282,7 @@ class _OnboardingHeader extends StatelessWidget {
               TextButton(
                 onPressed: onSkip,
                 child: Text(
-                  'Passer',
+                  l10n.onboardingSkip,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -291,7 +302,7 @@ class _OnboardingHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Étape ${step + 1} sur $totalSteps',
+                    l10n.onboardingStep(step + 1, totalSteps),
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -346,6 +357,7 @@ class _OnboardingBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isLast = step == totalSteps - 1;
     return Container(
       padding: const EdgeInsets.fromLTRB(
@@ -372,7 +384,7 @@ class _OnboardingBottomBar extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'Précédent',
+                      l10n.onboardingBack,
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -388,7 +400,7 @@ class _OnboardingBottomBar extends StatelessWidget {
           Expanded(
             flex: onBack != null ? 2 : 1,
             child: AkeliGradientButton(
-              label: isLast ? "Commencer l'aventure" : 'Suivant',
+              label: isLast ? l10n.onboardingFinish : l10n.onboardingNext,
               onPressed: isLoading ? null : onNext,
               isLoading: isLoading,
               trailing: isLast
@@ -551,6 +563,7 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -560,7 +573,7 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bienvenue sur Akeli',
+            l10n.onboardingWelcome,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 36,
               fontWeight: FontWeight.w800,
@@ -835,6 +848,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('_StepProfileState build()');
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -843,7 +857,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Votre profil',
+          Text(l10n.onboardingProfileTitle,
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -864,7 +878,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                   controller: _nameCtrl,
                   onChanged: (v) => notifier.updateProfile(name: v),
                   decoration: InputDecoration(
-                    hintText: 'Prénom ou surnom',
+                    hintText: l10n.onboardingDisplayNameHint,
                     filled: true,
                     fillColor: AkeliColors.surfaceContainerHighest,
                     border: OutlineInputBorder(
@@ -963,7 +977,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
-                Text("Niveau d'activité physique",
+                Text(l10n.onboardingActivityTitle,
                     style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
