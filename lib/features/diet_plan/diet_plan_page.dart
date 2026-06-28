@@ -10,6 +10,10 @@ import 'package:akeli/providers/nutrition_plan_provider.dart';
 import 'package:akeli/providers/nutrition_provider.dart';
 import 'package:akeli/shared/models/user_profile.dart';
 import 'package:intl/intl.dart';
+import 'package:akeli/core/locale_provider.dart';
+import 'package:akeli/core/meal_type_l10n.dart';
+import 'package:akeli/core/unit_converter.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 /// [Akeli] DietPlanPage - High-Fidelity Editorial Redesign
 /// This page presents the weekly meal plan with an editorial summary and a vertical
@@ -30,6 +34,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     final healthAsync = ref.watch(healthProfileProvider);
     final nutritionAsync = ref.watch(activeNutritionPlanProvider);
     final weightLogAsync = ref.watch(weightLogProvider);
+    final isUs = ref.watch(localeProvider).isUsLocale;
     _logger.provider('DietPlanPage build() | planAsync.isLoading: ${planAsync.isLoading}');
 
     return Scaffold(
@@ -110,6 +115,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                 health: healthAsync.valueOrNull,
                 calorieGoal: nutritionAsync.valueOrNull?.calorieGoal,
                 weightLog: weightLogAsync.valueOrNull,
+                isUs: isUs,
               ),
               const SizedBox(height: 32),
               
@@ -138,10 +144,16 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     required HealthProfile? health,
     required int? calorieGoal,
     required List<WeightEntry>? weightLog,
+    bool isUs = false,
   }) {
-    final startingWeight = health?.startingWeightKg ?? health?.weightKg;
-    final currentWeight = weightLog?.isNotEmpty == true ? weightLog!.first.weightKg : startingWeight;
-    final targetWeight = health?.targetWeightKg;
+    final startingWeightKg = health?.startingWeightKg ?? health?.weightKg;
+    final currentWeightKg = weightLog?.isNotEmpty == true ? weightLog!.first.weightKg : startingWeightKg;
+    final targetWeightKg = health?.targetWeightKg;
+    final unit = isUs ? 'lb' : 'kg';
+    double? cvt(double? kg) => kg == null ? null : (isUs ? UnitConverter.kgToLb(kg) : kg);
+    final startingWeight = cvt(startingWeightKg);
+    final currentWeight = cvt(currentWeightKg);
+    final targetWeight = cvt(targetWeightKg);
     final targetTimeWeeks = health?.targetTimeWeeks;
     
     double? weeklyLoss;
@@ -197,9 +209,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        weeklyLoss != null 
-                            ? '${weeklyLoss > 0 ? "-" : "+"}${weeklyLoss.abs().toStringAsFixed(1)} kg / semaine'
-                            : '-- kg / semaine',
+                        weeklyLoss != null
+                            ? '${weeklyLoss > 0 ? "-" : "+"}${(isUs ? UnitConverter.kgToLb(weeklyLoss.abs()) : weeklyLoss.abs()).toStringAsFixed(1)} $unit / semaine'
+                            : '-- $unit / semaine',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.primary),
                       ),
                     ),
@@ -213,7 +225,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          startingWeight != null ? '${startingWeight.toStringAsFixed(1)} kg' : '--',
+                          startingWeight != null ? '${startingWeight.toStringAsFixed(1)} $unit' : '--',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
                         ),
                         const Text('Départ', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
@@ -223,7 +235,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          targetWeight != null ? '${targetWeight.toStringAsFixed(1)} kg' : '--',
+                          targetWeight != null ? '${targetWeight.toStringAsFixed(1)} $unit' : '--',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
                         ),
                         const Text('Objectif', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
@@ -257,7 +269,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                 const SizedBox(height: 12),
                 Center(
                   child: Text(
-                    currentWeight != null ? '${currentWeight.toStringAsFixed(1)} kg actuel' : '-- actuel',
+                    currentWeight != null ? '${currentWeight.toStringAsFixed(1)} $unit actuel' : '-- actuel',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AkeliColors.primary),
                   ),
                 ),
@@ -328,6 +340,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
   }
 
   Widget _buildDailyRecapCard(BuildContext context, DateTime date, List<dynamic> meals) {
+    final l10n = AppLocalizations.of(context);
     final dateStr = DateFormat('EEEE d MMMM', 'fr_FR').format(date);
     
     return Container(
@@ -394,11 +407,11 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                m.mealTypeLabel,
+                                mealTypeLabel(l10n, m.mealType),
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: mealColor),
                               ),
                               Text(
-                                m.recipeTitle ?? 'Repas',
+                                m.localizedTitle(Localizations.localeOf(context).languageCode) ?? 'Repas',
                                 style: const TextStyle(fontSize: 14, color: AkeliColors.onSurfaceVariant),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

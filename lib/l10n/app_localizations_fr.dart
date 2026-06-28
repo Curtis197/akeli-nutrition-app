@@ -2368,4 +2368,36 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get nutritionPlanSaveButton => 'Enregistrer mon plan';
+
+  @override
+  String get nutritionToday => 'Aujourd\'hui';
+
+  @override
+  String get nutritionYesterday => 'Hier';
+
+  @override
+  String get nutritionChartTarget => 'Cible';
+
+  @override
+  String get nutritionEmptyStateTodayTitle => 'Aucune donnée';
+
+  @override
+  String get nutritionEmptyStateTodaySubtitle =>
+      'Aucune consommation enregistrée pour cette journée.';
+
+  @override
+  String get nutritionEmptyStateWeekTitle => 'Pas encore de données';
+
+  @override
+  String get nutritionEmptyStateWeekSubtitle =>
+      'Aucune consommation enregistrée pour cette semaine.';
+
+  @override
+  String get nutritionWeightEvolution => 'Évolution du poids';
+
+  @override
+  String get journeyBestStreakRecord => 'Record';
+
+  @override
+  String get preferencesLocaleUsImperial => 'Anglais (US)';
 }

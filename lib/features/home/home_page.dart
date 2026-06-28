@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../core/unit_converter.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
@@ -227,6 +228,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           _logger.provider('  weight entry[$i] | date: ${entries[i].date} | weightKg: ${entries[i].weightKg}');
                                         }
 
+                                        final isUs = localeState.isUsLocale;
+                                        String wFmt(double kg) {
+                                          if (isUs) return '${UnitConverter.kgToLb(kg)}lb';
+                                          return '${kg.toStringAsFixed(1)}kg';
+                                        }
+
                                         if (entries.isEmpty) {
                                           final profileWeight = health?.weightKg;
                                           final profileTarget = health?.targetWeightKg;
@@ -234,8 +241,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                           return AkeliModernMetric(
                                             label: l10n.homeWeightCurrent,
                                             subtitle: profileWeight != null
-                                                ? '${profileWeight.toStringAsFixed(1)}kg → ${profileTarget?.toStringAsFixed(1) ?? '--'}kg'
-                                                : '--kg → --kg',
+                                                ? '${wFmt(profileWeight)} → ${profileTarget != null ? wFmt(profileTarget) : '--'}'
+                                                : isUs ? '--lb → --lb' : '--kg → --kg',
                                             value: '0',
                                             unit: '%',
                                             progress: 0,
@@ -260,7 +267,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                                         return AkeliModernMetric(
                                           label: l10n.homeWeightLabel,
-                                          subtitle: '${currentWeight.toStringAsFixed(1)}kg → ${targetWeight?.toStringAsFixed(1) ?? '--'}kg',
+                                          subtitle: '${wFmt(currentWeight)} → ${targetWeight != null ? wFmt(targetWeight) : '--'}',
                                           value: '${(progress * 100).toInt()}',
                                           unit: '%',
                                           progress: progress,
@@ -271,7 +278,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                         _logger.provider('[weight-ring] orElse (loading or error) | weightAsync: ${_ps(weightAsync)}');
                                         return AkeliModernMetric(
                                           label: l10n.homeWeightCurrent,
-                                          subtitle: '--kg → --kg',
+                                          subtitle: localeState.isUsLocale ? '--lb → --lb' : '--kg → --kg',
                                           value: '0',
                                           unit: '%',
                                           progress: 0,

@@ -1,8 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:akeli/core/locale_provider.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/core/unit_converter.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/providers/nutrition_provider.dart';
 import 'package:akeli/providers/user_profile_provider.dart';
 
@@ -15,8 +18,11 @@ class JourneyWeightChart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     _logger.provider('JourneyWeightChart build()');
 
+    final l10n = AppLocalizations.of(context);
     final weightAsync = ref.watch(weightLogProvider);
     final healthAsync = ref.watch(healthProfileProvider);
+    final isUs = ref.watch(localeProvider).isUsLocale;
+    final weightUnit = isUs ? 'lb' : 'kg';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -37,9 +43,9 @@ class JourneyWeightChart extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'ÉVOLUTION DU POIDS',
-                style: TextStyle(
+              Text(
+                l10n.nutritionWeightEvolution.toUpperCase(),
+                style: const TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: AkeliColors.onSurfaceVariant,
@@ -49,7 +55,7 @@ class JourneyWeightChart extends ConsumerWidget {
               GestureDetector(
                 onTap: () {
                   _logger.userAction('Add weight tapped', screen: 'JourneyTab');
-                  _showAddWeightDialog(context, ref);
+                  _showAddWeightDialog(context, ref, isUs: isUs);
                 },
                 child: Container(
                   padding: const EdgeInsets.all(5),
@@ -70,31 +76,35 @@ class JourneyWeightChart extends ConsumerWidget {
             ),
             error: (e, st) {
               _logger.provider('JourneyWeightChart → error | $e', error: e, stackTrace: st);
-              return const Text(
-                'Erreur de chargement',
-                style: TextStyle(color: AkeliColors.error),
+              return Text(
+                l10n.commonLoadError,
+                style: const TextStyle(color: AkeliColors.error),
               );
             },
             data: (entries) {
               if (entries.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
-                    'Ajoutez votre premier relevé de poids pour commencer le suivi.',
-                    style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
+                    l10n.nutritionAddFirstWeight,
+                    style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
                   ),
                 );
               }
 
-              final targetWeight = healthAsync.valueOrNull?.targetWeightKg;
+              final targetWeightKg = healthAsync.valueOrNull?.targetWeightKg;
               final startingWeight =
                   healthAsync.valueOrNull?.weightKg ?? entries.last.weightKg;
-              final currentWeight = entries.first.weightKg;
+              final currentWeightKg = entries.first.weightKg;
+              final currentWeight = isUs ? UnitConverter.kgToLb(currentWeightKg) : currentWeightKg;
+              final targetWeight = targetWeightKg != null
+                  ? (isUs ? UnitConverter.kgToLb(targetWeightKg) : targetWeightKg)
+                  : null;
 
               double progressPct = 0;
-              if (targetWeight != null && startingWeight != targetWeight) {
+              if (targetWeightKg != null && startingWeight != targetWeightKg) {
                 final progress =
-                    (startingWeight - currentWeight) / (startingWeight - targetWeight);
+                    (startingWeight - currentWeightKg) / (startingWeight - targetWeightKg);
                 progressPct = (progress * 100).clamp(0, 100);
               }
 
@@ -119,9 +129,9 @@ class JourneyWeightChart extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Text(
-                            'kg',
-                            style: TextStyle(
+                          Text(
+                            weightUnit,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: AkeliColors.onSurfaceVariant,
@@ -137,7 +147,7 @@ class JourneyWeightChart extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            '${progressPct.toInt()}% de l\'objectif',
+                            l10n.nutritionProgressPercentage(progressPct.toInt()),
                             style: const TextStyle(
                               color: AkeliColors.primary,
                               fontWeight: FontWeight.bold,
@@ -149,12 +159,12 @@ class JourneyWeightChart extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   if (entries.length < 2)
-                    const Text(
-                      'Enregistrez un autre poids pour voir votre tendance.',
-                      style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
+                    Text(
+                      l10n.nutritionLogAnotherWeight,
+                      style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
                     )
                   else
-                    _buildChart(entries, targetWeight),
+                    _buildChart(context, entries, targetWeight, isUs: isUs),
                 ],
               );
             },
@@ -164,22 +174,24 @@ class JourneyWeightChart extends ConsumerWidget {
     );
   }
 
-  Widget _buildChart(List<WeightEntry> entries, double? targetWeight) {
+  Widget _buildChart(BuildContext context, List<WeightEntry> entries, double? targetWeight, {required bool isUs}) {
+    final l10n = AppLocalizations.of(context);
+    final weightUnit = isUs ? 'lb' : 'kg';
     final chronological = entries.take(20).toList().reversed.toList();
     final spots = chronological
         .asMap()
         .entries
-        .map((e) => FlSpot(e.key.toDouble(), e.value.weightKg))
+        .map((e) => FlSpot(e.key.toDouble(), isUs ? UnitConverter.kgToLb(e.value.weightKg) : e.value.weightKg))
         .toList();
 
-    final weights = chronological.map((e) => e.weightKg);
+    final weights = spots.map((s) => s.y);
     final minWeight = weights.reduce((a, b) => a < b ? a : b);
     final maxWeight = weights.reduce((a, b) => a > b ? a : b);
 
     final chartMinY =
-        (targetWeight != null && targetWeight < minWeight ? targetWeight : minWeight) - 1.0;
+        (targetWeight != null && targetWeight < minWeight ? targetWeight : minWeight) - (isUs ? 2.0 : 1.0);
     final chartMaxY =
-        (targetWeight != null && targetWeight > maxWeight ? targetWeight : maxWeight) + 1.0;
+        (targetWeight != null && targetWeight > maxWeight ? targetWeight : maxWeight) + (isUs ? 2.0 : 1.0);
 
     return SizedBox(
       height: 160,
@@ -221,7 +233,7 @@ class JourneyWeightChart extends ConsumerWidget {
               getTooltipColor: (_) => AkeliColors.surfaceContainerHighest,
               getTooltipItems: (spots) => spots
                   .map((s) => LineTooltipItem(
-                        '${s.y.toStringAsFixed(1)} kg',
+                        '${s.y.toStringAsFixed(1)} $weightUnit',
                         const TextStyle(
                           color: AkeliColors.primary,
                           fontWeight: FontWeight.bold,
@@ -249,7 +261,7 @@ class JourneyWeightChart extends ConsumerWidget {
                           fontSize: 10,
                         ),
                         labelResolver: (line) =>
-                            'Cible: ${line.y.toStringAsFixed(1)}kg',
+                            '${l10n.nutritionChartTarget}: ${line.y.toStringAsFixed(1)}$weightUnit',
                       ),
                     ),
                   ]
@@ -274,20 +286,22 @@ class JourneyWeightChart extends ConsumerWidget {
     );
   }
 
-  Future<void> _showAddWeightDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showAddWeightDialog(BuildContext context, WidgetRef ref, {required bool isUs}) async {
+    final l10n = AppLocalizations.of(context);
+    final weightUnit = isUs ? 'lb' : 'kg';
     final ctrl = TextEditingController();
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AkeliColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Nouveau relevé', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(l10n.nutritionNewRecord, style: const TextStyle(fontWeight: FontWeight.w800)),
         content: TextField(
           controller: ctrl,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            labelText: 'Poids',
-            suffixText: 'kg',
+            labelText: l10n.nutritionWeightLabel,
+            suffixText: weightUnit,
             filled: true,
             fillColor: AkeliColors.surfaceContainerLow,
             border: OutlineInputBorder(
@@ -303,7 +317,7 @@ class JourneyWeightChart extends ConsumerWidget {
               _logger.userAction('Weight dialog cancelled', screen: 'JourneyTab');
               Navigator.pop(ctx);
             },
-            child: const Text('Annuler', style: TextStyle(color: AkeliColors.onSurfaceVariant)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: AkeliColors.onSurfaceVariant)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -311,15 +325,16 @@ class JourneyWeightChart extends ConsumerWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
-              final kg = double.tryParse(ctrl.text.replaceAll(',', '.'));
-              if (kg != null) {
+              final entered = double.tryParse(ctrl.text.replaceAll(',', '.'));
+              if (entered != null) {
+                final kg = isUs ? UnitConverter.lbToKg(entered) : entered;
                 _logger.userAction('Weight saved', screen: 'JourneyTab',
-                    metadata: {'weightKg': kg});
+                    metadata: {'weightKg': kg, 'isUs': isUs});
                 Navigator.pop(ctx);
                 ref.read(weightLogNotifierProvider.notifier).addEntry(kg);
               }
             },
-            child: const Text('Enregistrer'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),

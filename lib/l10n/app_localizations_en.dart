@@ -2335,4 +2335,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutritionPlanSaveButton => 'Save plan';
+
+  @override
+  String get nutritionToday => 'Today';
+
+  @override
+  String get nutritionYesterday => 'Yesterday';
+
+  @override
+  String get nutritionChartTarget => 'Target';
+
+  @override
+  String get nutritionEmptyStateTodayTitle => 'No Data';
+
+  @override
+  String get nutritionEmptyStateTodaySubtitle => 'No food logged for this day.';
+
+  @override
+  String get nutritionEmptyStateWeekTitle => 'No Data Yet';
+
+  @override
+  String get nutritionEmptyStateWeekSubtitle => 'No food logged for this week.';
+
+  @override
+  String get nutritionWeightEvolution => 'Weight Trend';
+
+  @override
+  String get journeyBestStreakRecord => 'Record';
+
+  @override
+  String get preferencesLocaleUsImperial => 'English (US)';
 }

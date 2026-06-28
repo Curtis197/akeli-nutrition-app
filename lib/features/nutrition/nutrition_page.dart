@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/unit_converter.dart';
 import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/nutrition_plan_provider.dart';
@@ -152,13 +154,17 @@ class _TodayTabState extends ConsumerState<_TodayTab> {
 
   bool get _isToday => _selected == _today;
 
-  String _formatLabel(DateTime d) {
+  String _formatLabel(BuildContext context, DateTime d) {
     final today = _today;
-    if (d == today) return "Aujourd'hui";
-    if (d == today.subtract(const Duration(days: 1))) return 'Hier';
-    const weekdays = ['Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.', 'Dim.'];
-    const months = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.'];
-    return '${weekdays[d.weekday - 1]} ${d.day} ${months[d.month - 1]}';
+    final l10n = AppLocalizations.of(context);
+    if (d == today) return l10n.nutritionToday;
+    if (d == today.subtract(const Duration(days: 1))) return l10n.nutritionYesterday;
+    final locale = Localizations.localeOf(context).languageCode;
+    final formatted = DateFormat('E d MMM', locale).format(d);
+    if (formatted.isNotEmpty) {
+      return formatted[0].toUpperCase() + formatted.substring(1);
+    }
+    return formatted;
   }
 
   @override
@@ -172,7 +178,7 @@ class _TodayTabState extends ConsumerState<_TodayTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: _NavBar(
-            label: _formatLabel(_selected),
+            label: _formatLabel(context, _selected),
             onPrev: () {
               appLogger.userAction('NutritionPage today nav prev', screen: 'NutritionPage', metadata: {'from': _dateStr});
               setState(() => _selected = _selected.subtract(const Duration(days: 1)));
@@ -191,10 +197,11 @@ class _TodayTabState extends ConsumerState<_TodayTab> {
             error: (err, _) => ErrorState(message: err.toString()),
             data: (nutrition) {
               if (nutrition == null) {
-                return const EmptyState(
+                final l10n = AppLocalizations.of(context);
+                return EmptyState(
                   icon: PhosphorIconsRegular.forkKnife,
-                  title: 'Aucune donnée',
-                  subtitle: 'Aucune consommation enregistrée pour cette journée.',
+                  title: l10n.nutritionEmptyStateTodayTitle,
+                  subtitle: l10n.nutritionEmptyStateTodaySubtitle,
                 );
               }
               return SingleChildScrollView(
@@ -266,18 +273,26 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
   DateTime get _since => _until.subtract(const Duration(days: 6));
   WeekRange get _range => (since: _toDateStr(_since), until: _toDateStr(_until));
 
-  String _formatWeekLabel() {
-    const months = ['jan.', 'fév.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sep.', 'oct.', 'nov.', 'déc.'];
+  String _formatWeekLabel(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     final s = _since;
     final u = _until;
-    if (s.month == u.month) return '${s.day} – ${u.day} ${months[u.month - 1]}';
-    return '${s.day} ${months[s.month - 1]} – ${u.day} ${months[u.month - 1]}';
+
+    final sMonth = DateFormat.MMM(locale).format(s);
+    final uMonth = DateFormat.MMM(locale).format(u);
+
+    final sMonthCap = sMonth.isNotEmpty ? sMonth[0].toUpperCase() + sMonth.substring(1) : sMonth;
+    final uMonthCap = uMonth.isNotEmpty ? uMonth[0].toUpperCase() + uMonth.substring(1) : uMonth;
+
+    if (s.month == u.month) return '${s.day} – ${u.day} $uMonthCap';
+    return '${s.day} $sMonthCap – ${u.day} $uMonthCap';
   }
 
   @override
   Widget build(BuildContext context) {
     final weekAsync = ref.watch(weeklyNutritionForRangeProvider(_range));
     final plan = ref.watch(activeNutritionPlanProvider).valueOrNull;
+    final isUs = ref.watch(localeProvider).isUsLocale;
     final allWeights = ref.watch(weightLogProvider).valueOrNull ?? [];
     final weekWeights = allWeights.where((e) {
       final day = DateTime(e.date.year, e.date.month, e.date.day);
@@ -293,7 +308,7 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: _NavBar(
-            label: _formatWeekLabel(),
+            label: _formatWeekLabel(context),
             onPrev: () {
               appLogger.userAction('NutritionPage week nav prev', screen: 'NutritionPage', metadata: {'offset': _weekOffset + 1});
               setState(() => _weekOffset++);
@@ -312,10 +327,11 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
             error: (err, _) => ErrorState(message: err.toString()),
             data: (days) {
               if (days.isEmpty) {
-                return const EmptyState(
+                final l10n = AppLocalizations.of(context);
+                return EmptyState(
                   icon: PhosphorIconsRegular.chartBar,
-                  title: 'Pas encore de données',
-                  subtitle: 'Aucune consommation enregistrée pour cette semaine.',
+                  title: l10n.nutritionEmptyStateWeekTitle,
+                  subtitle: l10n.nutritionEmptyStateWeekSubtitle,
                 );
               }
               return SingleChildScrollView(
@@ -329,6 +345,7 @@ class _WeeklyTabState extends ConsumerState<_WeeklyTab> {
                       until: _until,
                       calorieGoal: plan?.calorieGoal ?? 2000,
                       weekWeightDelta: weekWeightDelta,
+                      isUs: isUs,
                     ),
                     const SizedBox(height: 10),
                     _OrganicCard(child: _WeeklyCaloriesChart(days: days)),
@@ -564,6 +581,8 @@ class _WeightTrendChart extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final weightAsync = ref.watch(weightLogProvider);
     final healthAsync = ref.watch(healthProfileProvider);
+    final isUs = ref.watch(localeProvider).isUsLocale;
+    final weightUnit = isUs ? 'lb' : 'kg';
 
     _logger.provider('WeightTrendChart build() | weightAsync.isLoading: ${weightAsync.isLoading} | healthAsync.isLoading: ${healthAsync.isLoading}');
 
@@ -594,7 +613,7 @@ class _WeightTrendChart extends ConsumerWidget {
               icon: const Icon(PhosphorIconsFill.plusCircle, color: AkeliColors.primary, size: 28),
               onPressed: () {
                 _logger.userAction('Add weight button tapped', screen: 'NutritionPage');
-                _showAddWeightDialog(context, ref);
+                _showAddWeightDialog(context, ref, isUs: isUs);
               },
             ),
           ],
@@ -610,15 +629,19 @@ class _WeightTrendChart extends ConsumerWidget {
                 style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14),
               );
             }
-            final currentWeight = entries.first.weightKg;
+            final currentWeightKg = entries.first.weightKg;
+            final currentWeight = isUs ? UnitConverter.kgToLb(currentWeightKg) : currentWeightKg;
             // Use onboarding weight as origin — same logic as home page.
             // entries.last is unreliable (same-day taps skew it vs. real start).
-            final startingWeight = healthAsync.valueOrNull?.weightKg ?? entries.last.weightKg;
-            final targetWeight = healthAsync.valueOrNull?.targetWeightKg;
+            final startingWeightKg = healthAsync.valueOrNull?.weightKg ?? entries.last.weightKg;
+            final targetWeightKg = healthAsync.valueOrNull?.targetWeightKg;
+            final targetWeight = targetWeightKg != null
+                ? (isUs ? UnitConverter.kgToLb(targetWeightKg) : targetWeightKg)
+                : null;
             
             double progress = 0.0;
-            if (targetWeight != null && startingWeight != targetWeight) {
-              progress = (startingWeight - currentWeight) / (startingWeight - targetWeight);
+            if (targetWeightKg != null && startingWeightKg != targetWeightKg) {
+              progress = (startingWeightKg - currentWeightKg) / (startingWeightKg - targetWeightKg);
             }
             final progressPct = (progress * 100).clamp(0, 100).toInt();
 
@@ -632,14 +655,16 @@ class _WeightTrendChart extends ConsumerWidget {
             } else {
               final chronological = entries.take(10).toList().reversed.toList();
               final spots = chronological.asMap().entries.map((e) {
-                return FlSpot(e.key.toDouble(), e.value.weightKg);
+                final y = isUs ? UnitConverter.kgToLb(e.value.weightKg) : e.value.weightKg;
+                return FlSpot(e.key.toDouble(), y);
               }).toList();
-              
-              final minWeight = chronological.map((e) => e.weightKg).reduce((a, b) => a < b ? a : b);
-              final maxWeight = chronological.map((e) => e.weightKg).reduce((a, b) => a > b ? a : b);
-              
-              final chartMinY = (targetWeight != null && targetWeight < minWeight ? targetWeight : minWeight) - 1.0;
-              final chartMaxY = (targetWeight != null && targetWeight > maxWeight ? targetWeight : maxWeight) + 1.0;
+
+              final spotYs = spots.map((s) => s.y);
+              final minWeight = spotYs.reduce((a, b) => a < b ? a : b);
+              final maxWeight = spotYs.reduce((a, b) => a > b ? a : b);
+
+              final chartMinY = (targetWeight != null && targetWeight < minWeight ? targetWeight : minWeight) - (isUs ? 2.0 : 1.0);
+              final chartMaxY = (targetWeight != null && targetWeight > maxWeight ? targetWeight : maxWeight) + (isUs ? 2.0 : 1.0);
 
               chartWidget = SizedBox(
                 height: 150,
@@ -683,7 +708,7 @@ class _WeightTrendChart extends ConsumerWidget {
                         getTooltipItems: (touchedSpots) {
                           return touchedSpots.map((spot) {
                             return LineTooltipItem(
-                              '${spot.y} kg',
+                              '${spot.y} $weightUnit',
                               const TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold),
                             );
                           }).toList();
@@ -703,7 +728,7 @@ class _WeightTrendChart extends ConsumerWidget {
                             alignment: Alignment.topRight,
                             padding: const EdgeInsets.only(right: 5, bottom: 5),
                             style: const TextStyle(color: AkeliColors.tertiary, fontWeight: FontWeight.bold, fontSize: 10),
-                            labelResolver: (line) => 'Cible: ${line.y}kg',
+                            labelResolver: (line) => '${l10n.nutritionChartTarget}: ${line.y}$weightUnit',
                           ),
                         )
                       ] : [],
@@ -748,9 +773,9 @@ class _WeightTrendChart extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const Text(
-                          'kg',
-                          style: TextStyle(
+                        Text(
+                          weightUnit,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: AkeliColors.onSurfaceVariant,
@@ -786,8 +811,9 @@ class _WeightTrendChart extends ConsumerWidget {
     );
   }
 
-  Future<void> _showAddWeightDialog(BuildContext context, WidgetRef ref) async {
+  Future<void> _showAddWeightDialog(BuildContext context, WidgetRef ref, {required bool isUs}) async {
     final l10n = AppLocalizations.of(context);
+    final weightUnit = isUs ? 'lb' : 'kg';
     final ctrl = TextEditingController();
     await showDialog<void>(
       context: context,
@@ -800,7 +826,7 @@ class _WeightTrendChart extends ConsumerWidget {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: l10n.nutritionWeightLabel,
-            suffixText: 'kg',
+            suffixText: weightUnit,
             filled: true,
             fillColor: AkeliColors.surfaceContainerLow,
             border: OutlineInputBorder(
@@ -824,9 +850,10 @@ class _WeightTrendChart extends ConsumerWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () {
-              final kg = double.tryParse(ctrl.text.replaceAll(',', '.'));
-              if (kg != null) {
-                appLogger.userAction('Weight dialog saved', screen: 'NutritionPage', metadata: {'weightKg': kg});
+              final entered = double.tryParse(ctrl.text.replaceAll(',', '.'));
+              if (entered != null) {
+                final kg = isUs ? UnitConverter.lbToKg(entered) : entered;
+                appLogger.userAction('Weight dialog saved', screen: 'NutritionPage', metadata: {'weightKg': kg, 'isUs': isUs});
                 Navigator.pop(ctx);
                 ref.read(weightLogNotifierProvider.notifier).addEntry(kg);
               }
@@ -1305,6 +1332,7 @@ class _WeeklySummaryCard extends StatelessWidget {
   final DateTime until;
   final int calorieGoal;
   final double? weekWeightDelta;
+  final bool isUs;
 
   const _WeeklySummaryCard({
     required this.days,
@@ -1312,6 +1340,7 @@ class _WeeklySummaryCard extends StatelessWidget {
     required this.until,
     required this.calorieGoal,
     this.weekWeightDelta,
+    this.isUs = false,
   });
 
   static DateTime _truncate(DateTime d) => DateTime(d.year, d.month, d.day);
@@ -1333,21 +1362,25 @@ class _WeeklySummaryCard extends StatelessWidget {
       return r >= 0.9 && r <= 1.1;
     }).length;
 
-    final delta = weekWeightDelta;
+    final deltaKg = weekWeightDelta;
     final String wdValue;
     final Color wdColor;
-    if (delta == null) {
+    if (deltaKg == null) {
       wdValue = '–';
       wdColor = AkeliColors.onSurfaceVariant;
-    } else if (delta < 0) {
-      wdValue = '↓${(-delta).toStringAsFixed(1)} kg';
-      wdColor = const Color(0xFF4ADE80);
-    } else if (delta > 0) {
-      wdValue = '↑${delta.toStringAsFixed(1)} kg';
-      wdColor = AkeliColors.error;
     } else {
-      wdValue = '–';
-      wdColor = AkeliColors.onSurfaceVariant;
+      final displayDelta = isUs ? UnitConverter.kgToLb(deltaKg.abs()) : deltaKg.abs();
+      final unit = isUs ? 'lb' : 'kg';
+      if (deltaKg < 0) {
+        wdValue = '↓${displayDelta.toStringAsFixed(1)} $unit';
+        wdColor = const Color(0xFF4ADE80);
+      } else if (deltaKg > 0) {
+        wdValue = '↑${displayDelta.toStringAsFixed(1)} $unit';
+        wdColor = AkeliColors.error;
+      } else {
+        wdValue = '–';
+        wdColor = AkeliColors.onSurfaceVariant;
+      }
     }
 
     return Container(
