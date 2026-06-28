@@ -75,6 +75,7 @@ class UserProfile {
     bool? isCreator,
     bool? isPrivate,
     String? locale,
+    bool? hasDismissedMealScheduleHint,
   }) =>
       UserProfile(
         id: id,
@@ -89,6 +90,7 @@ class UserProfile {
         isPrivate: isPrivate ?? this.isPrivate,
         locale: locale ?? this.locale,
         createdAt: createdAt,
+        hasDismissedMealScheduleHint: hasDismissedMealScheduleHint ?? this.hasDismissedMealScheduleHint,
       );
 }
 
