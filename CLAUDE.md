@@ -145,8 +145,41 @@ Reference examples:
 
 8. Catch-all error handler (always present):
    ```typescript
-   } catch (e) {
-     logger.error('💥 Unhandled error', { message: e.message, stack: e.stack });
-     return serverError(e);
-   }
+    } catch (e) {
+      logger.error('💥 Unhandled error', { message: e.message, stack: e.stack });
+      return serverError(e);
+    }
+    ```
+
+## L10n Standard — Mandatory, Zero Exceptions
+
+Every Dart widget and page written or modified in this project MUST use
+`AppLocalizations` for every user-visible string. No hardcoded strings in UI.
+Both `app_en.arb` and `app_fr.arb` must be updated together before any string
+appears in Dart code.
+
+### Rules
+
+1. **No hardcoded user-visible strings** in any widget or page.
+2. **ARB-first**: add to both `lib/l10n/app_en.arb` AND `lib/l10n/app_fr.arb`
+   before referencing in code.
+3. **Access pattern** — inside `build()`:
+   ```dart
+   import 'package:akeli/l10n/app_localizations.dart';
+   // ...
+   final l10n = AppLocalizations.of(context);
    ```
+4. **Key naming**: `<screen>_<key>` camelCase (e.g. `legalPrivacyTitle`,
+   `cookingSessionGotIt`). Shared keys use existing `common_` bucket.
+5. **Outside widget tree** (FCM handlers etc.):
+   ```dart
+   AppLocalizations.of(rootScaffoldMessengerKey.currentContext!)
+       ?.notificationSeeLabel ?? 'View'
+   ```
+6. **Providers and notifiers never resolve l10n strings** — widget layer only.
+7. **Plurals/placeholders** use standard ARB format:
+   ```json
+   "screenCount": "{count, plural, one{{count} item} other{{count} items}}",
+   "@screenCount": { "placeholders": { "count": { "type": "int" } } }
+   ```
+8. Run `flutter gen-l10n` after every ARB change before building/analyzing.
