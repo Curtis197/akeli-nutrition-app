@@ -621,6 +621,49 @@
   "nutritionWeightAdded": "Weight logged",
   "@nutritionWeightAdded": {},
 
+  "nutritionHydration": "Hydration",
+  "@nutritionHydration": {},
+
+  "nutritionMyWeight": "My Weight",
+  "@nutritionMyWeight": {},
+
+  "nutritionNewRecord": "New Log",
+  "@nutritionNewRecord": {},
+
+  "nutritionConsumedMeals": "Consumed meals",
+  "@nutritionConsumedMeals": {},
+
+  "nutritionTargetAchieved": "{count, plural, =0{You didn't reach your goals this week.} one{You reached your goals {count} time this week.} other{You reached your goals {count} times this week.}}",
+  "@nutritionTargetAchieved": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "nutritionSummary": "SUMMARY",
+  "@nutritionSummary": {},
+
+  "nutritionAvgKcal": "avg. kcal",
+  "@nutritionAvgKcal": {},
+
+  "nutritionWeightVariation": "weight change",
+  "@nutritionWeightVariation": {},
+
+  "nutritionEveryDay": "EVERY DAY",
+  "@nutritionEveryDay": {},
+
+  "nutritionWeightLabel": "Weight",
+  "@nutritionWeightLabel": {},
+
+  "nutritionProgressPercentage": "{pct}% of goal",
+  "@nutritionProgressPercentage": {
+    "placeholders": { "pct": { "type": "int" } }
+  },
+
+  "nutritionAddFirstWeight": "Add your first weight log to start tracking.",
+  "@nutritionAddFirstWeight": {},
+
+  "nutritionLogAnotherWeight": "Log another weight to see your trend.",
+  "@nutritionLogAnotherWeight": {},
+
   "communityTitle": "Community",
   "@communityTitle": {},
 

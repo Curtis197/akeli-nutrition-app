@@ -1310,6 +1310,84 @@ abstract class AppLocalizations {
   /// **'Weight logged'**
   String get nutritionWeightAdded;
 
+  /// No description provided for @nutritionHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hydration'**
+  String get nutritionHydration;
+
+  /// No description provided for @nutritionMyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'My Weight'**
+  String get nutritionMyWeight;
+
+  /// No description provided for @nutritionNewRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'New Log'**
+  String get nutritionNewRecord;
+
+  /// No description provided for @nutritionConsumedMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumed meals'**
+  String get nutritionConsumedMeals;
+
+  /// No description provided for @nutritionTargetAchieved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{You didn\'t reach your goals this week.} one{You reached your goals {count} time this week.} other{You reached your goals {count} times this week.}}'**
+  String nutritionTargetAchieved(int count);
+
+  /// No description provided for @nutritionSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'SUMMARY'**
+  String get nutritionSummary;
+
+  /// No description provided for @nutritionAvgKcal.
+  ///
+  /// In en, this message translates to:
+  /// **'avg. kcal'**
+  String get nutritionAvgKcal;
+
+  /// No description provided for @nutritionWeightVariation.
+  ///
+  /// In en, this message translates to:
+  /// **'weight change'**
+  String get nutritionWeightVariation;
+
+  /// No description provided for @nutritionEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'EVERY DAY'**
+  String get nutritionEveryDay;
+
+  /// No description provided for @nutritionWeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get nutritionWeightLabel;
+
+  /// No description provided for @nutritionProgressPercentage.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% of goal'**
+  String nutritionProgressPercentage(int pct);
+
+  /// No description provided for @nutritionAddFirstWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first weight log to start tracking.'**
+  String get nutritionAddFirstWeight;
+
+  /// No description provided for @nutritionLogAnotherWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Log another weight to see your trend.'**
+  String get nutritionLogAnotherWeight;
+
   /// No description provided for @communityTitle.
   ///
   /// In en, this message translates to:

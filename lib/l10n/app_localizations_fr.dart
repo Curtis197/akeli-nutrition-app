@@ -642,6 +642,58 @@ class AppLocalizationsFr extends AppLocalizations {
   String get nutritionWeightAdded => 'Poids enregistré';
 
   @override
+  String get nutritionHydration => 'Hydratation';
+
+  @override
+  String get nutritionMyWeight => 'Mon Poids';
+
+  @override
+  String get nutritionNewRecord => 'Nouveau relevé';
+
+  @override
+  String get nutritionConsumedMeals => 'Repas consommés';
+
+  @override
+  String nutritionTargetAchieved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Vous avez atteint vos objectifs $count fois cette semaine.',
+      one: 'Vous avez atteint vos objectifs $count fois cette semaine.',
+      zero: 'Vous n\'avez pas atteint vos objectifs cette semaine.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get nutritionSummary => 'RÉSUMÉ';
+
+  @override
+  String get nutritionAvgKcal => 'moy. kcal';
+
+  @override
+  String get nutritionWeightVariation => 'variation poids';
+
+  @override
+  String get nutritionEveryDay => 'CHAQUE JOUR';
+
+  @override
+  String get nutritionWeightLabel => 'Poids';
+
+  @override
+  String nutritionProgressPercentage(int pct) {
+    return '$pct% de l\'objectif';
+  }
+
+  @override
+  String get nutritionAddFirstWeight =>
+      'Ajoutez votre premier relevé de poids pour commencer le suivi.';
+
+  @override
+  String get nutritionLogAnotherWeight =>
+      'Enregistrez un autre poids pour voir votre tendance.';
+
+  @override
   String get communityTitle => 'Communauté';
 
   @override

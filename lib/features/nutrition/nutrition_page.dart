@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import 'package:intl/intl.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -45,6 +47,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   @override
   Widget build(BuildContext context) {
     _logger.provider('NutritionPage build()');
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AkeliColors.surface,
       appBar: AppBar(
@@ -52,9 +55,9 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
         scrolledUnderElevation: 0,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Nutrition',
-          style: TextStyle(
+        title: Text(
+          l10n.nutritionTitle,
+          style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -103,10 +106,10 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
                 unselectedLabelColor: AkeliColors.onSurfaceVariant,
                 labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                tabs: const [
-                  Tab(text: "Aujourd'hui"),
-                  Tab(text: "Semaine"),
-                  Tab(text: "Parcours"),
+                tabs: [
+                  Tab(text: l10n.nutritionTabToday),
+                  Tab(text: l10n.nutritionTabWeek),
+                  Tab(text: l10n.nutritionTabJourney),
                 ],
               ),
             ),
@@ -450,6 +453,7 @@ class _WaterTracker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     appLogger.d('WaterTracker build() | waterMl: $waterMl');
+    final l10n = AppLocalizations.of(context);
     final glasses = (waterMl / _glassSize).floor();
     final targetGlasses = (_targetMl / _glassSize).floor();
     final progress = (waterMl / _targetMl).clamp(0.0, 1.0);
@@ -471,9 +475,9 @@ class _WaterTracker extends StatelessWidget {
                   child: const Icon(PhosphorIconsFill.drop, color: Color(0xFF4D96FF), size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Hydratation',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
+                Text(
+                  l10n.nutritionHydration,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
                 ),
               ],
             ),
@@ -557,6 +561,7 @@ class _WeightTrendChart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final weightAsync = ref.watch(weightLogProvider);
     final healthAsync = ref.watch(healthProfileProvider);
 
@@ -579,9 +584,9 @@ class _WeightTrendChart extends ConsumerWidget {
                   child: const Icon(PhosphorIconsFill.scales, color: AkeliColors.secondary, size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Mon Poids',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
+                Text(
+                  l10n.nutritionMyWeight,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
                 ),
               ],
             ),
@@ -597,12 +602,12 @@ class _WeightTrendChart extends ConsumerWidget {
         const SizedBox(height: 16),
         weightAsync.when(
           loading: () => const SizedBox(height: 100, child: Center(child: CircularProgressIndicator())),
-          error: (_, __) => const Text('Erreur de chargement', style: TextStyle(color: AkeliColors.error)),
+          error: (_, __) => Text(l10n.commonLoadError, style: const TextStyle(color: AkeliColors.error)),
           data: (entries) {
             if (entries.isEmpty) {
-              return const Text(
-                'Ajoutez votre premier relevé de poids pour commencer le suivi.',
-                style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14),
+              return Text(
+                l10n.nutritionAddFirstWeight,
+                style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14),
               );
             }
             final currentWeight = entries.first.weightKg;
@@ -620,9 +625,9 @@ class _WeightTrendChart extends ConsumerWidget {
             Widget chartWidget = const SizedBox.shrink();
             
             if (entries.length < 2) {
-              chartWidget = const Text(
-                'Enregistrez un autre poids pour voir votre tendance.',
-                style: TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
+              chartWidget = Text(
+                l10n.nutritionLogAnotherWeight,
+                style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
               );
             } else {
               final chronological = entries.take(10).toList().reversed.toList();
@@ -761,7 +766,7 @@ class _WeightTrendChart extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          '$progressPct% de l\'objectif',
+                          l10n.nutritionProgressPercentage(progressPct),
                           style: const TextStyle(
                             color: AkeliColors.primary,
                             fontWeight: FontWeight.bold,
@@ -782,18 +787,19 @@ class _WeightTrendChart extends ConsumerWidget {
   }
 
   Future<void> _showAddWeightDialog(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final ctrl = TextEditingController();
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AkeliColors.surfaceContainerLowest,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Nouveau relevé', style: TextStyle(fontWeight: FontWeight.w800)),
+        title: Text(l10n.nutritionNewRecord, style: const TextStyle(fontWeight: FontWeight.w800)),
         content: TextField(
           controller: ctrl,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
-            labelText: 'Poids',
+            labelText: l10n.nutritionWeightLabel,
             suffixText: 'kg',
             filled: true,
             fillColor: AkeliColors.surfaceContainerLow,
@@ -810,7 +816,7 @@ class _WeightTrendChart extends ConsumerWidget {
               appLogger.userAction('Weight dialog cancelled', screen: 'NutritionPage');
               Navigator.pop(ctx);
             },
-            child: const Text('Annuler', style: TextStyle(color: AkeliColors.onSurfaceVariant)),
+            child: Text(l10n.commonCancel, style: const TextStyle(color: AkeliColors.onSurfaceVariant)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -825,7 +831,7 @@ class _WeightTrendChart extends ConsumerWidget {
                 ref.read(weightLogNotifierProvider.notifier).addEntry(kg);
               }
             },
-            child: const Text('Enregistrer'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),
@@ -882,13 +888,14 @@ class _WeeklyCaloriesChart extends StatelessWidget {
                   sideTitles: SideTitles(
                     showTitles: true,
                     getTitlesWidget: (value, meta) {
-                      const letters = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
                       final idx = value.toInt();
                       if (idx < 0 || idx >= days.length) return const SizedBox.shrink();
+                      final locale = Localizations.localeOf(context).languageCode;
+                      final dayLetter = DateFormat.E(locale).format(days[idx].date).substring(0, 1).toUpperCase();
                       return Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: Text(
-                          letters[days[idx].date.weekday - 1],
+                          dayLetter,
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -904,12 +911,12 @@ class _WeeklyCaloriesChart extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _Legend(color: AkeliColors.primary, label: 'Protéines'),
-            _Legend(color: AkeliColors.tertiary, label: 'Glucides'),
-            _Legend(color: AkeliColors.warning, label: 'Lipides'),
+            _Legend(color: AkeliColors.primary, label: AppLocalizations.of(context).nutritionProtein),
+            _Legend(color: AkeliColors.tertiary, label: AppLocalizations.of(context).nutritionCarbs),
+            _Legend(color: AkeliColors.warning, label: AppLocalizations.of(context).nutritionFat),
           ],
         ),
       ],
@@ -953,6 +960,7 @@ class _ConsumedRecipesList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final recipesAsync = ref.watch(consumedRecipesForDateProvider(dateStr));
     appLogger.provider('_ConsumedRecipesList build() | date: $dateStr | recipesAsync.isLoading: ${recipesAsync.isLoading}');
 
@@ -976,9 +984,9 @@ class _ConsumedRecipesList extends ConsumerWidget {
                   child: const Icon(PhosphorIconsFill.cookingPot, color: AkeliColors.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
-                const Text(
-                  'Repas consommés',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
+                Text(
+                  l10n.nutritionConsumedMeals,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface),
                 ),
               ],
             ),
@@ -1077,6 +1085,7 @@ class _CalorieRingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     appLogger.d('_CalorieRingCard build() | calories: $calories | goal: $calorieGoal');
+    final l10n = AppLocalizations.of(context);
     final ratio = calorieGoal > 0 ? calories / calorieGoal : 0.0;
     final remaining = calorieGoal - calories;
     final isOver = remaining < 0;
@@ -1132,10 +1141,10 @@ class _CalorieRingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _CalStat(label: 'Objectif', value: '$calorieGoal kcal'),
+                _CalStat(label: l10n.nutritionGoal, value: '$calorieGoal kcal'),
                 const SizedBox(height: 12),
                 _CalStat(
-                  label: isOver ? 'Dépassé' : 'Restant',
+                  label: l10n.nutritionRemaining,
                   value: '${remaining.abs().toInt()} kcal',
                   valueColor: isOver ? AkeliColors.error : const Color(0xFF4ADE80),
                 ),
@@ -1233,13 +1242,14 @@ class _CompactMacroStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     appLogger.d('_CompactMacroStrip build()');
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Expanded(child: _MacroMiniCard(label: 'Protéines', value: proteinG, target: targetProtG, color: AkeliColors.primary)),
+        Expanded(child: _MacroMiniCard(label: l10n.nutritionProtein, value: proteinG, target: targetProtG, color: AkeliColors.primary)),
         const SizedBox(width: 8),
-        Expanded(child: _MacroMiniCard(label: 'Glucides', value: carbsG, target: targetCarbsG, color: AkeliColors.tertiary)),
+        Expanded(child: _MacroMiniCard(label: l10n.nutritionCarbs, value: carbsG, target: targetCarbsG, color: AkeliColors.tertiary)),
         const SizedBox(width: 8),
-        Expanded(child: _MacroMiniCard(label: 'Lipides', value: fatG, target: targetFatG, color: const Color(0xFF38BDF8))),
+        Expanded(child: _MacroMiniCard(label: l10n.nutritionFat, value: fatG, target: targetFatG, color: const Color(0xFF38BDF8))),
       ],
     );
   }
@@ -1309,6 +1319,7 @@ class _WeeklySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     appLogger.d('_WeeklySummaryCard build() | days: ${days.length} | goal: $calorieGoal | delta: $weekWeightDelta');
+    final l10n = AppLocalizations.of(context);
 
     final dayMap = {for (final d in days) _truncate(d.date): d};
 
@@ -1349,36 +1360,30 @@ class _WeeklySummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('RÉSUMÉ', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.8)),
+          Text(
+            l10n.nutritionSummary,
+            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AkeliColors.onSurfaceVariant, letterSpacing: 0.8),
+          ),
           const SizedBox(height: 12),
           IntrinsicHeight(
             child: Row(
               children: [
-                _SummaryMetric(value: '$avgKcal', label: 'moy. kcal', valueColor: AkeliColors.onSurface),
+                _SummaryMetric(value: '$avgKcal', label: l10n.nutritionAvgKcal, valueColor: AkeliColors.onSurface),
                 const _VertDivider(),
-                _SummaryMetric(value: wdValue, label: 'variation poids', valueColor: wdColor),
+                _SummaryMetric(value: wdValue, label: l10n.nutritionWeightVariation, valueColor: wdColor),
               ],
             ),
           ),
           const SizedBox(height: 10),
-          Text.rich(
-            TextSpan(
-              text: 'Vous avez atteint vos objectifs ',
-              style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
-              children: [
-                TextSpan(
-                  text: '$onTarget fois',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: onTarget > 0 ? const Color(0xFF4ADE80) : AkeliColors.onSurfaceVariant,
-                  ),
-                ),
-                const TextSpan(text: ' cette semaine.'),
-              ],
-            ),
+          Text(
+            l10n.nutritionTargetAchieved(onTarget),
+            style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant),
           ),
           const SizedBox(height: 14),
-          const Text('CHAQUE JOUR', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AkeliColors.outlineVariant, letterSpacing: 0.8)),
+          Text(
+            l10n.nutritionEveryDay,
+            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, color: AkeliColors.outlineVariant, letterSpacing: 0.8),
+          ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1429,14 +1434,14 @@ class _DayPip extends StatelessWidget {
   final DailyNutrition? nutrition;
   final int calorieGoal;
 
-  static const _letters = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-
   const _DayPip({required this.date, required this.nutrition, required this.calorieGoal});
 
   @override
   Widget build(BuildContext context) {
     final cal = nutrition?.calories ?? 0;
     final isLogged = cal > 0;
+    final locale = Localizations.localeOf(context).languageCode;
+    final dayLetter = DateFormat.E(locale).format(date).substring(0, 1).toUpperCase();
 
     Color bg;
     Color textColor;
@@ -1459,7 +1464,7 @@ class _DayPip extends StatelessWidget {
           decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
           alignment: Alignment.center,
           child: Text(
-            _letters[date.weekday - 1],
+            dayLetter,
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
           ),
         ),
