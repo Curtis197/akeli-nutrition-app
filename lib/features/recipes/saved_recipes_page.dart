@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/profile_tabs_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
@@ -14,16 +15,17 @@ class SavedRecipesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final currentUser = ref.watch(currentUserProvider);
     if (currentUser == null) {
-      return const Scaffold(body: Center(child: Text('Not logged in')));
+      return Scaffold(body: Center(child: Text(l10n.savedRecipesEligibilityNotLoggedIn)));
     }
 
     final savedRecipesAsync = ref.watch(userSavedRecipesProvider(currentUser.id));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recettes Sauvegardées', style: TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(l10n.savedRecipesTitle, style: const TextStyle(color: AkeliColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
         backgroundColor: AkeliColors.surface,
         iconTheme: const IconThemeData(color: AkeliColors.primary),
         elevation: 0,
@@ -37,7 +39,7 @@ class SavedRecipesPage extends ConsumerWidget {
             children: [
               const Icon(Icons.error_outline_rounded, size: 40, color: AkeliColors.error),
               const SizedBox(height: 8),
-              Text('Erreur: $err',
+              Text(l10n.mealPlannerError(err.toString()),
                   style: const TextStyle(color: AkeliColors.onSurface),
                   textAlign: TextAlign.center),
             ],
@@ -45,10 +47,10 @@ class SavedRecipesPage extends ConsumerWidget {
         ),
         data: (recipes) {
           if (recipes.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'Aucune recette sauvegardée',
-                style: TextStyle(color: AkeliColors.outline, fontSize: 16),
+                l10n.savedRecipesEmpty,
+                style: const TextStyle(color: AkeliColors.outline, fontSize: 16),
               ),
             );
           }
