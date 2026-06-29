@@ -2371,6 +2371,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealScheduleVariety15Days => '15 days';
 
   @override
+  String get mealScheduleRandomTitle => 'Randomize schedule';
+
+  @override
+  String get mealScheduleRandomSubtitle =>
+      'Shuffle meal days across the week randomly';
+
+  @override
   String get nutritionPlanSaveButton => 'Save plan';
 
   @override

@@ -2404,6 +2404,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mealScheduleVariety15Days => '15 jours';
 
   @override
+  String get mealScheduleRandomTitle => 'Planning aléatoire';
+
+  @override
+  String get mealScheduleRandomSubtitle =>
+      'Répartir les jours de repas de manière aléatoire sur la semaine';
+
+  @override
   String get nutritionPlanSaveButton => 'Enregistrer mon plan';
 
   @override

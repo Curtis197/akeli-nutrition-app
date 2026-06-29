@@ -4520,6 +4520,18 @@ abstract class AppLocalizations {
   /// **'15 days'**
   String get mealScheduleVariety15Days;
 
+  /// No description provided for @mealScheduleRandomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Randomize schedule'**
+  String get mealScheduleRandomTitle;
+
+  /// No description provided for @mealScheduleRandomSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle meal days across the week randomly'**
+  String get mealScheduleRandomSubtitle;
+
   /// No description provided for @nutritionPlanSaveButton.
   ///
   /// In en, this message translates to:
