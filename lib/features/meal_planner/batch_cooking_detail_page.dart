@@ -6,8 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../providers/recipe_provider.dart';
+import '../../core/locale_provider.dart';
+import '../../core/unit_converter.dart';
+import '../../core/quantity_formatter.dart';
 import '../../shared/models/meal_plan.dart';
 import '../../shared/models/recipe.dart';
 import '../recipes/widgets/ingredient_detail_sheet.dart';
@@ -36,6 +40,10 @@ class _BatchCookingDetailPageState
     appLogger.provider(
         'BatchCookingDetailPage build() | sessionId: ${widget.sessionId}');
 
+    final localeState = ref.watch(localeProvider);
+    final isUsLocale = localeState.isUsLocale;
+    final localeName = AppLocalizations.of(context).localeName;
+
     final sessionsAsync = ref.watch(cookingSessionsProvider);
 
     final session = sessionsAsync.valueOrNull?.cast<CookingSession?>().firstWhere(
@@ -62,6 +70,8 @@ class _BatchCookingDetailPageState
           .read(cookingSessionsProvider.notifier)
           .markCooked(session.id, isCooked: !session.isCooked),
       onStartCooking: () => _startCooking(session),
+      isUsLocale: isUsLocale,
+      locale: localeName,
     );
   }
 
@@ -95,6 +105,8 @@ class _SessionDetailView extends StatelessWidget {
   final bool startingCook;
   final VoidCallback onToggleCooked;
   final VoidCallback onStartCooking;
+  final bool isUsLocale;
+  final String locale;
 
   const _SessionDetailView({
     required this.session,
@@ -102,10 +114,13 @@ class _SessionDetailView extends StatelessWidget {
     required this.startingCook,
     required this.onToggleCooked,
     required this.onStartCooking,
+    required this.isUsLocale,
+    required this.locale,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final topPadding = MediaQuery.of(context).padding.top;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final progress = session.totalPortions > 0
@@ -172,7 +187,7 @@ class _SessionDetailView extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              session.recipeTitle ?? 'Préparation',
+                              session.localizedTitle(Localizations.localeOf(context).languageCode) ?? l10n.batchDetailPreparation,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w700,
@@ -228,7 +243,7 @@ class _SessionDetailView extends StatelessWidget {
                                 iconColor: progress >= 1.0
                                     ? AkeliColors.success
                                     : AkeliColors.primary,
-                                label: '${session.portionsUsed} utilisées',
+                                label: l10n.batchDetailPortionsUsedCount(session.portionsUsed),
                               ),
                             ],
                           ),
@@ -242,9 +257,9 @@ class _SessionDetailView extends StatelessWidget {
                             mainAxisAlignment:
                                 MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Portions utilisées',
-                                style: TextStyle(
+                              Text(
+                                l10n.batchDetailPortionsUsed,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   color: AkeliColors.onSurfaceVariant,
@@ -305,7 +320,7 @@ class _SessionDetailView extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Ingrédients',
+                                l10n.recipeDetailIngredients,
                                 style: GoogleFonts.plusJakartaSans(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
@@ -324,7 +339,11 @@ class _SessionDetailView extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           ...session.ingredients!
-                              .map((ing) => _IngredientRow(ingredient: ing)),
+                              .map((ing) => _IngredientRow(
+                                    ingredient: ing,
+                                    isUsLocale: isUsLocale,
+                                    locale: locale,
+                                  )),
                         ],
                       ),
                     ),
@@ -350,7 +369,7 @@ class _SessionDetailView extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Étapes',
+                            l10n.recipeDetailInstructions,
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 20,
                               fontWeight: FontWeight.w600,
@@ -543,8 +562,8 @@ class _SessionDetailView extends StatelessWidget {
                             : const Icon(Icons.play_arrow_rounded, size: 22),
                         label: Text(
                           startingCook
-                              ? 'Chargement...'
-                              : 'Commencer la cuisson',
+                              ? l10n.commonLoading
+                              : l10n.batchDetailStartCooking,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -610,8 +629,14 @@ class _QuickInfo extends StatelessWidget {
 
 class _IngredientRow extends StatelessWidget {
   final CookingSessionIngredient ingredient;
+  final bool isUsLocale;
+  final String locale;
 
-  const _IngredientRow({required this.ingredient});
+  const _IngredientRow({
+    required this.ingredient,
+    required this.isUsLocale,
+    required this.locale,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -624,7 +649,7 @@ class _IngredientRow extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              ingredient.ingredientName,
+              ingredient.localizedName(locale.startsWith('fr') ? 'fr' : 'en'),
               style: GoogleFonts.inter(
                 fontSize: 15,
                 color: AkeliColors.onSurface,
@@ -633,7 +658,18 @@ class _IngredientRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            ingredient.quantityDisplay,
+            (() {
+              final displayQty = isUsLocale
+                  ? UnitConverter.toImperial(ingredient.quantityNeeded, ingredient.unit)
+                  : (quantity: ingredient.quantityNeeded, unit: ingredient.unit);
+              return formatQuantity(
+                displayQty.quantity,
+                displayQty.unit,
+                locale: locale,
+                ingredientId: ingredient.ingredientId,
+                ingredientName: ingredient.ingredientName,
+              );
+            })(),
             style: GoogleFonts.inter(
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -652,8 +688,9 @@ class _IngredientRow extends StatelessWidget {
                 IngredientDetailSheet.show(
                   context,
                   RecipeIngredient(
+                    id: '',
                     ingredientId: ingredient.ingredientId!,
-                    name: ingredient.ingredientName,
+                    name: ingredient.localizedName(locale),
                     quantity: ingredient.quantityNeeded,
                     unit: ingredient.unit,
                     isOptional: false,

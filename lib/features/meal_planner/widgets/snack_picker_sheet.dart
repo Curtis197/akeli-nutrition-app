@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/logger.dart';
 import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/recipe_provider.dart';
 import '../../../shared/models/recipe.dart';
 import '../personal_meal_bottom_sheet.dart';
@@ -10,7 +11,8 @@ sealed class SnackSelection {}
 
 class RecipeSnackSelection extends SnackSelection {
   final String recipeId;
-  RecipeSnackSelection(this.recipeId);
+  final double weightG;
+  RecipeSnackSelection(this.recipeId, {this.weightG = 150.0});
 }
 
 class CustomSnackSelection extends SnackSelection {
@@ -53,6 +55,88 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
     super.dispose();
   }
 
+  Future<double?> _showWeightPicker(BuildContext ctx, Recipe recipe) async {
+    double weight = 150;
+    _logger.userAction('Weight picker opened', screen: 'SnackPickerSheet',
+        metadata: {'recipeId': recipe.id});
+    return showDialog<double>(
+      context: ctx,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (dialogCtx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AkeliRadius.xl),
+          ),
+          title: Text(
+            recipe.title,
+            style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppLocalizations.of(ctx).snackPickerEstimatedQty,
+                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                      color: AkeliColors.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${weight.toInt()} g',
+                style: Theme.of(ctx).textTheme.headlineMedium?.copyWith(
+                      color: AkeliColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              Slider(
+                value: weight,
+                min: 25,
+                max: 600,
+                divisions: 23,
+                activeColor: AkeliColors.primary,
+                onChanged: (v) => setDialogState(() => weight = v),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('25 g',
+                      style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
+                            color: AkeliColors.onSurfaceVariant,
+                          )),
+                  Text('600 g',
+                      style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
+                            color: AkeliColors.onSurfaceVariant,
+                          )),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _logger.userAction('Weight picker cancelled', screen: 'SnackPickerSheet');
+                Navigator.of(dialogCtx).pop();
+              },
+              child: Text(AppLocalizations.of(dialogCtx).commonCancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AkeliColors.primary),
+              onPressed: () {
+                _logger.userAction('Weight confirmed', screen: 'SnackPickerSheet',
+                    metadata: {'weightG': weight});
+                Navigator.of(dialogCtx).pop(weight);
+              },
+              child: Text(AppLocalizations.of(dialogCtx).commonAdd),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _openPersonalSnack() async {
     _logger.userAction('Collation personnelle tapped', screen: 'SnackPickerSheet');
     final result = await showModalBottomSheet<PersonalMealCreatedResult>(
@@ -78,6 +162,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     _logger.provider('SnackPickerSheet build() | query: $_query');
     final recipesAsync = ref.watch(feedProvider(const FeedParams(limit: 30, mealType: 'snack')));
 
@@ -108,7 +193,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                 child: Row(
                   children: [
                     Text(
-                      'Choisir une collation',
+                      l10n.snackPickerTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w800,
                           ),
@@ -128,7 +213,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: SearchBar(
                   controller: _searchCtrl,
-                  hintText: 'Rechercher une recette...',
+                  hintText: l10n.feedSearchHint,
                   onChanged: (v) {
                     _logger.userAction('SnackPickerSheet search changed', screen: 'SnackPickerSheet');
                     setState(() => _query = v);
@@ -150,7 +235,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                 child: OutlinedButton.icon(
                   onPressed: _openPersonalSnack,
                   icon: const Icon(Icons.edit_note),
-                  label: const Text('Collation personnelle'),
+                  label: Text(l10n.snackPickerPersonal),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AkeliColors.primary,
                     side: BorderSide(color: AkeliColors.primary.withValues(alpha: 0.5)),
@@ -166,7 +251,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (e, _) => Center(
-                    child: Text('Erreur: $e',
+                    child: Text(l10n.mealPlannerError(e.toString()),
                         style: const TextStyle(color: AkeliColors.error)),
                   ),
                   data: (recipes) {
@@ -186,7 +271,7 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                                 size: 48, color: AkeliColors.outline),
                             const SizedBox(height: 12),
                             Text(
-                              'Aucune recette trouvée',
+                              l10n.snackPickerNoResults,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium
@@ -206,11 +291,16 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
                         final recipe = filtered[index];
                         return _RecipePickerTile(
                           recipe: recipe,
-                          onTap: () {
-                            _logger.userAction('Recipe picked for snack',
-                                screen: 'SnackPickerSheet',
-                                metadata: {'recipeId': recipe.id, 'title': recipe.title});
-                            Navigator.of(context).pop(RecipeSnackSelection(recipe.id));
+                          onTap: () async {
+                            final weightG = await _showWeightPicker(context, recipe);
+                            if (weightG != null && context.mounted) {
+                              _logger.userAction('Recipe picked for snack',
+                                  screen: 'SnackPickerSheet',
+                                  metadata: {'recipeId': recipe.id, 'weightG': weightG});
+                              Navigator.of(context).pop(
+                                RecipeSnackSelection(recipe.id, weightG: weightG),
+                              );
+                            }
                           },
                         );
                       },

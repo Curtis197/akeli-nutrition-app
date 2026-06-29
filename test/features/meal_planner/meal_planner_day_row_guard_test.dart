@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:akeli/features/meal_planner/widgets/meal_planner_day_row.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
@@ -16,7 +18,17 @@ MealPlanEntry _makeEntry(DateTime scheduledDate) => MealPlanEntry(
       components: const [],
     );
 
-Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('fr'), Locale('en')],
+      locale: const Locale('fr'),
+      home: Scaffold(body: child),
+    );
 
 void main() {
   group('MealPlannerDayRow — consumed toggle visibility', () {

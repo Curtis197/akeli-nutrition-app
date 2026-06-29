@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:akeli/core/logger.dart';
+import 'package:akeli/core/quantity_formatter.dart';
 
 @immutable
 class Recipe {
@@ -89,6 +90,53 @@ class Recipe {
   double? get carbsPerServing    => servings > 0 && carbsG    != null ? carbsG!    / servings : carbsG;
   double? get fatPerServing      => servings > 0 && fatG      != null ? fatG!      / servings : fatG;
 
+  Recipe copyWith({
+    String? title,
+    String? description,
+    List<RecipeIngredient>? ingredients,
+    List<RecipeStep>? steps,
+  }) {
+    return Recipe(
+      id: id,
+      creatorId: creatorId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      thumbnailUrl: thumbnailUrl,
+      imageUrls: imageUrls,
+      prepTimeMin: prepTimeMin,
+      cookTimeMin: cookTimeMin,
+      servings: servings,
+      difficulty: difficulty,
+      regionId: regionId,
+      calories: calories,
+      proteinG: proteinG,
+      carbsG: carbsG,
+      fatG: fatG,
+      fiberG: fiberG,
+      averageRating: averageRating,
+      averageRatingTaste: averageRatingTaste,
+      averageRatingEase: averageRatingEase,
+      averageRatingSatiety: averageRatingSatiety,
+      ratingCount: ratingCount,
+      commentCount: commentCount,
+      likeCount: likeCount,
+      saveCount: saveCount,
+      isSaved: isSaved,
+      isLiked: isLiked,
+      isPublished: isPublished,
+      videoUrl: videoUrl,
+      ingredients: ingredients ?? this.ingredients,
+      steps: steps ?? this.steps,
+      tagIds: tagIds,
+      mealTypes: mealTypes,
+      calories100g: calories100g,
+      protein100g: protein100g,
+      carbs100g: carbs100g,
+      fat100g: fat100g,
+      createdAt: createdAt,
+    );
+  }
+
   factory Recipe.fromJson(Map<String, dynamic> json) {
     appLogger.db('Recipe.fromJson | id: ${json['id']}');
     final macroRaw = json['recipe_macro'];
@@ -151,8 +199,10 @@ class Recipe {
 
 @immutable
 class RecipeIngredient {
+  final String id;
   final String ingredientId;
   final String name;
+  final String? nameEn;
   final double quantity;
   final String unit;
   final bool isOptional;
@@ -160,14 +210,32 @@ class RecipeIngredient {
   final String? sectionTitle;
 
   const RecipeIngredient({
+    required this.id,
     required this.ingredientId,
     required this.name,
+    this.nameEn,
     required this.quantity,
     required this.unit,
     required this.isOptional,
     this.isSectionHeader = false,
     this.sectionTitle,
   });
+
+  RecipeIngredient copyWith({String? name, String? sectionTitle}) {
+    return RecipeIngredient(
+      id: id,
+      ingredientId: ingredientId,
+      name: name ?? this.name,
+      nameEn: nameEn,
+      quantity: quantity,
+      unit: unit,
+      isOptional: isOptional,
+      isSectionHeader: isSectionHeader,
+      sectionTitle: sectionTitle ?? this.sectionTitle,
+    );
+  }
+
+  String get quantityDisplay => formatQuantity(quantity, unit);
 
   factory RecipeIngredient.fromJson(Map<String, dynamic> json) {
     final nested = json['ingredient'] as Map<String, dynamic>?;
@@ -176,8 +244,10 @@ class RecipeIngredient {
         ?? nested?['name'] as String?
         ?? '';
     return RecipeIngredient(
+      id: json['id'] as String? ?? '',
       ingredientId: json['ingredient_id'] as String? ?? '',
       name: name,
+      nameEn: nested?['name_en'] as String?,
       quantity: (json['quantity'] as num?)?.toDouble() ?? 0.0,
       unit: json['unit'] as String? ?? '',
       isOptional: (json['is_optional'] as bool?) ?? false,
@@ -189,6 +259,7 @@ class RecipeIngredient {
 
 @immutable
 class RecipeStep {
+  final String id;
   final int stepNumber;
   final String instruction;
   final int? durationMin;
@@ -199,6 +270,7 @@ class RecipeStep {
   final String? sectionTitle;
 
   const RecipeStep({
+    required this.id,
     required this.stepNumber,
     required this.instruction,
     this.durationMin,
@@ -209,7 +281,22 @@ class RecipeStep {
     this.sectionTitle,
   });
 
+  RecipeStep copyWith({String? instruction, String? sectionTitle}) {
+    return RecipeStep(
+      id: id,
+      stepNumber: stepNumber,
+      instruction: instruction ?? this.instruction,
+      durationMin: durationMin,
+      imageUrl: imageUrl,
+      videoUrl: videoUrl,
+      ingredientIds: ingredientIds,
+      isSectionHeader: isSectionHeader,
+      sectionTitle: sectionTitle ?? this.sectionTitle,
+    );
+  }
+
   factory RecipeStep.fromJson(Map<String, dynamic> json) => RecipeStep(
+        id: json['id'] as String? ?? '',
         stepNumber: json['step_number'] as int,
         instruction: json['instruction'] as String?
             ?? json['content'] as String? ?? '',

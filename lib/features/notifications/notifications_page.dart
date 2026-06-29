@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/core/supabase_client.dart';
 import 'package:akeli/features/community/community_page.dart';
 import 'package:akeli/providers/notifications_provider.dart';
@@ -33,6 +34,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('NotificationsPage build()');
+    final l10n = AppLocalizations.of(context);
     final notifAsync = ref.watch(notificationsProvider);
 
     return Scaffold(
@@ -50,7 +52,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           }
         },
       ),
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
       ),
       body: notifAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -66,9 +68,9 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           _logger.provider(
               'NotificationsPage → data | count: ${notifications.length}');
           if (notifications.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.notifications_none_rounded,
-              title: 'Aucune notification',
+              title: l10n.notificationsEmpty,
               subtitle: 'Vous recevrez ici vos rappels de repas et messages.',
             );
           }

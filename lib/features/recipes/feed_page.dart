@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
@@ -305,52 +306,53 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     return names[_regionId!] ?? _regionId!;
   }
 
-  String _difficultyLabel() => switch (_difficulty) {
-        'easy' => 'Facile',
-        'medium' => 'Moyen',
-        'hard' => 'Difficile',
-        _ => 'Difficulté ▾',
+  String _difficultyLabel(AppLocalizations l10n) => switch (_difficulty) {
+        'easy' => l10n.difficultyEasy,
+        'medium' => l10n.difficultyMedium,
+        'hard' => l10n.difficultyHard,
+        _ => l10n.feedFilterDifficulty,
       };
 
-  String _timeLabel() => switch (_maxTimeMin) {
-        30 => '< 30 min',
-        60 => '< 60 min',
-        90 => '< 90 min',
-        _ => 'Temps ▾',
+  String _timeLabel(AppLocalizations l10n) => switch (_maxTimeMin) {
+        30 => l10n.feedFilterTimeMax(30),
+        60 => l10n.feedFilterTimeMax(60),
+        90 => l10n.feedFilterTimeMax(90),
+        _ => l10n.feedFilterTime,
       };
 
-  String _sortLabel() => switch (_orderBy) {
-        'rating' => 'Mieux noté',
-        'likes' => 'Populaire',
-        'created_at' => 'Plus récent',
-        _ => 'Trier ▾',
+  String _sortLabel(AppLocalizations l10n) => switch (_orderBy) {
+        'rating' => l10n.feedSortBestRated,
+        'likes' => l10n.feedSortPopular,
+        'created_at' => l10n.feedSortNewest,
+        _ => l10n.feedSortBy,
       };
 
-  String _mealTypeLabel() => switch (_mealType) {
-        'breakfast' => 'Petit-déjeuner',
-        'lunch'     => 'Déjeuner',
-        'dinner'    => 'Dîner',
-        'snack'     => 'Collation',
-        _           => 'Type ▾',
+  String _mealTypeLabel(AppLocalizations l10n) => switch (_mealType) {
+        'breakfast' => l10n.mealTypeBreakfast,
+        'lunch'     => l10n.mealTypeLunch,
+        'dinner'    => l10n.mealTypeDinner,
+        'snack'     => l10n.mealTypeSnack,
+        _           => l10n.feedFilterMealType,
       };
 
-  String _creatorsRegionLabel() {
-    if (_creatorsRegionId == null) return 'Région';
+  String _creatorsRegionLabel(AppLocalizations l10n) {
+    if (_creatorsRegionId == null) return l10n.feedFilterRegion;
     final names = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
     return names[_creatorsRegionId] ?? _creatorsRegionId!;
   }
 
-  String _creatorsSpecialtyLabel() => _creatorsSpecialty ?? 'Spécialité';
+  String _creatorsSpecialtyLabel(AppLocalizations l10n) => _creatorsSpecialty ?? l10n.feedCreatorSpecialty;
 
-  String _creatorsSortLabel() => switch (_creatorsOrderBy) {
-        'rating'  => 'Mieux notés',
-        'fans'    => 'Plus de fans',
-        'recipes' => 'Plus de recettes',
-        _         => 'Tri',
+  String _creatorsSortLabel(AppLocalizations l10n) => switch (_creatorsOrderBy) {
+        'rating'  => l10n.feedSortBestRated,
+        'fans'    => l10n.feedSortMostFans,
+        'recipes' => l10n.feedSortMostRecipes,
+        _         => l10n.feedSortBy,
       };
 
   void _showCombinedFilterSheet(BuildContext context) {
     _logger.userAction('Combined filter sheet opened', screen: 'FeedPage');
+    final l10n = AppLocalizations.of(context);
     final regionNames = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
     
     String? tempRegion = _regionId;
@@ -388,19 +390,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Filtres', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(l10n.feedFilters, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                         IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Text('Région', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterRegion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Toutes'),
+                          label: Text(l10n.feedAllRegions),
                           selected: tempRegion == null,
                           onSelected: (v) => setModalState(() => tempRegion = null),
                         ),
@@ -412,77 +414,77 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Difficulté', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterDifficulty, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Toutes'),
+                          label: Text(l10n.feedAllDifficulties),
                           selected: tempDiff == null,
                           onSelected: (v) => setModalState(() => tempDiff = null),
                         ),
                         ChoiceChip(
-                          label: const Text('Facile'),
+                          label: Text(l10n.difficultyEasy),
                           selected: tempDiff == 'easy',
                           onSelected: (v) => setModalState(() => tempDiff = 'easy'),
                         ),
                         ChoiceChip(
-                          label: const Text('Moyen'),
+                          label: Text(l10n.difficultyMedium),
                           selected: tempDiff == 'medium',
                           onSelected: (v) => setModalState(() => tempDiff = 'medium'),
                         ),
                         ChoiceChip(
-                          label: const Text('Difficile'),
+                          label: Text(l10n.difficultyHard),
                           selected: tempDiff == 'hard',
                           onSelected: (v) => setModalState(() => tempDiff = 'hard'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Type de repas', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterMealType, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Tous'),
+                          label: Text(l10n.feedAllMealTypes),
                           selected: tempMealType == null,
                           onSelected: (v) => setModalState(() => tempMealType = null),
                         ),
                         ChoiceChip(
-                          label: const Text('Petit-déjeuner'),
+                          label: Text(l10n.mealTypeBreakfast),
                           selected: tempMealType == 'breakfast',
                           onSelected: (v) => setModalState(() => tempMealType = 'breakfast'),
                         ),
                         ChoiceChip(
-                          label: const Text('Déjeuner'),
+                          label: Text(l10n.mealTypeLunch),
                           selected: tempMealType == 'lunch',
                           onSelected: (v) => setModalState(() => tempMealType = 'lunch'),
                         ),
                         ChoiceChip(
-                          label: const Text('Dîner'),
+                          label: Text(l10n.mealTypeDinner),
                           selected: tempMealType == 'dinner',
                           onSelected: (v) => setModalState(() => tempMealType = 'dinner'),
                         ),
                         ChoiceChip(
-                          label: const Text('Collation'),
+                          label: Text(l10n.mealTypeSnack),
                           selected: tempMealType == 'snack',
                           onSelected: (v) => setModalState(() => tempMealType = 'snack'),
                         ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Temps maximum', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterTime, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Tous'),
+                          label: Text(l10n.feedAllRegions),
                           selected: tempTime == null,
                           onSelected: (v) => setModalState(() => tempTime = null),
                         ),
@@ -504,7 +506,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Calories (kcal/100g)', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterCalories, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     RangeSlider(
                       values: RangeValues(
@@ -551,7 +553,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           });
                           Navigator.pop(context);
                         },
-                        child: const Text('Appliquer les filtres'),
+                        child: Text(l10n.feedApplyFilters),
                       ),
                     ),
                   ],
@@ -567,16 +569,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   void _showSortSheet(BuildContext context) {
     _logger.userAction('Sort sheet opened', screen: 'FeedPage');
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AkeliColors.surface,
       builder: (_) => _FilterSheet<String>(
-        title: 'Trier par',
-        options: const [
-          MapEntry(null, 'Pertinence'),
-          MapEntry('rating', 'Mieux noté'),
-          MapEntry('likes', 'Plus populaire'),
-          MapEntry('created_at', 'Plus récent'),
+        title: l10n.feedSortBy,
+        options: [
+          MapEntry(null, l10n.feedSortRelevance),
+          MapEntry('rating', l10n.feedSortBestRated),
+          MapEntry('likes', l10n.feedSortPopular),
+          MapEntry('created_at', l10n.feedSortNewest),
         ],
         selectedKey: _orderBy,
         onSelect: (key) {
@@ -601,6 +604,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   void _showCreatorFilterSheet(BuildContext context, Map<String, String> regionNames) {
     _logger.userAction('Creator filter sheet opened', screen: 'FeedPage');
+    final l10n = AppLocalizations.of(context);
     String? tempRegion    = _creatorsRegionId;
     String? tempSpecialty = _creatorsSpecialty;
 
@@ -632,19 +636,19 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Filtres', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(l10n.feedFilters, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                         IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(context)),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Text('Région', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedFilterRegion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Toutes'),
+                          label: Text(l10n.feedAllRegions),
                           selected: tempRegion == null,
                           onSelected: (_) => setModalState(() => tempRegion = null),
                         ),
@@ -656,14 +660,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 24),
-                    Text('Spécialité', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    Text(l10n.feedCreatorSpecialty, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
                       children: [
                         ChoiceChip(
-                          label: const Text('Toutes'),
+                          label: Text(l10n.feedAllSpecialties),
                           selected: tempSpecialty == null,
                           onSelected: (_) => setModalState(() => tempSpecialty = null),
                         ),
@@ -687,7 +691,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           });
                           Navigator.pop(context);
                         },
-                        child: const Text('Appliquer les filtres'),
+                        child: Text(l10n.feedApplyFilters),
                       ),
                     ),
                   ],
@@ -703,16 +707,17 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   void _showCreatorSortSheet(BuildContext context) {
     _logger.userAction('Creator sort sheet opened', screen: 'FeedPage');
+    final l10n = AppLocalizations.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AkeliColors.surface,
       builder: (_) => _FilterSheet<String>(
-        title: 'Trier par',
-        options: const [
-          MapEntry(null, 'Personnalisé'),
-          MapEntry('rating', 'Mieux notés'),
-          MapEntry('fans', 'Plus de fans'),
-          MapEntry('recipes', 'Plus de recettes'),
+        title: l10n.feedSortBy,
+        options: [
+          MapEntry(null, l10n.feedSortCustom),
+          MapEntry('rating', l10n.feedSortBestRated),
+          MapEntry('fans', l10n.feedSortMostFans),
+          MapEntry('recipes', l10n.feedSortMostRecipes),
         ],
         selectedKey: _creatorsOrderBy,
         onSelect: (key) {
@@ -726,6 +731,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isSearching = _searchQuery.length >= 2;
     final feedAsync = isSearching
         ? ref.watch(searchRecipesProvider(SearchParams(
@@ -782,7 +788,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           title: widget.swapEntryId != null
               ? const Text('Sélectionner une recette', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
               : Text(
-                  'Recettes',
+                  l10n.feedTabRecipes,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
@@ -798,7 +804,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
                   child: AkeliTabBar(
-                    tabs: const ['Recettes', 'Créateurs'],
+                    tabs: [l10n.feedTabRecipes, l10n.feedTabCreators],
                     selectedIndex: _tabIndex,
                     onTabSelected: (i) {
                       _logger.userAction('Feed tab selected', screen: 'FeedPage',
@@ -826,7 +832,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                             ),
                             child: SearchBar(
                               controller: _searchCtrl,
-                              hintText: 'Rechercher...',
+                              hintText: l10n.feedSearchHint,
                               leading: const Icon(Icons.search_rounded),
                               trailing: _searchQuery.isNotEmpty
                                   ? [
@@ -915,7 +921,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           ],
                           if (_difficulty != null) ...[
                             _ActiveFilterChip(
-                              label: _difficultyLabel(),
+                              label: _difficultyLabel(l10n),
                               onDeleted: () => setState(() {
                                 _difficulty = null;
                                 _resetRecipes();
@@ -925,7 +931,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           ],
                           if (_maxTimeMin != null) ...[
                             _ActiveFilterChip(
-                              label: _timeLabel(),
+                              label: _timeLabel(l10n),
                               onDeleted: () => setState(() {
                                 _maxTimeMin = null;
                                 _resetRecipes();
@@ -946,7 +952,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           ],
                           if (_orderBy != null) ...[
                             _ActiveFilterChip(
-                              label: _sortLabel(),
+                              label: _sortLabel(l10n),
                               onDeleted: () => setState(() {
                                 _orderBy = null;
                                 _resetRecipes();
@@ -956,7 +962,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           ],
                           if (_mealType != null) ...[
                             _ActiveFilterChip(
-                              label: _mealTypeLabel(),
+                              label: _mealTypeLabel(l10n),
                               onDeleted: () => setState(() {
                                 _mealType = null;
                                 _resetRecipes();
@@ -1034,10 +1040,10 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 child: EmptyState(
                   icon: Icons.restaurant_menu_rounded,
                   title: isSearching
-                      ? 'Aucune recette trouvée'
-                      : 'Pas encore de recettes',
+                      ? l10n.feedNoResults
+                      : l10n.feedEmptyTitle,
                   subtitle: isSearching
-                      ? 'Essayez d\'autres termes de recherche.'
+                      ? l10n.feedNoResultsSubtitle
                       : 'Explorez et découvrez des recettes africaines.',
                 ),
               );
@@ -1066,7 +1072,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                     region: recipe.regionId != null
                         ? regionNames[recipe.regionId!] ?? recipe.regionId
                         : null,
-                    tags: recipe.tagIds.take(2).toList(),
+                    tags: recipe.mealTypes.take(2).toList(),
                     creatorId: recipe.creatorId,
                     onTap: () async {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
@@ -1075,8 +1081,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         try {
                           await ref.read(mealPlanSwapProvider.notifier).swapMeal(widget.swapEntryId!, recipe.id);
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text('Repas remplacé avec succès'),
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(l10n.feedSwapDone),
                             backgroundColor: AkeliColors.primary,
                           ));
                           context.pop();
@@ -1115,8 +1121,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             ),
           ),
         if (_tabIndex != 0) ...[
-          _buildCreatorSearchControls(regionNames),
-          _buildCreateursSliver(regionNames),
+          _buildCreatorSearchControls(context, regionNames),
+          _buildCreateursSliver(context, regionNames),
         ],
         if (_tabIndex != 0 && _creators.isNotEmpty)
           SliverToBoxAdapter(
@@ -1140,7 +1146,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     return body;
   }
 
-  Widget _buildCreateursSliver(Map<String, String> regionNames) {
+  Widget _buildCreateursSliver(BuildContext context, Map<String, String> regionNames) {
+    final l10n = AppLocalizations.of(context);
     final creatorsAsync = ref.watch(creatorsListProvider);
     _logger.provider('_buildCreateursSliver | creatorsAsync.isLoading: ${creatorsAsync.isLoading}');
 
@@ -1178,8 +1185,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
             child: EmptyState(
               icon: Icons.person_rounded,
               title: isFiltered
-                  ? 'Aucun créateur trouvé'
-                  : 'Aucun créateur disponible',
+                  ? l10n.feedNoCreators
+                  : l10n.feedNoCreators,
               subtitle: isFiltered
                   ? 'Essayez d\'autres termes ou réinitialisez les filtres.'
                   : 'Les créateurs apparaîtront ici.',
@@ -1211,7 +1218,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       },
     );
   }
-  Widget _buildCreatorSearchControls(Map<String, String> regionNames) {
+  Widget _buildCreatorSearchControls(BuildContext context, Map<String, String> regionNames) {
+    final l10n = AppLocalizations.of(context);
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
@@ -1225,7 +1233,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 Expanded(
                   child: SearchBar(
                     controller: _creatorsSearchCtrl,
-                    hintText: 'Rechercher un créateur…',
+                    hintText: l10n.feedCreatorSearch,
                     leading: const Icon(Icons.search_rounded),
                     trailing: _creatorsQuery.isNotEmpty
                         ? [
@@ -1300,7 +1308,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       children: [
                         if (_creatorsRegionId != null) ...[
                           _ActiveFilterChip(
-                            label: _creatorsRegionLabel(),
+                            label: _creatorsRegionLabel(l10n),
                             onDeleted: () =>
                                 setState(() => _creatorsRegionId = null),
                           ),
@@ -1308,7 +1316,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         ],
                         if (_creatorsSpecialty != null) ...[
                           _ActiveFilterChip(
-                            label: _creatorsSpecialtyLabel(),
+                            label: _creatorsSpecialtyLabel(l10n),
                             onDeleted: () =>
                                 setState(() => _creatorsSpecialty = null),
                           ),
@@ -1316,7 +1324,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         ],
                         if (_creatorsOrderBy != null) ...[
                           _ActiveFilterChip(
-                            label: _creatorsSortLabel(),
+                            label: _creatorsSortLabel(l10n),
                             onDeleted: () =>
                                 setState(() => _creatorsOrderBy = null),
                           ),

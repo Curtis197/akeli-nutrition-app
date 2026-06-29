@@ -7,6 +7,11 @@ import 'package:akeli/core/date_utils.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
+import 'package:akeli/core/locale_provider.dart';
+import 'package:akeli/core/unit_converter.dart';
+import 'package:akeli/core/quantity_formatter.dart';
+import 'package:akeli/core/meal_type_l10n.dart';
 import 'package:akeli/providers/meal_plan_provider.dart';
 import 'package:akeli/providers/recipe_provider.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
@@ -29,6 +34,7 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final planAsync = ref.watch(activeMealPlanProvider);
     final consumeState = ref.watch(mealConsumptionProvider);
     final consumptionOverrides = ref.watch(optimisticConsumptionProvider);
@@ -39,8 +45,8 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
 
     ref.listen(mealConsumptionProvider, (_, next) {
       if (next.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Impossible de mettre à jour le repas. Réessayez.'),
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(l10n.mealPlannerConsumptionError),
           backgroundColor: AkeliColors.error,
         ));
       } else if (next.valueOrNull != null) {
@@ -64,11 +70,11 @@ class _MealDetailPageState extends ConsumerState<MealDetailPage> {
       body: planAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
-          child: Text('Erreur: $e', style: const TextStyle(color: AkeliColors.error)),
+          child: Text(l10n.mealPlannerError(e.toString()), style: const TextStyle(color: AkeliColors.error)),
         ),
         data: (plan) {
           final entry = plan?.entries.where((e) => e.id == widget.mealId).firstOrNull;
-          if (entry == null) return const Center(child: Text('Repas introuvable'));
+          if (entry == null) return Center(child: Text(l10n.mealDetailNotFound));
 
           if (entry.recipeId != null && _recipeId != entry.recipeId) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -127,7 +133,16 @@ class _MealDetailBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    appLogger.provider('MealDetailBody build() | mealId: ${entry.id}');
+    final l10n = AppLocalizations.of(context);
+    final localeState = ref.watch(localeProvider);
+    final locale = localeState.languageCode;
+    final isUsLocale = localeState.isUsLocale;
+    final localeName = l10n.localeName;
+    appLogger.provider(
+      'MealDetailBody build() | mealId: ${entry.id} | locale: $locale | '
+      'title: "${entry.recipeTitle ?? "custom"}" | mealType: ${entry.mealType} | '
+      'calories: ${entry.calories.toInt()} | ingredients: ${entry.ingredients.length}',
+    );
 
     final isFuture = isFutureMeal(entry.scheduledDate);
     if (isFuture) appLogger.provider('MealDetailBody | future meal guard | mealId: ${entry.id} | scheduledDate: ${entry.scheduledDate}');
@@ -202,7 +217,7 @@ class _MealDetailBody extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            entry.mealTypeLabel.toUpperCase(),
+                            mealTypeLabel(l10n, entry.mealType).toUpperCase(),
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -212,7 +227,7 @@ class _MealDetailBody extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            entry.recipeTitle ?? 'Repas',
+                            entry.localizedTitle(locale) ?? 'Repas',
                             style: GoogleFonts.plusJakartaSans(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -252,7 +267,7 @@ class _MealDetailBody extends ConsumerWidget {
                               icon: Icons.schedule,
                               iconColor: AkeliColors.primary,
                               label: entry.totalTimeMin != null
-                                  ? '${entry.totalTimeMin} min'
+                                  ? '${entry.totalTimeMin} ${l10n.recipeDetailMin}'
                                   : '--',
                             ),
                             _QuickInfo(
@@ -303,7 +318,7 @@ class _MealDetailBody extends ConsumerWidget {
                                         ),
                                   const SizedBox(width: 12),
                                   Text(
-                                    entry.isConsumed ? 'Repas consommé' : 'Marquer comme consommé',
+                                    entry.isConsumed ? l10n.mealDetailConsumed : l10n.mealDetailMarkConsumed,
                                     style: GoogleFonts.inter(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
@@ -325,11 +340,11 @@ class _MealDetailBody extends ConsumerWidget {
                         // Macros
                         Row(
                           children: [
-                            Expanded(child: _MacroBox(label: 'PROTÉINES', value: '${entry.proteinG.toInt()}g')),
+                            Expanded(child: _MacroBox(label: l10n.nutritionProtein.toUpperCase(), value: '${entry.proteinG.toInt()}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'GLUCIDES', value: '${entry.carbsG.toInt()}g')),
+                            Expanded(child: _MacroBox(label: l10n.nutritionCarbs.toUpperCase(), value: '${entry.carbsG.toInt()}g')),
                             const SizedBox(width: 12),
-                            Expanded(child: _MacroBox(label: 'LIPIDES', value: '${entry.fatG.toInt()}g')),
+                            Expanded(child: _MacroBox(label: l10n.nutritionFat.toUpperCase(), value: '${entry.fatG.toInt()}g')),
                           ],
                         ),
                       ],
@@ -356,7 +371,7 @@ class _MealDetailBody extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Ingrédients',
+                              l10n.recipeDetailIngredients,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
@@ -368,6 +383,9 @@ class _MealDetailBody extends ConsumerWidget {
                         const SizedBox(height: 24),
                         ...entry.ingredients.map((ing) {
                           final canShowDetail = ing.ingredientId != null;
+                          final displayName = locale == 'en' && ing.ingredientNameEn != null
+                              ? ing.ingredientNameEn!
+                              : ing.ingredientName;
                           return Container(
                             margin: const EdgeInsets.only(bottom: 8),
                             padding: const EdgeInsets.all(12),
@@ -376,17 +394,28 @@ class _MealDetailBody extends ConsumerWidget {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    ing.ingredientName,
+                                    displayName,
                                     style: GoogleFonts.inter(
                                       fontSize: 15,
                                       color: AkeliColors.onSurface,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  ing.quantityDisplay,
-                                  style: GoogleFonts.inter(
+                                 const SizedBox(width: 12),
+                                 Text(
+                                   (() {
+                                      final displayQty = isUsLocale
+                                          ? UnitConverter.toImperial(ing.quantity, ing.unit)
+                                          : (quantity: ing.quantity, unit: ing.unit);
+                                      return formatQuantity(
+                                        displayQty.quantity,
+                                        displayQty.unit,
+                                        locale: localeName,
+                                        ingredientId: ing.ingredientId,
+                                        ingredientName: ing.ingredientName,
+                                      );
+                                    })(),
+                                   style: GoogleFonts.inter(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                     color: AkeliColors.accentAmber,
@@ -404,8 +433,9 @@ class _MealDetailBody extends ConsumerWidget {
                                       IngredientDetailSheet.show(
                                         context,
                                         RecipeIngredient(
+                                          id: '',
                                           ingredientId: ing.ingredientId!,
-                                          name: ing.ingredientName,
+                                          name: displayName,
                                           quantity: ing.quantity,
                                           unit: ing.unit,
                                           isOptional: false,
@@ -421,6 +451,103 @@ class _MealDetailBody extends ConsumerWidget {
                       ],
                     ),
                   ),
+                ),
+
+              // ── RECIPE INGREDIENTS (recipe-linked, non-batch, no meal_ingredient rows) ──
+              if (recipeAsync != null && !isBatch && entry.ingredients.isEmpty)
+                recipeAsync.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (_, __) => const SizedBox.shrink(),
+                  data: (recipe) {
+                    if (recipe == null || recipe.ingredients.isEmpty) return const SizedBox.shrink();
+                    final displayIngredients = recipe.ingredients
+                        .where((i) => !i.isSectionHeader)
+                        .toList();
+                    if (displayIngredients.isEmpty) return const SizedBox.shrink();
+                    appLogger.provider(
+                      'MealDetailBody | recipe ingredients | mealId: ${entry.id} | '
+                      'ingredients: ${displayIngredients.length} | recipeId: ${recipe.id}',
+                    );
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: AkeliColors.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                          boxShadow: const [BoxShadow(color: Color(0x051B1C16), blurRadius: 12, offset: Offset(0, 4))],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              l10n.recipeDetailIngredients,
+                              style: GoogleFonts.plusJakartaSans(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: AkeliColors.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            ...displayIngredients.map((ing) => Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      ing.name,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 15,
+                                        color: AkeliColors.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    (() {
+                                      final displayQty = isUsLocale
+                                          ? UnitConverter.toImperial(ing.quantity, ing.unit)
+                                          : (quantity: ing.quantity, unit: ing.unit);
+                                      return formatQuantity(
+                                        displayQty.quantity,
+                                        displayQty.unit,
+                                        locale: localeName,
+                                        ingredientId: ing.ingredientId,
+                                        ingredientName: ing.name,
+                                      );
+                                    })(),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                      color: AkeliColors.accentAmber,
+                                    ),
+                                  ),
+                                  if (ing.ingredientId.isNotEmpty) ...[
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.info_outline),
+                                      color: AkeliColors.onSurfaceVariant,
+                                      onPressed: () {
+                                        appLogger.userAction('Ingredient tapped',
+                                            screen: 'MealDetailPage',
+                                            metadata: {'ingredientId': ing.ingredientId});
+                                        IngredientDetailSheet.show(context, ing);
+                                      },
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            )),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
 
               // ── BATCH SECTION (description + session link) ────
@@ -445,7 +572,7 @@ class _MealDetailBody extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Description',
+                                  l10n.mealDetailDescription,
                                   style: GoogleFonts.plusJakartaSans(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
@@ -495,6 +622,10 @@ class _MealDetailBody extends ConsumerWidget {
                   error: (_, __) => const SizedBox.shrink(),
                   data: (recipe) {
                     if (recipe == null || recipe.steps.isEmpty) return const SizedBox.shrink();
+                    appLogger.provider(
+                      'MealDetailBody | recipe steps | mealId: ${entry.id} | '
+                      'steps: ${recipe.steps.length} | recipeId: ${recipe.id}',
+                    );
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                       child: Container(
@@ -508,7 +639,7 @@ class _MealDetailBody extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Étapes',
+                              l10n.recipeDetailInstructions,
                               style: GoogleFonts.plusJakartaSans(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
@@ -611,7 +742,7 @@ class _MealDetailBody extends ConsumerWidget {
                     if (!entry.isCustomMeal)
                       _ActionButton(
                         icon: Icons.swap_horiz_rounded,
-                        label: 'Changer la recette',
+                        label: l10n.mealDetailSwapRecipe,
                         color: AkeliColors.secondary,
                         onTap: () {
                           appLogger.userAction('Swap recipe tapped', screen: 'MealDetailPage',
@@ -622,7 +753,7 @@ class _MealDetailBody extends ConsumerWidget {
                     if (!entry.isCustomMeal) const SizedBox(height: 12),
                     _ActionButton(
                       icon: Icons.edit_note_rounded,
-                      label: 'Repas personnel (IA)',
+                      label: l10n.mealDetailPersonalMeal,
                       color: AkeliColors.primary,
                       onTap: () {
                         appLogger.userAction('Personal meal tapped', screen: 'MealDetailPage',
@@ -642,10 +773,10 @@ class _MealDetailBody extends ConsumerWidget {
                           ? Icons.star_rounded
                           : Icons.star_border_rounded,
                       label: !entry.isConsumed
-                          ? 'Consommez d\'abord ce repas'
+                          ? l10n.mealDetailConsumeFirst
                           : entry.isRated
-                              ? 'Modifier votre avis'
-                              : 'Laisser un avis',
+                              ? l10n.mealDetailEditReview
+                              : l10n.mealDetailLeaveReview,
                       color: AkeliColors.accentAmber,
                       onTap: entry.isConsumed
                           ? () {
@@ -672,7 +803,7 @@ class _MealDetailBody extends ConsumerWidget {
                           pageContext.push(AkeliRoutes.recipeDetailPath(entry.recipeId!));
                         },
                         icon: const Icon(Icons.open_in_new, size: 16),
-                        label: const Text('Voir la recette complète'),
+                        label: Text(l10n.mealDetailViewFullRecipe),
                         style: TextButton.styleFrom(foregroundColor: AkeliColors.onSurfaceVariant),
                       ),
                     ],
@@ -832,7 +963,7 @@ class _BatchSessionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    const portionsText = 'Session de cuisine batch';
+    final l10n = AppLocalizations.of(context);
 
     return GestureDetector(
       onTap: onTap,
@@ -864,7 +995,7 @@ class _BatchSessionCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Préparation batch',
+                    l10n.mealDetailBatchPrep,
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -873,7 +1004,7 @@ class _BatchSessionCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    portionsText,
+                    l10n.mealDetailBatchSession,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       color: AkeliColors.onSurfaceVariant,

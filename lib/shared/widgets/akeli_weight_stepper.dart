@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/core/unit_converter.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
 class AkeliWeightStepper extends StatelessWidget {
   final double weight;
+  final bool isUs;
   final ValueChanged<double> onChanged;
 
   const AkeliWeightStepper({
     super.key,
     required this.weight,
+    required this.isUs,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final displayWeight = isUs ? UnitConverter.kgToLb(weight) : weight;
+    final displayUnit = isUs ? l10n.unitPounds : l10n.unitKilograms;
+
     return Container(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       decoration: BoxDecoration(
@@ -35,10 +43,11 @@ class AkeliWeightStepper extends StatelessWidget {
           _StepperButton(
             icon: Icons.remove,
             onPressed: () {
-              final newWeight = double.parse((weight - 0.1).toStringAsFixed(1));
+              final newDisplayWeight = double.parse((displayWeight - 0.1).toStringAsFixed(1));
+              final newWeightKg = isUs ? UnitConverter.lbToKg(newDisplayWeight) : newDisplayWeight;
               _logger.userAction('Weight stepper −', screen: 'AkeliWeightStepper',
-                  metadata: {'from': weight, 'to': newWeight});
-              onChanged(newWeight);
+                  metadata: {'from': weight, 'to': newWeightKg, 'displayFrom': displayWeight, 'displayTo': newDisplayWeight});
+              onChanged(newWeightKg);
             },
             isActive: false,
           ),
@@ -47,7 +56,7 @@ class AkeliWeightStepper extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                weight.toStringAsFixed(1),
+                displayWeight.toStringAsFixed(1),
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
                       color: AkeliColors.primaryContainer,
                       fontWeight: FontWeight.w900,
@@ -56,7 +65,7 @@ class AkeliWeightStepper extends StatelessWidget {
                     ),
               ),
               Text(
-                'KILOGRAMMES',
+                displayUnit,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
                       color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w800,
@@ -69,10 +78,11 @@ class AkeliWeightStepper extends StatelessWidget {
           _StepperButton(
             icon: Icons.add,
             onPressed: () {
-              final newWeight = double.parse((weight + 0.1).toStringAsFixed(1));
+              final newDisplayWeight = double.parse((displayWeight + 0.1).toStringAsFixed(1));
+              final newWeightKg = isUs ? UnitConverter.lbToKg(newDisplayWeight) : newDisplayWeight;
               _logger.userAction('Weight stepper +', screen: 'AkeliWeightStepper',
-                  metadata: {'from': weight, 'to': newWeight});
-              onChanged(newWeight);
+                  metadata: {'from': weight, 'to': newWeightKg, 'displayFrom': displayWeight, 'displayTo': newDisplayWeight});
+              onChanged(newWeightKg);
             },
             isActive: true,
           ),

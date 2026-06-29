@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/logger.dart';
+import '../../l10n/app_localizations.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
@@ -38,6 +39,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final currentUser = ref.watch(currentUserProvider);
     final isCurrentUser = widget.userId == null || widget.userId == currentUser?.id;
 
@@ -95,7 +97,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                     ),
                   ),
                   Text(
-                    displayProfile?.displayName ?? 'Profil',
+                    displayProfile?.displayName ?? l10n.profileTitle,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -131,7 +133,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
               : targetProfileAsync ?? const AsyncValue.loading())
           .when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Erreur: $err')),
+        error: (err, _) => Center(child: Text(l10n.profileLoadError(err.toString()))),
         data: (_) => SingleChildScrollView(
           child: Column(
             children: [
@@ -207,9 +209,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                         const SizedBox(height: 24),
                         // Identity
                         Text(
-                          displayProfile?.displayName.isNotEmpty == true 
-                              ? displayProfile!.displayName 
-                              : 'Utilisateur',
+                          displayProfile?.displayName.isNotEmpty == true
+                              ? displayProfile!.displayName
+                              : l10n.profileDefaultName,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -264,19 +266,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                                 ref.invalidate(conversationStateProvider(widget.userId!));
                                                 if (context.mounted) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text('Demande envoyée')),
+                                                    SnackBar(content: Text(l10n.profileMessageSent)),
                                                   );
                                                 }
                                               } catch (e) {
                                                 if (context.mounted) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(content: Text('Erreur lors de l\'envoi de la demande')),
+                                                    SnackBar(content: Text(l10n.profileMessageError)),
                                                   );
                                                 }
                                               }
                                             },
                                             icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20, color: Colors.white),
-                                            label: Text('Démarrer une conversation', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            label: Text(l10n.profileStartConversation, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
                                             style: FilledButton.styleFrom(
                                               backgroundColor: Colors.transparent,
                                               shadowColor: Colors.transparent,
@@ -295,7 +297,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                         child: OutlinedButton.icon(
                                           onPressed: null,
                                           icon: const Icon(Icons.access_time_rounded, size: 20),
-                                          label: Text('En attente', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                                          label: Text(l10n.profilePending, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: AkeliColors.textSecondary,
                                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -323,7 +325,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                               context.push(AkeliRoutes.dmChatPath(convState.conversationId!), extra: displayProfile?.displayName ?? '');
                                             },
                                             icon: const Icon(Icons.chat_bubble_rounded, size: 20, color: Colors.white),
-                                            label: Text('Message', style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
+                                            label: Text(l10n.profileMessage, style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: Colors.white)),
                                             style: FilledButton.styleFrom(
                                               backgroundColor: Colors.transparent,
                                               shadowColor: Colors.transparent,
@@ -340,12 +342,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                           showDialog(
                                             context: context,
                                             builder: (ctx) => AlertDialog(
-                                              title: const Text('Fermer la conversation ?'),
-                                              content: const Text("Vous quitterez cette conversation. L'autre utilisateur gardera son historique."),
+                                              title: Text(l10n.profileCloseConversationTitle),
+                                              content: Text(l10n.profileCloseConversationContent),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () => Navigator.pop(ctx),
-                                                  child: const Text('Annuler'),
+                                                  child: Text(l10n.commonCancel),
                                                 ),
                                                 TextButton(
                                                   style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
@@ -356,18 +358,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                                       ref.invalidate(conversationStateProvider(widget.userId!));
                                                       if (context.mounted) {
                                                         ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(content: Text('Conversation fermée')),
+                                                          SnackBar(content: Text(l10n.profileConversationClosed)),
                                                         );
                                                       }
                                                     } catch (e) {
                                                       if (context.mounted) {
                                                         ScaffoldMessenger.of(context).showSnackBar(
-                                                          const SnackBar(content: Text('Erreur lors de la fermeture')),
+                                                          SnackBar(content: Text(l10n.profileCloseError)),
                                                         );
                                                       }
                                                     }
                                                   },
-                                                  child: const Text('Fermer'),
+                                                  child: Text(l10n.commonClose),
                                                 ),
                                               ],
                                             ),
@@ -411,7 +413,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                       const Icon(Icons.lock_outline_rounded, size: 48, color: AkeliColors.onSurfaceVariant),
                       const SizedBox(height: 16),
                       Text(
-                        'Ce profil est privé',
+                        l10n.profilePrivateTitle,
                         style: GoogleFonts.plusJakartaSans(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -420,7 +422,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Envoyez un message pour vous connecter.',
+                        l10n.profilePrivateMessage,
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           color: AkeliColors.onSurfaceVariant,
@@ -465,10 +467,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                         splashFactory: NoSplash.splashFactory,
                         padding: EdgeInsets.zero,
                         labelPadding: const EdgeInsets.symmetric(horizontal: 24),
-                        tabs: const [
-                          Tab(text: 'Recettes'),
-                          Tab(text: 'Commentaires'),
-                          Tab(text: 'Groupes'),
+                        tabs: [
+                          Tab(text: l10n.profileTabRecipes),
+                          Tab(text: l10n.profileTabComments),
+                          Tab(text: l10n.profileTabGroups),
                         ],
                       ),
                       const SizedBox(height: 24),
@@ -481,13 +483,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                             // Recettes Tab
                             userLikedRecipesAsync.when(
                               loading: () => const Center(child: CircularProgressIndicator()),
-                              error: (_, __) => const Center(
-                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              error: (_, __) => Center(
+                                child: Text(l10n.profileLoadError2, style: const TextStyle(color: AkeliColors.outline)),
                               ),
                               data: (recipes) {
                                 if (recipes.isEmpty) {
-                                  return const Center(
-                                    child: Text('Aucune recette aimée', style: TextStyle(color: AkeliColors.outline)),
+                                  return Center(
+                                    child: Text(l10n.profileNoLikedRecipes, style: const TextStyle(color: AkeliColors.outline)),
                                   );
                                 }
                                 return ListView.separated(
@@ -514,13 +516,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                             // Commentaires Tab
                             userCommentsAsync.when(
                               loading: () => const Center(child: CircularProgressIndicator()),
-                              error: (_, __) => const Center(
-                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              error: (_, __) => Center(
+                                child: Text(l10n.profileLoadError2, style: const TextStyle(color: AkeliColors.outline)),
                               ),
                               data: (comments) {
                                 if (comments.isEmpty) {
-                                  return const Center(
-                                    child: Text('Aucun commentaire', style: TextStyle(color: AkeliColors.outline)),
+                                  return Center(
+                                    child: Text(l10n.profileNoComments, style: const TextStyle(color: AkeliColors.outline)),
                                   );
                                 }
                                 return ListView.separated(
@@ -530,7 +532,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                   itemBuilder: (context, index) {
                                     final c = comments[index];
                                     final recipe = c['recipe'] as Map<String, dynamic>?;
-                                    final recipeTitle = recipe?['title'] as String? ?? 'Recette inconnue';
+                                    final recipeTitle = recipe?['title'] as String? ?? l10n.profileUnknownRecipe;
                                     final recipeImage = recipe?['cover_image_url'] as String? ?? '';
                                     final content = c['content'] as String? ?? '';
                                     final rating = c['rating'] as int?;
@@ -548,13 +550,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                             // Groupes Tab
                             userGroupsAsync.when(
                               loading: () => const Center(child: CircularProgressIndicator()),
-                              error: (_, __) => const Center(
-                                child: Text('Erreur de chargement', style: TextStyle(color: AkeliColors.outline)),
+                              error: (_, __) => Center(
+                                child: Text(l10n.profileLoadError2, style: const TextStyle(color: AkeliColors.outline)),
                               ),
                               data: (groups) {
                                 if (groups.isEmpty) {
-                                  return const Center(
-                                    child: Text('Aucun groupe', style: TextStyle(color: AkeliColors.outline)),
+                                  return Center(
+                                    child: Text(l10n.profileNoGroups, style: const TextStyle(color: AkeliColors.outline)),
                                   );
                                 }
                                 return ListView.separated(
@@ -564,7 +566,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                   itemBuilder: (context, index) {
                                     final g = groups[index];
                                     final groupId = g['id'] as String;
-                                    final title = g['name'] as String? ?? 'Groupe';
+                                    final title = g['name'] as String? ?? l10n.profileGroupDefault;
                                     final isPrivate = g['is_private'] as bool? ?? false;
                                     final memberCount = g['member_count'] as int? ?? 0;
                                     
@@ -789,6 +791,7 @@ class _ProfileGroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -833,7 +836,7 @@ class _ProfileGroupCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '$memberCount membre${memberCount > 1 ? 's' : ''}',
+                  l10n.profileMemberCount(memberCount),
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: AkeliColors.onSurfaceVariant,

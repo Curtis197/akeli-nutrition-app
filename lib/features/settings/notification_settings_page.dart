@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/providers/notification_prefs_provider.dart';
 
 class NotificationSettingsPage extends ConsumerWidget {
@@ -13,6 +14,7 @@ class NotificationSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     appLogger.provider('NotificationSettingsPage build()');
+    final l10n = AppLocalizations.of(context);
 
     final loaderAsync = ref.watch(notificationPrefsLoader);
     final prefs = ref.watch(notificationPrefsProvider);
@@ -56,9 +58,9 @@ class NotificationSettingsPage extends ConsumerWidget {
                       },
                     ),
                   ),
-                  const Text(
-                    'Notifications',
-                    style: TextStyle(
+                  Text(
+                    l10n.notificationSettingsTitle,
+                    style: const TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -77,10 +79,10 @@ class NotificationSettingsPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) {
           appLogger.provider('NotificationSettingsPage → error | $e');
-          return const Center(
+          return Center(
             child: Text(
-              'Impossible de charger les préférences.',
-              style: TextStyle(color: AkeliColors.onSurfaceVariant),
+              l10n.notifLoadError,
+              style: const TextStyle(color: AkeliColors.onSurfaceVariant),
             ),
           );
         },
@@ -90,9 +92,9 @@ class NotificationSettingsPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Configurez vos préférences pour rester connecté sans être submergé. La tranquillité de votre sanctuaire numérique est primordiale.',
-                  style: TextStyle(
+                Text(
+                  l10n.notifSettingsIntro,
+                  style: const TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 15,
                     height: 1.6,
@@ -117,29 +119,29 @@ class NotificationSettingsPage extends ConsumerWidget {
                     children: [
                       _NotifToggleRow(
                         icon: Icons.notifications_outlined,
-                        label: 'Push Notifications',
-                        subtitle: 'Recevez vos notifications sur votre appareil',
+                        label: l10n.notifPushLabel,
+                        subtitle: l10n.notifPushSubtitle,
                         value: prefs.pushEnabled,
                         onChanged: notifier.setPush,
                       ),
                       _NotifToggleRow(
                         icon: Icons.chat_bubble_outline_rounded,
-                        label: 'Chat',
-                        subtitle: 'Messages et conversations',
+                        label: l10n.notifChatLabel,
+                        subtitle: l10n.notifChatSubtitle,
                         value: prefs.chatEnabled,
                         onChanged: notifier.setChat,
                       ),
                       _NotifToggleRow(
                         icon: Icons.restaurant_outlined,
-                        label: 'Rappels de repas',
-                        subtitle: 'Heures de repas planifiés',
+                        label: l10n.notifMealLabel,
+                        subtitle: l10n.notifMealSubtitle,
                         value: prefs.mealRemindersEnabled,
                         onChanged: notifier.setMealReminders,
                       ),
                       _NotifToggleRow(
                         icon: Icons.person_add_outlined,
-                        label: 'Demandes de conversation',
-                        subtitle: 'Nouvelles demandes de connexion',
+                        label: l10n.notifDmLabel,
+                        subtitle: l10n.notifDmSubtitle,
                         value: prefs.dmRequestsEnabled,
                         onChanged: notifier.setDmRequests,
                       ),
@@ -241,6 +243,7 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -296,9 +299,9 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
                     child: CircularProgressIndicator(
                         strokeWidth: 2.5, color: Colors.white),
                   )
-                : const Text(
-                    'Enregistrer',
-                    style: TextStyle(
+                : Text(
+                    l10n.notificationSettingsSave,
+                    style: const TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
@@ -313,13 +316,14 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
   Future<void> _save() async {
     appLogger.userAction('Save notification prefs tapped',
         screen: 'NotificationSettingsPage');
+    final l10n = AppLocalizations.of(context);
     setState(() => _saving = true);
     try {
       await ref.read(notificationPrefsProvider.notifier).save();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Préférences enregistrées'),
+          SnackBar(
+            content: Text(l10n.preferencesSaved),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -329,8 +333,8 @@ class _SaveButtonState extends ConsumerState<_SaveButton> {
           error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erreur lors de l\'enregistrement. Réessayez.'),
+          SnackBar(
+            content: Text(l10n.preferencesError),
             behavior: SnackBarBehavior.floating,
           ),
         );

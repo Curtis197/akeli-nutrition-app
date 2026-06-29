@@ -7,6 +7,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/supabase_client.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../shared/widgets/avatar.dart';
@@ -95,13 +96,14 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
   @override
   Widget build(BuildContext context) {
     _logger.provider('CommunityPage build()');
+    final l10n = AppLocalizations.of(context);
     final pendingAsync = ref.watch(pendingDmRequestsProvider);
     final pendingCount = pendingAsync.valueOrNull?.length ?? 0;
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
-        title: const Text('Communauté'),
+        title: Text(l10n.communityTitle),
         backgroundColor: AkeliColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -117,13 +119,13 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            const Tab(text: 'Tout'),
-            const Tab(text: 'Groupes'),
+            Tab(text: l10n.communityMyGroups),
+            Tab(text: l10n.communityPublicGroups),
             Tab(
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Privés'),
+                  Text(l10n.communityPrivateGroups),
                   if (pendingCount > 0) ...[
                     const SizedBox(width: 6),
                     Container(
@@ -216,8 +218,9 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de la sélection de l\'image')),
+          SnackBar(content: Text(l10n.communityGroupImageError)),
         );
       }
     }
@@ -369,9 +372,9 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: _isLoading 
+              child: _isLoading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Créer'),
+                  : Text(AppLocalizations.of(context).communityCreateGroup),
             ),
             const SizedBox(height: AkeliSpacing.xl),
           ],
@@ -400,8 +403,8 @@ class _GroupesTab extends ConsumerWidget {
       error: (err, _) => Center(child: Text('Erreur: $err')),
       data: (groups) {
         if (groups.isEmpty) {
-          return const Center(
-            child: Text('Aucun groupe disponible pour le moment.'),
+          return Center(
+            child: Text(AppLocalizations.of(context).communityNoGroups),
           );
         }
         return ListView.builder(

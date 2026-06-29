@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/fan_mode_provider.dart';
 import '../../shared/models/creator.dart';
 import '../../shared/widgets/empty_state.dart';
@@ -12,19 +13,20 @@ class FanModePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final fanSubAsync = ref.watch(myFanSubscriptionProvider);
     appLogger.provider('FanModePage build() | isLoading: ${fanSubAsync.isLoading}');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
-        title: const Text('Mode Fan'),
+        title: Text(l10n.fanModeTitle),
         backgroundColor: AkeliColors.background,
         elevation: 0,
       ),
       body: fanSubAsync.when(
         loading: () => const LinearProgressIndicator(),
-        error: (_, __) => const Center(child: Text('Erreur de chargement')),
+        error: (_, __) => Center(child: Text(l10n.fanModeLoadError)),
         data: (sub) {
           final isFan = sub != null && (sub.isActive || sub.isPending);
           appLogger.provider('FanModePage → isFan: $isFan | status: ${sub?.status}');
@@ -45,6 +47,7 @@ class _NoFanUserView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final consumptionAsync = ref.watch(creatorConsumptionProvider);
     final creatorsAsync = ref.watch(fanEligibleCreatorsProvider);
     appLogger.provider('_NoFanUserView build()');
@@ -75,10 +78,10 @@ class _NoFanUserView extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Créateurs à soutenir',
+                Text(l10n.fanModeCreatorsTitle,
                     style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 2),
-                Text('Votre créateur dominant est mis en avant.',
+                Text(l10n.fanModeCreatorsSubtitle,
                     style: Theme.of(context)
                         .textTheme
                         .bodySmall
@@ -101,12 +104,11 @@ class _NoFanUserView extends ConsumerWidget {
           data: (creators) {
             appLogger.provider('_NoFanUserView creatorsAsync → data | count: ${creators.length}');
             if (creators.isEmpty) {
-              return const SliverToBoxAdapter(
+              return SliverToBoxAdapter(
                 child: EmptyState(
                   icon: Icons.people_outline_rounded,
-                  title: 'Aucun créateur éligible',
-                  subtitle:
-                      'Les créateurs doivent publier 30 recettes pour être éligibles.',
+                  title: l10n.fanModeNoCreatorsTitle,
+                  subtitle: l10n.fanModeNoCreatorsSubtitle,
                 ),
               );
             }
@@ -133,29 +135,27 @@ class _NoFanUserView extends ConsumerWidget {
 
   Future<void> _activateFanMode(
       BuildContext context, WidgetRef ref, Creator creator) async {
+    final l10n = AppLocalizations.of(context);
     appLogger.userAction('Activate fan mode button tapped',
         screen: 'FanModePage',
         metadata: {'creatorId': LogHelper.maskUuid(creator.id)});
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Activer le Mode Fan'),
-        content: Text(
-          'Vous allez soutenir ${creator.displayName} avec 1€/mois, '
-          'inclus dans votre abonnement Akeli.\n\n'
-          'Règle 90/10 : 90% de vos repas devront venir du catalogue de ce créateur '
-          '(max 9 recettes externes par mois).\n\n'
-          'Actif à partir du 1er du mois prochain.',
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Annuler')),
-          FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Confirmer')),
-        ],
-      ),
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(dl10n.fanModeActivateTitle),
+          content: Text(dl10n.fanModeActivateContent(creator.displayName)),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl10n.commonCancel)),
+            FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(dl10n.fanModeConfirm)),
+          ],
+        );
+      },
     );
     if (confirmed != true || !context.mounted) return;
 
@@ -166,12 +166,12 @@ class _NoFanUserView extends ConsumerWidget {
 
     if (state.hasError) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Erreur lors de l'activation.")),
+        SnackBar(content: Text(l10n.fanModeActivateError)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Vous soutenez maintenant ${creator.displayName} !'),
+          content: Text(l10n.fanModeActivateSuccess(creator.displayName)),
           backgroundColor: AkeliColors.success,
         ),
       );
@@ -185,6 +185,7 @@ class _ConsumptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final total = consumption.fold(0, (s, c) => s + c.count);
     return Container(
       margin: const EdgeInsets.all(AkeliSpacing.lg),
@@ -196,15 +197,15 @@ class _ConsumptionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Vos recettes ce mois',
-              style: TextStyle(
+          Text(l10n.fanModeRecipesThisMonth,
+              style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AkeliColors.textSecondary,
                   letterSpacing: 0.7)),
           const SizedBox(height: AkeliSpacing.sm),
           if (consumption.isEmpty)
-            Text('Aucune recette enregistrée ce mois',
+            Text(l10n.fanModeNoRecipesThisMonth,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium
@@ -221,7 +222,7 @@ class _ConsumptionCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('🍽 ', style: TextStyle(fontSize: 13)),
-                  Text('$total repas enregistrés',
+                  Text(l10n.fanModeTotalMeals(total),
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
@@ -322,6 +323,7 @@ class _EligibleCreatorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     appLogger.provider('_EligibleCreatorCard build() | creatorId: ${creator.id} | isDominant: $isDominant');
     return Card(
       margin: const EdgeInsets.symmetric(
@@ -369,7 +371,7 @@ class _EligibleCreatorCard extends StatelessWidget {
                         const Icon(Icons.restaurant_menu_rounded,
                             size: 12, color: AkeliColors.textSecondary),
                         const SizedBox(width: 2),
-                        Text('${creator.recipeCount} recettes',
+                        Text(l10n.fanModeRecipeCount(creator.recipeCount),
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
@@ -378,7 +380,7 @@ class _EligibleCreatorCard extends StatelessWidget {
                         const Icon(Icons.people_outline_rounded,
                             size: 12, color: AkeliColors.textSecondary),
                         const SizedBox(width: 2),
-                        Text('${creator.fanCount} fans',
+                        Text(l10n.fanModeFanCount(creator.fanCount),
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
@@ -397,7 +399,7 @@ class _EligibleCreatorCard extends StatelessWidget {
                 style: FilledButton.styleFrom(
                   backgroundColor: isDominant ? AkeliColors.primary : null,
                 ),
-                child: const Text('Soutenir'),
+                child: Text(l10n.fanModeSupport),
               ),
             ),
           ],
@@ -417,6 +419,7 @@ class _FanUserView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final extCounterAsync = ref.watch(fanExternalCounterProvider);
     final creatorAsync = ref.watch(creatorProfileProvider(sub.creatorId));
     appLogger.provider('_FanUserView build() | status: ${sub.status}');
@@ -449,7 +452,7 @@ class _FanUserView extends ConsumerWidget {
               side: const BorderSide(color: AkeliColors.error),
               minimumSize: const Size(double.infinity, 48),
             ),
-            child: const Text('Quitter le Mode Fan'),
+            child: Text(l10n.fanModeQuit),
           ),
         ],
       ),
@@ -457,25 +460,27 @@ class _FanUserView extends ConsumerWidget {
   }
 
   Future<void> _cancelFanMode(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     appLogger.userAction('Cancel fan mode button tapped', screen: 'FanModePage');
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Quitter le Mode Fan'),
-        content: const Text(
-            'Votre soutien se terminera à la fin du mois en cours.'),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Garder')),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(
-                backgroundColor: AkeliColors.error),
-            child: const Text('Quitter'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(dl10n.fanModeQuit),
+          content: Text(dl10n.fanModeQuitContent),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(dl10n.fanModeKeep)),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: FilledButton.styleFrom(backgroundColor: AkeliColors.error),
+              child: Text(dl10n.fanModeQuitConfirm),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true || !context.mounted) return;
 
@@ -484,7 +489,7 @@ class _FanUserView extends ConsumerWidget {
     if (!context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Mode Fan annulé.')),
+      SnackBar(content: Text(l10n.fanModeCancelled)),
     );
   }
 }
@@ -496,6 +501,7 @@ class _StatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isPending = sub.isPending;
     final bannerColor =
         isPending ? const Color(0xFFFBBF24) : AkeliColors.primary;
@@ -552,8 +558,8 @@ class _StatusBanner extends StatelessWidget {
                       horizontal: AkeliSpacing.sm, vertical: 2),
                   child: Text(
                     isPending
-                        ? '⏳ Actif le 1er du mois prochain'
-                        : '❤️ Mode Fan actif',
+                        ? l10n.fanModeStatusPending
+                        : l10n.fanModeStatusActive,
                     style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -581,6 +587,7 @@ class _ExternalCounterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       decoration: BoxDecoration(
@@ -590,9 +597,9 @@ class _ExternalCounterCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Recettes externes ce mois',
-            style: TextStyle(
+          Text(
+            l10n.fanModeExternalTitle,
+            style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AkeliColors.textSecondary,
@@ -603,7 +610,7 @@ class _ExternalCounterCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Recettes hors catalogue',
+                  l10n.fanModeExternalSubtitle,
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
@@ -653,7 +660,8 @@ class _FanExplanationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = creator?.displayName ?? 'votre créateur';
+    final l10n = AppLocalizations.of(context);
+    final name = creator?.displayName ?? l10n.fanModeDefaultCreator;
     return Container(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       decoration: BoxDecoration(
@@ -663,9 +671,9 @@ class _FanExplanationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Engagement Mode Fan',
-            style: TextStyle(
+          Text(
+            l10n.fanModeEngagementTitle,
+            style: const TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: AkeliColors.textSecondary,
@@ -679,27 +687,25 @@ class _FanExplanationCard extends StatelessWidget {
                   color: AkeliColors.textSecondary,
                   height: 1.6),
               children: [
-                const TextSpan(text: 'Vous soutenez '),
+                TextSpan(text: l10n.fanModeEngagementYouSupport),
                 TextSpan(
                     text: name,
                     style: const TextStyle(
                         color: AkeliColors.onSurface,
                         fontWeight: FontWeight.w600)),
-                const TextSpan(text: ' avec '),
-                const TextSpan(
-                    text: '1€/mois garanti',
-                    style: TextStyle(
+                TextSpan(text: l10n.fanModeEngagementWith),
+                TextSpan(
+                    text: l10n.fanModeEngagementGuaranteed,
+                    style: const TextStyle(
                         color: AkeliColors.onSurface,
                         fontWeight: FontWeight.w600)),
-                const TextSpan(
-                    text:
-                        ', inclus dans votre abonnement.\n\nRègle 90/10 : 90% de vos repas doivent venir du catalogue de ce créateur. Vous pouvez utiliser jusqu\'à '),
-                const TextSpan(
-                    text: '9 recettes externes',
-                    style: TextStyle(
+                TextSpan(text: l10n.fanModeEngagementIncluded),
+                TextSpan(
+                    text: l10n.fanModeEngagementExternalCount,
+                    style: const TextStyle(
                         color: AkeliColors.onSurface,
                         fontWeight: FontWeight.w600)),
-                const TextSpan(text: ' par mois.'),
+                TextSpan(text: l10n.fanModeEngagementPerMonth),
               ],
             ),
           ),

@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import '../../core/logger.dart';
+import '../../l10n/app_localizations.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -48,6 +49,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   Future<void> _signUp() async {
+    final l10n = AppLocalizations.of(context);
     _logger.userAction('Sign-up form submitted', screen: 'AuthPage',
         metadata: {'email_masked': LogHelper.maskEmail(_signUpEmail.text.trim())});
     _logger.auth('signUp triggered from AuthPage | email: ${LogHelper.maskEmail(_signUpEmail.text.trim())}');
@@ -62,7 +64,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
       _logger.auth('signUp ERROR displayed to user | error: ${s.error}');
-      setState(() => _errorMessage = _friendly(s.error.toString()));
+      setState(() => _errorMessage = _friendly(s.error.toString(), l10n));
     } else {
       _logger.auth('signUp SUCCESS | navigating to onboarding');
       context.go(AkeliRoutes.onboarding);
@@ -70,6 +72,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   }
 
   Future<void> _signIn() async {
+    final l10n = AppLocalizations.of(context);
     _logger.userAction('Login form submitted', screen: 'AuthPage',
         metadata: {'email_masked': LogHelper.maskEmail(_loginEmail.text.trim())});
     _logger.auth('signIn triggered from AuthPage | email: ${LogHelper.maskEmail(_loginEmail.text.trim())}');
@@ -83,27 +86,28 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     final s = ref.read(authNotifierProvider);
     if (s.hasError) {
       _logger.auth('signIn ERROR displayed to user | error: ${s.error}');
-      setState(() => _errorMessage = _friendly(s.error.toString()));
+      setState(() => _errorMessage = _friendly(s.error.toString(), l10n));
     } else {
       _logger.auth('signIn SUCCESS | router redirect will handle navigation');
     }
   }
 
-  String _friendly(String raw) {
-    if (raw.contains('Invalid login credentials')) return 'Email ou mot de passe incorrect.';
-    if (raw.contains('User already registered')) return 'Cet email est déjà utilisé.';
-    if (raw.contains('Password should be')) return 'Le mot de passe doit contenir au moins 6 caractères.';
+  String _friendly(String raw, AppLocalizations l10n) {
+    if (raw.contains('Invalid login credentials')) return l10n.authErrorInvalidCredentials;
+    if (raw.contains('User already registered')) return l10n.authErrorEmailInUse;
+    if (raw.contains('Password should be')) return l10n.authErrorPasswordShort;
     if (raw.contains('email_not_confirmed') ||
         raw.toLowerCase().contains('email not confirmed')) {
-      return 'Veuillez confirmer votre adresse email avant de vous connecter.';
+      return l10n.authErrorEmailNotConfirmed;
     }
-    return 'Une erreur est survenue. Réessayez.';
+    return l10n.authErrorGeneric;
   }
 
   @override
   Widget build(BuildContext context) {
     _logger.provider('_AuthPageState build() | tab: ${_isLogin ? "login" : "signup"}');
     final isLoading = ref.watch(authNotifierProvider).isLoading;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AkeliColors.background,
       body: SafeArea(
@@ -125,7 +129,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Bienvenue sur Akeli',
+                l10n.authWelcome,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: AkeliSpacing.xl),
@@ -234,16 +238,17 @@ class _PillTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         _Tab(
-          label: "S'inscrire",
+          label: l10n.authSignUp,
           active: !isLogin,
           onTap: () => onToggle(false),
         ),
         const SizedBox(width: AkeliSpacing.sm),
         _Tab(
-          label: 'Se connecter',
+          label: l10n.authLogIn,
           active: isLogin,
           onTap: () => onToggle(true),
         ),
@@ -356,66 +361,65 @@ class _SignUpForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Form(
       key: formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Créer votre compte',
+            l10n.authCreateAccount,
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
-            'Rejoignez la communauté Akeli',
+            l10n.authJoinCommunity,
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AkeliSpacing.xl),
           _AuthField(
             controller: emailCtrl,
-            placeholder: 'Entrez votre email',
+            placeholder: l10n.authEmailPlaceholder,
             icon: Icons.mail_outline_rounded,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Email requis';
-              if (!v.contains('@')) return 'Email invalide';
+              if (v == null || v.isEmpty) return l10n.authEmailRequired;
+              if (!v.contains('@')) return l10n.authEmailInvalid;
               return null;
             },
           ),
           const SizedBox(height: AkeliSpacing.md),
           _AuthField(
             controller: passwordCtrl,
-            placeholder: 'Créez un mot de passe',
+            placeholder: l10n.authPasswordCreate,
             icon: Icons.lock_outline_rounded,
             obscureText: !passwordVisible,
             suffixIcon: _VisibilityToggle(
                 visible: passwordVisible, onTap: onTogglePassword),
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Mot de passe requis';
-              if (v.length < 8) return 'Minimum 8 caractères';
+              if (v == null || v.isEmpty) return l10n.authPasswordRequired;
+              if (v.length < 8) return l10n.authPasswordMinLength;
               return null;
             },
           ),
           const SizedBox(height: AkeliSpacing.md),
           _AuthField(
             controller: confirmCtrl,
-            placeholder: 'Confirmez le mot de passe',
+            placeholder: l10n.authConfirmPassword,
             icon: Icons.lock_outline_rounded,
             obscureText: !confirmVisible,
             suffixIcon: _VisibilityToggle(
                 visible: confirmVisible, onTap: onToggleConfirm),
             validator: (v) {
-              if (v != passwordCtrl.text) {
-                return 'Les mots de passe ne correspondent pas';
-              }
+              if (v != passwordCtrl.text) return l10n.authPasswordMismatch;
               return null;
             },
           ),
           const SizedBox(height: AkeliSpacing.xl),
           AkeliGradientButton(
-            label: 'Commencer',
+            label: l10n.authGetStarted,
             onPressed: onSubmit,
             isLoading: isLoading,
           ),
@@ -451,43 +455,44 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Form(
       key: formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Heureux de vous revoir !',
+            l10n.authWelcomeBack,
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 4),
           Text(
-            'Connectez-vous à votre compte',
+            l10n.authSignInToAccount,
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: AkeliSpacing.xl),
           _AuthField(
             controller: emailCtrl,
-            placeholder: 'Email',
+            placeholder: l10n.authEmailField,
             icon: Icons.mail_outline_rounded,
             keyboardType: TextInputType.emailAddress,
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Email requis';
+              if (v == null || v.isEmpty) return l10n.authEmailRequired;
               return null;
             },
           ),
           const SizedBox(height: AkeliSpacing.md),
           _AuthField(
             controller: passwordCtrl,
-            placeholder: 'Mot de passe',
+            placeholder: l10n.authPasswordField,
             icon: Icons.lock_outline_rounded,
             obscureText: !passwordVisible,
             suffixIcon: _VisibilityToggle(
                 visible: passwordVisible, onTap: onTogglePassword),
             validator: (v) {
-              if (v == null || v.isEmpty) return 'Mot de passe requis';
+              if (v == null || v.isEmpty) return l10n.authPasswordRequired;
               return null;
             },
           ),
@@ -495,9 +500,7 @@ class _LoginForm extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text(
-                        'Réinitialisation du mot de passe — bientôt disponible')),
+                SnackBar(content: Text(l10n.authPasswordReset)),
               ),
               style: TextButton.styleFrom(
                 foregroundColor: AkeliColors.primary,
@@ -505,7 +508,7 @@ class _LoginForm extends StatelessWidget {
                     vertical: AkeliSpacing.sm),
               ),
               child: Text(
-                'Mot de passe oublié ?',
+                l10n.authForgotPassword,
                 style: GoogleFonts.inter(
                     fontSize: 13, fontWeight: FontWeight.w500),
               ),
@@ -513,7 +516,7 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: AkeliSpacing.sm),
           AkeliGradientButton(
-            label: 'Se connecter',
+            label: l10n.authSignIn,
             onPressed: onSubmit,
             isLoading: isLoading,
           ),

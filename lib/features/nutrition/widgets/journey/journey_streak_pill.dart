@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/shared/models/journey_stats.dart';
 
 final _logger = appLogger;
@@ -13,6 +14,7 @@ class JourneyStreakPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _logger.provider('JourneyStreakPill build()');
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -28,18 +30,13 @@ class JourneyStreakPill extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${stats.currentStreak}',
+                l10n.journeyStreak(stats.currentStreak),
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
                   color: AkeliColors.onSurface,
                   height: 1,
                 ),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'jours · objectif calorique',
-                style: TextStyle(fontSize: 11, color: AkeliColors.onSurfaceVariant),
               ),
             ],
           ),
@@ -55,9 +52,9 @@ class JourneyStreakPill extends StatelessWidget {
                   color: AkeliColors.primary,
                 ),
               ),
-              const Text(
-                'Record',
-                style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant),
+              Text(
+                l10n.journeyBestStreakRecord,
+                style: const TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant),
               ),
             ],
           ),

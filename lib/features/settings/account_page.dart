@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 
 class AccountPage extends ConsumerStatefulWidget {
@@ -47,6 +48,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final user = Supabase.instance.client.auth.currentUser;
     final email = user?.email ?? '';
     _logger.provider('AccountPage build() | email: ${LogHelper.maskEmail(email)}');
@@ -87,9 +89,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                       },
                     ),
                   ),
-                  const Text(
-                    'Mon compte',
-                    style: TextStyle(
+                  Text(
+                    l10n.accountTitle,
+                    style: const TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -114,41 +116,39 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Email section
             _SectionCard(
-              title: 'Informations',
+              title: l10n.accountInfoSection,
               child: _InfoRow(
                 icon: Icons.email_outlined,
-                label: 'Adresse e-mail',
+                label: l10n.accountEmail,
                 value: email,
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Password section
             _SectionCard(
-              title: 'Mot de passe',
+              title: l10n.accountPasswordSection,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _PasswordField(
                     controller: _currentPasswordCtrl,
-                    label: 'Mot de passe actuel',
+                    label: l10n.accountCurrentPassword,
                     obscure: _obscureCurrent,
                     onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
                   ),
                   const SizedBox(height: 12),
                   _PasswordField(
                     controller: _newPasswordCtrl,
-                    label: 'Nouveau mot de passe',
+                    label: l10n.accountNewPassword,
                     obscure: _obscureNew,
                     onToggle: () => setState(() => _obscureNew = !_obscureNew),
                   ),
                   const SizedBox(height: 12),
                   _PasswordField(
                     controller: _confirmPasswordCtrl,
-                    label: 'Confirmer le mot de passe',
+                    label: l10n.accountConfirmPassword,
                     obscure: _obscureConfirm,
                     onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
                   ),
@@ -174,7 +174,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('Mettre à jour', style: TextStyle(fontWeight: FontWeight.bold)),
+                        : Text(l10n.accountUpdatePassword,
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -182,16 +183,15 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
             const SizedBox(height: 24),
 
-            // Danger zone
             _SectionCard(
-              title: 'Zone dangereuse',
+              title: l10n.accountDangerZone,
               titleColor: AkeliColors.error,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'La suppression de votre compte est irréversible. Toutes vos données seront effacées définitivement.',
-                    style: TextStyle(
+                  Text(
+                    l10n.accountDeleteConfirmContent,
+                    style: const TextStyle(
                       fontSize: 13,
                       color: AkeliColors.onSurfaceVariant,
                     ),
@@ -206,7 +206,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.delete_forever_rounded),
-                    label: const Text('Supprimer mon compte', style: TextStyle(fontWeight: FontWeight.bold)),
+                    label: Text(l10n.accountDeleteAccount,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AkeliColors.error,
                       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -225,6 +226,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   Future<void> _updatePassword() async {
     _logger.userAction('Update password button tapped', screen: 'AccountPage');
+    final l10n = AppLocalizations.of(context);
     setState(() => _passwordError = null);
 
     final current = _currentPasswordCtrl.text.trim();
@@ -232,15 +234,15 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     final confirm = _confirmPasswordCtrl.text.trim();
 
     if (current.isEmpty || next.isEmpty || confirm.isEmpty) {
-      setState(() => _passwordError = 'Veuillez remplir tous les champs.');
+      setState(() => _passwordError = l10n.accountPasswordRequired);
       return;
     }
     if (next.length < 8) {
-      setState(() => _passwordError = 'Le mot de passe doit contenir au moins 8 caractères.');
+      setState(() => _passwordError = l10n.accountPasswordTooShort);
       return;
     }
     if (next != confirm) {
-      setState(() => _passwordError = 'Les mots de passe ne correspondent pas.');
+      setState(() => _passwordError = l10n.accountPasswordMismatch);
       return;
     }
 
@@ -256,8 +258,8 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       _confirmPasswordCtrl.clear();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Mot de passe mis à jour avec succès.'),
+          SnackBar(
+            content: Text(l10n.accountPasswordUpdated),
             backgroundColor: AkeliColors.success,
           ),
         );
@@ -265,7 +267,7 @@ class _AccountPageState extends ConsumerState<AccountPage> {
     } on Exception catch (e) {
       _logger.auth('updatePassword ERROR | $e', error: e);
       if (mounted) {
-        setState(() => _passwordError = _friendlyAuthError(e.toString()));
+        setState(() => _passwordError = _friendlyAuthError(l10n, e.toString()));
       }
     } finally {
       if (mounted) setState(() => _savingPassword = false);
@@ -274,29 +276,28 @@ class _AccountPageState extends ConsumerState<AccountPage> {
 
   Future<void> _confirmDeleteAccount() async {
     _logger.userAction('Delete account button tapped', screen: 'AccountPage');
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Supprimer le compte',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.accountDeleteConfirmTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: const Text(
-          'Cette action est irréversible.\n\nToutes vos données, recettes, plans repas et historique seront définitivement supprimés.\n\nÊtes-vous sûr(e) de vouloir continuer ?',
-        ),
+        content: Text(l10n.accountDeleteConfirmContent),
         actions: [
           TextButton(
             onPressed: () {
               _logger.userAction('Delete account cancelled', screen: 'AccountPage');
               Navigator.pop(ctx, false);
             },
-            child: const Text('Annuler'),
+            child: Text(l10n.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: AkeliColors.error),
-            child: const Text('Supprimer définitivement'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -313,20 +314,20 @@ class _AccountPageState extends ConsumerState<AccountPage> {
       if (mounted) {
         setState(() => _deletingAccount = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de la suppression. Veuillez réessayer.')),
+          SnackBar(content: Text(AppLocalizations.of(context).accountDeleteError)),
         );
       }
     }
   }
 
-  String _friendlyAuthError(String raw) {
+  String _friendlyAuthError(AppLocalizations l10n, String raw) {
     if (raw.contains('Invalid login credentials') || raw.contains('invalid_credentials')) {
-      return 'Mot de passe actuel incorrect.';
+      return l10n.accountErrorInvalidPassword;
     }
     if (raw.contains('too_many_requests')) {
-      return 'Trop de tentatives. Veuillez patienter.';
+      return l10n.accountErrorTooManyRequests;
     }
-    return 'Une erreur est survenue. Veuillez réessayer.';
+    return l10n.accountErrorGeneric;
   }
 }
 
@@ -384,7 +385,11 @@ class _InfoRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label, style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
-            Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AkeliColors.onSurface)),
+            Text(value,
+                style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AkeliColors.onSurface)),
           ],
         ),
       ],
@@ -419,9 +424,12 @@ class _PasswordField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14),
-          prefixIcon: const Icon(Icons.lock_outline_rounded, color: AkeliColors.onSurfaceVariant, size: 20),
+          prefixIcon: const Icon(Icons.lock_outline_rounded,
+              color: AkeliColors.onSurfaceVariant, size: 20),
           suffixIcon: IconButton(
-            icon: Icon(obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20),
+            icon: Icon(
+                obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                size: 20),
             color: AkeliColors.onSurfaceVariant,
             onPressed: onToggle,
           ),

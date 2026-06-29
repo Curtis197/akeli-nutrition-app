@@ -1,3 +1,4 @@
+// ignore_for_file: type=lint, invalid_use_of_internal_member, subtype_of_sealed_class, deprecated_member_use
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'profile_tabs_provider.dart';
@@ -6,28 +7,7 @@ part of 'profile_tabs_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$userSavedRecipesHash() => r'dd05904e3e79b3e058e6d98173433a53227ed436';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
+String _$userSavedRecipesHash() => r'userSavedRecipes';
 
 /// See also [userSavedRecipes].
 @ProviderFor(userSavedRecipes)
@@ -78,7 +58,7 @@ class UserSavedRecipesProvider extends AutoDisposeFutureProvider<List<Recipe>> {
     String userId,
   ) : this._internal(
           (ref) => userSavedRecipes(
-            ref as UserSavedRecipesRef,
+            ref as Ref,
             userId,
           ),
           from: userSavedRecipesProvider,
@@ -135,15 +115,12 @@ class UserSavedRecipesProvider extends AutoDisposeFutureProvider<List<Recipe>> {
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    var hash = 0;
     hash = _SystemHash.combine(hash, userId.hashCode);
-
     return _SystemHash.finish(hash);
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 mixin UserSavedRecipesRef on AutoDisposeFutureProviderRef<List<Recipe>> {
   /// The parameter `userId` of this provider.
   String get userId;
@@ -155,18 +132,17 @@ class _UserSavedRecipesProviderElement
   _UserSavedRecipesProviderElement(super.provider);
 
   @override
-  String get userId => (origin as UserSavedRecipesProvider).userId;
+  String get userId => (provider as UserSavedRecipesProvider).userId;
 }
 
-String _$userCommentsHash() => r'841301e65faf3876a1786b020f77a6cad1159c1b';
+String _$userCommentsHash() => r'userComments';
 
 /// See also [userComments].
 @ProviderFor(userComments)
 const userCommentsProvider = UserCommentsFamily();
 
 /// See also [userComments].
-class UserCommentsFamily
-    extends Family<AsyncValue<List<Map<String, dynamic>>>> {
+class UserCommentsFamily extends Family<AsyncValue<List<Map<String, dynamic>>>> {
   /// See also [userComments].
   const UserCommentsFamily();
 
@@ -204,14 +180,13 @@ class UserCommentsFamily
 }
 
 /// See also [userComments].
-class UserCommentsProvider
-    extends AutoDisposeFutureProvider<List<Map<String, dynamic>>> {
+class UserCommentsProvider extends AutoDisposeFutureProvider<List<Map<String, dynamic>>> {
   /// See also [userComments].
   UserCommentsProvider(
     String userId,
   ) : this._internal(
           (ref) => userComments(
-            ref as UserCommentsRef,
+            ref as Ref,
             userId,
           ),
           from: userCommentsProvider,
@@ -240,8 +215,7 @@ class UserCommentsProvider
 
   @override
   Override overrideWith(
-    FutureOr<List<Map<String, dynamic>>> Function(UserCommentsRef provider)
-        create,
+    FutureOr<List<Map<String, dynamic>>> Function(UserCommentsRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -269,17 +243,13 @@ class UserCommentsProvider
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    var hash = 0;
     hash = _SystemHash.combine(hash, userId.hashCode);
-
     return _SystemHash.finish(hash);
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin UserCommentsRef
-    on AutoDisposeFutureProviderRef<List<Map<String, dynamic>>> {
+mixin UserCommentsRef on AutoDisposeFutureProviderRef<List<Map<String, dynamic>>> {
   /// The parameter `userId` of this provider.
   String get userId;
 }
@@ -290,10 +260,10 @@ class _UserCommentsProviderElement
   _UserCommentsProviderElement(super.provider);
 
   @override
-  String get userId => (origin as UserCommentsProvider).userId;
+  String get userId => (provider as UserCommentsProvider).userId;
 }
 
-String _$userGroupsHash() => r'22fce6e28321839301ef34a9a352a4ab5f1b14c8';
+String _$userGroupsHash() => r'userGroups';
 
 /// See also [userGroups].
 @ProviderFor(userGroups)
@@ -338,14 +308,13 @@ class UserGroupsFamily extends Family<AsyncValue<List<Map<String, dynamic>>>> {
 }
 
 /// See also [userGroups].
-class UserGroupsProvider
-    extends AutoDisposeFutureProvider<List<Map<String, dynamic>>> {
+class UserGroupsProvider extends AutoDisposeFutureProvider<List<Map<String, dynamic>>> {
   /// See also [userGroups].
   UserGroupsProvider(
     String userId,
   ) : this._internal(
           (ref) => userGroups(
-            ref as UserGroupsRef,
+            ref as Ref,
             userId,
           ),
           from: userGroupsProvider,
@@ -374,8 +343,7 @@ class UserGroupsProvider
 
   @override
   Override overrideWith(
-    FutureOr<List<Map<String, dynamic>>> Function(UserGroupsRef provider)
-        create,
+    FutureOr<List<Map<String, dynamic>>> Function(UserGroupsRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -403,17 +371,13 @@ class UserGroupsProvider
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    var hash = 0;
     hash = _SystemHash.combine(hash, userId.hashCode);
-
     return _SystemHash.finish(hash);
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin UserGroupsRef
-    on AutoDisposeFutureProviderRef<List<Map<String, dynamic>>> {
+mixin UserGroupsRef on AutoDisposeFutureProviderRef<List<Map<String, dynamic>>> {
   /// The parameter `userId` of this provider.
   String get userId;
 }
@@ -424,7 +388,23 @@ class _UserGroupsProviderElement
   _UserGroupsProviderElement(super.provider);
 
   @override
-  String get userId => (origin as UserGroupsProvider).userId;
+  String get userId => (provider as UserGroupsProvider).userId;
 }
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+
+class _SystemHash {
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}

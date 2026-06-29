@@ -4,8 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/router.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/providers/creator_provider.dart';
 import 'package:akeli/shared/widgets/badge.dart';
+
+String _mealTypeLabel(AppLocalizations l10n, String slug) => switch (slug) {
+  'breakfast' => l10n.mealTypeBreakfast,
+  'lunch'     => l10n.mealTypeLunch,
+  'dinner'    => l10n.mealTypeDinner,
+  'snack'     => l10n.mealTypeSnack,
+  _           => slug,
+};
 
 // ---------------------------------------------------------------------------
 // AkeliRecipeCard — two variants: image (default) and text-only
@@ -85,11 +94,13 @@ class _ImageVariant extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Image area — expands to fill whatever height remains after the body
-        Expanded(
+        // Minimalist cards are used in compact 220px carousels — shorter image leaves room for the body.
+        SizedBox(
+          height: card.isMinimalist ? 130 : 180,
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(
               top: Radius.circular(AkeliRadius.xl),
@@ -117,7 +128,7 @@ class _ImageVariant extends StatelessWidget {
                     children: card.tags
                         .take(2)
                         .map((tag) => AkeliBadge(
-                              label: tag,
+                              label: _mealTypeLabel(l10n, tag),
                               color: AkeliColors.primary,
                             ))
                         .toList(),
@@ -226,8 +237,9 @@ class _HorizontalVariant extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (card.region != null)
+                  if (card.region != null) ...[
                     Text(
                       card.region!,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -237,7 +249,8 @@ class _HorizontalVariant extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  const SizedBox(height: 4),
+                    const SizedBox(height: 2),
+                  ],
                   Text(
                     card.title,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -252,8 +265,30 @@ class _HorizontalVariant extends StatelessWidget {
                     const SizedBox(height: 4),
                     _AkeliCreatorRow(creatorId: card.creatorId!),
                   ],
-                  const SizedBox(height: 8),
-                  _StatsRow(card: card),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (card.calories100g != null) ...[
+                        const Icon(Icons.local_fire_department,
+                            size: 12, color: AkeliColors.accentAmber),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${card.calories100g} kcal',
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: AkeliColors.onSurfaceVariant,
+                              ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      const Icon(Icons.star_rounded,
+                          size: 12, color: AkeliColors.secondary),
+                      const SizedBox(width: 2),
+                      Text(
+                        card.rating.toStringAsFixed(1),
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

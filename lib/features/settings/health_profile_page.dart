@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
 import 'models/health_profile_model.dart';
 import 'widgets/intensity_badge.dart';
@@ -29,40 +30,6 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
   final _heightCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
   final _targetWeightCtrl = TextEditingController();
-
-  static const _activityOptions = [
-    ('sedentary', 'Sédentaire', Icons.weekend_outlined),
-    ('light', 'Légèrement actif', Icons.directions_walk_rounded),
-    ('moderate', 'Modérément actif', Icons.directions_bike_outlined),
-    ('active', 'Actif', Icons.fitness_center_rounded),
-    ('very_active', 'Très actif', Icons.bolt_rounded),
-  ];
-
-  static const _goalTypeOptions = [
-    ('weight_loss', 'Perte de poids'),
-    ('muscle_gain', 'Prise de muscle'),
-    ('maintenance', 'Maintien'),
-    ('health', 'Santé'),
-    ('performance', 'Performance'),
-  ];
-
-  static const _weightGoalOptions = [
-    ('loss', 'Perdre'),
-    ('maintenance', 'Maintenir'),
-    ('gain', 'Prendre'),
-  ];
-
-  static const _muscleGoalOptions = [
-    ('loss', 'Perdre'),
-    ('maintenance', 'Maintenir'),
-    ('gain', 'Prendre'),
-  ];
-
-  static const _sexOptions = [
-    ('male', 'Homme'),
-    ('female', 'Femme'),
-    ('other', 'Autre'),
-  ];
 
   @override
   void dispose() {
@@ -88,14 +55,49 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('HealthProfilePage build()');
+    final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(healthProfileProvider);
+
+    final activityOptions = [
+      ('sedentary',  l10n.healthActivitySedentary,  Icons.weekend_outlined),
+      ('light',      l10n.healthActivityLight,       Icons.directions_walk_rounded),
+      ('moderate',   l10n.healthActivityModerate,    Icons.directions_bike_outlined),
+      ('active',     l10n.healthActivityActive,      Icons.fitness_center_rounded),
+      ('very_active',l10n.healthActivityVeryActive,  Icons.bolt_rounded),
+    ];
+
+    final goalTypeOptions = [
+      ('weight_loss',  l10n.healthGoalWeightLoss),
+      ('muscle_gain',  l10n.healthGoalMuscleGain),
+      ('maintenance',  l10n.healthGoalMaintenance),
+      ('health',       l10n.healthGoalHealth),
+      ('performance',  l10n.healthGoalPerformance),
+    ];
+
+    final weightGoalOptions = [
+      ('loss',        l10n.healthGoalLose),
+      ('maintenance', l10n.healthGoalMaintain),
+      ('gain',        l10n.healthGoalGain),
+    ];
+
+    final muscleGoalOptions = [
+      ('loss',        l10n.healthGoalLose),
+      ('maintenance', l10n.healthGoalMaintain),
+      ('gain',        l10n.healthGoalGain),
+    ];
+
+    final sexOptions = [
+      ('male',   l10n.healthSexMale),
+      ('female', l10n.healthSexFemale),
+      ('other',  l10n.healthSexOther),
+    ];
 
     return profileAsync.when(
       loading: () => const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Scaffold(
-        body: Center(child: Text('Erreur: $e')),
+        body: Center(child: Text('${l10n.healthProfileError}: $e')),
       ),
       data: (prefs) {
         if (_local == null) {
@@ -138,9 +140,9 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           },
                         ),
                       ),
-                      const Text(
-                        'Santé & Objectifs',
-                        style: TextStyle(
+                      Text(
+                        l10n.healthProfileTitle,
+                        style: const TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -165,18 +167,17 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Paramètres de santé ──────────────────────────────────
-                const SettingsSectionHeader(title: 'PARAMÈTRES DE SANTÉ'),
+                // ── Health parameters ────────────────────────────────────────
+                SettingsSectionHeader(title: l10n.healthParamsSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Sexe
-                      const SettingsLabel('Sexe'),
+                      SettingsLabel(l10n.healthSex),
                       const SizedBox(height: 12),
                       _ChipSelector(
-                        options: _sexOptions,
+                        options: sexOptions,
                         selected: local.sex,
                         onSelected: (v) {
                           _logger.userAction('Sex selected',
@@ -185,21 +186,18 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           setState(() => _local = local.copyWith(sex: v));
                         },
                         onCleared: () {
-                          _logger.userAction('Sex cleared',
-                              screen: 'HealthProfilePage');
+                          _logger.userAction('Sex cleared', screen: 'HealthProfilePage');
                           setState(() => _local = local.copyWith(clearSex: true));
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Date de naissance
-                      const SettingsLabel('Date de naissance'),
+                      SettingsLabel(l10n.healthBirthDate),
                       const SizedBox(height: 8),
                       InkWell(
                         onTap: () async {
-                          _logger.userAction('Birth date tapped',
-                              screen: 'HealthProfilePage');
+                          _logger.userAction('Birth date tapped', screen: 'HealthProfilePage');
                           final picked = await showDatePicker(
                             context: context,
                             initialDate: local.birthDate ?? DateTime(1990, 1, 1),
@@ -210,8 +208,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             _logger.userAction('Birth date picked',
                                 screen: 'HealthProfilePage',
                                 metadata: {'date': picked.toIso8601String()});
-                            setState(() =>
-                                _local = local.copyWith(birthDate: picked));
+                            setState(() => _local = local.copyWith(birthDate: picked));
                           }
                         },
                         borderRadius: BorderRadius.circular(8),
@@ -220,15 +217,13 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           child: Row(
                             children: [
                               const Icon(Icons.calendar_today_outlined,
-                                  size: 20,
-                                  color: AkeliColors.onSurfaceVariant),
+                                  size: 20, color: AkeliColors.onSurfaceVariant),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   local.birthDate != null
-                                      ? DateFormat('d MMMM yyyy', 'fr')
-                                          .format(local.birthDate!)
-                                      : 'Non renseignée',
+                                      ? DateFormat.yMMMMd().format(local.birthDate!)
+                                      : l10n.healthBirthDateEmpty,
                                   style: TextStyle(
                                     fontSize: 15,
                                     color: local.birthDate != null
@@ -246,67 +241,57 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
                       const Divider(height: 24),
 
-                      // Taille
-                      const SettingsLabel('Taille'),
+                      SettingsLabel(l10n.healthHeight),
                       const SizedBox(height: 8),
                       _NumericField(
                         controller: _heightCtrl,
                         suffix: 'cm',
                         onChanged: (v) {
-                          _logger.userAction('Height changed',
-                              screen: 'HealthProfilePage');
+                          _logger.userAction('Height changed', screen: 'HealthProfilePage');
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
-                            setState(() =>
-                                _local = local.copyWith(heightCm: parsed));
+                            setState(() => _local = local.copyWith(heightCm: parsed));
                           }
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Poids actuel
-                      const SettingsLabel('Poids actuel'),
+                      SettingsLabel(l10n.healthCurrentWeight),
                       const SizedBox(height: 8),
                       _NumericField(
                         controller: _weightCtrl,
                         suffix: 'kg',
                         onChanged: (v) {
-                          _logger.userAction('Weight changed',
-                              screen: 'HealthProfilePage');
+                          _logger.userAction('Weight changed', screen: 'HealthProfilePage');
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
-                            setState(() =>
-                                _local = local.copyWith(weightKg: parsed));
+                            setState(() => _local = local.copyWith(weightKg: parsed));
                           }
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Poids cible
-                      const SettingsLabel('Poids cible'),
+                      SettingsLabel(l10n.healthTargetWeight),
                       const SizedBox(height: 8),
                       _NumericField(
                         controller: _targetWeightCtrl,
                         suffix: 'kg',
                         onChanged: (v) {
-                          _logger.userAction('Target weight changed',
-                              screen: 'HealthProfilePage');
+                          _logger.userAction('Target weight changed', screen: 'HealthProfilePage');
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
-                            setState(() =>
-                                _local = local.copyWith(targetWeightKg: parsed));
+                            setState(() => _local = local.copyWith(targetWeightKg: parsed));
                           }
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Niveau d'activité
-                      const SettingsLabel("Niveau d'activité"),
+                      SettingsLabel(l10n.healthActivityLevel),
                       const SizedBox(height: 12),
-                      ..._activityOptions.map((opt) {
+                      ...activityOptions.map((opt) {
                         final (value, label, icon) = opt;
                         return SettingsRadioRow(
                           icon: icon,
@@ -316,8 +301,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             _logger.userAction('Activity level selected',
                                 screen: 'HealthProfilePage',
                                 metadata: {'value': value});
-                            setState(() => _local =
-                                local.copyWith(activityLevel: value));
+                            setState(() => _local = local.copyWith(activityLevel: value));
                           },
                         );
                       }),
@@ -327,20 +311,19 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
                 const SizedBox(height: 24),
 
-                // ── Objectif ─────────────────────────────────────────────
-                const SettingsSectionHeader(title: 'OBJECTIF'),
+                // ── Goal ─────────────────────────────────────────────────────
+                SettingsSectionHeader(title: l10n.healthGoalSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Type d'objectif
-                      const SettingsLabel("Type d'objectif"),
+                      SettingsLabel(l10n.healthGoalType),
                       const SizedBox(height: 12),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: _goalTypeOptions.map((opt) {
+                        children: goalTypeOptions.map((opt) {
                           final (code, name) = opt;
                           final selected = local.goalType == code;
                           return FilterChip(
@@ -351,20 +334,14 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                                   screen: 'HealthProfilePage',
                                   metadata: {'goalType': code});
                               setState(() => selected
-                                  ? _local =
-                                      local.copyWith(clearGoalType: true)
+                                  ? _local = local.copyWith(clearGoalType: true)
                                   : _local = local.copyWith(goalType: code));
                             },
-                            selectedColor:
-                                AkeliColors.primary.withValues(alpha: 0.15),
+                            selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
                             checkmarkColor: AkeliColors.primary,
                             labelStyle: TextStyle(
-                              color: selected
-                                  ? AkeliColors.primary
-                                  : AkeliColors.onSurface,
-                              fontWeight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
+                              color: selected ? AkeliColors.primary : AkeliColors.onSurface,
+                              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                             ),
                           );
                         }).toList(),
@@ -372,11 +349,10 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
                       const Divider(height: 24),
 
-                      // Objectif poids
-                      const SettingsLabel('Objectif poids'),
+                      SettingsLabel(l10n.healthWeightGoal),
                       const SizedBox(height: 12),
                       _ChipSelector(
-                        options: _weightGoalOptions,
+                        options: weightGoalOptions,
                         selected: local.weightGoal,
                         onSelected: (v) {
                           _logger.userAction('Weight goal selected',
@@ -385,20 +361,17 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           setState(() => _local = local.copyWith(weightGoal: v));
                         },
                         onCleared: () {
-                          _logger.userAction('Weight goal cleared',
-                              screen: 'HealthProfilePage');
-                          setState(() =>
-                              _local = local.copyWith(clearWeightGoal: true));
+                          _logger.userAction('Weight goal cleared', screen: 'HealthProfilePage');
+                          setState(() => _local = local.copyWith(clearWeightGoal: true));
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Objectif muscle
-                      const SettingsLabel('Objectif muscle'),
+                      SettingsLabel(l10n.healthMuscleGoal),
                       const SizedBox(height: 12),
                       _ChipSelector(
-                        options: _muscleGoalOptions,
+                        options: muscleGoalOptions,
                         selected: local.muscleGoal,
                         onSelected: (v) {
                           _logger.userAction('Muscle goal selected',
@@ -407,20 +380,17 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           setState(() => _local = local.copyWith(muscleGoal: v));
                         },
                         onCleared: () {
-                          _logger.userAction('Muscle goal cleared',
-                              screen: 'HealthProfilePage');
-                          setState(() =>
-                              _local = local.copyWith(clearMuscleGoal: true));
+                          _logger.userAction('Muscle goal cleared', screen: 'HealthProfilePage');
+                          setState(() => _local = local.copyWith(clearMuscleGoal: true));
                         },
                       ),
 
                       const Divider(height: 24),
 
-                      // Durée cible
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const SettingsLabel('Durée cible'),
+                          SettingsLabel(l10n.healthTargetDuration),
                           IntensityBadge(
                             currentKg: local.weightKg,
                             targetKg: local.targetWeightKg,
@@ -438,21 +408,20 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                               max: 52,
                               divisions: 48,
                               activeColor: AkeliColors.primary,
-                              label:
-                                  '${local.targetTimeWeeks ?? 26} semaines',
+                              label: l10n.healthWeeks(local.targetTimeWeeks ?? 26),
                               onChanged: (v) {
                                 _logger.userAction('Target weeks changed',
                                     screen: 'HealthProfilePage',
                                     metadata: {'weeks': v.round()});
-                                setState(() => _local = local.copyWith(
-                                    targetTimeWeeks: v.round()));
+                                setState(() =>
+                                    _local = local.copyWith(targetTimeWeeks: v.round()));
                               },
                             ),
                           ),
                           SizedBox(
                             width: 72,
                             child: Text(
-                              '${local.targetTimeWeeks ?? 26} sem.',
+                              l10n.healthWeeksShort(local.targetTimeWeeks ?? 26),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -469,7 +438,6 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
                 const SizedBox(height: 32),
 
-                // ── Save button ──────────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -487,9 +455,9 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2.5, color: Colors.white),
                           )
-                        : const Text(
-                            'Enregistrer',
-                            style: TextStyle(
+                        : Text(
+                            l10n.healthProfileSave,
+                            style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
@@ -506,8 +474,8 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
   Future<void> _save() async {
     if (_local == null) return;
-    _logger.userAction('HealthProfilePage save tapped',
-        screen: 'HealthProfilePage');
+    _logger.userAction('HealthProfilePage save tapped', screen: 'HealthProfilePage');
+    final l10n = AppLocalizations.of(context);
     final saved = _local!;
     setState(() => _saving = true);
     try {
@@ -516,19 +484,18 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
       if (mounted) {
         final kcal = computeCalorieGoal(saved);
         final msg = kcal != null
-            ? 'Profil mis à jour · $kcal kcal/jour'
-            : 'Profil mis à jour';
+            ? '${l10n.healthProfileSaved} · $kcal kcal/jour'
+            : l10n.healthProfileSaved;
         rootScaffoldMessengerKey.currentState?.showSnackBar(
           SnackBar(content: Text(msg)),
         );
         context.pop();
       }
     } catch (e, st) {
-      _logger.provider('HealthProfilePage save error | $e',
-          error: e, stackTrace: st);
+      _logger.provider('HealthProfilePage save error | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text('${l10n.healthProfileError}: $e')),
         );
       }
     } finally {
@@ -607,8 +574,7 @@ class _NumericField extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       style: const TextStyle(
         fontSize: 15,

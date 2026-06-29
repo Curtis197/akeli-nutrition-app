@@ -164,7 +164,13 @@ class IngredientDetailSheet extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(AkeliRadius.pill),
                   ),
                   child: Text(
-                    formatQuantity(ingredient.quantity, ingredient.unit),
+                    formatQuantity(
+                      ingredient.quantity,
+                      ingredient.unit,
+                      locale: AppLocalizations.of(context).localeName,
+                      ingredientId: ingredient.ingredientId,
+                      ingredientName: ingredient.name,
+                    ),
                     style: GoogleFonts.inter(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,

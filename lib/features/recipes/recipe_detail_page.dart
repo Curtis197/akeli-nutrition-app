@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/meal_type_l10n.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
@@ -216,17 +218,17 @@ class _RecipeDetailPageState extends ConsumerState<RecipeDetailPage> {
                           ...entries.map((entry) => ListTile(
                                 leading: const Icon(Icons.restaurant,
                                     color: AkeliColors.outline),
-                                title: Text(entry.mealTypeLabel),
+                                title: Text(mealTypeLabel(AppLocalizations.of(context), entry.mealType)),
                                 subtitle:
-                                    Text(entry.recipeTitle ?? 'Sans recette'),
+                                    Text(entry.localizedTitle(Localizations.localeOf(context).languageCode) ?? 'Sans recette'),
                                 onTap: () {
                                   ref
                                       .read(mealPlanSwapProvider.notifier)
                                       .swapMeal(entry.id, recipe.id);
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context)
-                                      .showSnackBar(const SnackBar(
-                                    content: Text('Repas remplacé avec succès'),
+                                      .showSnackBar(SnackBar(
+                                    content: Text(AppLocalizations.of(context).feedSwapDone),
                                     backgroundColor: AkeliColors.primary,
                                   ));
                                 },
@@ -266,6 +268,7 @@ class _RecipeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     appLogger.provider('RecipeContent build() | recipeId: ${recipe.id}');
     final images = recipe.imageUrls.isNotEmpty
         ? recipe.imageUrls
@@ -337,7 +340,7 @@ class _RecipeContent extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'DÉJEUNER',
+                            mealTypeLabel(l10n, recipe.mealTypes.firstOrNull ?? '').toUpperCase(),
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -402,7 +405,7 @@ class _RecipeContent extends StatelessWidget {
                             _QuickInfo(
                               icon: Icons.trending_up,
                               iconColor: AkeliColors.accentAmber,
-                              label: _difficultyLabel(recipe.difficulty),
+                              label: _difficultyLabel(recipe.difficulty, l10n),
                             ),
                           ],
                         ),
@@ -446,7 +449,7 @@ class _RecipeContent extends StatelessWidget {
                                         color: AkeliColors.onPrimary, size: 20),
                                     const SizedBox(width: 12),
                                     Text(
-                                      'Ajouter au plan repas',
+                                      l10n.recipeDetailAddToMealPlan,
                                       style: GoogleFonts.inter(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w500,
@@ -523,7 +526,7 @@ class _RecipeContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Description',
+                          l10n.mealDetailDescription,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -564,7 +567,7 @@ class _RecipeContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Ingrédients',
+                          l10n.recipeDetailIngredients,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -617,7 +620,13 @@ class _RecipeContent extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
-                                  formatQuantity(ing.quantity, ing.unit),
+                                  formatQuantity(
+                                    ing.quantity,
+                                    ing.unit,
+                                    locale: AppLocalizations.of(context).localeName,
+                                    ingredientId: ing.ingredientId,
+                                    ingredientName: ing.name,
+                                  ),
                                   style: GoogleFonts.inter(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
@@ -664,7 +673,7 @@ class _RecipeContent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Étapes',
+                          l10n.recipeDetailInstructions,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -780,14 +789,14 @@ class _RecipeContent extends StatelessWidget {
     );
   }
 
-  String _difficultyLabel(String d) {
+  String _difficultyLabel(String d, AppLocalizations l10n) {
     switch (d.toLowerCase()) {
       case 'easy':
-        return 'Facile';
+        return l10n.difficultyEasy;
       case 'medium':
-        return 'Moyen';
+        return l10n.difficultyMedium;
       case 'hard':
-        return 'Difficile';
+        return l10n.difficultyHard;
       default:
         return d;
     }
@@ -831,6 +840,7 @@ class _MacroNutritionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final has100g = recipe.calories100g != null;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -838,7 +848,7 @@ class _MacroNutritionRow extends StatelessWidget {
         children: [
           if (has100g) ...[
             _MacroPanel(
-              title: 'POUR 100G',
+              title: l10n.recipeDetailPer100g.toUpperCase(),
               calories: recipe.calories100g!,
               proteinG: recipe.protein100g ?? 0,
               carbsG: recipe.carbs100g ?? 0,
@@ -848,7 +858,7 @@ class _MacroNutritionRow extends StatelessWidget {
             const SizedBox(width: 12),
           ],
           _MacroPanel(
-            title: has100g ? 'RECETTE TOTALE' : 'PAR PORTION',
+            title: has100g ? l10n.recipeDetailTotalRecipe.toUpperCase() : l10n.recipeDetailPerServing.toUpperCase(),
             calories: has100g ? (recipe.calories ?? 0) : (recipe.caloriesPerServing ?? 0),
             proteinG: has100g ? (recipe.proteinG ?? 0) : (recipe.proteinPerServing ?? 0),
             carbsG: has100g ? (recipe.carbsG ?? 0) : (recipe.carbsPerServing ?? 0),
@@ -880,6 +890,7 @@ class _MacroPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
@@ -906,13 +917,13 @@ class _MacroPanel extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              _MacroCell(label: 'Calories', value: '${calories.toInt()}', unit: 'kcal'),
+              _MacroCell(label: l10n.recipeDetailCalories, value: '${calories.toInt()}', unit: 'kcal'),
               const SizedBox(width: 16),
-              _MacroCell(label: 'Protéines', value: '${proteinG.toInt()}', unit: 'g'),
+              _MacroCell(label: l10n.recipeDetailProtein, value: '${proteinG.toInt()}', unit: 'g'),
               const SizedBox(width: 16),
-              _MacroCell(label: 'Glucides', value: '${carbsG.toInt()}', unit: 'g'),
+              _MacroCell(label: l10n.recipeDetailCarbs, value: '${carbsG.toInt()}', unit: 'g'),
               const SizedBox(width: 16),
-              _MacroCell(label: 'Lipides', value: '${fatG.toInt()}', unit: 'g'),
+              _MacroCell(label: l10n.recipeDetailFat, value: '${fatG.toInt()}', unit: 'g'),
             ],
           ),
         ],
@@ -1065,6 +1076,7 @@ class _RatingsAndCommentsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final commentsAsync = ref.watch(recipeCommentNotifierProvider(recipe.id));
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -1085,7 +1097,7 @@ class _RatingsAndCommentsSection extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Avis',
+                  l10n.recipeDetailReviews,
                   style: GoogleFonts.plusJakartaSans(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -1121,15 +1133,15 @@ class _RatingsAndCommentsSection extends ConsumerWidget {
               children: [
                 Expanded(
                     child: _DetailedRatingBar(
-                        label: 'Goût', rating: recipe.averageRatingTaste)),
+                        label: l10n.recipeDetailRatingTaste, rating: recipe.averageRatingTaste)),
                 const SizedBox(width: 16),
                 Expanded(
                     child: _DetailedRatingBar(
-                        label: 'Facilité', rating: recipe.averageRatingEase)),
+                        label: l10n.recipeDetailRatingEase, rating: recipe.averageRatingEase)),
                 const SizedBox(width: 16),
                 Expanded(
                     child: _DetailedRatingBar(
-                        label: 'Satiété', rating: recipe.averageRatingSatiety)),
+                        label: l10n.recipeDetailRatingSatiety, rating: recipe.averageRatingSatiety)),
               ],
             ),
             const SizedBox(height: 24),

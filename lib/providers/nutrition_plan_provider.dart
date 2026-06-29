@@ -99,9 +99,10 @@ class NutritionPlanNotifier extends StateNotifier<AsyncValue<NutritionPlan?>> {
 
       // 1. Save NutritionPlan
       _logger.db('BEFORE | table: nutrition_plan | op: INSERT new active plan');
+      final planMap = plan.toJson()..remove('id');
       final planResponse = await client
           .from('nutrition_plan')
-          .insert(plan.toJson())
+          .insert(planMap)
           .select()
           .single();
       

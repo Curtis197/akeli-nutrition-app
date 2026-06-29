@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 
 class PersonalMealCreatedResult {
@@ -87,6 +88,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
   }
 
   Future<void> _save() async {
+    final l10n = AppLocalizations.of(context);
     _logger.userAction(
       widget.entryId == null ? 'Ajouter la collation tapped' : 'Confirmer ce repas tapped',
       screen: 'PersonalMealBottomSheet',
@@ -129,7 +131,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text(l10n.mealPlannerError(e.toString()))),
         );
       }
     } finally {
@@ -139,6 +141,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     _logger.provider('PersonalMealBottomSheet build() | entryId: ${widget.entryId}');
     final analysisState = ref.watch(personalMealSwapProvider);
 
@@ -334,7 +337,7 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
             if (analysisState.hasError)
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text('Erreur: ${analysisState.error}', style: const TextStyle(color: AkeliColors.error)),
+                child: Text(l10n.mealPlannerError(analysisState.error.toString()), style: const TextStyle(color: AkeliColors.error)),
               ),
           ],
         ),

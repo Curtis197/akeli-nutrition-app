@@ -7,6 +7,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/supabase_client.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../providers/recipe_provider.dart';
@@ -44,6 +45,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
   @override
   Widget build(BuildContext context) {
     _logger.provider('GroupDetailPage build() | groupId: ${widget.groupId}');
+    final l10n = AppLocalizations.of(context);
     final membersAsync = ref.watch(groupMembersProvider(widget.groupId));
     final groupAsync = ref.watch(groupDetailsProvider(widget.groupId));
     final currentUserId = ref.watch(currentUserProvider)?.id;
@@ -69,14 +71,14 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
             }
           },
         ),
-        title: const Text('Détail du groupe'),
+        title: Text(l10n.groupDetailTitle),
       ),
       body: Column(
         children: [
           // ── Group cover header ───────────────────────────────────────────
           groupAsync.when(
             data: (group) {
-              final name = group?['name'] as String? ?? 'Groupe inconnu';
+              final name = group?['name'] as String? ?? l10n.groupDetailUnknownGroup;
               final description = group?['description'] as String?;
               final coverUrl = group?['cover_url'] as String?;
 
@@ -144,7 +146,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
             error: (_, __) => Container(
               height: 180,
               color: AkeliColors.error.withValues(alpha: 0.1),
-              child: const Center(child: Text('Erreur de chargement')),
+              child: Center(child: Text(l10n.commonLoadError)),
             ),
           ),
 
@@ -157,10 +159,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
               unselectedLabelColor: AkeliColors.textSecondary,
               indicatorColor: AkeliColors.primary,
               indicatorWeight: 2.5,
-              tabs: const [
-                Tab(text: 'Membres'),
-                Tab(text: 'Photos'),
-                Tab(text: 'Recettes'),
+              tabs: [
+                Tab(text: l10n.groupDetailTabMembers),
+                Tab(text: l10n.groupDetailTabPhotos),
+                Tab(text: l10n.groupDetailTabRecipes),
               ],
             ),
           ),
@@ -189,6 +191,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
   }
 
   Future<void> _onDmTap(BuildContext context, GroupMember member) async {
+    final l10n = AppLocalizations.of(context);
     _logger.userAction('DM button tapped',
         screen: 'GroupDetailPage',
         metadata: {'targetUserId': member.userId});
@@ -205,7 +208,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
       if (pending) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Demande déjà envoyée')),
+            SnackBar(content: Text(l10n.groupDetailDmAlreadySent)),
           );
         }
         return;
@@ -214,14 +217,14 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
       await sendDmRequest(ref, member.userId);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Demande envoyée à ${member.displayName}')),
+          SnackBar(content: Text(l10n.groupDetailDmSentTo(member.displayName))),
         );
       }
     } catch (e, st) {
       appLogger.db('ERROR | _onDmTap | ${e.toString()}', error: e, stackTrace: st);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Une erreur est survenue. Veuillez réessayer.')),
+          SnackBar(content: Text(l10n.commonGenericError)),
         );
       }
     }
@@ -231,25 +234,28 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
     _logger.userAction('Exclude member tapped',
         screen: 'GroupDetailPage',
         metadata: {'targetUserId': member.userId});
+    final l10n = AppLocalizations.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Exclure ${member.displayName} ?'),
-        content: const Text(
-            'Cette personne perdra l\'accès au groupe et au chat de groupe.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
-            child: const Text('Exclure'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        final dl10n = AppLocalizations.of(ctx);
+        return AlertDialog(
+          title: Text(dl10n.groupDetailExcludeTitle(member.displayName)),
+          content: Text(dl10n.groupDetailExcludeContent),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(dl10n.commonCancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: TextButton.styleFrom(foregroundColor: AkeliColors.error),
+              child: Text(dl10n.groupDetailExclude),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;
@@ -271,7 +277,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
       if (!context.mounted) return;
       ref.invalidate(groupMembersProvider(widget.groupId));
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Membre exclu du groupe')),
+        SnackBar(content: Text(l10n.groupDetailMemberExcluded)),
       );
     } on FunctionException catch (e, st) {
       _logger.edge('remove-group-member',
@@ -280,27 +286,24 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage>
       if (!context.mounted) return;
       if (e.status == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Vous n'êtes plus administrateur de ce groupe")),
+          SnackBar(content: Text(l10n.groupDetailNotAdmin)),
         );
       } else if (e.status == 404) {
         // Target already removed — treat as success
         ref.invalidate(groupMembersProvider(widget.groupId));
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Membre exclu du groupe')),
+          SnackBar(content: Text(l10n.groupDetailMemberExcluded)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Une erreur est survenue. Veuillez réessayer.')),
+          SnackBar(content: Text(l10n.commonGenericError)),
         );
       }
     } catch (e, st) {
       _logger.edge('remove-group-member', 'ERROR | $e', error: e, stackTrace: st);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Une erreur est survenue. Veuillez réessayer.')),
+        SnackBar(content: Text(l10n.commonGenericError)),
       );
     }
   }
@@ -327,12 +330,13 @@ class _MembersTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(AkeliSpacing.md),
       children: [
         AkeliSectionHeader(
-          title: 'Membres',
-          trailingLabel: isAdmin ? 'Inviter' : null,
+          title: l10n.groupDetailTabMembers,
+          trailingLabel: isAdmin ? l10n.groupDetailInvite : null,
           onTrailingTap: isAdmin
               ? () {
                   appLogger.userAction('Invite tapped', screen: 'GroupDetailPage');
@@ -343,13 +347,13 @@ class _MembersTab extends ConsumerWidget {
         const SizedBox(height: 12),
         membersAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Erreur: $e')),
+          error: (e, _) => Center(child: Text(l10n.mealPlannerError(e.toString()))),
           data: (members) {
             if (members.isEmpty) {
-              return const EmptyState(
+              return EmptyState(
                 icon: Icons.people_outline_rounded,
-                title: 'Aucun membre',
-                subtitle: 'Les membres apparaîtront ici.',
+                title: l10n.groupDetailNoMembersTitle,
+                subtitle: l10n.groupDetailNoMembersSubtitle,
               );
             }
             return Column(
@@ -392,15 +396,17 @@ class _ImagesTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) {
         appLogger.provider('_ImagesTab → error | $e');
-        return const Center(child: Text('Erreur de chargement'));
+        final l10n = AppLocalizations.of(context);
+        return Center(child: Text(l10n.commonLoadError));
       },
       data: (urls) {
         appLogger.provider('_ImagesTab → data | count: ${urls.length}');
+        final l10n = AppLocalizations.of(context);
         if (urls.isEmpty) {
-          return const EmptyState(
+          return EmptyState(
             icon: Icons.photo_library_outlined,
-            title: 'Aucune photo partagée',
-            subtitle: 'Les photos envoyées dans le chat apparaîtront ici.',
+            title: l10n.groupDetailNoPhotosTitle,
+            subtitle: l10n.groupDetailNoPhotosSubtitle,
           );
         }
         return GridView.builder(
@@ -484,15 +490,17 @@ class _RecipesTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) {
         appLogger.provider('_RecipesTab → error | $e');
-        return const Center(child: Text('Erreur de chargement'));
+        final l10n = AppLocalizations.of(context);
+        return Center(child: Text(l10n.commonLoadError));
       },
       data: (ids) {
         appLogger.provider('_RecipesTab → data | count: ${ids.length}');
+        final l10n = AppLocalizations.of(context);
         if (ids.isEmpty) {
-          return const EmptyState(
+          return EmptyState(
             icon: Icons.restaurant_menu_rounded,
-            title: 'Aucune recette partagée',
-            subtitle: 'Les recettes partagées dans le chat apparaîtront ici.',
+            title: l10n.groupDetailNoRecipesTitle,
+            subtitle: l10n.groupDetailNoRecipesSubtitle,
           );
         }
         return ListView.separated(
@@ -671,17 +679,19 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
         },
       );
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invitations envoyées')),
+          SnackBar(content: Text(l10n.groupDetailInvitesSent)),
         );
       }
     } catch (e, st) {
       appLogger.db('ERROR | invoke invite-to-group | $e', error: e, stackTrace: st);
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text(l10n.mealPlannerError(e.toString()))),
         );
       }
     }
@@ -689,6 +699,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final dmsAsync = ref.watch(myPrivateConversationsProvider);
     final membersAsync = ref.watch(groupMembersProvider(widget.groupId));
     final pendingInvitesAsync = ref.watch(pendingGroupInvitesProvider(widget.groupId));
@@ -702,7 +713,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Inviter des membres',
+              Text(l10n.groupDetailInviteTitle,
                   style: Theme.of(context).textTheme.titleLarge),
               IconButton(
                   icon: const Icon(Icons.close),
@@ -713,7 +724,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
           Expanded(
             child: dmsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Erreur: $e')),
+              error: (e, _) => Center(child: Text(l10n.mealPlannerError(e.toString()))),
               data: (dms) {
                 final members = membersAsync.valueOrNull ?? [];
                 final memberIds = members.map((m) => m.userId).toSet();
@@ -727,11 +738,10 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
                     .toList();
 
                 if (eligibleDms.isEmpty) {
-                  return const EmptyState(
+                  return EmptyState(
                     icon: Icons.person_search,
-                    title: 'Aucun contact éligible',
-                    subtitle:
-                        "Vous n'avez pas encore de conversations privées avec des utilisateurs à inviter.",
+                    title: l10n.groupDetailNoEligibleTitle,
+                    subtitle: l10n.groupDetailNoEligibleSubtitle,
                   );
                 }
 
@@ -772,7 +782,7 @@ class _InviteSheetState extends ConsumerState<_InviteSheet> {
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : Text('Inviter (${_selectedUserIds.length})'),
+                : Text(l10n.groupDetailInviteCount(_selectedUserIds.length)),
           ),
         ],
       ),
@@ -799,6 +809,7 @@ class _MemberRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       onTap: onProfileTap,
       borderRadius: BorderRadius.circular(AkeliRadius.md),
@@ -848,7 +859,7 @@ class _MemberRow extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.mail_outline_rounded),
                 color: AkeliColors.primary,
-                tooltip: 'Message privé',
+                tooltip: l10n.groupDetailPrivateMessage,
                 onPressed: onDmTap,
               ),
             if (onExcludeTap != null)
@@ -857,16 +868,16 @@ class _MemberRow extends StatelessWidget {
                 onSelected: (value) {
                   if (value == 'exclude') onExcludeTap!();
                 },
-                itemBuilder: (_) => const [
+                itemBuilder: (_) => [
                   PopupMenuItem(
                     value: 'exclude',
                     child: Row(
                       children: [
-                        Icon(Icons.person_remove_outlined, color: AkeliColors.error, size: 18),
-                        SizedBox(width: 8),
+                        const Icon(Icons.person_remove_outlined, color: AkeliColors.error, size: 18),
+                        const SizedBox(width: 8),
                         Text(
-                          'Exclure du groupe',
-                          style: TextStyle(color: AkeliColors.error),
+                          l10n.groupDetailExcludeFromGroup,
+                          style: const TextStyle(color: AkeliColors.error),
                         ),
                       ],
                     ),

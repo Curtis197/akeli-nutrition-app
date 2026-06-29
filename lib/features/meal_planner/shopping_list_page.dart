@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/locale_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 
 import '../../shared/widgets/empty_state.dart';
@@ -24,7 +26,11 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final listAsync = ref.watch(shoppingListProvider);
+    final localeState = ref.watch(localeProvider);
+    final isUsLocale = localeState.isUsLocale;
+    final localeName = l10n.localeName;
 
     _logger.provider('ShoppingListPage build() | listAsync.isLoading: ${listAsync.isLoading}');
 
@@ -51,9 +57,9 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
             ),
           ),
         ),
-        title: const Text(
-          'Ma Liste',
-          style: TextStyle(
+        title: Text(
+          l10n.shoppingListTitle,
+          style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -63,14 +69,14 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
       body: listAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(
-          child: Text('Erreur: $err', style: const TextStyle(color: AkeliColors.error)),
+          child: Text(l10n.mealPlannerError(err.toString()), style: const TextStyle(color: AkeliColors.error)),
         ),
         data: (items) {
           if (items.isEmpty) {
-            return const EmptyState(
+            return EmptyState(
               icon: Icons.shopping_cart_outlined,
-              title: 'Liste vide',
-              subtitle: 'Votre liste de courses apparaîtra ici une fois votre plan alimentaire généré.',
+              title: l10n.shoppingListTitle,
+              subtitle: l10n.shoppingListEmpty,
             );
           }
 
@@ -103,7 +109,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                         child: Row(
                           children: [
                             _FilterButton(
-                              title: 'Tous',
+                              title: l10n.shoppingListAll,
                               isSelected: _filter == _ShoppingFilter.all,
                               onTap: () => setState(() {
                                 _logger.userAction('Filter selected', screen: 'ShoppingListPage', metadata: {'filter': 'all'});
@@ -112,7 +118,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                             ),
                             const SizedBox(width: 8),
                             _FilterButton(
-                              title: 'Achetés',
+                              title: l10n.shoppingListChecked,
                               isSelected: _filter == _ShoppingFilter.bought,
                               onTap: () => setState(() {
                                 _logger.userAction('Filter selected', screen: 'ShoppingListPage', metadata: {'filter': 'bought'});
@@ -121,7 +127,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                             ),
                             const SizedBox(width: 8),
                             _FilterButton(
-                              title: 'Restants',
+                              title: l10n.shoppingListRemaining,
                               isSelected: _filter == _ShoppingFilter.remaining,
                               onTap: () => setState(() {
                                 _logger.userAction('Filter selected', screen: 'ShoppingListPage', metadata: {'filter': 'remaining'});
@@ -148,9 +154,9 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'INGRÉDIENTS TOTAL',
-                              style: TextStyle(
+                            Text(
+                              l10n.shoppingListItems(filteredItems.length).toUpperCase(),
+                              style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: AkeliColors.onSurfaceVariant,
@@ -177,6 +183,8 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                         child: AkeliShoppingRow(
                           item: item,
                           isChecked: item.isChecked,
+                          isUsLocale: isUsLocale,
+                          locale: localeName,
                           onToggle: () {
                             ref.read(shoppingListProvider.notifier).toggleItem(item.id, !item.isChecked);
                           },

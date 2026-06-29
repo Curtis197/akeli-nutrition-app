@@ -3,7 +3,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../core/supabase_client.dart';
 import '../core/logger.dart';
+import '../core/locale_provider.dart';
 import '../shared/models/recipe.dart';
+import 'recipe_provider.dart';
 
 part 'profile_tabs_provider.g.dart';
 
@@ -11,6 +13,7 @@ part 'profile_tabs_provider.g.dart';
 Future<List<Recipe>> userSavedRecipes(Ref ref, String userId) async {
   appLogger.provider('userSavedRecipesProvider build() | userId: $userId');
   final client = ref.watch(supabaseClientProvider);
+  final locale = ref.watch(localeProvider).languageCode;
   
   final response = await client
       .from('recipe_save')
@@ -27,12 +30,14 @@ Future<List<Recipe>> userSavedRecipes(Ref ref, String userId) async {
       .inFilter('id', recipeIds)
       .order('created_at', ascending: false);
 
-  return recipesData.map((e) => Recipe.fromJson(e)).toList();
+  final recipes = recipesData.map((e) => Recipe.fromJson(e)).toList();
+  return applyTitleTranslations(client, recipes, locale);
 }
 
 final userLikedRecipesProvider = FutureProvider.autoDispose.family<List<Recipe>, String>((ref, userId) async {
   appLogger.provider('userLikedRecipesProvider build() | userId: $userId');
   final client = ref.watch(supabaseClientProvider);
+  final locale = ref.watch(localeProvider).languageCode;
   
   final response = await client
       .from('recipe_like')
@@ -49,7 +54,8 @@ final userLikedRecipesProvider = FutureProvider.autoDispose.family<List<Recipe>,
       .inFilter('id', recipeIds)
       .order('created_at', ascending: false);
 
-  return recipesData.map((e) => Recipe.fromJson(e)).toList();
+  final recipes = recipesData.map((e) => Recipe.fromJson(e)).toList();
+  return applyTitleTranslations(client, recipes, locale);
 });
 
 

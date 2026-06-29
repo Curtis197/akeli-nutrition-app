@@ -62,9 +62,9 @@ class UnitConverter {
     }
   }
 
-  /// Body weight display helpers — 1 decimal precision, no step rounding.
+  /// Body weight display helpers — 1 decimal precision for display, higher precision for saving to prevent loss.
   static double kgToLb(double kg) => double.parse((kg * 2.20462).toStringAsFixed(1));
-  static double lbToKg(double lb) => double.parse((lb / 2.20462).toStringAsFixed(1));
+  static double lbToKg(double lb) => double.parse((lb / 2.20462).toStringAsFixed(3));
 
   /// Convert a US/Imperial quantity and unit back to metric (for saving).
   static ({double quantity, String unit}) toMetric(double qty, String unit) {

@@ -8,6 +8,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../providers/recipe_provider.dart';
@@ -460,7 +461,7 @@ class _GroupChatPageState extends ConsumerState<GroupChatPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                         const SizedBox(width: 8),
-                        Text('Envoi en cours…',
+                        Text(AppLocalizations.of(context).communitySending,
                             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 color: AkeliColors.textSecondary)),
                       ],
@@ -810,8 +811,9 @@ class _EditGroupSheetState extends ConsumerState<_EditGroupSheet> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de la sélection de l\'image')),
+          SnackBar(content: Text(l10n.communityGroupImageError)),
         );
       }
     }
@@ -1037,7 +1039,7 @@ class _EditGroupSheetState extends ConsumerState<_EditGroupSheet> {
                 ),
                 child: _isLoading
                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text('Enregistrer'),
+                    : Text(AppLocalizations.of(context).commonSave),
               ),
               const SizedBox(height: AkeliSpacing.xl),
             ],

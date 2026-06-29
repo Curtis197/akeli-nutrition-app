@@ -1,3 +1,4 @@
+// ignore_for_file: type=lint, invalid_use_of_internal_member, subtype_of_sealed_class, deprecated_member_use
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'recipe_comment_provider.dart';
@@ -6,37 +7,13 @@ part of 'recipe_comment_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$recipeCommentNotifierHash() =>
-    r'0711e26e339e856f70b97018e558fc04620dffcd';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
+String _$recipeCommentNotifierHash() => r'recipeCommentNotifier';
 
 abstract class _$RecipeCommentNotifier
     extends BuildlessAutoDisposeAsyncNotifier<List<RecipeComment>> {
   late final String recipeId;
 
-  FutureOr<List<RecipeComment>> build(
-    String recipeId,
-  );
+  FutureOr<List<RecipeComment>> build(String recipeId);
 }
 
 /// See also [RecipeCommentNotifier].
@@ -44,8 +21,7 @@ abstract class _$RecipeCommentNotifier
 const recipeCommentNotifierProvider = RecipeCommentNotifierFamily();
 
 /// See also [RecipeCommentNotifier].
-class RecipeCommentNotifierFamily
-    extends Family<AsyncValue<List<RecipeComment>>> {
+class RecipeCommentNotifierFamily extends Family<AsyncValue<List<RecipeComment>>> {
   /// See also [RecipeCommentNotifier].
   const RecipeCommentNotifierFamily();
 
@@ -84,8 +60,7 @@ class RecipeCommentNotifierFamily
 
 /// See also [RecipeCommentNotifier].
 class RecipeCommentNotifierProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<RecipeCommentNotifier,
-        List<RecipeComment>> {
+    extends AutoDisposeAsyncNotifierProviderImpl<RecipeCommentNotifier, List<RecipeComment>> {
   /// See also [RecipeCommentNotifier].
   RecipeCommentNotifierProvider(
     String recipeId,
@@ -141,8 +116,8 @@ class RecipeCommentNotifierProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<RecipeCommentNotifier,
-      List<RecipeComment>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<RecipeCommentNotifier, List<RecipeComment>>
+      createElement() {
     return _RecipeCommentNotifierProviderElement(this);
   }
 
@@ -153,15 +128,12 @@ class RecipeCommentNotifierProvider
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    var hash = 0;
     hash = _SystemHash.combine(hash, recipeId.hashCode);
-
     return _SystemHash.finish(hash);
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 mixin RecipeCommentNotifierRef
     on AutoDisposeAsyncNotifierProviderRef<List<RecipeComment>> {
   /// The parameter `recipeId` of this provider.
@@ -169,12 +141,28 @@ mixin RecipeCommentNotifierRef
 }
 
 class _RecipeCommentNotifierProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<RecipeCommentNotifier,
-        List<RecipeComment>> with RecipeCommentNotifierRef {
+    extends AutoDisposeAsyncNotifierProviderElement<RecipeCommentNotifier, List<RecipeComment>>
+    with RecipeCommentNotifierRef {
   _RecipeCommentNotifierProviderElement(super.provider);
 
   @override
-  String get recipeId => (origin as RecipeCommentNotifierProvider).recipeId;
+  String get recipeId => (provider as RecipeCommentNotifierProvider).recipeId;
 }
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+
+class _SystemHash {
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}

@@ -1,3 +1,4 @@
+// ignore_for_file: type=lint, invalid_use_of_internal_member, subtype_of_sealed_class, deprecated_member_use
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'search_allergen_provider.dart';
@@ -6,28 +7,7 @@ part of 'search_allergen_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$searchAllergenHash() => r'4dbfa61186f7e51dd98166216d0c6a0d22a13008';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
+String _$searchAllergenHash() => r'searchAllergen';
 
 /// See also [searchAllergen].
 @ProviderFor(searchAllergen)
@@ -72,8 +52,7 @@ class SearchAllergenFamily extends Family<AsyncValue<List<AllergenModel>>> {
 }
 
 /// See also [searchAllergen].
-class SearchAllergenProvider
-    extends AutoDisposeFutureProvider<List<AllergenModel>> {
+class SearchAllergenProvider extends AutoDisposeFutureProvider<List<AllergenModel>> {
   /// See also [searchAllergen].
   SearchAllergenProvider(
     String query,
@@ -136,15 +115,12 @@ class SearchAllergenProvider
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    var hash = 0;
     hash = _SystemHash.combine(hash, query.hashCode);
-
     return _SystemHash.finish(hash);
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
 mixin SearchAllergenRef on AutoDisposeFutureProviderRef<List<AllergenModel>> {
   /// The parameter `query` of this provider.
   String get query;
@@ -156,7 +132,23 @@ class _SearchAllergenProviderElement
   _SearchAllergenProviderElement(super.provider);
 
   @override
-  String get query => (origin as SearchAllergenProvider).query;
+  String get query => (provider as SearchAllergenProvider).query;
 }
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+
+class _SystemHash {
+  static int combine(int hash, int value) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + value);
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
+    return hash ^ (hash >> 6);
+  }
+
+  static int finish(int hash) {
+    // ignore: parameter_assignments
+    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
+    // ignore: parameter_assignments
+    hash = hash ^ (hash >> 11);
+    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+  }
+}

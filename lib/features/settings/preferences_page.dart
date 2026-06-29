@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../shared/models/user_preferences.dart';
 import 'widgets/allergen_picker_widget.dart';
@@ -24,33 +25,34 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   bool _saving = false;
   final _logger = appLogger;
 
-  static const _cookingTimeOptions = [
-    ('quick', 'Rapide (< 30 min)', Icons.bolt_rounded),
-    ('medium', 'Moyen (30–60 min)', Icons.timer_outlined),
-    ('any', 'Peu importe', Icons.all_inclusive_rounded),
-  ];
-
-  static const _regionOptions = [
-    ('west_africa', 'Afrique de l\'Ouest'),
-    ('east_africa', 'Afrique de l\'Est'),
-    ('north_africa', 'Afrique du Nord'),
-    ('central_africa', 'Afrique Centrale'),
-    ('south_africa', 'Afrique du Sud'),
-    ('caribbean', 'Caraïbes'),
-    ('occidental', 'Occidental'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     _logger.provider('PreferencesPage build()');
+    final l10n = AppLocalizations.of(context);
     final prefsAsync = ref.watch(userPreferencesProvider);
+
+    final cookingTimeOptions = [
+      ('quick',  l10n.preferencesCookingTimeQuick,  Icons.bolt_rounded),
+      ('medium', l10n.preferencesCookingTimeMedium, Icons.timer_outlined),
+      ('any',    l10n.preferencesCookingTimeAny,    Icons.all_inclusive_rounded),
+    ];
+
+    final regionOptions = [
+      ('west_africa',    l10n.preferencesRegionWestAfrica),
+      ('east_africa',    l10n.preferencesRegionEastAfrica),
+      ('north_africa',   l10n.preferencesRegionNorthAfrica),
+      ('central_africa', l10n.preferencesRegionCentralAfrica),
+      ('south_africa',   l10n.preferencesRegionSouthAfrica),
+      ('caribbean',      l10n.preferencesRegionCaribbean),
+      ('occidental',     l10n.preferencesRegionWestern),
+    ];
 
     return prefsAsync.when(
       loading: () => const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (e, _) => Scaffold(
-        body: Center(child: Text('Erreur: $e')),
+        body: Center(child: Text('${l10n.preferencesError}: $e')),
       ),
       data: (prefs) {
         _localPrefs ??= prefs;
@@ -90,9 +92,9 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                           },
                         ),
                       ),
-                      const Text(
-                        'Préférences',
-                        style: TextStyle(
+                      Text(
+                        l10n.preferencesTitle,
+                        style: const TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -117,20 +119,20 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ── Plan de repas ───────────────────────────────────────────
-                const SettingsSectionHeader(title: 'PLAN DE REPAS'),
+                // ── Meal plan ───────────────────────────────────────────────
+                SettingsSectionHeader(title: l10n.preferencesMealPlanSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.bookmark_rounded, color: AkeliColors.primary),
-                    title: const Text(
-                      'Générer depuis les favoris',
-                      style: TextStyle(fontWeight: FontWeight.w500, color: AkeliColors.onSurface),
+                    title: Text(
+                      l10n.preferencesMealPlanFromFavorites,
+                      style: const TextStyle(fontWeight: FontWeight.w500, color: AkeliColors.onSurface),
                     ),
-                    subtitle: const Text(
-                      'Utiliser uniquement vos recettes enregistrées',
-                      style: TextStyle(fontSize: 13, color: AkeliColors.onSurfaceVariant),
+                    subtitle: Text(
+                      l10n.preferencesMealPlanFromFavoritesDesc,
+                      style: const TextStyle(fontSize: 13, color: AkeliColors.onSurfaceVariant),
                     ),
                     trailing: const Icon(Icons.chevron_right_rounded, color: AkeliColors.onSurfaceVariant),
                     onTap: () {
@@ -144,16 +146,16 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // ── Cuisson ─────────────────────────────────────────────
-                const SettingsSectionHeader(title: 'CUISSON'),
+                // ── Cooking ─────────────────────────────────────────────────
+                SettingsSectionHeader(title: l10n.preferencesCookingSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SettingsLabel('Temps de préparation'),
+                      SettingsLabel(l10n.preferencesCookingTimeLabel),
                       const SizedBox(height: 12),
-                      ..._cookingTimeOptions.map((opt) {
+                      ...cookingTimeOptions.map((opt) {
                         final (value, label, icon) = opt;
                         return SettingsRadioRow(
                           icon: icon,
@@ -170,26 +172,26 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                         );
                       }),
                       const Divider(height: 24),
-                      const SettingsLabel('Cuisson en batch'),
+                      SettingsLabel(l10n.preferencesBatchCookingLabel),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Préparer plusieurs repas à la fois',
-                                  style: TextStyle(
+                                  l10n.preferencesBatchCookingDesc,
+                                  style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                     color: AkeliColors.onSurface,
                                   ),
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
-                                  'Cuire en grande quantité pour la semaine',
-                                  style: TextStyle(
+                                  l10n.preferencesBatchCookingDetail,
+                                  style: const TextStyle(
                                     fontSize: 13,
                                     color: AkeliColors.onSurfaceVariant,
                                   ),
@@ -205,8 +207,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                                   screen: 'PreferencesPage',
                                   metadata: {'enabled': v});
                               setState(() {
-                                _localPrefs =
-                                    local.copyWith(batchCookingEnabled: v);
+                                _localPrefs = local.copyWith(batchCookingEnabled: v);
                               });
                             },
                           ),
@@ -219,12 +220,11 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                                 key: const ValueKey('portions'),
                                 padding: const EdgeInsets.only(top: 16),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text(
-                                      'Portions max par session',
-                                      style: TextStyle(
+                                    Text(
+                                      l10n.preferencesBatchPortions,
+                                      style: const TextStyle(
                                         fontSize: 15,
                                         color: AkeliColors.onSurface,
                                       ),
@@ -245,13 +245,11 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                                           .toList(),
                                       onChanged: (v) {
                                         if (v == null) return;
-                                        _logger.userAction(
-                                            'Batch max portions changed',
+                                        _logger.userAction('Batch max portions changed',
                                             screen: 'PreferencesPage',
                                             metadata: {'portions': v});
                                         setState(() {
-                                          _localPrefs = local.copyWith(
-                                              batchMaxPortions: v);
+                                          _localPrefs = local.copyWith(batchMaxPortions: v);
                                         });
                                       },
                                     ),
@@ -266,14 +264,14 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
                 const SizedBox(height: 24),
 
-                // ── Région culinaire ─────────────────────────────────────
-                const SettingsSectionHeader(title: 'RÉGION CULINAIRE'),
+                // ── Cuisine region ───────────────────────────────────────────
+                SettingsSectionHeader(title: l10n.preferencesCuisineSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _regionOptions.map((opt) {
+                    children: regionOptions.map((opt) {
                       final (code, name) = opt;
                       final selected = local.cuisineRegion == code;
                       return FilterChip(
@@ -289,16 +287,11 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                                 : local.copyWith(cuisineRegion: code);
                           });
                         },
-                        selectedColor:
-                            AkeliColors.primary.withValues(alpha: 0.15),
+                        selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
                         checkmarkColor: AkeliColors.primary,
                         labelStyle: TextStyle(
-                          color: selected
-                              ? AkeliColors.primary
-                              : AkeliColors.onSurface,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          color: selected ? AkeliColors.primary : AkeliColors.onSurface,
+                          fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
                         ),
                       );
                     }).toList(),
@@ -307,73 +300,68 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
                 const SizedBox(height: 24),
 
-                // ── Restrictions alimentaires ─────────────────────────────
-                const SettingsSectionHeader(title: 'RESTRICTIONS ALIMENTAIRES'),
+                // ── Dietary restrictions ─────────────────────────────────────
+                SettingsSectionHeader(title: l10n.preferencesDietSection),
                 const SizedBox(height: 8),
                 SettingsCard(
                   child: Column(
                     children: [
                       _ToggleRow(
-                        label: 'Sans porc',
+                        label: l10n.preferencesNoPork,
                         icon: Icons.no_meals_rounded,
                         value: local.noPork,
                         onChanged: (v) {
                           _logger.userAction('noPork toggled',
                               screen: 'PreferencesPage',
                               metadata: {'value': v});
-                          setState(
-                              () => _localPrefs = local.copyWith(noPork: v));
+                          setState(() => _localPrefs = local.copyWith(noPork: v));
                         },
                       ),
                       const Divider(height: 1, indent: 48),
                       _ToggleRow(
-                        label: 'Sans viande',
+                        label: l10n.preferencesNoMeat,
                         icon: Icons.grass_rounded,
                         value: local.noMeat,
                         onChanged: (v) {
                           _logger.userAction('noMeat toggled',
                               screen: 'PreferencesPage',
                               metadata: {'value': v});
-                          setState(
-                              () => _localPrefs = local.copyWith(noMeat: v));
+                          setState(() => _localPrefs = local.copyWith(noMeat: v));
                         },
                       ),
                       const Divider(height: 1, indent: 48),
                       _ToggleRow(
-                        label: 'Sans gluten',
+                        label: l10n.preferencesNoGluten,
                         icon: Icons.grain_rounded,
                         value: local.noGluten,
                         onChanged: (v) {
                           _logger.userAction('noGluten toggled',
                               screen: 'PreferencesPage',
                               metadata: {'value': v});
-                          setState(
-                              () => _localPrefs = local.copyWith(noGluten: v));
+                          setState(() => _localPrefs = local.copyWith(noGluten: v));
                         },
                       ),
                       const Divider(height: 1, indent: 48),
                       _ToggleRow(
-                        label: 'Sans lactose',
+                        label: l10n.preferencesNoLactose,
                         icon: Icons.water_drop_outlined,
                         value: local.noLactose,
                         onChanged: (v) {
                           _logger.userAction('noLactose toggled',
                               screen: 'PreferencesPage',
                               metadata: {'value': v});
-                          setState(() =>
-                              _localPrefs = local.copyWith(noLactose: v));
+                          setState(() => _localPrefs = local.copyWith(noLactose: v));
                         },
                       ),
                       const Divider(height: 1, indent: 48),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Allergies & Intolérances',
-                              style: TextStyle(
+                            Text(
+                              l10n.preferencesAllergens,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: AkeliColors.onSurface,
@@ -397,7 +385,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
 
                 const SizedBox(height: 32),
 
-                // ── Save button ──────────────────────────────────────────
+                // ── Save button ──────────────────────────────────────────────
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -415,9 +403,9 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                             child: CircularProgressIndicator(
                                 strokeWidth: 2.5, color: Colors.white),
                           )
-                        : const Text(
-                            'Enregistrer',
-                            style: TextStyle(
+                        : Text(
+                            l10n.preferencesSave,
+                            style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
@@ -435,13 +423,14 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   Future<void> _save() async {
     if (_localPrefs == null) return;
     _logger.userAction('PreferencesPage save tapped', screen: 'PreferencesPage');
+    final l10n = AppLocalizations.of(context);
     setState(() => _saving = true);
     try {
       await ref.read(userPreferencesProvider.notifier).save(_localPrefs!);
       _localPrefs = null;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Préférences enregistrées.')),
+          SnackBar(content: Text(l10n.preferencesSaved)),
         );
         context.pop();
       }
@@ -449,7 +438,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
       _logger.provider('PreferencesPage save error | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: $e')),
+          SnackBar(content: Text('${l10n.preferencesError}: $e')),
         );
       }
     } finally {
@@ -458,7 +447,7 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
   }
 }
 
-// ── Private widgets ─────────────────────────────────────────────────────────
+// ── Private widgets ──────────────────────────────────────────────────────────
 
 class _ToggleRow extends StatelessWidget {
   final String label;

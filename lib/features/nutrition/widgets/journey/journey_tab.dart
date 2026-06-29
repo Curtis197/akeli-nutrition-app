@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:akeli/core/logger.dart';
 import 'package:akeli/core/theme.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/providers/journey_provider.dart';
 import 'journey_summary_row.dart';
 import 'journey_streak_pill.dart';
@@ -72,6 +73,7 @@ class _JourneyTabState extends ConsumerState<JourneyTab> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('JourneyTab build() | $_year-$_month');
+    final l10n = AppLocalizations.of(context);
 
     final statsAsync = ref.watch(
       journeyStatsProvider((year: _year, month: _month)),
@@ -87,14 +89,14 @@ class _JourneyTabState extends ConsumerState<JourneyTab> {
             children: [
               const Icon(Icons.error_outline, color: AkeliColors.error, size: 40),
               const SizedBox(height: 12),
-              const Text('Impossible de charger le parcours',
-                  style: TextStyle(color: AkeliColors.onSurfaceVariant)),
+              Text(l10n.journeyNoData,
+                  style: const TextStyle(color: AkeliColors.onSurfaceVariant)),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: () => ref.invalidate(
                   journeyStatsProvider((year: _year, month: _month)),
                 ),
-                child: const Text('Réessayer'),
+                child: Text(l10n.commonRetry),
               ),
             ],
           ),
@@ -102,9 +104,9 @@ class _JourneyTabState extends ConsumerState<JourneyTab> {
       },
       data: (stats) {
         if (stats == null) {
-          return const Center(
-            child: Text('Aucune donnée disponible',
-                style: TextStyle(color: AkeliColors.onSurfaceVariant)),
+          return Center(
+            child: Text(l10n.journeyNoData,
+                style: const TextStyle(color: AkeliColors.onSurfaceVariant)),
           );
         }
         _logger.provider('JourneyTab → data | streak: ${stats.currentStreak}');

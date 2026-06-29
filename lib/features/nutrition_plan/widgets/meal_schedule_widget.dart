@@ -37,7 +37,11 @@ class _MealScheduleWidgetState extends State<MealScheduleWidget> {
     _logger.provider(
         'MealScheduleWidget initState | slots: ${widget.initialDistributions.length}');
     _slots = widget.initialDistributions.map((d) => (_nextKey++, d)).toList();
-    _emit();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _emit();
+      }
+    });
   }
 
   double get _totalCaloriePct =>

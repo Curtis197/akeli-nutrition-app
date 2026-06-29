@@ -35,6 +35,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     final nutritionAsync = ref.watch(activeNutritionPlanProvider);
     final weightLogAsync = ref.watch(weightLogProvider);
     final isUs = ref.watch(localeProvider).isUsLocale;
+    final l10n = AppLocalizations.of(context);
     _logger.provider('DietPlanPage build() | planAsync.isLoading: ${planAsync.isLoading}');
 
     return Scaffold(
@@ -44,19 +45,19 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
         scrolledUnderElevation: 0,
         elevation: 0,
         centerTitle: true,
-        title: const Column(
+        title: Column(
           children: [
             Text(
-              'Récapitulatif',
-              style: TextStyle(
+              l10n.dietPlanSummaryTitle,
+              style: const TextStyle(
                 color: AkeliColors.primary,
                 fontWeight: FontWeight.w800,
                 fontSize: 18,
               ),
             ),
             Text(
-              'Votre plan diététique',
-              style: TextStyle(
+              l10n.dietPlanSummarySubtitle,
+              style: const TextStyle(
                 color: AkeliColors.onSurfaceVariant,
                 fontSize: 12,
               ),
@@ -84,13 +85,13 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
           child: Text(
-            'Erreur: $e',
+            l10n.dietPlanError(e.toString()),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AkeliColors.error),
           ),
         ),
         data: (plan) {
           final entries = plan?.entries ?? [];
-          
+
           // Group entries by date
           final groupedMeals = <DateTime, List<dynamic>>{};
           for (final entry in entries) {
@@ -118,7 +119,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                 isUs: isUs,
               ),
               const SizedBox(height: 32),
-              
+
               // Daily Recaps
               ...weekDates.map((date) {
                 final meals = groupedMeals[date] ?? [];
@@ -146,6 +147,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     required List<WeightEntry>? weightLog,
     bool isUs = false,
   }) {
+    final l10n = AppLocalizations.of(context);
     final startingWeightKg = health?.startingWeightKg ?? health?.weightKg;
     final currentWeightKg = weightLog?.isNotEmpty == true ? weightLog!.first.weightKg : startingWeightKg;
     final targetWeightKg = health?.targetWeightKg;
@@ -155,7 +157,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     final currentWeight = cvt(currentWeightKg);
     final targetWeight = cvt(targetWeightKg);
     final targetTimeWeeks = health?.targetTimeWeeks;
-    
+
     double? weeklyLoss;
     if (startingWeight != null && targetWeight != null && targetTimeWeeks != null && targetTimeWeeks > 0) {
       weeklyLoss = (startingWeight - targetWeight) / targetTimeWeeks;
@@ -198,9 +200,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'ÉVOLUTION DU POIDS',
-                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+                    Text(
+                      l10n.dietPlanWeightEvolution,
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -210,8 +212,8 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                       ),
                       child: Text(
                         weeklyLoss != null
-                            ? '${weeklyLoss > 0 ? "-" : "+"}${weeklyLoss.abs().toStringAsFixed(1)} $unit / semaine'
-                            : '-- $unit / semaine',
+                            ? '${weeklyLoss > 0 ? "-" : "+"}${weeklyLoss.abs().toStringAsFixed(1)} $unit ${l10n.dietPlanPerWeek}'
+                            : '-- $unit ${l10n.dietPlanPerWeek}',
                         style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AkeliColors.primary),
                       ),
                     ),
@@ -228,7 +230,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                           startingWeight != null ? '${startingWeight.toStringAsFixed(1)} $unit' : '--',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
                         ),
-                        const Text('Départ', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
+                        Text(l10n.dietPlanWeightStartLabel, style: const TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
                       ],
                     ),
                     Column(
@@ -238,7 +240,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                           targetWeight != null ? '${targetWeight.toStringAsFixed(1)} $unit' : '--',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.onSurfaceVariant),
                         ),
-                        const Text('Objectif', style: TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
+                        Text(l10n.dietPlanWeightTargetLabel, style: const TextStyle(fontSize: 10, color: AkeliColors.onSurfaceVariant)),
                       ],
                     ),
                   ],
@@ -269,7 +271,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                 const SizedBox(height: 12),
                 Center(
                   child: Text(
-                    currentWeight != null ? '${currentWeight.toStringAsFixed(1)} $unit actuel' : '-- actuel',
+                    currentWeight != null
+                        ? '${currentWeight.toStringAsFixed(1)} $unit ${l10n.dietPlanCurrentWeightLabel}'
+                        : '-- ${l10n.dietPlanCurrentWeightLabel}',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AkeliColors.primary),
                   ),
                 ),
@@ -301,12 +305,12 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      calorieGoal != null ? '$calorieGoal kcal/jour' : '-- kcal/jour',
+                      calorieGoal != null ? '$calorieGoal ${l10n.dietPlanKcalPerDay}' : '-- ${l10n.dietPlanKcalPerDay}',
                       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: AkeliColors.onSecondaryContainer),
                     ),
-                    const Text(
-                      'Objectif calorique',
-                      style: TextStyle(fontSize: 14, color: AkeliColors.onSecondaryContainer),
+                    Text(
+                      l10n.dietPlanCalorieGoal,
+                      style: const TextStyle(fontSize: 14, color: AkeliColors.onSecondaryContainer),
                     ),
                   ],
                 ),
@@ -315,9 +319,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
           ),
           if (restrictions.isNotEmpty) ...[
             const SizedBox(height: 24),
-            const Text(
-              'RESTRICTIONS',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
+            Text(
+              l10n.dietPlanRestrictionsTitle,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AkeliColors.onSurfaceVariant, letterSpacing: 1),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -341,8 +345,9 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
 
   Widget _buildDailyRecapCard(BuildContext context, DateTime date, List<dynamic> meals) {
     final l10n = AppLocalizations.of(context);
-    final dateStr = DateFormat('EEEE d MMMM', 'fr_FR').format(date);
-    
+    final locale = Localizations.localeOf(context).toString();
+    final dateStr = DateFormat('EEEE d MMMM', locale).format(date);
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -411,7 +416,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
                                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: mealColor),
                               ),
                               Text(
-                                m.localizedTitle(Localizations.localeOf(context).languageCode) ?? 'Repas',
+                                m.localizedTitle(Localizations.localeOf(context).languageCode) ?? l10n.dietPlanMealFallback,
                                 style: const TextStyle(fontSize: 14, color: AkeliColors.onSurfaceVariant),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -436,6 +441,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
   }
 
   Widget _buildActionButtons(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
@@ -445,7 +451,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
               await ref.read(mealPlanGeneratorProvider.notifier).generate();
             },
             icon: const Icon(Icons.refresh),
-            label: const Text('Régénérer'),
+            label: Text(l10n.dietPlanRegenerate),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               foregroundColor: AkeliColors.onSurface,
@@ -463,7 +469,7 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
               context.go(AkeliRoutes.shoppingList);
             },
             icon: const Icon(Icons.shopping_basket),
-            label: const Text('Liste courses'),
+            label: Text(l10n.dietPlanShoppingList),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: AkeliColors.primary,

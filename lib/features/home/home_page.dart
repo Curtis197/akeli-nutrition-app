@@ -352,6 +352,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: AkeliWeightStepper(
                   weight: _currentWeight,
+                  isUs: localeState.isUsLocale,
                   onChanged: (newWeight) {
                     HapticFeedback.lightImpact();
                     _logger.userAction('Weight stepper changed',

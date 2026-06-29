@@ -2,13 +2,26 @@ import 'package:akeli/core/theme.dart';
 import 'package:akeli/features/cooking/cooking_mode_page.dart';
 import 'package:akeli/shared/models/recipe.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
 Widget _wrap(Widget child) => ProviderScope(
-      child: MaterialApp(theme: buildLightTheme(), home: child),
+      child: MaterialApp(
+        theme: buildLightTheme(),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('fr'), Locale('en')],
+        locale: const Locale('fr'),
+        home: child,
+      ),
     );
 
 void _setLandscape(WidgetTester tester) {
@@ -35,12 +48,14 @@ Recipe _recipe({
   final ingredients = withIngredients
       ? [
           const RecipeIngredient(
+              id: '',
               ingredientId: 'i1',
               name: 'Oignons',
               quantity: 2.0,
               unit: 'pcs',
               isOptional: false),
           const RecipeIngredient(
+              id: '',
               ingredientId: 'i2',
               name: 'Huile',
               quantity: 2.0,
@@ -52,6 +67,7 @@ Recipe _recipe({
   final steps = List.generate(
     stepCount,
     (i) => RecipeStep(
+      id: '',
       stepNumber: i + 1,
       instruction: 'Instruction étape ${i + 1}',
       durationMin: withTimer ? 3 : null,
@@ -98,7 +114,7 @@ void main() {
       await tester.pumpWidget(_wrap(CookingModePage(recipe: _recipe())));
       await tester.pump();
 
-      expect(find.text('Étape 1 / 3'), findsOneWidget);
+      expect(find.text('Étape 1 sur 3'), findsOneWidget);
     });
 
     testWidgets('shows timer pill in landscape when step has duration', (tester) async {
@@ -135,10 +151,10 @@ void main() {
       await tester.pumpWidget(_wrap(CookingModePage(recipe: _recipe())));
       await tester.pump();
 
-      expect(find.text('Étape 1 / 3'), findsOneWidget);
+      expect(find.text('Étape 1 sur 3'), findsOneWidget);
       await tester.tap(find.byIcon(Icons.chevron_right_rounded).first);
       await tester.pumpAndSettle();
-      expect(find.text('Étape 2 / 3'), findsOneWidget);
+      expect(find.text('Étape 2 sur 3'), findsOneWidget);
     });
 
     testWidgets('chevron-left icon goes to previous step', (tester) async {
@@ -152,7 +168,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.chevron_left_rounded).first);
       await tester.pumpAndSettle();
-      expect(find.text('Étape 1 / 3'), findsOneWidget);
+      expect(find.text('Étape 1 sur 3'), findsOneWidget);
     });
 
     testWidgets('last step shows check icon instead of chevron', (tester) async {

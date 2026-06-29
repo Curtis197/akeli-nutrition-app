@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:akeli/core/quantity_formatter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import '../../l10n/app_localizations.dart';
 
 class CookingModePage extends StatefulWidget {
   final Recipe recipe;
@@ -432,12 +433,13 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 16, 8),
       child: Row(
         children: [
           Text(
-            'Étape $current / $total',
+            l10n.cookingModeStep(current, total),
             style: GoogleFonts.plusJakartaSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -786,7 +788,13 @@ class _LandscapeInfoPanel extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${ing.name}  ${formatQuantity(ing.quantity, ing.unit)}',
+                            '${ing.name}  ${formatQuantity(
+                              ing.quantity,
+                              ing.unit,
+                              locale: AppLocalizations.of(context).localeName,
+                              ingredientId: ing.ingredientId,
+                              ingredientName: ing.name,
+                            )}',
                             style: GoogleFonts.inter(
                               fontSize: 12,
                               color: isChecked

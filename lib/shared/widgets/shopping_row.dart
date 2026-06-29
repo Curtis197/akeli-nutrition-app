@@ -1,23 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:akeli/core/theme.dart';
 import 'package:akeli/core/quantity_formatter.dart';
+import 'package:akeli/core/unit_converter.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
 
 class AkeliShoppingRow extends StatelessWidget {
   final ShoppingItem item;
   final bool isChecked;
   final VoidCallback onToggle;
+  final bool isUsLocale;
+  final String locale;
 
   const AkeliShoppingRow({
     super.key,
     required this.item,
     required this.isChecked,
     required this.onToggle,
+    this.isUsLocale = false,
+    this.locale = 'fr',
   });
 
   @override
   Widget build(BuildContext context) {
-    final qtyText = formatQuantity(item.quantity, item.unit);
+    final converted = isUsLocale
+        ? UnitConverter.toImperial(item.quantity, item.unit)
+        : (quantity: item.quantity, unit: item.unit);
+    final qtyText = formatQuantity(
+      converted.quantity,
+      converted.unit,
+      locale: locale,
+      ingredientId: item.ingredientId,
+      ingredientName: item.name,
+    );
 
     return GestureDetector(
       onTap: onToggle,

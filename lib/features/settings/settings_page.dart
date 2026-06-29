@@ -11,6 +11,8 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/recipe_provider.dart';
+import '../../providers/meal_plan_provider.dart';
 import '../../shared/widgets/avatar.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -21,7 +23,16 @@ class SettingsPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(userProfileProvider);
     final isPremium = ref.watch(isPremiumProvider);
-    appLogger.provider('SettingsPage build() | isPremium: $isPremium');
+    final localeState = ref.watch(localeProvider);
+    final String currentLangText;
+    if (localeState.isUsLocale) {
+      currentLangText = l10n.preferencesLocaleUsImperial;
+    } else if (localeState.languageCode == 'fr') {
+      currentLangText = l10n.languageFrench;
+    } else {
+      currentLangText = l10n.languageEnglish;
+    }
+    appLogger.provider('SettingsPage build() | isPremium: $isPremium | currentLangText: $currentLangText');
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -312,7 +323,7 @@ class SettingsPage extends ConsumerWidget {
                         _MenuItem(
                           icon: Icons.language_rounded,
                           label: l10n.settingsLanguage,
-                          trailing: Text(l10n.settingsLanguageCurrent, style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
+                          trailing: Text(currentLangText, style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
                           onTap: () {
                             appLogger.userAction('Language menu tapped', screen: 'SettingsPage');
                             showDialog<void>(
@@ -329,6 +340,10 @@ class SettingsPage extends ConsumerWidget {
                                         onTap: () {
                                           appLogger.userAction('Language selected: en', screen: 'SettingsPage');
                                           ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                                          ref.invalidate(recipeDetailProvider);
+                                          ref.invalidate(activeMealPlanProvider);
+                                          ref.invalidate(shoppingListProvider);
+                                          ref.invalidate(cookingSessionsProvider);
                                           Navigator.pop(ctx);
                                         },
                                       ),
@@ -337,6 +352,22 @@ class SettingsPage extends ConsumerWidget {
                                         onTap: () {
                                           appLogger.userAction('Language selected: fr', screen: 'SettingsPage');
                                           ref.read(localeProvider.notifier).setLocale(const Locale('fr'));
+                                          ref.invalidate(recipeDetailProvider);
+                                          ref.invalidate(activeMealPlanProvider);
+                                          ref.invalidate(shoppingListProvider);
+                                          ref.invalidate(cookingSessionsProvider);
+                                          Navigator.pop(ctx);
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: Text(dialogL10n.preferencesLocaleUsImperial),
+                                        onTap: () {
+                                          appLogger.userAction('Language selected: en-US', screen: 'SettingsPage');
+                                          ref.read(localeProvider.notifier).setLocale(const Locale('en', 'US'));
+                                          ref.invalidate(recipeDetailProvider);
+                                          ref.invalidate(activeMealPlanProvider);
+                                          ref.invalidate(shoppingListProvider);
+                                          ref.invalidate(cookingSessionsProvider);
                                           Navigator.pop(ctx);
                                         },
                                       ),

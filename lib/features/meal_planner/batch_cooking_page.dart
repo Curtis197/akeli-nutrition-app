@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/models/meal_plan.dart';
 
@@ -12,6 +14,7 @@ class BatchCookingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final sessionsAsync = ref.watch(cookingSessionsProvider);
 
     appLogger.provider('BatchCookingPage build() | sessionsAsync.isLoading: ${sessionsAsync.isLoading}');
@@ -39,9 +42,9 @@ class BatchCookingPage extends ConsumerWidget {
             ),
           ),
         ),
-        title: const Text(
-          'Session de cuisine',
-          style: TextStyle(
+        title: Text(
+          l10n.batchCookingTitle,
+          style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -52,7 +55,7 @@ class BatchCookingPage extends ConsumerWidget {
       body: sessionsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
-          child: Text('Erreur: $e',
+          child: Text(l10n.mealPlannerError(e.toString()),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AkeliColors.error)),
         ),
         data: (sessions) => sessions.isEmpty
@@ -63,23 +66,23 @@ class BatchCookingPage extends ConsumerWidget {
                 separatorBuilder: (_, index) => index == 0 ? const SizedBox.shrink() : const SizedBox(height: 16),
                 itemBuilder: (_, index) {
                   if (index == 0) {
-                    return const Padding(
-                      padding: EdgeInsets.only(bottom: 16),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Cette semaine',
-                            style: TextStyle(
+                            l10n.batchCookingThisWeek,
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                               color: AkeliColors.onSurface,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
-                            'Vos préparations en cours',
-                            style: TextStyle(
+                            l10n.batchCookingOngoing,
+                            style: const TextStyle(
                               fontSize: 14,
                               color: AkeliColors.onSurfaceVariant,
                             ),
@@ -113,6 +116,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     appLogger.provider('BatchCookingEmptyState build()');
     return Center(
       child: Padding(
@@ -123,14 +127,14 @@ class _EmptyState extends StatelessWidget {
             const Text('🍲', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 24),
             Text(
-              'Aucune session cette semaine',
+              l10n.batchCookingNoSessionsTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Vos sessions batch apparaîtront ici automatiquement quand une recette est planifiée plusieurs fois.',
-              style: TextStyle(color: AkeliColors.onSurfaceVariant),
+            Text(
+              l10n.batchCookingNoSessionsBody,
+              style: const TextStyle(color: AkeliColors.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
           ],
@@ -152,16 +156,11 @@ class _CookingSessionCard extends StatelessWidget {
     required this.onTap,
   });
 
-  String _formatDate(DateTime date) {
-    const months = [
-      'jan', 'fév', 'mar', 'avr', 'mai', 'juin',
-      'juil', 'août', 'sep', 'oct', 'nov', 'déc'
-    ];
-    return '${date.day} ${months[date.month - 1]}.';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).languageCode;
+    final formattedDate = DateFormat('d MMM', locale).format(session.plannedDate);
     appLogger.provider('CookingSessionCard build() | sessionId: ${session.id}');
     final progress = session.totalPortions > 0
         ? session.portionsUsed / session.totalPortions
@@ -207,7 +206,7 @@ class _CookingSessionCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    session.recipeTitle ?? 'Recette',
+                    session.localizedTitle(locale) ?? l10n.batchCookingDefaultRecipe,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -216,7 +215,7 @@ class _CookingSessionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${_formatDate(session.plannedDate)} · ${session.totalPortions} portions',
+                    '$formattedDate · ${session.totalPortions} portions',
                     style: const TextStyle(
                       fontSize: 14,
                       color: AkeliColors.onSurfaceVariant,

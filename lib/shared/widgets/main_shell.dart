@@ -6,6 +6,7 @@ import '../../core/theme.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/notifications_provider.dart';
 import '../../shared/widgets/avatar.dart';
+import '../../l10n/app_localizations.dart';
 
 class MainShell extends ConsumerWidget {
   final Widget child;
@@ -13,30 +14,10 @@ class MainShell extends ConsumerWidget {
   const MainShell({super.key, required this.child});
 
   static const _tabs = [
-    _TabItem(
-      route: AkeliRoutes.home,
-      icon: Icons.home_outlined,
-      activeIcon: Icons.home,
-      label: 'Accueil',
-    ),
-    _TabItem(
-      route: AkeliRoutes.mealPlanner,
-      icon: Icons.restaurant_menu_outlined,
-      activeIcon: Icons.restaurant_menu,
-      label: 'Repas',
-    ),
-    _TabItem(
-      route: AkeliRoutes.recipes,
-      icon: Icons.menu_book_outlined,
-      activeIcon: Icons.menu_book,
-      label: 'Recettes',
-    ),
-    _TabItem(
-      route: AkeliRoutes.community,
-      icon: Icons.people_outlined,
-      activeIcon: Icons.people,
-      label: 'Communauté',
-    ),
+    _TabItem(route: AkeliRoutes.home, icon: Icons.home_outlined, activeIcon: Icons.home),
+    _TabItem(route: AkeliRoutes.mealPlanner, icon: Icons.restaurant_menu_outlined, activeIcon: Icons.restaurant_menu),
+    _TabItem(route: AkeliRoutes.recipes, icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book),
+    _TabItem(route: AkeliRoutes.community, icon: Icons.people_outlined, activeIcon: Icons.people),
   ];
 
   int _activeIndex(BuildContext context) {
@@ -51,6 +32,8 @@ class MainShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeIndex = _activeIndex(context);
     final profileAsync = ref.watch(userProfileProvider);
+    final l10n = AppLocalizations.of(context);
+    final tabLabels = [l10n.navHome, l10n.navMeals, l10n.navRecipes, l10n.navCommunity];
 
     return Scaffold(
       appBar: AppBar(
@@ -89,7 +72,7 @@ class MainShell extends ConsumerWidget {
               icon: const Icon(Icons.settings_outlined,
                   color: AkeliColors.secondary),
               onPressed: () => context.go(AkeliRoutes.settings),
-              tooltip: 'Paramètres',
+              tooltip: l10n.tooltipSettings,
             ),
           ),
         ],
@@ -102,15 +85,11 @@ class MainShell extends ConsumerWidget {
         },
         backgroundColor: AkeliColors.surface,
         indicatorColor: AkeliColors.primary.withValues(alpha: 0.12),
-        destinations: _tabs
-            .map(
-              (tab) => NavigationDestination(
-                icon: Icon(tab.icon),
-                selectedIcon: Icon(tab.activeIcon, color: AkeliColors.primary),
-                label: tab.label,
-              ),
-            )
-            .toList(),
+        destinations: List.generate(_tabs.length, (i) => NavigationDestination(
+          icon: Icon(_tabs[i].icon),
+          selectedIcon: Icon(_tabs[i].activeIcon, color: AkeliColors.primary),
+          label: tabLabels[i],
+        )),
       ),
     );
   }
@@ -132,7 +111,7 @@ class _NotificationBell extends ConsumerWidget {
           icon: const Icon(Icons.notifications_none_rounded,
               color: AkeliColors.secondary),
           onPressed: () => context.push(AkeliRoutes.notifications),
-          tooltip: 'Notifications',
+          tooltip: AppLocalizations.of(context).tooltipNotifications,
         ),
         if (hasUnread)
           Positioned(
@@ -156,12 +135,10 @@ class _TabItem {
   final String route;
   final IconData icon;
   final IconData activeIcon;
-  final String label;
 
   const _TabItem({
     required this.route,
     required this.icon,
     required this.activeIcon,
-    required this.label,
   });
 }

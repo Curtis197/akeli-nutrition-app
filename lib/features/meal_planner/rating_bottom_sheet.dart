@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 
 class RatingBottomSheet extends ConsumerStatefulWidget {
@@ -51,6 +52,7 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final ratingState = ref.watch(ratingProvider);
     final isLoading = ratingState.isLoading;
 
@@ -90,7 +92,7 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Comment était ce repas ?',
+            l10n.ratingTitle,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
@@ -156,7 +158,7 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
                         _logger.userAction('Rating skipped', screen: 'RatingBottomSheet');
                         Navigator.of(context).pop();
                       },
-                child: const Text('Passer'),
+                child: Text(l10n.ratingSkip),
               ),
               const Spacer(),
               ElevatedButton(
@@ -176,8 +178,8 @@ class _RatingBottomSheetState extends ConsumerState<RatingBottomSheet> {
                         child: CircularProgressIndicator(
                             color: Colors.white, strokeWidth: 2),
                       )
-                    : const Text('Soumettre',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    : Text(l10n.ratingSubmit,
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),

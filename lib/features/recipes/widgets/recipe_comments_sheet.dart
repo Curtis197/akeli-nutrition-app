@@ -4,6 +4,7 @@ import 'package:timeago/timeago.dart' as timeago;
 
 
 import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/recipe_comment_provider.dart';
 import '../../../shared/models/recipe_comment.dart';
 import '../../../shared/widgets/avatar.dart';
@@ -29,6 +30,7 @@ class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final commentsAsync = ref.watch(recipeCommentNotifierProvider(widget.recipeId));
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
@@ -70,9 +72,9 @@ class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Commentaires',
-                    style: TextStyle(
+                  Text(
+                    l10n.recipeDetailComments,
+                    style: const TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -95,13 +97,13 @@ class _RecipeCommentsSheetState extends ConsumerState<RecipeCommentsSheet> {
                       return SingleChildScrollView(
                         controller: scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 32),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 32),
                           child: Center(
                             child: Text(
-                              'Aucun commentaire pour le moment.\nSoyez le premier à donner votre avis !',
+                              l10n.recipeDetailNoComments,
                               textAlign: TextAlign.center,
-                              style: TextStyle(color: AkeliColors.onSurfaceVariant),
+                              style: const TextStyle(color: AkeliColors.onSurfaceVariant),
                             ),
                           ),
                         ),

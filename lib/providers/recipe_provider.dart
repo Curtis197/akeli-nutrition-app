@@ -1,9 +1,164 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/locale_provider.dart';
 import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/recipe.dart';
 import 'auth_provider.dart';
+
+// ---------------------------------------------------------------------------
+// Translation helper — applies recipe_translation / recipe_step_translation /
+// recipe_ingredient_translation for a given locale (no-op for 'fr').
+// ---------------------------------------------------------------------------
+
+Future<List<Recipe>> applyTitleTranslations(
+  SupabaseClient client,
+  List<Recipe> recipes,
+  String locale,
+) async {
+  if (locale == 'fr' || recipes.isEmpty) return recipes;
+
+  final ids = recipes.map((r) => r.id).toList();
+  appLogger.db('BEFORE | table: recipe_translation | op: SELECT | locale: $locale | ids: ${ids.length}');
+  try {
+    final data = await client
+        .from('recipe_translation')
+        .select('recipe_id, title')
+        .eq('locale', locale)
+        .inFilter('recipe_id', ids) as List<dynamic>;
+    appLogger.db('AFTER | table: recipe_translation | rows: ${data.length}');
+
+    final transMap = <String, String>{
+      for (final t in data.cast<Map<String, dynamic>>())
+        t['recipe_id'] as String: t['title'] as String,
+    };
+    return recipes.map((r) {
+      final t = transMap[r.id];
+      return t != null ? r.copyWith(title: t) : r;
+    }).toList();
+  } catch (e, st) {
+    appLogger.db('ERROR | table: recipe_translation | $e', error: e, stackTrace: st);
+    return recipes;
+  }
+}
+
+Future<Recipe> _applyDetailTranslations(
+  SupabaseClient client,
+  Recipe recipe,
+  String locale,
+) async {
+  if (locale == 'fr') return recipe;
+
+  final isUsLocale = locale == 'en-US';
+  final textLocale = locale;
+  final ingTransLocale = locale;
+
+  // 1. Recipe title + description
+  appLogger.db('BEFORE | table: recipe_translation | op: SELECT | locale: $textLocale | recipeId: ${recipe.id}');
+  Map<String, dynamic>? rtRow;
+  try {
+    rtRow = await client
+        .from('recipe_translation')
+        .select('title, description')
+        .eq('recipe_id', recipe.id)
+        .eq('locale', textLocale)
+        .maybeSingle();
+    appLogger.db('AFTER | table: recipe_translation | rows: ${rtRow == null ? 0 : 1}');
+  } catch (e, st) {
+    appLogger.db('ERROR | table: recipe_translation | $e', error: e, stackTrace: st);
+  }
+
+  // 2. Step translations
+  final stepIds = recipe.steps.where((s) => s.id.isNotEmpty).map((s) => s.id).toList();
+  Map<String, Map<String, dynamic>> stepTrans = {};
+  if (stepIds.isNotEmpty) {
+    appLogger.db('BEFORE | table: recipe_step_translation | op: SELECT | locale: $textLocale | steps: ${stepIds.length}');
+    try {
+      final stData = await client
+          .from('recipe_step_translation')
+          .select('step_id, content, title')
+          .eq('locale', textLocale)
+          .inFilter('step_id', stepIds) as List<dynamic>;
+      appLogger.db('AFTER | table: recipe_step_translation | rows: ${stData.length}');
+      stepTrans = {
+        for (final s in stData.cast<Map<String, dynamic>>())
+          s['step_id'] as String: s,
+      };
+    } catch (e, st) {
+      appLogger.db('ERROR | table: recipe_step_translation | $e', error: e, stackTrace: st);
+    }
+  }
+
+  // 3. Ingredient section-header & quantity/unit translations
+  final ingIds = recipe.ingredients
+      .where((i) => (isUsLocale || i.isSectionHeader) && i.id.isNotEmpty)
+      .map((i) => i.id)
+      .toList();
+  Map<String, Map<String, dynamic>> ingTrans = {};
+  if (ingIds.isNotEmpty) {
+    appLogger.db('BEFORE | table: recipe_ingredient_translation | op: SELECT | locale: $ingTransLocale | rows: ${ingIds.length}');
+    try {
+      final itData = await client
+          .from('recipe_ingredient_translation')
+          .select('recipe_ingredient_id, title, quantity, unit')
+          .eq('locale', ingTransLocale)
+          .inFilter('recipe_ingredient_id', ingIds) as List<dynamic>;
+      appLogger.db('AFTER | table: recipe_ingredient_translation | rows: ${itData.length}');
+      ingTrans = {
+        for (final i in itData.cast<Map<String, dynamic>>())
+          i['recipe_ingredient_id'] as String: i,
+      };
+    } catch (e, st) {
+      appLogger.db('ERROR | table: recipe_ingredient_translation | $e', error: e, stackTrace: st);
+    }
+  }
+
+  // Apply
+  final translatedSteps = recipe.steps.map((step) {
+    final t = stepTrans[step.id];
+    if (t == null) return step;
+    return step.copyWith(
+      instruction: t['content'] as String? ?? step.instruction,
+      sectionTitle: t['title'] as String? ?? step.sectionTitle,
+    );
+  }).toList();
+
+  final translatedIngredients = recipe.ingredients.map((ing) {
+    final t = ingTrans[ing.id];
+    RecipeIngredient result = ing;
+    if (t != null) {
+      if (ing.isSectionHeader) {
+        result = ing.copyWith(sectionTitle: t['title'] as String? ?? ing.sectionTitle);
+      } else {
+        final double? qty = t['quantity'] != null ? (t['quantity'] as num).toDouble() : null;
+        final String? unitVal = t['unit'] as String?;
+        result = RecipeIngredient(
+          id: ing.id,
+          ingredientId: ing.ingredientId,
+          name: ing.name,
+          nameEn: ing.nameEn,
+          quantity: qty ?? ing.quantity,
+          unit: unitVal ?? ing.unit,
+          isOptional: ing.isOptional,
+          isSectionHeader: ing.isSectionHeader,
+          sectionTitle: ing.sectionTitle,
+        );
+      }
+    }
+    // Apply ingredient name translation for regular (non-header) rows
+    if (!ing.isSectionHeader && ing.nameEn != null) {
+      result = result.copyWith(name: ing.nameEn);
+    }
+    return result;
+  }).toList();
+
+  return recipe.copyWith(
+    title: rtRow?['title'] as String? ?? recipe.title,
+    description: rtRow?['description'] as String? ?? recipe.description,
+    steps: translatedSteps,
+    ingredients: translatedIngredients,
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Feed
@@ -55,8 +210,9 @@ final feedProvider =
     FutureProvider.autoDispose.family<List<Recipe>, FeedParams>(
         (ref, params) async {
   final user = ref.watch(currentUserProvider);
+  final locale = ref.watch(localeProvider).languageCode;
   appLogger.provider(
-      'feedProvider build() | userId: ${user?.id ?? "null"} | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
+      'feedProvider build() | userId: ${user?.id ?? "null"} | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
   ref.onDispose(() => appLogger.provider('feedProvider disposed'));
 
   if (user == null) {
@@ -123,9 +279,10 @@ final feedProvider =
         .map((id) => Recipe.fromJson(recipeMap[id]!))
         .toList();
 
+    final translated = await applyTitleTranslations(client, recipes, locale);
     appLogger.provider(
-        'feedProvider → data | recipes: ${recipes.length}');
-    return recipes;
+        'feedProvider → data | recipes: ${translated.length} | locale: $locale');
+    return translated;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       appLogger.rls(
@@ -153,7 +310,8 @@ final feedProvider =
 
 final recipeDetailProvider =
     FutureProvider.autoDispose.family<Recipe?, String>((ref, id) async {
-  appLogger.provider('recipeDetailProvider build() | recipeId: $id');
+  final locale = ref.watch(localeProvider).stringValue;
+  appLogger.provider('recipeDetailProvider build() | recipeId: $id | locale: $locale');
   ref.onDispose(() => appLogger.provider('recipeDetailProvider disposed | recipeId: $id'));
 
   final client = ref.watch(supabaseClientProvider);
@@ -162,7 +320,7 @@ final recipeDetailProvider =
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name), quantity, unit, is_optional, sort_order, is_section_header, title), steps:recipe_step(step_number, content, image_url, timer_seconds, sort_order, ingredient_ids, is_section_header, title), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name_en, name), quantity, unit, is_optional, sort_order, is_section_header, title), steps:recipe_step(id, step_number, content, image_url, timer_seconds, sort_order, ingredient_ids, is_section_header, title), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
         .maybeSingle();
 
@@ -174,8 +332,9 @@ final recipeDetailProvider =
     }
 
     appLogger.db('AFTER | table: recipe | rows: 1 | recipeId: $id');
-    final recipe = Recipe.fromJson(data);
-    appLogger.provider('recipeDetailProvider → data | title: ${recipe.title}');
+    var recipe = Recipe.fromJson(data);
+    recipe = await _applyDetailTranslations(client, recipe, locale);
+    appLogger.provider('recipeDetailProvider → data | title: ${recipe.title} | locale: $locale');
     return recipe;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
@@ -243,8 +402,9 @@ class SearchParams {
 final searchRecipesProvider =
     FutureProvider.autoDispose.family<List<Recipe>, SearchParams>(
         (ref, params) async {
+  final locale = ref.watch(localeProvider).languageCode;
   appLogger.provider(
-      'searchRecipesProvider build() | query: "${params.query}" | region: ${params.regionId} | difficulty: ${params.difficulty} | maxTime: ${params.maxTimeMin} | orderBy: ${params.orderBy}');
+      'searchRecipesProvider build() | query: "${params.query}" | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | maxTime: ${params.maxTimeMin} | orderBy: ${params.orderBy}');
   ref.onDispose(() => appLogger.provider('searchRecipesProvider disposed | query: "${params.query}"'));
 
   if (params.query.length < 2) {
@@ -290,8 +450,9 @@ final searchRecipesProvider =
     }
 
     final recipes = data.cast<Map<String, dynamic>>().map(Recipe.fromJson).toList();
-    appLogger.provider('searchRecipesProvider → data | recipes: ${recipes.length}');
-    return recipes;
+    final translated = await applyTitleTranslations(client, recipes, locale);
+    appLogger.provider('searchRecipesProvider → data | recipes: ${translated.length} | locale: $locale');
+    return translated;
   } on PostgrestException catch (e, st) {
     if (e.code == '42501') {
       appLogger.rls('Permission denied | table: recipe | search query', error: e, stackTrace: st);

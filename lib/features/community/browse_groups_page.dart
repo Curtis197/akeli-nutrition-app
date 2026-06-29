@@ -5,6 +5,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/supabase_client.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../providers/food_region_provider.dart';
@@ -61,7 +62,7 @@ class _BrowseGroupsPageState extends ConsumerState<BrowseGroupsPage> {
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
-        title: const Text('Découvrir des groupes'),
+        title: Text(AppLocalizations.of(context).communityDiscoverGroups),
         backgroundColor: AkeliColors.background,
         elevation: 0,
         actions: [
@@ -137,7 +138,7 @@ class _BrowseGroupsPageState extends ConsumerState<BrowseGroupsPage> {
               error: (err, _) => Center(child: Text('Erreur: $err')),
               data: (groups) {
                 if (groups.isEmpty) {
-                  return const Center(child: Text('Aucun groupe ne correspond à ces critères.'));
+                  return Center(child: Text(AppLocalizations.of(context).communityNoCriteria));
                 }
                 return ListView.builder(
                   padding: const EdgeInsets.all(AkeliSpacing.md),
@@ -183,9 +184,10 @@ class _GroupBrowseCardState extends ConsumerState<_GroupBrowseCard> {
   Future<void> _joinGroup() async {
     final groupId = widget.group['id'] as String;
     appLogger.userAction('Join group tapped', screen: 'BrowseGroupsPage', metadata: {'groupId': groupId});
-    
+    final l10n = AppLocalizations.of(context);
+
     setState(() => _isJoining = true);
-    
+
     final client = ref.read(supabaseClientProvider);
     final userId = ref.read(currentUserProvider)?.id;
     if (userId == null) return;
@@ -211,15 +213,15 @@ class _GroupBrowseCardState extends ConsumerState<_GroupBrowseCard> {
 
       ref.invalidate(communityGroupsProvider);
       ref.invalidate(browseGroupsProvider);
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Groupe rejoint avec succès')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.communityJoinSuccess)));
         context.push(AkeliRoutes.groupChatPath(groupId));
       }
     } catch (e) {
       appLogger.db('ERROR | joinGroup | $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur lors de l\'adhésion')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.communityJoinError)));
         setState(() => _isJoining = false);
       }
     }

@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:akeli/shared/widgets/meal_card.dart';
 
-Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:akeli/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('fr'), Locale('en')],
+      home: Scaffold(body: child),
+    );
 
 void main() {
   group('AkeliMealCard planner variant — consumed toggle visibility', () {
