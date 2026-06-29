@@ -3,7 +3,7 @@
 
 BEGIN;
 
-SELECT plan(5);
+SELECT plan(6);
 
 -- ─── Seed ──────────────────────────────────────────────────────────────────
 
@@ -100,10 +100,10 @@ WHERE mp.user_id         = 'eeeeffff-0000-4000-8000-000000000099'::uuid
   AND mpe.scheduled_date = (CURRENT_DATE + 200)::date
   AND mpec.role          = 'base';
 
--- Week 2 (1-day plan, 8 days later — within the 15-day window)
+-- Week 2 (1-day plan, 5 days later — within the 7-day default window)
 SELECT public.generate_meal_plan(
   'eeeeffff-0000-4000-8000-000000000099'::uuid,
-  1, 3, (CURRENT_DATE + 208)::date, 3
+  1, 3, (CURRENT_DATE + 205)::date, 3
 );
 
 SELECT ok(
@@ -115,11 +115,11 @@ SELECT ok(
     JOIN public.meal_plan_entry_component mpec
       ON mpec.meal_plan_entry_id = mpe.id
     WHERE mp.user_id         = 'eeeeffff-0000-4000-8000-000000000099'::uuid
-      AND mpe.scheduled_date = (CURRENT_DATE + 208)::date
+      AND mpe.scheduled_date = (CURRENT_DATE + 205)::date
       AND mpec.role          = 'base'
       AND mpec.recipe_id IN (SELECT recipe_id FROM t_variety_w1)
   ),
-  '15-day blacklist: plan at day+208 shares no recipe with plan at day+200'
+  '7-day blacklist: plan at day+205 shares no recipe with plan at day+200 (gap=5 days)'
 );
 
 -- ─── Tests 2 & 3: fallback — two plans within 15 days must not crash ───────
@@ -181,13 +181,57 @@ SELECT ok(
 );
 
 -- ─── Test 5: fallback path — pool exhausted, Pass 2 generates without error ──
--- day+212 window = [day+197, day+212): contains day+200 (A) and day+208 (B) → all 6 recipes blacklisted.
+-- day+207 window = [day+200, day+207): contains day+200 (A) and day+205 (B) → all 6 recipes blacklisted.
 SELECT lives_ok(
   $$ SELECT public.generate_meal_plan(
        'eeeeffff-0000-4000-8000-000000000099'::uuid,
-       1, 3, (CURRENT_DATE + 212)::date, 3
+       1, 3, (CURRENT_DATE + 207)::date, 3
      ) $$,
-  'fallback: when entire pool is blacklisted (day+212, both A+B in window), Pass 2 generates plan successfully'
+  'fallback: when entire pool is blacklisted (day+207, both A+B in 7-day window), Pass 2 generates plan successfully'
+);
+
+-- ─── Test 6: meal_variety_days = 0 disables cross-plan blacklist ─────────────
+-- With variety=0 the window = [p_start_date, p_start_date) which is impossible,
+-- so v_recent_recipe_ids is always empty and A recipes are reused each week.
+-- BEFORE Task 2 migration: generator ignores the column (hardcoded 15) →
+--   day+600 recipes are blacklisted at day+603 → B used → assertion FAILS.
+-- AFTER Task 2 migration: reads variety=0 → empty window → A reused → PASSES.
+
+UPDATE public.user_profile
+SET meal_variety_days = 0
+WHERE id = 'eeeeffff-0000-4000-8000-000000000099'::uuid;
+
+SELECT public.generate_meal_plan(
+  'eeeeffff-0000-4000-8000-000000000099'::uuid,
+  1, 3, (CURRENT_DATE + 600)::date, 3
+);
+
+CREATE TEMP TABLE t_variety_v0 AS
+SELECT DISTINCT mpec.recipe_id
+FROM public.meal_plan mp
+JOIN public.meal_plan_entry mpe  ON mpe.meal_plan_id = mp.id
+JOIN public.meal_plan_entry_component mpec ON mpec.meal_plan_entry_id = mpe.id
+WHERE mp.user_id         = 'eeeeffff-0000-4000-8000-000000000099'::uuid
+  AND mpe.scheduled_date = (CURRENT_DATE + 600)::date
+  AND mpec.role          = 'base';
+
+SELECT public.generate_meal_plan(
+  'eeeeffff-0000-4000-8000-000000000099'::uuid,
+  1, 3, (CURRENT_DATE + 603)::date, 3
+);
+
+SELECT ok(
+  EXISTS(
+    SELECT 1
+    FROM public.meal_plan mp
+    JOIN public.meal_plan_entry mpe  ON mpe.meal_plan_id = mp.id
+    JOIN public.meal_plan_entry_component mpec ON mpec.meal_plan_entry_id = mpe.id
+    WHERE mp.user_id         = 'eeeeffff-0000-4000-8000-000000000099'::uuid
+      AND mpe.scheduled_date = (CURRENT_DATE + 603)::date
+      AND mpec.role          = 'base'
+      AND mpec.recipe_id IN (SELECT recipe_id FROM t_variety_v0)
+  ),
+  'variety=0: plan at day+603 reuses day+600 recipes — no blacklist when meal_variety_days=0'
 );
 
 SELECT * FROM finish();
