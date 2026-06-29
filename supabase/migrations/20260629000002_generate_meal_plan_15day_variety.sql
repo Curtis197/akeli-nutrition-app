@@ -1,4 +1,4 @@
--- supabase/migrations/20260629000001_generate_meal_plan_15day_variety.sql
+-- supabase/migrations/20260629000002_generate_meal_plan_15day_variety.sql
 -- Description: Add 15-day cross-plan recipe blacklist to all three meal plan
 -- generators. Each slot tries to exclude recipes used in the past 15 days
 -- (relative to p_start_date). Falls back silently to the best available
