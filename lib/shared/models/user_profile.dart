@@ -18,6 +18,7 @@ class UserProfile {
   final DateTime? consentPrivacyAt;
   final DateTime? consentCguAt;
   final bool hasDismissedMealScheduleHint;
+  final int mealVarietyDays; // 0 | 7 | 15
 
   const UserProfile({
     required this.id,
@@ -36,6 +37,7 @@ class UserProfile {
     this.consentPrivacyAt,
     this.consentCguAt,
     this.hasDismissedMealScheduleHint = false,
+    this.mealVarietyDays = 7,
   });
 
   String get displayName =>
@@ -63,6 +65,8 @@ class UserProfile {
             : null,
         hasDismissedMealScheduleHint:
             (json['has_dismissed_meal_schedule_hint'] as bool?) ?? false,
+        mealVarietyDays:
+            (json['meal_variety_days'] as int?) ?? 7,
       );
 
   UserProfile copyWith({
@@ -76,6 +80,7 @@ class UserProfile {
     bool? isPrivate,
     String? locale,
     bool? hasDismissedMealScheduleHint,
+    int? mealVarietyDays,
   }) =>
       UserProfile(
         id: id,
@@ -91,6 +96,7 @@ class UserProfile {
         locale: locale ?? this.locale,
         createdAt: createdAt,
         hasDismissedMealScheduleHint: hasDismissedMealScheduleHint ?? this.hasDismissedMealScheduleHint,
+        mealVarietyDays: mealVarietyDays ?? this.mealVarietyDays,
       );
 }
 

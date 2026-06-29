@@ -350,3 +350,32 @@ final dismissMealScheduleHintProvider =
     rethrow;
   }
 });
+
+// ---------------------------------------------------------------------------
+// Meal variety days — fire-and-forget update
+// ---------------------------------------------------------------------------
+
+final setMealVarietyDaysProvider =
+    FutureProvider.autoDispose.family<void, ({String userId, int days})>(
+        (ref, args) async {
+  appLogger.provider(
+      'setMealVarietyDaysProvider | userId: ${LogHelper.maskUuid(args.userId)} | days: ${args.days}');
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db(
+      'BEFORE | table: user_profile | op: UPDATE meal_variety_days=${args.days} | userId: ${LogHelper.maskUuid(args.userId)}');
+  try {
+    await client
+        .from('user_profile')
+        .update({'meal_variety_days': args.days})
+        .eq('id', args.userId);
+    appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
+    ref.invalidate(userProfileProvider);
+  } on PostgrestException catch (e, st) {
+    appLogger.db(
+        'ERROR | table: user_profile | UPDATE meal_variety_days | ${e.message}',
+        error: e,
+        stackTrace: st);
+    rethrow;
+  }
+});
+
