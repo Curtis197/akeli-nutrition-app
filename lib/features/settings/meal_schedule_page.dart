@@ -36,6 +36,7 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
     final planAsync = ref.watch(activeNutritionPlanProvider);
     final profileAsync = ref.watch(userProfileProvider);
     final currentVarietyDays = profileAsync.valueOrNull?.mealVarietyDays ?? 7;
+    final currentRandomSchedule = profileAsync.valueOrNull?.mealScheduleRandom ?? false;
     final profileId = profileAsync.valueOrNull?.id;
 
     return Scaffold(
@@ -88,6 +89,11 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
                   current: currentVarietyDays,
                   profileId: profileId,
                 ),
+                const SizedBox(height: 24),
+                _RandomScheduleSection(
+                  current: currentRandomSchedule,
+                  profileId: profileId,
+                ),
               ],
             ),
           );
@@ -104,9 +110,8 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
     try {
       final plan = ref.read(activeNutritionPlanProvider).valueOrNull;
       if (plan == null) return;
-
-      _logger.provider('MealSchedulePage → saving ${_distributions!.length} distributions');
-      await ref.read(nutritionPlanNotifierProvider.notifier)
+      await ref
+          .read(nutritionPlanNotifierProvider.notifier)
           .savePlan(plan, _distributions!);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -173,6 +178,43 @@ class _VarietySection extends ConsumerWidget {
               },
             );
           }).toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _RandomScheduleSection extends ConsumerWidget {
+  final bool current;
+  final String? profileId;
+
+  const _RandomScheduleSection({required this.current, required this.profileId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: Text(l10n.mealScheduleRandomTitle,
+              style: Theme.of(context).textTheme.titleSmall),
+          subtitle: Text(l10n.mealScheduleRandomSubtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AkeliColors.onSurfaceVariant)),
+          value: current,
+          onChanged: (value) {
+            if (profileId == null) return;
+            appLogger.userAction(
+                'MealSchedulePage random schedule switch toggled',
+                screen: 'MealSchedulePage',
+                metadata: {'value': value.toString()});
+            ref.read(setMealScheduleRandomProvider(
+                    (userId: profileId!, random: value))
+                .future);
+          },
         ),
       ],
     );
