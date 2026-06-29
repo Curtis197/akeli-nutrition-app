@@ -255,6 +255,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedCreatorSpecialty => 'Specialty';
 
   @override
+  String get feedAllSpecialties => 'All specialties';
+
+  @override
   String get feedNoCreators => 'No creators found';
 
   @override
@@ -1387,6 +1390,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedSortNewest => 'Newest';
 
   @override
+  String get feedSortRelevance => 'Relevance';
+
+  @override
+  String get feedSortMostFans => 'Most fans';
+
+  @override
+  String get feedSortMostRecipes => 'Most recipes';
+
+  @override
+  String get feedSortCustom => 'Custom';
+
+  @override
+  String get unitKilograms => 'KILOGRAMS';
+
+  @override
+  String get unitPounds => 'POUNDS';
+
+  @override
   String feedFilterTimeMax(int min) {
     return '< $min min';
   }
@@ -2334,6 +2355,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mealScheduleSavedSuccess => 'Schedule saved';
 
   @override
+  String get mealScheduleVarietyTitle => 'Recipe variety';
+
+  @override
+  String get mealScheduleVarietySubtitle =>
+      'Avoid repeating recipes used recently';
+
+  @override
+  String get mealScheduleVarietyNone => 'None';
+
+  @override
+  String get mealScheduleVariety7Days => '7 days';
+
+  @override
+  String get mealScheduleVariety15Days => '15 days';
+
+  @override
   String get nutritionPlanSaveButton => 'Save plan';
 
   @override
@@ -2365,4 +2402,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get preferencesLocaleUsImperial => 'English (US)';
+
+  @override
+  String get dietPlanSummaryTitle => 'Summary';
+
+  @override
+  String get dietPlanSummarySubtitle => 'Your diet plan';
+
+  @override
+  String dietPlanError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get dietPlanWeightEvolution => 'WEIGHT PROGRESS';
+
+  @override
+  String get dietPlanPerWeek => '/ week';
+
+  @override
+  String get dietPlanWeightStartLabel => 'Start';
+
+  @override
+  String get dietPlanWeightTargetLabel => 'Target';
+
+  @override
+  String get dietPlanCurrentWeightLabel => 'current';
+
+  @override
+  String get dietPlanKcalPerDay => 'kcal/day';
+
+  @override
+  String get dietPlanRestrictionsTitle => 'RESTRICTIONS';
+
+  @override
+  String get dietPlanMealFallback => 'Meal';
+
+  @override
+  String get dietPlanRegenerate => 'Regenerate';
+
+  @override
+  String get dietPlanShoppingList => 'Shopping list';
 }

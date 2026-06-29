@@ -245,6 +245,9 @@
   "feedCreatorSpecialty": "Specialty",
   "@feedCreatorSpecialty": {},
 
+  "feedAllSpecialties": "All specialties",
+  "@feedAllSpecialties": {},
+
   "feedNoCreators": "No creators found",
   "@feedNoCreators": {},
 
@@ -1346,6 +1349,24 @@
   "feedSortNewest": "Newest",
   "@feedSortNewest": {},
 
+  "feedSortRelevance": "Relevance",
+  "@feedSortRelevance": {},
+
+  "feedSortMostFans": "Most fans",
+  "@feedSortMostFans": {},
+
+  "feedSortMostRecipes": "Most recipes",
+  "@feedSortMostRecipes": {},
+
+  "feedSortCustom": "Custom",
+  "@feedSortCustom": {},
+
+  "unitKilograms": "KILOGRAMS",
+  "@unitKilograms": {},
+
+  "unitPounds": "POUNDS",
+  "@unitPounds": {},
+
   "feedFilterTimeMax": "< {min} min",
   "@feedFilterTimeMax": {
     "placeholders": { "min": { "type": "int" } }
@@ -2219,6 +2240,16 @@
   "@mealScheduleFatPct": {},
   "mealScheduleSavedSuccess": "Schedule saved",
   "@mealScheduleSavedSuccess": {},
+  "mealScheduleVarietyTitle": "Recipe variety",
+  "@mealScheduleVarietyTitle": {},
+  "mealScheduleVarietySubtitle": "Avoid repeating recipes used recently",
+  "@mealScheduleVarietySubtitle": {},
+  "mealScheduleVarietyNone": "None",
+  "@mealScheduleVarietyNone": {},
+  "mealScheduleVariety7Days": "7 days",
+  "@mealScheduleVariety7Days": {},
+  "mealScheduleVariety15Days": "15 days",
+  "@mealScheduleVariety15Days": {},
   "nutritionPlanSaveButton": "Save plan",
   "@nutritionPlanSaveButton": {},
   "nutritionToday": "Today",
@@ -2240,5 +2271,35 @@
   "journeyBestStreakRecord": "Record",
   "@journeyBestStreakRecord": {},
   "preferencesLocaleUsImperial": "English (US)",
-  "@preferencesLocaleUsImperial": {}
+  "@preferencesLocaleUsImperial": {},
+  "dietPlanSummaryTitle": "Summary",
+  "@dietPlanSummaryTitle": {},
+  "dietPlanSummarySubtitle": "Your diet plan",
+  "@dietPlanSummarySubtitle": {},
+  "dietPlanError": "Error: {error}",
+  "@dietPlanError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "dietPlanWeightEvolution": "WEIGHT PROGRESS",
+  "@dietPlanWeightEvolution": {},
+  "dietPlanPerWeek": "/ week",
+  "@dietPlanPerWeek": {},
+  "dietPlanWeightStartLabel": "Start",
+  "@dietPlanWeightStartLabel": {},
+  "dietPlanWeightTargetLabel": "Target",
+  "@dietPlanWeightTargetLabel": {},
+  "dietPlanCurrentWeightLabel": "current",
+  "@dietPlanCurrentWeightLabel": {},
+  "dietPlanKcalPerDay": "kcal/day",
+  "@dietPlanKcalPerDay": {},
+  "dietPlanRestrictionsTitle": "RESTRICTIONS",
+  "@dietPlanRestrictionsTitle": {},
+  "dietPlanMealFallback": "Meal",
+  "@dietPlanMealFallback": {},
+  "dietPlanRegenerate": "Regenerate",
+  "@dietPlanRegenerate": {},
+  "dietPlanShoppingList": "Shopping list",
+  "@dietPlanShoppingList": {}
 }

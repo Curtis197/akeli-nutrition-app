@@ -578,6 +578,12 @@ abstract class AppLocalizations {
   /// **'Specialty'**
   String get feedCreatorSpecialty;
 
+  /// No description provided for @feedAllSpecialties.
+  ///
+  /// In en, this message translates to:
+  /// **'All specialties'**
+  String get feedAllSpecialties;
+
   /// No description provided for @feedNoCreators.
   ///
   /// In en, this message translates to:
@@ -2726,6 +2732,42 @@ abstract class AppLocalizations {
   /// **'Newest'**
   String get feedSortNewest;
 
+  /// No description provided for @feedSortRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Relevance'**
+  String get feedSortRelevance;
+
+  /// No description provided for @feedSortMostFans.
+  ///
+  /// In en, this message translates to:
+  /// **'Most fans'**
+  String get feedSortMostFans;
+
+  /// No description provided for @feedSortMostRecipes.
+  ///
+  /// In en, this message translates to:
+  /// **'Most recipes'**
+  String get feedSortMostRecipes;
+
+  /// No description provided for @feedSortCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get feedSortCustom;
+
+  /// No description provided for @unitKilograms.
+  ///
+  /// In en, this message translates to:
+  /// **'KILOGRAMS'**
+  String get unitKilograms;
+
+  /// No description provided for @unitPounds.
+  ///
+  /// In en, this message translates to:
+  /// **'POUNDS'**
+  String get unitPounds;
+
   /// No description provided for @feedFilterTimeMax.
   ///
   /// In en, this message translates to:
@@ -4448,11 +4490,179 @@ abstract class AppLocalizations {
   /// **'Schedule saved'**
   String get mealScheduleSavedSuccess;
 
+  /// No description provided for @mealScheduleVarietyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipe variety'**
+  String get mealScheduleVarietyTitle;
+
+  /// No description provided for @mealScheduleVarietySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid repeating recipes used recently'**
+  String get mealScheduleVarietySubtitle;
+
+  /// No description provided for @mealScheduleVarietyNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get mealScheduleVarietyNone;
+
+  /// No description provided for @mealScheduleVariety7Days.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get mealScheduleVariety7Days;
+
+  /// No description provided for @mealScheduleVariety15Days.
+  ///
+  /// In en, this message translates to:
+  /// **'15 days'**
+  String get mealScheduleVariety15Days;
+
   /// No description provided for @nutritionPlanSaveButton.
   ///
   /// In en, this message translates to:
   /// **'Save plan'**
   String get nutritionPlanSaveButton;
+
+  /// No description provided for @nutritionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get nutritionToday;
+
+  /// No description provided for @nutritionYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get nutritionYesterday;
+
+  /// No description provided for @nutritionChartTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get nutritionChartTarget;
+
+  /// No description provided for @nutritionEmptyStateTodayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data'**
+  String get nutritionEmptyStateTodayTitle;
+
+  /// No description provided for @nutritionEmptyStateTodaySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No food logged for this day.'**
+  String get nutritionEmptyStateTodaySubtitle;
+
+  /// No description provided for @nutritionEmptyStateWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data Yet'**
+  String get nutritionEmptyStateWeekTitle;
+
+  /// No description provided for @nutritionEmptyStateWeekSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No food logged for this week.'**
+  String get nutritionEmptyStateWeekSubtitle;
+
+  /// No description provided for @nutritionWeightEvolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight Trend'**
+  String get nutritionWeightEvolution;
+
+  /// No description provided for @journeyBestStreakRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get journeyBestStreakRecord;
+
+  /// No description provided for @preferencesLocaleUsImperial.
+  ///
+  /// In en, this message translates to:
+  /// **'English (US)'**
+  String get preferencesLocaleUsImperial;
+
+  /// No description provided for @dietPlanSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get dietPlanSummaryTitle;
+
+  /// No description provided for @dietPlanSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your diet plan'**
+  String get dietPlanSummarySubtitle;
+
+  /// No description provided for @dietPlanError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String dietPlanError(String error);
+
+  /// No description provided for @dietPlanWeightEvolution.
+  ///
+  /// In en, this message translates to:
+  /// **'WEIGHT PROGRESS'**
+  String get dietPlanWeightEvolution;
+
+  /// No description provided for @dietPlanPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'/ week'**
+  String get dietPlanPerWeek;
+
+  /// No description provided for @dietPlanWeightStartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get dietPlanWeightStartLabel;
+
+  /// No description provided for @dietPlanWeightTargetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get dietPlanWeightTargetLabel;
+
+  /// No description provided for @dietPlanCurrentWeightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'current'**
+  String get dietPlanCurrentWeightLabel;
+
+  /// No description provided for @dietPlanKcalPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'kcal/day'**
+  String get dietPlanKcalPerDay;
+
+  /// No description provided for @dietPlanRestrictionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RESTRICTIONS'**
+  String get dietPlanRestrictionsTitle;
+
+  /// No description provided for @dietPlanMealFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal'**
+  String get dietPlanMealFallback;
+
+  /// No description provided for @dietPlanRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
+  String get dietPlanRegenerate;
+
+  /// No description provided for @dietPlanShoppingList.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping list'**
+  String get dietPlanShoppingList;
 }
 
 class _AppLocalizationsDelegate
