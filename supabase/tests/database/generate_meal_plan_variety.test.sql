@@ -3,7 +3,7 @@
 
 BEGIN;
 
-SELECT plan(3);
+SELECT plan(5);
 
 -- ─── Seed ──────────────────────────────────────────────────────────────────
 
@@ -139,6 +139,55 @@ SELECT lives_ok(
        1, 3, (CURRENT_DATE + 305)::date, 3
      ) $$,
   'Second plan within 15-day window (day+305) generates without error — fallback if pool exhausted'
+);
+
+-- ─── Test 4: 15-day window is date-relative, not CURRENT_DATE-relative ───────
+-- A plan at day+1 must NOT blacklist recipes for a plan at day+20 (gap = 19 days > 15).
+-- Window for day+20 plan = [day+5, day+20) — day+1 is outside this window.
+
+SELECT public.generate_meal_plan(
+  'eeeeffff-0000-4000-8000-000000000099'::uuid,
+  1, 3, (CURRENT_DATE + 1)::date, 3
+);
+
+CREATE TEMP TABLE t_variety_d1 AS
+SELECT mpec.recipe_id
+FROM meal_plan_entry mpe
+JOIN meal_plan_entry_component mpec ON mpec.meal_plan_entry_id = mpe.id
+JOIN meal_plan mp ON mp.id = mpe.meal_plan_id
+WHERE mp.user_id       = 'eeeeffff-0000-4000-8000-000000000099'::uuid
+  AND mpe.scheduled_date = (CURRENT_DATE + 1)::date
+  AND mpec.role         = 'base';
+
+SELECT public.generate_meal_plan(
+  'eeeeffff-0000-4000-8000-000000000099'::uuid,
+  1, 3, (CURRENT_DATE + 20)::date, 3
+);
+
+-- day+20 window = [day+5, day+20): day+1 is before day+5, so NOT blacklisted.
+-- A recipes (higher score) should be selected again at day+20.
+SELECT ok(
+  EXISTS(
+    SELECT 1
+    FROM meal_plan_entry mpe2
+    JOIN meal_plan_entry_component mpec2 ON mpec2.meal_plan_entry_id = mpe2.id
+    JOIN meal_plan mp2 ON mp2.id = mpe2.meal_plan_id
+    WHERE mp2.user_id        = 'eeeeffff-0000-4000-8000-000000000099'::uuid
+      AND mpe2.scheduled_date = (CURRENT_DATE + 20)::date
+      AND mpec2.role          = 'base'
+      AND mpec2.recipe_id IN (SELECT recipe_id FROM t_variety_d1)
+  ),
+  '15-day window is date-relative: plan at day+20 reuses day+1 recipes (gap=19 > 15, window=[day+5,day+20))'
+);
+
+-- ─── Test 5: fallback path — pool exhausted, Pass 2 generates without error ──
+-- day+212 window = [day+197, day+212): contains day+200 (A) and day+208 (B) → all 6 recipes blacklisted.
+SELECT lives_ok(
+  $$ SELECT public.generate_meal_plan(
+       'eeeeffff-0000-4000-8000-000000000099'::uuid,
+       1, 3, (CURRENT_DATE + 212)::date, 3
+     ) $$,
+  'fallback: when entire pool is blacklisted (day+212, both A+B in window), Pass 2 generates plan successfully'
 );
 
 SELECT * FROM finish();

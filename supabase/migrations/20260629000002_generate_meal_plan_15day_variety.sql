@@ -980,3 +980,9 @@ $function$;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_internal(uuid, integer, integer, date) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_internal(uuid, integer, integer, date) FROM anon;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_internal(uuid, integer, integer, date) FROM authenticated;
+
+-- Restore explicit deny for non-authenticated callers on the user-facing RPC.
+-- DROP discards all grants; re-apply them here (matching historical migrations).
+REVOKE ALL ON FUNCTION public.generate_meal_plan(uuid, integer, integer, date, integer) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.generate_meal_plan(uuid, integer, integer, date, integer) FROM anon;
+GRANT EXECUTE ON FUNCTION public.generate_meal_plan(uuid, integer, integer, date, integer) TO authenticated;
