@@ -19,6 +19,7 @@ class UserProfile {
   final DateTime? consentCguAt;
   final bool hasDismissedMealScheduleHint;
   final int mealVarietyDays; // 0 | 7 | 15
+  final bool mealScheduleRandom;
 
   const UserProfile({
     required this.id,
@@ -38,6 +39,7 @@ class UserProfile {
     this.consentCguAt,
     this.hasDismissedMealScheduleHint = false,
     this.mealVarietyDays = 7,
+    this.mealScheduleRandom = false,
   });
 
   String get displayName =>
@@ -58,15 +60,17 @@ class UserProfile {
         locale: json['locale'] as String? ?? 'fr',
         createdAt: DateTime.parse(json['created_at'] as String),
         consentPrivacyAt: json['consent_privacy_at'] != null
-            ? DateTime.parse(json['consent_privacy_at'] as String)
-            : null,
+             ? DateTime.parse(json['consent_privacy_at'] as String)
+             : null,
         consentCguAt: json['consent_cgu_at'] != null
-            ? DateTime.parse(json['consent_cgu_at'] as String)
-            : null,
+             ? DateTime.parse(json['consent_cgu_at'] as String)
+             : null,
         hasDismissedMealScheduleHint:
             (json['has_dismissed_meal_schedule_hint'] as bool?) ?? false,
         mealVarietyDays:
             (json['meal_variety_days'] as int?) ?? 7,
+        mealScheduleRandom:
+            (json['meal_schedule_random'] as bool?) ?? false,
       );
 
   UserProfile copyWith({
@@ -81,6 +85,7 @@ class UserProfile {
     String? locale,
     bool? hasDismissedMealScheduleHint,
     int? mealVarietyDays,
+    bool? mealScheduleRandom,
   }) =>
       UserProfile(
         id: id,
@@ -97,6 +102,7 @@ class UserProfile {
         createdAt: createdAt,
         hasDismissedMealScheduleHint: hasDismissedMealScheduleHint ?? this.hasDismissedMealScheduleHint,
         mealVarietyDays: mealVarietyDays ?? this.mealVarietyDays,
+        mealScheduleRandom: mealScheduleRandom ?? this.mealScheduleRandom,
       );
 }
 

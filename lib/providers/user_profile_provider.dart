@@ -379,3 +379,31 @@ final setMealVarietyDaysProvider =
   }
 });
 
+// ---------------------------------------------------------------------------
+// Meal schedule random — fire-and-forget update
+// ---------------------------------------------------------------------------
+
+final setMealScheduleRandomProvider =
+    FutureProvider.autoDispose.family<void, ({String userId, bool random})>(
+        (ref, args) async {
+  appLogger.provider(
+      'setMealScheduleRandomProvider | userId: ${LogHelper.maskUuid(args.userId)} | random: ${args.random}');
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db(
+      'BEFORE | table: user_profile | op: UPDATE meal_schedule_random=${args.random} | userId: ${LogHelper.maskUuid(args.userId)}');
+  try {
+    await client
+        .from('user_profile')
+        .update({'meal_schedule_random': args.random})
+        .eq('id', args.userId);
+    appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
+    ref.invalidate(userProfileProvider);
+  } on PostgrestException catch (e, st) {
+    appLogger.db(
+        'ERROR | table: user_profile | UPDATE meal_schedule_random | ${e.message}',
+        error: e,
+        stackTrace: st);
+    rethrow;
+  }
+});
+
