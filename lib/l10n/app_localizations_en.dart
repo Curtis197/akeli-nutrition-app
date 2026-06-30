@@ -2450,4 +2450,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dietPlanShoppingList => 'Shopping list';
+
+  @override
+  String get mealScheduleBudgetSectionTitle => 'Budget & Localization';
+
+  @override
+  String get mealScheduleBudgetLabel => 'Weekly Budget (optional)';
+
+  @override
+  String get mealScheduleBudgetPlaceholder => 'Enter weekly budget';
+
+  @override
+  String get mealScheduleBudgetHint =>
+      'Limits meal generation to recipes matching your budget.';
+
+  @override
+  String get mealScheduleCountryLabel => 'Diaspora Region / Country';
+
+  @override
+  String get shoppingListTotalCost => 'Total Cost';
+
+  @override
+  String get shoppingListCostPaid => 'Cost Paid';
+
+  @override
+  String get shoppingListCostLeft => 'Cost Left';
+
+  @override
+  String get feedTabByIngredients => 'By Ingredients';
 }

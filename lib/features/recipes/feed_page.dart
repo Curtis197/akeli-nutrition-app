@@ -10,6 +10,8 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
+import '../../providers/ingredient_provider.dart';
+import '../../shared/models/ingredient_detail.dart';
 
 import '../../providers/meal_plan_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
@@ -73,6 +75,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
 
   int _tabIndex = 0;
 
+  // ---- Ingredient search/picker states ----
+  final Set<IngredientDetail> _selectedIngredients = {};
+  String _ingredientSearchQuery = '';
+  final _ingredientSearchCtrl = TextEditingController();
+
   // ---- Recipe feed pagination (personalized) ----
   final List<Recipe> _recipes = [];
   bool _hasMoreRecipes = true;
@@ -124,6 +131,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   void dispose() {
     _searchCtrl.dispose();
     _creatorsSearchCtrl.dispose();
+    _ingredientSearchCtrl.dispose();
     _logger.provider('FeedPage disposed');
     super.dispose();
   }
@@ -804,7 +812,11 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
                   child: AkeliTabBar(
-                    tabs: [l10n.feedTabRecipes, l10n.feedTabCreators],
+                    tabs: [
+                      l10n.feedTabRecipes,
+                      l10n.feedTabByIngredients,
+                      l10n.feedTabCreators
+                    ],
                     selectedIndex: _tabIndex,
                     onTabSelected: (i) {
                       _logger.userAction('Feed tab selected', screen: 'FeedPage',
@@ -813,6 +825,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         _tabIndex = i;
                         _resetRecipes();
                         _resetCreators();
+                        _ingredientSearchCtrl.clear();
+                        _ingredientSearchQuery = '';
                       });
                     },
                   ),
@@ -1074,6 +1088,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         : null,
                     tags: recipe.mealTypes.take(2).toList(),
                     creatorId: recipe.creatorId,
+                    priceTier: recipe.priceTier,
                     onTap: () async {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
 
@@ -1120,11 +1135,15 @@ class _FeedPageState extends ConsumerState<FeedPage> {
               ),
             ),
           ),
-        if (_tabIndex != 0) ...[
+        if (_tabIndex == 1) ...[
+          _buildIngredientSearchAndChipsSection(context),
+          _buildMatchingRecipesSliver(context, regionNames),
+        ],
+        if (_tabIndex == 2) ...[
           _buildCreatorSearchControls(context, regionNames),
           _buildCreateursSliver(context, regionNames),
         ],
-        if (_tabIndex != 0 && _creators.isNotEmpty)
+        if (_tabIndex == 2 && _creators.isNotEmpty)
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -1350,6 +1369,207 @@ class _FeedPageState extends ConsumerState<FeedPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildIngredientSearchAndChipsSection(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SearchBar(
+              controller: _ingredientSearchCtrl,
+              hintText: locale == 'en' ? 'Search ingredients...' : 'Rechercher des ingrédients...',
+              leading: const Icon(Icons.search_rounded),
+              trailing: [
+                if (_ingredientSearchQuery.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.clear_rounded),
+                    onPressed: () {
+                      _ingredientSearchCtrl.clear();
+                      setState(() {
+                        _ingredientSearchQuery = '';
+                      });
+                    },
+                  )
+              ],
+              onChanged: (v) {
+                setState(() {
+                  _ingredientSearchQuery = v;
+                });
+              },
+              elevation: const WidgetStatePropertyAll(0),
+              backgroundColor: const WidgetStatePropertyAll(AkeliColors.surfaceContainerLow),
+              padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+              constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
+            ),
+            if (_ingredientSearchQuery.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Container(
+                constraints: const BoxConstraints(maxHeight: 180),
+                decoration: BoxDecoration(
+                  color: AkeliColors.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Consumer(
+                  builder: (context, ref, child) {
+                    final searchResultsAsync = ref.watch(searchIngredientsProvider(_ingredientSearchQuery));
+                    return searchResultsAsync.when(
+                      loading: () => const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                      error: (e, _) => Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text('Erreur: $e'),
+                      ),
+                      data: (results) {
+                        if (results.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text('Aucun ingrédient trouvé'),
+                          );
+                        }
+                        final unselected = results.where((r) => !_selectedIngredients.any((selected) => selected.id == r.id)).toList();
+                        if (unselected.isEmpty) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Text('Tous les ingrédients trouvés sont déjà sélectionnés'),
+                          );
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: unselected.length,
+                          itemBuilder: (context, idx) {
+                            final ing = unselected[idx];
+                            return ListTile(
+                              title: Text(ing.localizedName(locale)),
+                              dense: true,
+                              onTap: () {
+                                setState(() {
+                                  _selectedIngredients.add(ing);
+                                  _ingredientSearchCtrl.clear();
+                                  _ingredientSearchQuery = '';
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            if (_selectedIngredients.isNotEmpty) ...[
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _selectedIngredients.map((ing) {
+                  return Chip(
+                    label: Text(ing.localizedName(locale)),
+                    backgroundColor: AkeliColors.primaryContainer.withValues(alpha: 0.2),
+                    side: const BorderSide(color: AkeliColors.primary),
+                    deleteIcon: const Icon(Icons.close, size: 16, color: AkeliColors.primary),
+                    onDeleted: () {
+                      setState(() {
+                        _selectedIngredients.remove(ing);
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMatchingRecipesSliver(BuildContext context, Map<String, String> regionNames) {
+    if (_selectedIngredients.isEmpty) {
+      return const SliverFillRemaining(
+        child: EmptyState(
+          icon: Icons.kitchen_outlined,
+          title: 'Recettes par ingrédients',
+          subtitle: 'Sélectionnez des ingrédients pour découvrir des recettes que vous pouvez cuisiner avec.',
+        ),
+      );
+    }
+
+    final selectedIds = _selectedIngredients.map((e) => e.id).toList();
+
+    return Consumer(
+      builder: (context, ref, child) {
+        final recipesAsync = ref.watch(getRecipesByIngredientsProvider(selectedIds));
+        return recipesAsync.when(
+          loading: () => const SliverFillRemaining(
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (err, _) => SliverFillRemaining(
+            child: ErrorState(
+              message: err.toString(),
+              onRetry: () => ref.invalidate(getRecipesByIngredientsProvider(selectedIds)),
+            ),
+          ),
+          data: (recipes) {
+            if (recipes.isEmpty) {
+              return const SliverFillRemaining(
+                child: EmptyState(
+                  icon: Icons.sentiment_dissatisfied_rounded,
+                  title: 'Aucune recette',
+                  subtitle: 'Aucune recette ne correspond à cette combinaison d\'ingrédients.',
+                ),
+              );
+            }
+
+            return SliverPadding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AkeliSpacing.md,
+                vertical: AkeliSpacing.sm,
+              ),
+              sliver: SliverList.builder(
+                itemCount: recipes.length,
+                itemBuilder: (context, index) {
+                  final recipe = recipes[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: AkeliSpacing.md),
+                    child: AkeliRecipeCard(
+                      horizontal: true,
+                      title: recipe.title,
+                      calories100g: recipe.calories100g?.toInt(),
+                      rating: recipe.averageRating,
+                      likes: recipe.likeCount,
+                      comments: recipe.commentCount,
+                      saves: recipe.saveCount,
+                      emoji: null,
+                      region: recipe.regionId != null
+                          ? regionNames[recipe.regionId!] ?? recipe.regionId
+                          : null,
+                      tags: recipe.mealTypes.take(2).toList(),
+                      creatorId: recipe.creatorId,
+                      priceTier: recipe.priceTier,
+                      onTap: () {
+                        context.push(
+                          AkeliRoutes.recipeDetailPath(recipe.id),
+                          extra: TrackingSource.feed,
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

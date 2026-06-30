@@ -156,27 +156,73 @@ class IngredientDetailSheet extends ConsumerWidget {
                 ) ?? const SizedBox.shrink(),
                 const SizedBox(height: 12),
                 // Quantity pill
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AkeliColors.accentAmber.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(AkeliRadius.pill),
-                  ),
-                  child: Text(
-                    formatQuantity(
-                      ingredient.quantity,
-                      ingredient.unit,
-                      locale: AppLocalizations.of(context).localeName,
-                      ingredientId: ingredient.ingredientId,
-                      ingredientName: ingredient.name,
+                Row(
+                  children: [
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AkeliColors.accentAmber.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                      ),
+                      child: Text(
+                        formatQuantity(
+                          ingredient.quantity,
+                          ingredient.unit,
+                          locale: AppLocalizations.of(context).localeName,
+                          ingredientId: ingredient.ingredientId,
+                          ingredientName: ingredient.name,
+                        ),
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AkeliColors.accentAmber,
+                        ),
+                      ),
                     ),
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: AkeliColors.accentAmber,
+                    detailAsync.when(
+                      data: (detail) {
+                        if (detail == null || detail.priceDisplay.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AkeliColors.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(AkeliRadius.pill),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  detail.currency == 'GBP'
+                                      ? Icons.currency_pound_rounded
+                                      : detail.currency == 'EUR'
+                                          ? Icons.euro_symbol_rounded
+                                          : Icons.attach_money_rounded,
+                                  size: 14,
+                                  color: AkeliColors.primary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  detail.priceDisplay,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: AkeliColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, __) => const SizedBox.shrink(),
                     ),
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 const Divider(color: AkeliColors.surfaceContainerHighest),
@@ -192,11 +238,13 @@ class IngredientDetailSheet extends ConsumerWidget {
                   error: (_, __) => const SizedBox.shrink(),
                   data: (detail) {
                     if (detail == null) return const SizedBox.shrink();
+                    final locale = AppLocalizations.of(context).localeName;
+                    final localizedDesc = detail.localizedDescription(locale);
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (detail.description != null)
-                          _DescriptionSection(text: detail.description!),
+                        if (localizedDesc != null && localizedDesc.isNotEmpty)
+                          _DescriptionSection(text: localizedDesc),
                         if (detail.caloriesPer100g != null ||
                             detail.proteinPer100g != null)
                           _NutritionSection(detail: detail),

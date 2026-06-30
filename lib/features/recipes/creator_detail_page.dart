@@ -158,6 +158,7 @@ class _CreatorDetailPageState extends ConsumerState<CreatorDetailPage> {
                               ? regionNames[recipe.regionId!] ?? recipe.regionId
                               : null,
                           tags: recipe.mealTypes.take(2).toList(),
+                          priceTier: recipe.priceTier,
                           onTap: () {
                             _logger.userAction('Recipe tapped from creator page',
                                 screen: 'CreatorDetailPage',

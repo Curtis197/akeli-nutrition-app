@@ -407,3 +407,63 @@ final setMealScheduleRandomProvider =
   }
 });
 
+// ---------------------------------------------------------------------------
+// Weekly budget — fire-and-forget update
+// ---------------------------------------------------------------------------
+
+final setWeeklyBudgetProvider =
+    FutureProvider.autoDispose.family<void, ({String userId, double? budget})>(
+        (ref, args) async {
+  appLogger.provider(
+      'setWeeklyBudgetProvider | userId: ${LogHelper.maskUuid(args.userId)} | budget: ${args.budget}');
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db(
+      'BEFORE | table: user_profile | op: UPDATE weekly_budget=${args.budget} | userId: ${LogHelper.maskUuid(args.userId)}');
+  try {
+    await client
+        .from('user_profile')
+        .update({'weekly_budget': args.budget})
+        .eq('id', args.userId);
+    appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
+    ref.invalidate(userProfileProvider);
+  } on PostgrestException catch (e, st) {
+    appLogger.db(
+        'ERROR | table: user_profile | UPDATE weekly_budget | ${e.message}',
+        error: e,
+        stackTrace: st);
+    rethrow;
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Country code & Currency — fire-and-forget update
+// ---------------------------------------------------------------------------
+
+final setCountryCodeProvider =
+    FutureProvider.autoDispose.family<void, ({String userId, String countryCode, String currency})>(
+        (ref, args) async {
+  appLogger.provider(
+      'setCountryCodeProvider | userId: ${LogHelper.maskUuid(args.userId)} | countryCode: ${args.countryCode} | currency: ${args.currency}');
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db(
+      'BEFORE | table: user_profile | op: UPDATE country_code=${args.countryCode}, budget_currency=${args.currency} | userId: ${LogHelper.maskUuid(args.userId)}');
+  try {
+    await client
+        .from('user_profile')
+        .update({
+          'country_code': args.countryCode,
+          'budget_currency': args.currency,
+        })
+        .eq('id', args.userId);
+    appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
+    ref.invalidate(userProfileProvider);
+  } on PostgrestException catch (e, st) {
+    appLogger.db(
+        'ERROR | table: user_profile | UPDATE country_code | ${e.message}',
+        error: e,
+        stackTrace: st);
+    rethrow;
+  }
+});
+
+

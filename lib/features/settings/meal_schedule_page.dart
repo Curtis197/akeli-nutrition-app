@@ -94,6 +94,12 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
                   current: currentRandomSchedule,
                   profileId: profileId,
                 ),
+                const SizedBox(height: 24),
+                _BudgetSection(
+                  currentBudget: profileAsync.valueOrNull?.weeklyBudget,
+                  currentCountry: profileAsync.valueOrNull?.countryCode ?? 'FR',
+                  profileId: profileId,
+                ),
               ],
             ),
           );
@@ -216,6 +222,175 @@ class _RandomScheduleSection extends ConsumerWidget {
                 .future);
           },
         ),
+      ],
+    );
+  }
+}
+
+class _BudgetSection extends ConsumerStatefulWidget {
+  final double? currentBudget;
+  final String currentCountry;
+  final String? profileId;
+
+  const _BudgetSection({
+    required this.currentBudget,
+    required this.currentCountry,
+    required this.profileId,
+  });
+
+  @override
+  ConsumerState<_BudgetSection> createState() => _BudgetSectionState();
+}
+
+class _BudgetSectionState extends ConsumerState<_BudgetSection> {
+  late TextEditingController _budgetController;
+  late bool _hasBudget;
+  String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _hasBudget = widget.currentBudget != null;
+    _budgetController = TextEditingController(
+      text: widget.currentBudget != null ? widget.currentBudget!.toStringAsFixed(0) : '',
+    );
+  }
+
+  @override
+  void didUpdateWidget(_BudgetSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentBudget != oldWidget.currentBudget) {
+      final textVal = widget.currentBudget != null ? widget.currentBudget!.toStringAsFixed(0) : '';
+      if (_budgetController.text != textVal) {
+        _budgetController.text = textVal;
+        _hasBudget = widget.currentBudget != null;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _budgetController.dispose();
+    super.dispose();
+  }
+
+  void _onBudgetSubmitted() {
+    if (widget.profileId == null) return;
+    if (!_hasBudget) {
+      ref.read(setWeeklyBudgetProvider((userId: widget.profileId!, budget: null)));
+      return;
+    }
+    
+    final val = double.tryParse(_budgetController.text);
+    if (val == null || val <= 0) {
+      setState(() => _errorText = 'Invalid amount');
+      return;
+    }
+    
+    setState(() => _errorText = null);
+    appLogger.userAction(
+      'MealSchedulePage budget updated',
+      screen: 'MealSchedulePage',
+      metadata: {'budget': val.toString()}
+    );
+    ref.read(setWeeklyBudgetProvider((userId: widget.profileId!, budget: val)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
+    final countries = {
+      'FR': ('France (EUR)', 'EUR'),
+      'GB': ('United Kingdom (GBP)', 'GBP'),
+      'CA': ('Canada (CAD)', 'CAD'),
+      'US': ('United States (USD)', 'USD'),
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.mealScheduleBudgetSectionTitle,
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          decoration: InputDecoration(
+            labelText: l10n.mealScheduleCountryLabel,
+            border: const OutlineInputBorder(),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          initialValue: countries.containsKey(widget.currentCountry) ? widget.currentCountry : 'FR',
+          items: countries.entries.map((e) => DropdownMenuItem(
+            value: e.key,
+            child: Text(e.value.$1),
+          )).toList(),
+          onChanged: (val) {
+            if (widget.profileId == null || val == null) return;
+            final currency = countries[val]!.$2;
+            appLogger.userAction(
+              'MealSchedulePage country updated',
+              screen: 'MealSchedulePage',
+              metadata: {'country': val, 'currency': currency}
+            );
+            ref.read(setCountryCodeProvider((
+              userId: widget.profileId!,
+              countryCode: val,
+              currency: currency
+            )));
+          },
+        ),
+        const SizedBox(height: 16),
+        SwitchListTile.adaptive(
+          contentPadding: EdgeInsets.zero,
+          title: Text(
+            l10n.mealScheduleBudgetLabel,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          subtitle: Text(
+            l10n.mealScheduleBudgetHint,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AkeliColors.onSurfaceVariant,
+            ),
+          ),
+          value: _hasBudget,
+          onChanged: (val) {
+            setState(() {
+              _hasBudget = val;
+              if (!val) {
+                _budgetController.clear();
+                _errorText = null;
+              }
+            });
+            _onBudgetSubmitted();
+          },
+        ),
+        if (_hasBudget) ...[
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _budgetController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    hintText: l10n.mealScheduleBudgetPlaceholder,
+                    errorText: _errorText,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  onSubmitted: (_) => _onBudgetSubmitted(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton(
+                onPressed: _onBudgetSubmitted,
+                child: Text(l10n.mealScheduleSave),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

@@ -2485,4 +2485,33 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dietPlanShoppingList => 'Liste courses';
+
+  @override
+  String get mealScheduleBudgetSectionTitle => 'Budget & Localisation';
+
+  @override
+  String get mealScheduleBudgetLabel => 'Budget hebdomadaire (optionnel)';
+
+  @override
+  String get mealScheduleBudgetPlaceholder =>
+      'Entrez votre budget hebdomadaire';
+
+  @override
+  String get mealScheduleBudgetHint =>
+      'Limite la génération de repas aux recettes adaptées à votre budget.';
+
+  @override
+  String get mealScheduleCountryLabel => 'Région diaspora / Pays';
+
+  @override
+  String get shoppingListTotalCost => 'Coût total';
+
+  @override
+  String get shoppingListCostPaid => 'Payé';
+
+  @override
+  String get shoppingListCostLeft => 'Restant';
+
+  @override
+  String get feedTabByIngredients => 'Par ingrédients';
 }

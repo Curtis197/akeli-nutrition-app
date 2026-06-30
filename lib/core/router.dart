@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
 import '../features/auth/auth_page.dart';
 import '../features/auth/onboarding_page.dart';
+import '../features/auth/reset_password_page.dart';
 import '../features/recipes/feed_page.dart';
 import '../features/recipes/recipe_detail_page.dart';
 import '../features/recipes/saved_recipes_page.dart';
@@ -97,6 +99,7 @@ abstract class AkeliRoutes {
   static String mealDetailPath(String id) => "/meal/$id";
   static String groupChatPath(String id) => "/group/$id";
   static String groupDetailPath(String id) => "/group/$id/detail";
+  static const resetPassword = "/reset-password";
 }
 
 // RouterNotifier — triggers GoRouter refresh on auth state changes
@@ -136,7 +139,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         reason: 'redirect check | isAuth: $isAuth | hasProfile: ${profile != null}',
       );
 
-      if (!isAuth && !isOnAuthPage) {
+      final isOnResetPassword = state.uri.path == AkeliRoutes.resetPassword;
+      final authState = ref.read(authStreamProvider).valueOrNull;
+      final isRecovery = authState?.event == AuthChangeEvent.passwordRecovery;
+
+      if (isRecovery && !isOnResetPassword) {
+        appLogger.navigation(state.uri.path, AkeliRoutes.resetPassword, reason: 'password recovery event → redirect to reset password page');
+        return AkeliRoutes.resetPassword;
+      }
+
+      if (!isAuth && !isOnAuthPage && !isOnResetPassword) {
         appLogger.navigation(state.uri.path, AkeliRoutes.auth, reason: 'unauthenticated → redirect to auth');
         return AkeliRoutes.auth;
       }
@@ -170,6 +182,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.auth,
         builder: (context, state) => const AuthPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.resetPassword,
+        builder: (context, state) => const ResetPasswordPage(),
       ),
       GoRoute(
         path: AkeliRoutes.onboarding,

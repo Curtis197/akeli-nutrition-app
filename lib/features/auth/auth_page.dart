@@ -103,6 +103,116 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     return l10n.authErrorGeneric;
   }
 
+  Future<void> _handleForgotPassword() async {
+    final l10n = AppLocalizations.of(context);
+    final email = _loginEmail.text.trim();
+    
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        final ctrl = TextEditingController(text: email);
+        final formKey = GlobalKey<FormState>();
+        return AlertDialog(
+          backgroundColor: AkeliColors.surfaceContainerLowest,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            l10n.localeName == 'en' ? 'Reset Password' : 'Mot de passe oublié',
+            style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
+          ),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  l10n.localeName == 'en'
+                      ? 'Enter your email address to receive a password reset link.'
+                      : 'Entrez votre adresse email pour recevoir un lien de réinitialisation.',
+                  style: GoogleFonts.inter(fontSize: 14, color: AkeliColors.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: ctrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.inter(fontSize: 15, color: AkeliColors.onSurface),
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    prefixIcon: const Icon(Icons.email_outlined, color: AkeliColors.outline, size: 20),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: AkeliColors.surfaceContainerLow,
+                  ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) {
+                      return l10n.localeName == 'en' ? 'Email is required' : 'L\'email est requis';
+                    }
+                    if (!v.contains('@')) {
+                      return l10n.localeName == 'en' ? 'Invalid email format' : 'Email invalide';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                l10n.localeName == 'en' ? 'Cancel' : 'Annuler',
+                style: GoogleFonts.inter(color: AkeliColors.outline, fontWeight: FontWeight.w600),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(context, ctrl.text.trim());
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AkeliColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                l10n.localeName == 'en' ? 'Send' : 'Envoyer',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null && result.isNotEmpty) {
+      setState(() => _errorMessage = null);
+      try {
+        await ref.read(authNotifierProvider.notifier).resetPassword(result);
+        if (!mounted) return;
+        
+        final s = ref.read(authNotifierProvider);
+        if (s.hasError) {
+          setState(() => _errorMessage = s.error.toString());
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.localeName == 'en'
+                  ? 'A password reset link has been sent to $result'
+                  : 'Un lien de réinitialisation a été envoyé à $result'),
+              backgroundColor: AkeliColors.primary,
+            ),
+          );
+        }
+      } catch (e) {
+        setState(() => _errorMessage = e.toString());
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _logger.provider('_AuthPageState build() | tab: ${_isLogin ? "login" : "signup"}');
@@ -210,6 +320,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               onTogglePassword: () => setState(() =>
                                   _loginPasswordVisible = !_loginPasswordVisible),
                               onSubmit: isLoading ? null : _signIn,
+                              onForgotPassword: _handleForgotPassword,
                               isLoading: isLoading,
                             ),
                           ),
@@ -440,6 +551,7 @@ class _LoginForm extends StatelessWidget {
   final bool passwordVisible;
   final VoidCallback onTogglePassword;
   final VoidCallback? onSubmit;
+  final VoidCallback? onForgotPassword;
   final bool isLoading;
 
   const _LoginForm({
@@ -450,6 +562,7 @@ class _LoginForm extends StatelessWidget {
     required this.passwordVisible,
     required this.onTogglePassword,
     required this.onSubmit,
+    required this.onForgotPassword,
     required this.isLoading,
   });
 
@@ -499,9 +612,7 @@ class _LoginForm extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.authPasswordReset)),
-              ),
+              onPressed: onForgotPassword,
               style: TextButton.styleFrom(
                 foregroundColor: AkeliColors.primary,
                 padding: const EdgeInsets.symmetric(

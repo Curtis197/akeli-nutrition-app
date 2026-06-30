@@ -72,14 +72,20 @@ serve(async (req) => {
       error = res.error;
       logQueryResult(logger, "generate_meal_plan_from_saved", "RPC", data?.length ?? 0, error ?? undefined);
 
-      if (error && (error.message === "insufficient_saved_recipes" || error.code === "P0001")) {
-        logger.warn("FALLBACK | reason: insufficient_saved_recipes | meal_type: " + (error.details ?? "unknown"));
-        // Toggle preference off and fallback
-        await client.from("user_profile").update({ use_saved_recipes_only: false }).eq("id", user.id);
-        useSavedRecipes = false;
-        error = null; // Clear error to allow fallback
-      } else if (error) {
-        throw error;
+      if (error) {
+        if (error.message === "insufficient_budget") {
+          logger.warn("EARLY RETURN | reason: budget too low");
+          return err("Votre budget est trop strict pour respecter vos objectifs nutritionnels. Veuillez augmenter votre budget ou assouplir vos préférences.", 422);
+        }
+        if (error.message === "insufficient_saved_recipes" || (error.code === "P0001" && error.message !== "insufficient_budget")) {
+          logger.warn("FALLBACK | reason: insufficient_saved_recipes | meal_type: " + (error.details ?? "unknown"));
+          // Toggle preference off and fallback
+          await client.from("user_profile").update({ use_saved_recipes_only: false }).eq("id", user.id);
+          useSavedRecipes = false;
+          error = null; // Clear error to allow fallback
+        } else {
+          throw error;
+        }
       }
     }
 
@@ -99,6 +105,10 @@ serve(async (req) => {
     }
 
     if (error) {
+      if (error.message === "insufficient_budget") {
+        logger.warn("EARLY RETURN | reason: budget too low");
+        return err("Votre budget est trop strict pour respecter vos objectifs nutritionnels. Veuillez augmenter votre budget ou assouplir vos préférences.", 422);
+      }
       // All-or-nothing: not enough recipes for a meal type
       if (error.message === "insufficient_recipes" || error.code === "P0001") {
         const mealType = error.details ?? "unknown";

@@ -445,6 +445,11 @@ class ShoppingItem {
   final String unit;
   final String? category;
   final bool isChecked;
+  final double pricePer100g;
+  final String currency;
+  final double? avgWeightG;
+  final double? packageSize;
+  final String? packageUnit;
 
   const ShoppingItem({
     required this.id,
@@ -454,28 +459,195 @@ class ShoppingItem {
     required this.unit,
     this.category,
     required this.isChecked,
+    this.pricePer100g = 0.0,
+    this.currency = 'EUR',
+    this.avgWeightG,
+    this.packageSize,
+    this.packageUnit,
   });
 
   String get quantityDisplay => formatQuantity(quantity, unit);
 
-  factory ShoppingItem.fromJson(Map<String, dynamic> json) => ShoppingItem(
-        id: json['id'] as String? ?? '', // Fallback if missing
-        ingredientId: json['ingredient_id'] as String?,
-        name: json['ingredient_name'] as String? ?? 'Unknown',
-        quantity: (json['total_quantity'] as num?)?.toDouble() ?? 0.0,
-        unit: json['unit'] as String? ?? '',
-        category: json['category'] as String?,
-        isChecked: (json['is_checked'] as bool?) ?? false,
-      );
+  double get estimatedPrice {
+    final grams = _quantityToGrams(quantity, unit, avgWeightG);
+    if (grams == null) {
+      // Fallback: if count-based and avgWeight is missing, treat unit as 100g
+      return pricePer100g * quantity;
+    }
+    return (pricePer100g * grams) / 100.0;
+  }
 
-  ShoppingItem copyWith({bool? isChecked}) => ShoppingItem(
-        id: id,
-        ingredientId: ingredientId,
-        name: name,
-        quantity: quantity,
-        unit: unit,
-        category: category,
+  double get estimatedPriceBought {
+    if (packageSize == null || packageSize! <= 0) {
+      return estimatedPrice;
+    }
+
+    final gramsUsed = _quantityToGrams(quantity, unit, avgWeightG);
+    final packageUnitStr = packageUnit ?? unit;
+    final gramsPackage = _quantityToGrams(packageSize!, packageUnitStr, avgWeightG);
+
+    if (gramsUsed == null || gramsPackage == null || gramsPackage <= 0) {
+      final packagesNeeded = (quantity / packageSize!).ceil();
+      final qtyBought = packagesNeeded * packageSize!;
+      return pricePer100g * qtyBought;
+    }
+
+    final packagesNeeded = (gramsUsed / gramsPackage).ceil();
+    final gramsBought = packagesNeeded * gramsPackage;
+    return (pricePer100g * gramsBought) / 100.0;
+  }
+
+  String get currencySymbol {
+    switch (currency) {
+      case 'GBP': return '£';
+      case 'CAD': return 'CA\$';
+      case 'USD': return '\$';
+      case 'EUR':
+      default:
+        return '€';
+    }
+  }
+
+  String get priceDisplay {
+    final symbol = currencySymbol;
+    if (currency == 'EUR') {
+      final formattedPrice = estimatedPrice.toStringAsFixed(2).replaceAll('.', ',');
+      return '$formattedPrice €';
+    } else {
+      final priceVal = estimatedPrice.toStringAsFixed(2);
+      return '$symbol$priceVal';
+    }
+  }
+
+  String get priceBoughtDisplay {
+    final symbol = currencySymbol;
+    if (currency == 'EUR') {
+      final formattedPrice = estimatedPriceBought.toStringAsFixed(2).replaceAll('.', ',');
+      return '$formattedPrice €';
+    } else {
+      final priceVal = estimatedPriceBought.toStringAsFixed(2);
+      return '$symbol$priceVal';
+    }
+  }
+
+  String get rateDisplay {
+    final symbol = currencySymbol;
+    final formattedRate = currency == 'EUR'
+        ? pricePer100g.toStringAsFixed(2).replaceAll('.', ',')
+        : pricePer100g.toStringAsFixed(2);
+    return currency == 'EUR'
+        ? '$formattedRate €/100g'
+        : '$symbol$formattedRate/100g';
+  }
+
+  String getBuyDisplay(String locale) {
+    if (packageSize == null || packageSize! <= 0) return '';
+    final gramsUsed = _quantityToGrams(quantity, unit, avgWeightG);
+    final packageUnitStr = packageUnit ?? unit;
+    final gramsPackage = _quantityToGrams(packageSize!, packageUnitStr, avgWeightG);
+
+    int packages = 1;
+    if (gramsUsed != null && gramsPackage != null && gramsPackage > 0) {
+      packages = (gramsUsed / gramsPackage).ceil();
+    } else {
+      packages = (quantity / packageSize!).ceil();
+    }
+
+    final isEn = locale == 'en';
+    final unitLabel = switch (packageUnitStr.trim().toLowerCase()) {
+      'unit' || 'piece' => isEn 
+          ? (packages > 1 ? 'pcs' : 'pc') 
+          : (packages > 1 ? 'pcs' : 'pc'),
+      'pot' => isEn 
+          ? (packages > 1 ? 'pots' : 'pot') 
+          : (packages > 1 ? 'pots' : 'pot'),
+      'g' => 'g',
+      'kg' => 'kg',
+      'ml' => 'ml',
+      'l' => 'l',
+      _ => packageUnitStr,
+    };
+
+    final formattedSize = packageSize == packageSize!.roundToDouble()
+        ? packageSize!.toStringAsFixed(0)
+        : packageSize!.toStringAsFixed(1);
+
+    return isEn 
+        ? 'Buy: $packages ($formattedSize $unitLabel)'
+        : 'Acheter : $packages ($formattedSize $unitLabel)';
+  }
+
+  static double? _quantityToGrams(double qty, String u, double? avgWeight) {
+    switch (u.trim().toLowerCase()) {
+      case 'g': return qty;
+      case 'kg': return qty * 1000;
+      case 'ml': return qty;
+      case 'l': return qty * 1000;
+      case 'cl': return qty * 10;
+      case 'tsp': return qty * 5;
+      case 'tbsp': return qty * 15;
+      case 'pinch': return qty * 0.5;
+      case 'unit':
+      case 'piece':
+      case 'clove':
+      case 'bunch':
+      case 'can':
+      case 'pot':
+        return avgWeight != null ? qty * avgWeight : null;
+      default:
+        return null;
+    }
+  }
+
+  factory ShoppingItem.fromJson(Map<String, dynamic> json) {
+    final ingredient = json['ingredient'] as Map<String, dynamic>?;
+    final pricingList = ingredient?['ingredient_market_price'] as List<dynamic>?;
+    final pricing = (pricingList != null && pricingList.isNotEmpty) 
+        ? pricingList.first as Map<String, dynamic> 
+        : null;
+
+    return ShoppingItem(
+      id: json['id'] as String? ?? '',
+      ingredientId: json['ingredient_id'] as String?,
+      name: json['ingredient_name'] as String? ?? 'Unknown',
+      quantity: (json['total_quantity'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] as String? ?? '',
+      category: json['category'] as String?,
+      isChecked: (json['is_checked'] as bool?) ?? false,
+      pricePer100g: (pricing?['price_per_100g'] as num?)?.toDouble() ?? 0.0,
+      currency: pricing?['currency'] as String? ?? 'EUR',
+      avgWeightG: (ingredient?['avg_weight_g'] as num?)?.toDouble(),
+      packageSize: (pricing?['package_size'] as num?)?.toDouble(),
+      packageUnit: pricing?['package_unit'] as String?,
+    );
+  }
+
+  ShoppingItem copyWith({
+    String? id,
+    String? ingredientId,
+    String? name,
+    double? quantity,
+    String? unit,
+    String? category,
+    bool? isChecked,
+    double? pricePer100g,
+    String? currency,
+    double? avgWeightG,
+    double? packageSize,
+    String? packageUnit,
+  }) => ShoppingItem(
+        id: id ?? this.id,
+        ingredientId: ingredientId ?? this.ingredientId,
+        name: name ?? this.name,
+        quantity: quantity ?? this.quantity,
+        unit: unit ?? this.unit,
+        category: category ?? this.category,
         isChecked: isChecked ?? this.isChecked,
+        pricePer100g: pricePer100g ?? this.pricePer100g,
+        currency: currency ?? this.currency,
+        avgWeightG: avgWeightG ?? this.avgWeightG,
+        packageSize: packageSize ?? this.packageSize,
+        packageUnit: packageUnit ?? this.packageUnit,
       );
 }
 

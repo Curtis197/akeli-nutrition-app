@@ -393,9 +393,10 @@ class _RecipeContent extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Quick Info Row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 16,
+                          runSpacing: 12,
                           children: [
                             _QuickInfo(
                               icon: Icons.schedule,
@@ -407,6 +408,12 @@ class _RecipeContent extends StatelessWidget {
                               iconColor: AkeliColors.accentAmber,
                               label: _difficultyLabel(recipe.difficulty, l10n),
                             ),
+                            if (recipe.estimatedCostPer100g != null && recipe.estimatedCostPer100g! > 0)
+                              _QuickInfo(
+                                icon: Icons.monetization_on_outlined,
+                                iconColor: AkeliColors.primary,
+                                label: '${recipe.priceTier} (${recipe.pricePer100gDisplay})',
+                              ),
                           ],
                         ),
                         const SizedBox(height: 24),

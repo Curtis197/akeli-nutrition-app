@@ -40,6 +40,8 @@ class Recipe {
   final double? protein100g;
   final double? carbs100g;
   final double? fat100g;
+  final double? estimatedCostPer100g;
+  final String? costCurrency;
   final DateTime createdAt;
 
   const Recipe({
@@ -79,10 +81,37 @@ class Recipe {
     this.protein100g,
     this.carbs100g,
     this.fat100g,
+    this.estimatedCostPer100g,
+    this.costCurrency,
     required this.createdAt,
   });
 
   int get totalTimeMin => prepTimeMin + cookTimeMin;
+
+  String get priceTier {
+    if (estimatedCostPer100g == null || estimatedCostPer100g! <= 0) return '';
+    if (estimatedCostPer100g! < 0.30) return '\$';
+    if (estimatedCostPer100g! < 0.60) return '\$\$';
+    return '\$\$\$';
+  }
+
+  String get pricePer100gDisplay {
+    if (estimatedCostPer100g == null) return '';
+    final symbol = switch (costCurrency) {
+      'GBP' => '£',
+      'CAD' => 'CA\$',
+      'USD' => '\$',
+      'EUR' => '€',
+      _ => '€',
+    };
+    if (costCurrency == 'EUR' || costCurrency == null) {
+      final formatted = estimatedCostPer100g!.toStringAsFixed(2).replaceAll('.', ',');
+      return '$formatted €/100g';
+    } else {
+      final formatted = estimatedCostPer100g!.toStringAsFixed(2);
+      return '$symbol$formatted/100g';
+    }
+  }
 
   // Per-serving helpers (for card display — normalises across different portion sizes)
   double? get caloriesPerServing => servings > 0 && calories != null ? calories! / servings : calories;
@@ -95,6 +124,8 @@ class Recipe {
     String? description,
     List<RecipeIngredient>? ingredients,
     List<RecipeStep>? steps,
+    double? estimatedCostPer100g,
+    String? costCurrency,
   }) {
     return Recipe(
       id: id,
@@ -133,6 +164,8 @@ class Recipe {
       protein100g: protein100g,
       carbs100g: carbs100g,
       fat100g: fat100g,
+      estimatedCostPer100g: estimatedCostPer100g ?? this.estimatedCostPer100g,
+      costCurrency: costCurrency ?? this.costCurrency,
       createdAt: createdAt,
     );
   }
@@ -144,6 +177,12 @@ class Recipe {
         ? macroRaw
         : (macroRaw is List<dynamic> && macroRaw.isNotEmpty)
             ? macroRaw.first as Map<String, dynamic>
+            : null;
+    final costRaw = json['recipe_market_cost'] ?? json['recipe_cost'];
+    final cost = costRaw is Map<String, dynamic>
+        ? costRaw
+        : (costRaw is List<dynamic> && costRaw.isNotEmpty)
+            ? costRaw.first as Map<String, dynamic>
             : null;
     return Recipe(
         id: json['id'] as String,
@@ -192,6 +231,14 @@ class Recipe {
         protein100g:  (macro?['protein_per_100g']  as num?)?.toDouble(),
         carbs100g:    (macro?['carbs_per_100g']    as num?)?.toDouble(),
         fat100g:      (macro?['fat_per_100g']      as num?)?.toDouble(),
+        estimatedCostPer100g: (cost?['cost_per_100g'] as num?)?.toDouble() ?? (cost?['estimated_cost_per_100g'] as num?)?.toDouble(),
+        costCurrency: (cost?['currency'] as String?) ?? (cost?['country_code'] != null ? switch (cost?['country_code'] as String) {
+          'FR' => 'EUR',
+          'GB' => 'GBP',
+          'US' => 'USD',
+          'CA' => 'CAD',
+          _ => 'EUR',
+        } : null),
         createdAt: DateTime.parse(json['created_at'] as String),
       );
   }

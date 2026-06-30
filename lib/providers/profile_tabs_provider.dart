@@ -6,6 +6,7 @@ import '../core/logger.dart';
 import '../core/locale_provider.dart';
 import '../shared/models/recipe.dart';
 import 'recipe_provider.dart';
+import 'user_profile_provider.dart';
 
 part 'profile_tabs_provider.g.dart';
 
@@ -24,10 +25,14 @@ Future<List<Recipe>> userSavedRecipes(Ref ref, String userId) async {
 
   if (recipeIds.isEmpty) return [];
 
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
   final recipesData = await client
       .from('recipe')
-      .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g)')
+      .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_market_cost(cost_per_100g, country_code)')
       .inFilter('id', recipeIds)
+      .eq('recipe_market_cost.country_code', countryCode)
       .order('created_at', ascending: false);
 
   final recipes = recipesData.map((e) => Recipe.fromJson(e)).toList();
@@ -48,10 +53,14 @@ final userLikedRecipesProvider = FutureProvider.autoDispose.family<List<Recipe>,
 
   if (recipeIds.isEmpty) return <Recipe>[];
 
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
   final recipesData = await client
       .from('recipe')
-      .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g)')
+      .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g), recipe_market_cost(cost_per_100g, country_code)')
       .inFilter('id', recipeIds)
+      .eq('recipe_market_cost.country_code', countryCode)
       .order('created_at', ascending: false);
 
   final recipes = recipesData.map((e) => Recipe.fromJson(e)).toList();

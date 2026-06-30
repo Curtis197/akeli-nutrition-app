@@ -175,6 +175,22 @@ class _RecipeCardState extends ConsumerState<RecipeCard> {
                             color: AkeliColors.textSecondary,
                           ),
                         ),
+                        if (widget.recipe.priceTier.isNotEmpty) ...[
+                          const SizedBox(width: AkeliSpacing.xs),
+                          const Icon(
+                            Icons.monetization_on_outlined,
+                            size: 14,
+                            color: AkeliColors.primary,
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            widget.recipe.priceTier,
+                            style: textTheme.labelSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AkeliColors.primary,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ],

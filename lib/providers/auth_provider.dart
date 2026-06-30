@@ -183,6 +183,29 @@ class AuthNotifier extends AsyncNotifier<void> {
     });
   }
 
+  Future<void> recoveryUpdatePassword(String newPassword) async {
+    _logger.auth('recoveryUpdatePassword BEFORE');
+    _logger.provider('AuthNotifier → loading (recoveryUpdatePassword)');
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        _logger.db('BEFORE | op: updateUser | recovery password reset');
+        await client.auth.updateUser(UserAttributes(password: newPassword));
+        _logger.auth('recoveryUpdatePassword SUCCESS');
+        _logger.provider('AuthNotifier → data (recoveryUpdatePassword success)');
+      } on AuthException catch (e, st) {
+        _logger.auth('recoveryUpdatePassword ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (recoveryUpdatePassword failed)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('recoveryUpdatePassword ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (recoveryUpdatePassword unexpected)');
+        rethrow;
+      }
+    });
+  }
+
   Future<void> deleteAccount() async {
     _logger.auth('deleteAccount BEFORE');
     _logger.provider('AuthNotifier → loading (deleteAccount)');

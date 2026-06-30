@@ -9,6 +9,7 @@ import '../shared/models/meal_plan.dart';
 import 'auth_provider.dart';
 import 'nutrition_provider.dart';
 import 'recipe_provider.dart';
+import 'user_profile_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Active meal plan — joins entry components with recipe + macro data
@@ -244,14 +245,20 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
       return [];
     }
 
+    final profile = await ref.watch(userProfileProvider.future);
+    final countryCode = profile?.countryCode ?? 'FR';
+
     final client = ref.watch(supabaseClientProvider);
-    _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id} | locale: $locale');
+    _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id} | locale: $locale | country: $countryCode');
     
+    const selectQuery = 'id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category, avg_weight_g, ingredient_market_price(price_per_100g, currency, country_code, package_size, package_unit)))';
+
     try {
       final existingList = await client
           .from('shopping_list')
-          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
+          .select(selectQuery)
           .eq('meal_plan_id', plan.id)
+          .eq('shopping_list_item.ingredient.ingredient_market_price.country_code', countryCode)
           .maybeSingle();
 
       List<dynamic> itemsData = [];
@@ -266,8 +273,9 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
          
          final newList = await client
           .from('shopping_list')
-          .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
+          .select(selectQuery)
           .eq('meal_plan_id', plan.id)
+          .eq('shopping_list_item.ingredient.ingredient_market_price.country_code', countryCode)
           .maybeSingle();
          
          if (newList != null && newList['shopping_list_item'] != null) {
@@ -276,32 +284,170 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
       }
 
       final items = itemsData.map((e) {
-         final ingredient = e['ingredient'] as Map<String, dynamic>?;
-         final nameFr = (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown';
-         final nameEn = ingredient?['name_en'] as String?;
-         return ShoppingItem(
-            id: e['id'] as String,
-            ingredientId: e['ingredient_id'] as String?,
-            name: (locale == 'en' && nameEn != null) ? nameEn : nameFr,
-            quantity: (e['quantity'] as num).toDouble(),
-            unit: (e['unit'] as String?) ?? '',
-            category: ingredient?['category'] as String?,
-            isChecked: (e['is_checked'] as bool?) ?? false,
-         );
-      }).toList();
-      
-      items.sort((a, b) {
-        final catCmp = (a.category ?? '').compareTo(b.category ?? '');
-        if (catCmp != 0) return catCmp;
-        return a.name.compareTo(b.name);
-      });
+          final ingredient = e['ingredient'] as Map<String, dynamic>?;
+          final nameFr = (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown';
+          final nameEn = ingredient?['name_en'] as String?;
+          
+          // Skip water (Eau) as it costs nothing and can be skipped
+          final lowerFr = nameFr.toLowerCase();
+          final lowerEn = (nameEn ?? '').toLowerCase();
+          if (lowerFr == 'eau' || lowerFr == 'water' || lowerEn == 'water' || lowerEn == 'eau') {
+            return null;
+          }
 
-      _logger.provider('ShoppingListNotifier → data | items: ${items.length}');
-      return items;
-    } catch (e, st) {
-      _logger.db('ERROR | shopping_list fetch | $e', error: e, stackTrace: st);
-      _logger.provider('ShoppingListNotifier → error | $e');
-      rethrow;
+          final pricingList = ingredient?['ingredient_market_price'] as List<dynamic>?;
+          final pricing = (pricingList != null && pricingList.isNotEmpty)
+              ? pricingList.first as Map<String, dynamic>
+              : null;
+
+          return ShoppingItem(
+             id: e['id'] as String,
+             ingredientId: e['ingredient_id'] as String?,
+             name: (locale == 'en' && nameEn != null) ? nameEn : nameFr,
+             quantity: (e['quantity'] as num).toDouble(),
+             unit: (e['unit'] as String?) ?? '',
+             category: ingredient?['category'] as String?,
+             isChecked: (e['is_checked'] as bool?) ?? false,
+             pricePer100g: (pricing?['price_per_100g'] as num?)?.toDouble() ?? 0.0,
+             currency: pricing?['currency'] as String? ?? 'EUR',
+             avgWeightG: (ingredient?['avg_weight_g'] as num?)?.toDouble(),
+             packageSize: (pricing?['package_size'] as num?)?.toDouble(),
+             packageUnit: pricing?['package_unit'] as String?,
+          );
+       }).whereType<ShoppingItem>().toList();
+       
+       final aggregated = _aggregateShoppingItems(items);
+       aggregated.sort((a, b) {
+         final catCmp = (a.category ?? '').compareTo(b.category ?? '');
+         if (catCmp != 0) return catCmp;
+         return a.name.compareTo(b.name);
+       });
+
+       _logger.provider('ShoppingListNotifier → data | items: ${aggregated.length} (aggregated from ${items.length})');
+       return aggregated;
+     } catch (e, st) {
+       _logger.db('ERROR | shopping_list fetch | $e', error: e, stackTrace: st);
+       _logger.provider('ShoppingListNotifier → error | $e');
+       rethrow;
+     }
+  }
+
+  List<ShoppingItem> _aggregateShoppingItems(List<ShoppingItem> rawItems) {
+    final Map<String, List<ShoppingItem>> grouped = {};
+    for (final item in rawItems) {
+      final key = item.ingredientId ?? item.name;
+      grouped.putIfAbsent(key, () => []).add(item);
+    }
+
+    final List<ShoppingItem> result = [];
+    for (final entry in grouped.entries) {
+      final group = entry.value;
+      if (group.length == 1) {
+        result.add(group.first);
+        continue;
+      }
+
+      final combinedId = group.map((e) => e.id).join(',');
+      final first = group.first;
+      final isChecked = group.every((e) => e.isChecked);
+
+      final hasWeight = group.any((e) => e.unit == 'g' || e.unit == 'kg');
+      final hasVolume = group.any((e) => e.unit == 'l' || e.unit == 'ml' || e.unit == 'cl');
+
+      String targetUnit = first.unit;
+      if (hasWeight) {
+        targetUnit = 'g';
+      } else if (hasVolume) {
+        targetUnit = 'ml';
+      }
+
+      double totalQty = 0;
+      for (final item in group) {
+        totalQty += _convertToUnit(item.quantity, item.unit, targetUnit, item.avgWeightG);
+      }
+
+      if (targetUnit == 'g' && totalQty >= 1000) {
+        totalQty = totalQty / 1000.0;
+        targetUnit = 'kg';
+      } else if (targetUnit == 'ml' && totalQty >= 1000) {
+        totalQty = totalQty / 1000.0;
+        targetUnit = 'l';
+      }
+
+      result.add(ShoppingItem(
+        id: combinedId,
+        ingredientId: first.ingredientId,
+        name: first.name,
+        quantity: totalQty,
+        unit: targetUnit,
+        category: first.category,
+        isChecked: isChecked,
+        pricePer100g: first.pricePer100g,
+        currency: first.currency,
+        avgWeightG: first.avgWeightG,
+        packageSize: first.packageSize,
+        packageUnit: first.packageUnit,
+      ));
+    }
+
+    return result;
+  }
+
+  double _convertToUnit(double qty, String fromUnit, String toUnit, double? avgWeight) {
+    if (fromUnit == toUnit) return qty;
+
+    double grams;
+    switch (fromUnit.trim().toLowerCase()) {
+      case 'g':
+      case 'ml':
+        grams = qty;
+        break;
+      case 'kg':
+      case 'l':
+        grams = qty * 1000;
+        break;
+      case 'cl':
+        grams = qty * 10;
+        break;
+      case 'tsp':
+        grams = qty * 5;
+        break;
+      case 'tbsp':
+        grams = qty * 15;
+        break;
+      case 'pinch':
+        grams = qty * 0.5;
+        break;
+      case 'unit':
+      case 'piece':
+      case 'clove':
+      case 'bunch':
+      case 'can':
+      case 'pot':
+        grams = avgWeight != null ? qty * avgWeight : qty * 100;
+        break;
+      default:
+        grams = qty;
+    }
+
+    switch (toUnit.trim().toLowerCase()) {
+      case 'g':
+      case 'ml':
+        return grams;
+      case 'kg':
+      case 'l':
+        return grams / 1000.0;
+      case 'cl':
+        return grams / 10.0;
+      case 'unit':
+      case 'piece':
+      case 'clove':
+      case 'bunch':
+      case 'can':
+      case 'pot':
+        return avgWeight != null ? grams / avgWeight : grams / 100;
+      default:
+        return grams;
     }
   }
 
@@ -327,15 +473,14 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
       final listData = await client.from('shopping_list').select('id').eq('meal_plan_id', plan.id).maybeSingle();
       if (listData == null) return;
       
+      final ids = id.split(',');
       await client
           .from('shopping_list_item')
           .update({'is_checked': isChecked})
           .eq('shopping_list_id', listData['id'])
-          .eq('id', id)
-          .select()
-          .single();
+          .inFilter('id', ids);
           
-      _logger.db('AFTER | table: shopping_list_item | op: UPDATE is_checked=$isChecked | id: $id');
+      _logger.db('AFTER | table: shopping_list_item | op: UPDATE is_checked=$isChecked | ids: $ids');
     } catch (e, st) {
       _logger.db('ERROR | table: shopping_list_item | op: UPDATE | $e', error: e, stackTrace: st);
       if (previousState != null) {

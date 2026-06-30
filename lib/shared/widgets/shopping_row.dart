@@ -73,17 +73,48 @@ class AkeliShoppingRow extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Text(
-                  item.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: isChecked
-                        ? AkeliColors.onSurfaceVariant
-                        : AkeliColors.onSurface,
-                    decoration:
-                        isChecked ? TextDecoration.lineThrough : null,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: isChecked
+                            ? AkeliColors.onSurfaceVariant
+                            : AkeliColors.onSurface,
+                        decoration:
+                            isChecked ? TextDecoration.lineThrough : null,
+                      ),
+                    ),
+                    if (item.pricePer100g > 0) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${item.priceDisplay} (${item.rateDisplay})',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: isChecked
+                              ? AkeliColors.onSurfaceVariant.withValues(alpha: 0.7)
+                              : AkeliColors.primary,
+                        ),
+                      ),
+                      if (item.packageSize != null && item.packageSize! > 0) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          '${item.getBuyDisplay(Localizations.localeOf(context).languageCode)} • ${item.priceBoughtDisplay}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            color: isChecked
+                                ? AkeliColors.onSurfaceVariant.withValues(alpha: 0.5)
+                                : AkeliColors.secondary,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(width: 12),

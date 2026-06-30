@@ -20,6 +20,9 @@ class UserProfile {
   final bool hasDismissedMealScheduleHint;
   final int mealVarietyDays; // 0 | 7 | 15
   final bool mealScheduleRandom;
+  final double? weeklyBudget;
+  final String budgetCurrency;
+  final String countryCode;
 
   const UserProfile({
     required this.id,
@@ -40,6 +43,9 @@ class UserProfile {
     this.hasDismissedMealScheduleHint = false,
     this.mealVarietyDays = 7,
     this.mealScheduleRandom = false,
+    this.weeklyBudget,
+    this.budgetCurrency = 'EUR',
+    this.countryCode = 'FR',
   });
 
   String get displayName =>
@@ -71,6 +77,9 @@ class UserProfile {
             (json['meal_variety_days'] as int?) ?? 7,
         mealScheduleRandom:
             (json['meal_schedule_random'] as bool?) ?? false,
+        weeklyBudget: (json['weekly_budget'] as num?)?.toDouble(),
+        budgetCurrency: json['budget_currency'] as String? ?? 'EUR',
+        countryCode: json['country_code'] as String? ?? 'FR',
       );
 
   UserProfile copyWith({
@@ -86,6 +95,9 @@ class UserProfile {
     bool? hasDismissedMealScheduleHint,
     int? mealVarietyDays,
     bool? mealScheduleRandom,
+    double? weeklyBudget,
+    String? budgetCurrency,
+    String? countryCode,
   }) =>
       UserProfile(
         id: id,
@@ -103,6 +115,9 @@ class UserProfile {
         hasDismissedMealScheduleHint: hasDismissedMealScheduleHint ?? this.hasDismissedMealScheduleHint,
         mealVarietyDays: mealVarietyDays ?? this.mealVarietyDays,
         mealScheduleRandom: mealScheduleRandom ?? this.mealScheduleRandom,
+        weeklyBudget: weeklyBudget ?? this.weeklyBudget,
+        budgetCurrency: budgetCurrency ?? this.budgetCurrency,
+        countryCode: countryCode ?? this.countryCode,
       );
 }
 

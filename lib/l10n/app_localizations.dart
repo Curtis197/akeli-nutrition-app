@@ -4675,6 +4675,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shopping list'**
   String get dietPlanShoppingList;
+
+  /// No description provided for @mealScheduleBudgetSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget & Localization'**
+  String get mealScheduleBudgetSectionTitle;
+
+  /// No description provided for @mealScheduleBudgetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Budget (optional)'**
+  String get mealScheduleBudgetLabel;
+
+  /// No description provided for @mealScheduleBudgetPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter weekly budget'**
+  String get mealScheduleBudgetPlaceholder;
+
+  /// No description provided for @mealScheduleBudgetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits meal generation to recipes matching your budget.'**
+  String get mealScheduleBudgetHint;
+
+  /// No description provided for @mealScheduleCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Diaspora Region / Country'**
+  String get mealScheduleCountryLabel;
+
+  /// No description provided for @shoppingListTotalCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cost'**
+  String get shoppingListTotalCost;
+
+  /// No description provided for @shoppingListCostPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Paid'**
+  String get shoppingListCostPaid;
+
+  /// No description provided for @shoppingListCostLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost Left'**
+  String get shoppingListCostLeft;
+
+  /// No description provided for @feedTabByIngredients.
+  ///
+  /// In en, this message translates to:
+  /// **'By Ingredients'**
+  String get feedTabByIngredients;
 }
 
 class _AppLocalizationsDelegate

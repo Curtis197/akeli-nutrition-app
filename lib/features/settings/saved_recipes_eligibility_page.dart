@@ -201,6 +201,7 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                                           imageUrl: recipe.thumbnailUrl,
                                           isMinimalist: true,
                                           creatorId: recipe.creatorId,
+                                          priceTier: recipe.priceTier,
                                           onTap: () {
                                             appLogger.userAction('Eligibility recipe tapped',
                                                 screen: 'SavedRecipesEligibilityPage',

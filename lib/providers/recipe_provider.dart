@@ -5,6 +5,7 @@ import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/recipe.dart';
 import 'auth_provider.dart';
+import 'user_profile_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Translation helper — applies recipe_translation / recipe_step_translation /
@@ -256,13 +257,17 @@ final feedProvider =
         .map((e) => e['recipe_id'] as String)
         .toList();
 
+    final profile = await ref.watch(userProfileProvider.future);
+    final countryCode = profile?.countryCode ?? 'FR';
+
     appLogger.db(
-        'BEFORE | table: recipe | op: SELECT in | ids: ${recipeIds.length}');
+        'BEFORE | table: recipe | op: SELECT in | ids: ${recipeIds.length} | country: $countryCode');
     final recipeData = await client
         .from('recipe')
         .select(
-            '*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
-        .inFilter('id', recipeIds) as List<dynamic>;
+            '*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .inFilter('id', recipeIds)
+        .eq('recipe_market_cost.country_code', countryCode) as List<dynamic>;
     appLogger.db('AFTER | table: recipe | rows: ${recipeData.length}');
 
     if (recipeData.isEmpty) {
@@ -314,14 +319,18 @@ final recipeDetailProvider =
   appLogger.provider('recipeDetailProvider build() | recipeId: $id | locale: $locale');
   ref.onDispose(() => appLogger.provider('recipeDetailProvider disposed | recipeId: $id'));
 
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
   final client = ref.watch(supabaseClientProvider);
-  appLogger.db('BEFORE | table: recipe | op: SELECT | recipeId: $id');
+  appLogger.db('BEFORE | table: recipe | op: SELECT | recipeId: $id | country: $countryCode');
 
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name_en, name), quantity, unit, is_optional, sort_order, is_section_header, title), steps:recipe_step(id, step_number, content, image_url, timer_seconds, sort_order, ingredient_ids, is_section_header, title), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), ingredients:recipe_ingredient(id, ingredient_id, ingredient:ingredient_id(name_fr, name_en, name), quantity, unit, is_optional, sort_order, is_section_header, title), steps:recipe_step(id, step_number, content, image_url, timer_seconds, sort_order, ingredient_ids, is_section_header, title), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('id', id)
+        .eq('recipe_market_cost.country_code', countryCode)
         .maybeSingle();
 
     if (data == null) {
@@ -413,12 +422,19 @@ final searchRecipesProvider =
     return [];
   }
 
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
   final client = ref.watch(supabaseClientProvider);
   appLogger.db(
-      'BEFORE | table: recipe | op: SELECT ilike+filters | query: "${params.query}" | limit: ${params.limit}');
+      'BEFORE | table: recipe | op: SELECT ilike+filters | query: "${params.query}" | limit: ${params.limit} | country: $countryCode');
 
   try {
-    var query = client.from('recipe').select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)').ilike('title', '%${params.query}%');
+    var query = client
+        .from('recipe')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .ilike('title', '%${params.query}%')
+        .eq('recipe_market_cost.country_code', countryCode);
 
     if (params.regionId != null) query = query.eq('region_id', params.regionId!);
     if (params.difficulty != null) query = query.eq('difficulty', params.difficulty!);
@@ -474,22 +490,27 @@ final chatRecipePickerProvider =
   appLogger.provider('chatRecipePickerProvider build() | query: "$query"');
   ref.onDispose(() => appLogger.provider('chatRecipePickerProvider disposed'));
 
-  final client = ref.watch(supabaseClientProvider);
-  const sel = 'id, creator_id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), like_count, average_rating, is_published, created_at';
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
 
-  appLogger.db('BEFORE | table: recipe | chatRecipePicker | query: "$query"');
+  final client = ref.watch(supabaseClientProvider);
+  const sel = 'id, creator_id, title, cover_image_url, recipe_macro(calories, protein_g, carbs_g, fat_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), like_count, average_rating, is_published, created_at';
+
+  appLogger.db('BEFORE | table: recipe | chatRecipePicker | query: "$query" | country: $countryCode');
   try {
     final data = query.length >= 2
         ? await client
             .from('recipe')
             .select(sel)
             .eq('is_published', true)
+            .eq('recipe_market_cost.country_code', countryCode)
             .ilike('title', '%$query%')
             .limit(30) as List<dynamic>
         : await client
             .from('recipe')
             .select(sel)
             .eq('is_published', true)
+            .eq('recipe_market_cost.country_code', countryCode)
             .order('like_count', ascending: false)
             .limit(30) as List<dynamic>;
 
@@ -533,13 +554,17 @@ final userRecipesProvider =
   final creatorId = creatorRow['id'] as String;
   appLogger.db('AFTER | table: creator | creatorId: $creatorId');
 
-  appLogger.db('BEFORE | table: recipe | op: SELECT | creator_id: $creatorId');
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
+  appLogger.db('BEFORE | table: recipe | op: SELECT | creator_id: $creatorId | country: $countryCode');
 
   try {
     final data = await client
         .from('recipe')
-        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
         .eq('creator_id', creatorId)
+        .eq('recipe_market_cost.country_code', countryCode)
         .order('created_at', ascending: false)
         .limit(20) as List<dynamic>;
 
@@ -674,3 +699,53 @@ class RecipeLikeNotifier extends AutoDisposeAsyncNotifier<bool> {
 final recipeLikeProvider =
     AsyncNotifierProvider.autoDispose<RecipeLikeNotifier, bool>(
         RecipeLikeNotifier.new);
+
+// ---------------------------------------------------------------------------
+// Search recipes by ingredient IDs
+// ---------------------------------------------------------------------------
+
+final getRecipesByIngredientsProvider =
+    FutureProvider.family<List<Recipe>, List<String>>((ref, ingredientIds) async {
+  if (ingredientIds.isEmpty) return [];
+
+  final client = ref.watch(supabaseClientProvider);
+  final locale = ref.watch(localeProvider).languageCode;
+  final profile = await ref.watch(userProfileProvider.future);
+  final countryCode = profile?.countryCode ?? 'FR';
+
+  appLogger.db('BEFORE | rpc: get_recipes_by_ingredients | ids: ${ingredientIds.length}');
+  
+  try {
+    final rpcResult = await client.rpc('get_recipes_by_ingredients', params: {
+      'p_ingredient_ids': ingredientIds,
+    }) as List<dynamic>;
+
+    // Wait! rpcResult is a list of json objects like [{'recipe_id': '...'}]
+    final recipeIds = rpcResult.map((e) => e['recipe_id'] as String).toList();
+    if (recipeIds.isEmpty) return [];
+
+    appLogger.db('BEFORE | table: recipe | select in getRecipesByIngredients | count: ${recipeIds.length} | country: $countryCode');
+    
+    final recipeData = await client
+        .from('recipe')
+        .select('*, recipe_macro(calories, protein_g, carbs_g, fat_g, fiber_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g), recipe_market_cost(cost_per_100g, country_code), recipe_save!left(recipe_id), recipe_like!left(recipe_id)')
+        .inFilter('id', recipeIds)
+        .eq('recipe_market_cost.country_code', countryCode) as List<dynamic>;
+
+    final recipeMap = {
+      for (final r in recipeData.cast<Map<String, dynamic>>())
+        r['id'] as String: r
+    };
+
+    final recipes = recipeIds
+        .where(recipeMap.containsKey)
+        .map((id) => Recipe.fromJson(recipeMap[id]!))
+        .toList();
+
+    return await applyTitleTranslations(client, recipes, locale);
+  } catch (e, st) {
+    appLogger.db('ERROR | rpc: get_recipes_by_ingredients', error: e, stackTrace: st);
+    rethrow;
+  }
+});
+
