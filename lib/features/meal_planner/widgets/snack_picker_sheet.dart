@@ -85,7 +85,9 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${weight.toInt()} g',
+                recipe.calories100g != null
+                    ? '${weight.toInt()} g • ${(recipe.calories100g! * weight / 100.0).round()} kcal'
+                    : '${weight.toInt()} g',
                 style: Theme.of(ctx).textTheme.headlineMedium?.copyWith(
                       color: AkeliColors.primary,
                       fontWeight: FontWeight.w800,
