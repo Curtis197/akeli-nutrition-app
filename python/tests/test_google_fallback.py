@@ -24,6 +24,19 @@ def test_skips_non_food_hits():
         'Akpi', 'Akpi')
     assert result is None
 
+def test_skips_blacklisted_candidate_then_returns_next_valid_one():
+    # Two candidates: first is a non-food false-positive (must be skipped),
+    # second is the genuine match. Proves the loop actually advances past
+    # a bad candidate rather than bailing out after the first miss.
+    result = GoogleFallbackScraper('FR', 'EUR').scrape(
+        _page([
+            {'title': 'Nettoyant Anti-Calcaire ANTIKAL', 'priceStr': '3.50', 'url': 'https://shop.fr/clean'},
+            {'title': 'Akpi seeds 200g afrishop', 'priceStr': '4.99', 'url': 'https://afrishop.fr/akpi'},
+        ]),
+        'Akpi', 'Akpi')
+    assert result is not None
+    assert result.scraped_title == 'Akpi seeds 200g afrishop'
+
 def test_returns_none_on_empty():
     assert GoogleFallbackScraper('FR', 'EUR').scrape(_page([]), 'Akpi', 'Akpi') is None
 
