@@ -34,7 +34,8 @@ def get_ingredients(limit=None, name_filter=None):
         except Exception as e:
             print(f"Postgres failed: {e}. Trying REST...")
     if not SUPABASE_URL or not SUPABASE_ANON_KEY:
-        raise RuntimeError("No DB credentials available.")
+        print("Error: No DB credentials available (DATABASE_URL or SUPABASE_URL+SUPABASE_ANON_KEY required).")
+        return []
     url = (f"{SUPABASE_URL}/rest/v1/ingredient"
            f"?select=id,name,name_fr,name_en,category&order=name.asc")
     if name_filter:
@@ -42,8 +43,12 @@ def get_ingredients(limit=None, name_filter=None):
         url += f"&or=(name.ilike.{esc},name_fr.ilike.{esc},name_en.ilike.{esc})"
     if limit:
         url += f"&limit={limit}"
-    with urllib.request.urlopen(urllib.request.Request(url, headers=_headers(False))) as r:
-        return json.loads(r.read().decode())
+    try:
+        with urllib.request.urlopen(urllib.request.Request(url, headers=_headers(False))) as r:
+            return json.loads(r.read().decode())
+    except Exception as e:
+        print(f"Error fetching ingredients via REST API: {e}")
+        return []
 
 def save_market_price(ing_id, country, currency, price_per_100g,
                       package_size, package_unit, source='multi_scraper_v2'):
