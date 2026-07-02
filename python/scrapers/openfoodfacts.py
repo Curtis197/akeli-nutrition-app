@@ -17,10 +17,12 @@ class OpenFoodFactsScraper(BaseScraper):
 
     def _fetch(self, search_term: str, original_name: str) -> ScrapeResult | None:
         try:
+            # Note: the OFF Prices API has no `country` filter param — it's
+            # rejected/ignored server-side. Country is filtered client-side
+            # below using the nested location field the API actually returns.
             params = urllib.parse.urlencode({
                 'product_name': search_term,
-                'country': self.country_code.lower(),
-                'page_size': 10,
+                'page_size': 20,
             })
             with urllib.request.urlopen(f"{self.BASE}?{params}", timeout=8) as r:
                 data = json.loads(r.read().decode())
@@ -28,7 +30,7 @@ class OpenFoodFactsScraper(BaseScraper):
             prices = [
                 item['price'] for item in data.get('items', [])
                 if item.get('price')
-                and item.get('location_country', '').upper() == self.country_code
+                and item.get('location', {}).get('osm_address_country_code', '').upper() == self.country_code
             ][:5]  # spec: median of the top 5 results
             if len(prices) < 3:
                 return None
