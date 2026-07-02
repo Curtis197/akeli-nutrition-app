@@ -39,8 +39,8 @@ def test_pass_english_to_french_translation():
 
 def test_reject_zero_overlap():
     r = _r(ingredient_name='Dried crayfish',
-            scraped_title='Baume Pieds Réparateur Cicabiafine',
-            price_per_100g=15.3, package_unit='ml')
+            scraped_title='Riz Basmati Extra Long CARREFOUR',
+            price_per_100g=2.5, package_unit='g')
     vr = validate(r, 'Dried crayfish', 'fish')
     assert vr.verdict == 'REJECT'
 
@@ -83,3 +83,17 @@ def test_no_correction_for_liquid():
             price_per_100g=0.625, package_unit='ml')
     vr = validate(r, 'Coconut milk', 'dairy')
     assert vr.corrected_unit is None
+
+def test_warn_anomalous_package_size():
+    # 133g is not in the allowed set {1,6,50,100,250,500,1000} -> WARN, raw size preserved
+    r = _r(ingredient_name='Chicken', scraped_title='Filets de Poulet',
+           price_per_100g=1.19, package_size=133.0, package_unit='g')
+    vr = validate(r, 'Chicken', 'meat')
+    assert vr.verdict == 'WARN'
+
+def test_pass_real_food_not_falsely_blacklisted():
+    # 'Porc' is pork in French, which is a legitimate food, not blacklisted
+    r = _r(ingredient_name='Pork', scraped_title='Filet De Porc Frais',
+           price_per_100g=1.42, package_unit='g')
+    vr = validate(r, 'Pork', 'meat')
+    assert vr.verdict in ('PASS', 'WARN')  # must not be REJECT

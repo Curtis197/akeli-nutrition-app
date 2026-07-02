@@ -59,6 +59,7 @@ THRESHOLDS = {
     'default':   (0.03, 25.0),
 }
 SOLID_CATEGORIES = {'meat', 'grain', 'spice', 'vegetable'}
+ALLOWED_PACKAGE_SIZES = {1.0, 6.0, 50.0, 100.0, 250.0, 500.0, 1000.0}
 STOP_WORDS = {
     'de','en','la','les','le','au','aux','avec','sans','du','des','and',
     'with','for','the','a','of','fresh','frais','bio','organic','vrac',
@@ -129,10 +130,13 @@ def validate(result: ScrapeResult, ingredient_name: str,
     if ingredient_category in SOLID_CATEGORIES and result.package_unit == 'ml':
         corrected_unit = 'g'
         unit_verdict = 'WARN'
+    if result.package_size not in ALLOWED_PACKAGE_SIZES:
+        unit_verdict = 'WARN'
 
     verdicts = [kw_verdict, price_verdict, unit_verdict]
     final = 'WARN' if 'WARN' in verdicts else 'PASS'
     parts = [kw_reason, price_reason,
-             'unit corrected ml->g' if corrected_unit else None]
+             'unit corrected ml->g' if corrected_unit else None,
+             'package size anomaly' if result.package_size not in ALLOWED_PACKAGE_SIZES else None]
     reason = '; '.join(p for p in parts if p)
     return ValidationResult(final, reason, corrected_unit)
