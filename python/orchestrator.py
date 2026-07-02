@@ -73,6 +73,8 @@ def main():
                 queue = json.load(f)
         except FileNotFoundError:
             print("review_queue.json not found."); sys.exit(1)
+        except json.JSONDecodeError as e:
+            print(f"review_queue.json is corrupted: {e}"); sys.exit(1)
         # Group queue entries: one ingredient row with only its failed countries.
         by_id = {}
         for e in queue:
@@ -94,61 +96,82 @@ def main():
     scraped, review = [], []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-              '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36')
-        contexts = {c: browser.new_context(user_agent=UA, viewport={'width':1280,'height':800},
-                                            extra_http_headers={'Accept-Language': LOCALES[c]})
-                    for c in target}
-        pages = {c: ctx.new_page() for c, ctx in contexts.items()}
+        browser = None
+        contexts = {}
+        try:
+            browser = p.chromium.launch(headless=True)
+            UA = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                  '(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36')
+            contexts = {c: browser.new_context(user_agent=UA, viewport={'width':1280,'height':800},
+                                                extra_http_headers={'Accept-Language': LOCALES[c]})
+                        for c in target}
+            pages = {c: ctx.new_page() for c, ctx in contexts.items()}
 
-        for idx, ing in enumerate(ingredients):
-            print(f"\n[{idx+1}/{len(ingredients)}] {ing.get('name','')}")
-            # In retry mode each row carries only its failed countries;
-            # normal rows (from the DB) have no '_countries' key → all targets.
-            for code in ing.get('_countries') or target:
-                print(f"  [{code}] ...", end='', flush=True)
-                result, vr = run_cascade(pages[code], contexts[code], ing, code)
-                if result and vr:
-                    if vr.corrected_unit:
-                        result.package_unit = vr.corrected_unit
-                    print(f" {vr.verdict} | {result.source} | {result.price_per_100g:.3f} {result.currency}/100g")
-                    scraped.append({
-                        'ingredient_id': result.ingredient_id,
-                        'ingredient_name': result.ingredient_name,
-                        'country_code': result.country_code,
-                        'scraped_title': result.scraped_title,
-                        'price_per_100g': result.price_per_100g,
-                        'package_size': result.package_size,
-                        'package_unit': result.package_unit,
-                        'source': result.source,
-                        'verdict': vr.verdict, 'reason': vr.reason,
-                    })
-                    if not args.dry_run:
-                        save_market_price(result.ingredient_id, result.country_code,
-                                          result.currency, result.price_per_100g,
-                                          result.package_size, result.package_unit,
-                                          result.source)
-                else:
-                    print(f" UNFOUND")
-                    review.append({'ingredient_id': ing.get('id',''),
-                                   'ingredient_name': ing.get('name',''),
-                                   'name_fr': ing.get('name_fr') or '',
-                                   'country_code': code,
-                                   'category': ing.get('category',''),
-                                   'last_source': 'all_failed',
-                                   'reject_reason': 'no source returned a valid result'})
-            if idx < len(ingredients) - 1:
-                time.sleep(args.delay)
+            for idx, ing in enumerate(ingredients):
+                print(f"\n[{idx+1}/{len(ingredients)}] {ing.get('name','')}")
+                # In retry mode each row carries only its failed countries;
+                # normal rows (from the DB) have no '_countries' key → all targets.
+                for code in ing.get('_countries') or target:
+                    print(f"  [{code}] ...", end='', flush=True)
+                    try:
+                        result, vr = run_cascade(pages[code], contexts[code], ing, code)
+                    except Exception as e:
+                        print(f" ERROR: {e}")
+                        review.append({'ingredient_id': ing.get('id',''),
+                                       'ingredient_name': ing.get('name',''),
+                                       'name_fr': ing.get('name_fr') or '',
+                                       'country_code': code,
+                                       'category': ing.get('category',''),
+                                       'last_source': 'unexpected_exception',
+                                       'reject_reason': str(e)})
+                        continue
+                    if result and vr:
+                        if vr.corrected_unit:
+                            result.package_unit = vr.corrected_unit
+                        print(f" {vr.verdict} | {result.source} | {result.price_per_100g:.3f} {result.currency}/100g")
+                        scraped.append({
+                            'ingredient_id': result.ingredient_id,
+                            'ingredient_name': result.ingredient_name,
+                            'country_code': result.country_code,
+                            'scraped_title': result.scraped_title,
+                            'price_per_100g': result.price_per_100g,
+                            'package_size': result.package_size,
+                            'package_unit': result.package_unit,
+                            'source': result.source,
+                            'verdict': vr.verdict, 'reason': vr.reason,
+                        })
+                        if not args.dry_run:
+                            save_market_price(result.ingredient_id, result.country_code,
+                                              result.currency, result.price_per_100g,
+                                              result.package_size, result.package_unit,
+                                              result.source)
+                    else:
+                        print(f" UNFOUND")
+                        review.append({'ingredient_id': ing.get('id',''),
+                                       'ingredient_name': ing.get('name',''),
+                                       'name_fr': ing.get('name_fr') or '',
+                                       'country_code': code,
+                                       'category': ing.get('category',''),
+                                       'last_source': 'all_failed',
+                                       'reject_reason': 'no source returned a valid result'})
+                if idx < len(ingredients) - 1:
+                    time.sleep(args.delay)
+        finally:
+            for ctx in contexts.values():
+                try:
+                    ctx.close()
+                except Exception as e:
+                    print(f"  [warn] failed to close context: {e}")
+            if browser is not None:
+                try:
+                    browser.close()
+                except Exception as e:
+                    print(f"  [warn] failed to close browser: {e}")
 
-        for ctx in contexts.values():
-            ctx.close()
-        browser.close()
-
-    with open('scraped_prices.json', 'w', encoding='utf-8') as f:
-        json.dump(scraped, f, ensure_ascii=False, indent=2)
-    with open('review_queue.json', 'w', encoding='utf-8') as f:
-        json.dump(review, f, ensure_ascii=False, indent=2)
+            with open('scraped_prices.json', 'w', encoding='utf-8') as f:
+                json.dump(scraped, f, ensure_ascii=False, indent=2)
+            with open('review_queue.json', 'w', encoding='utf-8') as f:
+                json.dump(review, f, ensure_ascii=False, indent=2)
 
     print(f"\nSaved {len(scraped)} results | {len(review)} flagged for review")
     if not args.dry_run:
