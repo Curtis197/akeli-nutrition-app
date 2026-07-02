@@ -95,3 +95,79 @@ def test_main_continues_and_logs_review_entry_when_run_cascade_raises(tmp_path, 
     with open('scraped_prices.json', encoding='utf-8') as f:
         scraped = json.load(f)
     assert scraped == []
+
+
+def test_main_exits_before_browser_when_get_ingredients_returns_empty(tmp_path, monkeypatch):
+    """Finding 2: a transient DB failure (get_ingredients() returning []) must
+    not fall through into the Playwright block and overwrite existing output
+    files with empty lists. Pre-seed both output files with real content and
+    confirm they are untouched after main() exits early."""
+    monkeypatch.chdir(tmp_path)
+
+    existing_scraped = [{'ingredient_id': 'keep-me'}]
+    existing_review = [{'ingredient_id': 'keep-me-too', 'country_code': 'FR'}]
+    with open('scraped_prices.json', 'w', encoding='utf-8') as f:
+        json.dump(existing_scraped, f)
+    with open('review_queue.json', 'w', encoding='utf-8') as f:
+        json.dump(existing_review, f)
+
+    with patch('orchestrator.sync_playwright') as mock_playwright, \
+         patch('orchestrator._build_scrapers'), \
+         patch('orchestrator.get_ingredients', return_value=[]), \
+         patch('sys.argv', ['orchestrator.py', '--countries', 'FR', '--dry-run', '--delay', '0']):
+        try:
+            orchestrator.main()
+            raised = False
+        except SystemExit as e:
+            raised = True
+            exit_code = e.code
+
+    assert raised and exit_code != 0
+    # Playwright must never have been entered.
+    mock_playwright.assert_not_called()
+
+    with open('scraped_prices.json', encoding='utf-8') as f:
+        assert json.load(f) == existing_scraped
+    with open('review_queue.json', encoding='utf-8') as f:
+        assert json.load(f) == existing_review
+
+
+def test_retry_review_category_survives_round_trip(tmp_path, monkeypatch):
+    """Finding 1: category must survive original write -> review_queue.json
+    -> --retry-review read -> synthetic ingredient dict -> run_cascade, so
+    revalidation uses the correct (narrow) price-sanity band instead of
+    silently falling back to the wide 'default' band."""
+    monkeypatch.chdir(tmp_path)
+
+    queue = [
+        {'ingredient_id': 'id1', 'ingredient_name': 'Cumin', 'name_fr': 'Cumin',
+         'country_code': 'FR', 'category': 'spice',
+         'last_source': 'all_failed', 'reject_reason': 'x'},
+    ]
+    with open('review_queue.json', 'w', encoding='utf-8') as f:
+        json.dump(queue, f)
+
+    seen_categories = []
+
+    def fake_run_cascade(page, context, ing, code):
+        seen_categories.append(ing.get('category'))
+        return None, None
+
+    fake_page = MagicMock()
+    fake_ctx = MagicMock()
+    fake_browser = MagicMock(new_context=MagicMock(return_value=fake_ctx))
+    fake_ctx.new_page = MagicMock(return_value=fake_page)
+    fake_p = MagicMock()
+    fake_p.chromium.launch = MagicMock(return_value=fake_browser)
+    fake_playwright_cm = MagicMock()
+    fake_playwright_cm.__enter__ = MagicMock(return_value=fake_p)
+    fake_playwright_cm.__exit__ = MagicMock(return_value=False)
+
+    with patch('orchestrator.sync_playwright', return_value=fake_playwright_cm), \
+         patch('orchestrator._build_scrapers'), \
+         patch('orchestrator.run_cascade', side_effect=fake_run_cascade), \
+         patch('orchestrator.trigger_recipe_recalc'), \
+         patch('sys.argv', ['orchestrator.py', '--retry-review', '--dry-run', '--delay', '0']):
+        orchestrator.main()
+
+    assert seen_categories == ['spice']

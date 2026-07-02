@@ -1,3 +1,12 @@
+"""
+Multi-source, multi-country ingredient price scraper — CURRENT entry point.
+
+Supersedes scrape_prices.py (kept in this directory only as historical
+reference; do not run it — it lacks the multi-country retailer cascade,
+the Open Food Facts / Google fallback sources, and the coherence validator
+that this module adds).
+"""
+
 import argparse, json, sys, time
 from playwright.sync_api import sync_playwright
 from db import get_ingredients, save_market_price, trigger_recipe_recalc
@@ -83,7 +92,16 @@ def main():
             row = by_id.setdefault(e['ingredient_id'], {
                 'id': e['ingredient_id'], 'name': e['ingredient_name'],
                 'name_fr': e.get('name_fr') or e['ingredient_name'],
-                'category': e.get('category', ''), '_countries': []})
+                'category': e.get('category') or '', '_countries': []})
+            # Defense-in-depth: if an earlier entry for this ingredient_id was
+            # written without a category (e.g. a stale/older queue file) but a
+            # later entry for the SAME ingredient does carry one, prefer the
+            # real value instead of silently keeping the row on the wide
+            # 'default' validation band for the whole retry.
+            if not row['category']:
+                later_category = e.get('category') or ''
+                if later_category:
+                    row['category'] = later_category
             row['_countries'].append(e['country_code'])
         ingredients = list(by_id.values())
         target = sorted({c for row in ingredients for c in row['_countries']})
@@ -91,6 +109,10 @@ def main():
             print("review_queue.json is empty — nothing to retry."); sys.exit(0)
     else:
         ingredients = get_ingredients(name_filter=args.name_filter)
+        if not ingredients:
+            print("No ingredients fetched — DB may be unreachable; "
+                  "skipping run to avoid overwriting existing output files")
+            sys.exit(1)
 
     print(f"Scraping {len(ingredients)} ingredients x {target}")
     scraped, review = [], []
@@ -121,7 +143,7 @@ def main():
                                        'ingredient_name': ing.get('name',''),
                                        'name_fr': ing.get('name_fr') or '',
                                        'country_code': code,
-                                       'category': ing.get('category',''),
+                                       'category': ing.get('category') or '',
                                        'last_source': 'unexpected_exception',
                                        'reject_reason': str(e)})
                         continue
@@ -151,7 +173,7 @@ def main():
                                        'ingredient_name': ing.get('name',''),
                                        'name_fr': ing.get('name_fr') or '',
                                        'country_code': code,
-                                       'category': ing.get('category',''),
+                                       'category': ing.get('category') or '',
                                        'last_source': 'all_failed',
                                        'reject_reason': 'no source returned a valid result'})
                 if idx < len(ingredients) - 1:

@@ -1,14 +1,8 @@
 import re, urllib.parse
-from scrapers.base import BaseScraper, ScrapeResult, parse_price_per_100g
+from scrapers.base import BaseScraper, ScrapeResult, parse_price_per_100g, keyword_match
 
 _STOP = {'de','en','la','les','le','au','aux','avec','sans','vrac','simpl',
          'carrefour','classic','bio','frais','et','ou'}
-
-def _match(query: str, title: str) -> bool:
-    q = re.sub(r'\(.*?\)', '', query.lower()).strip()
-    q_words = {w for w in re.findall(r'\w+', q) if w not in _STOP and len(w) > 2}
-    t_words = set(re.findall(r'\w+', title.lower()))
-    return not q_words or any(qw in tw or tw in qw for qw in q_words for tw in t_words)
 
 class CarrefourFrScraper(BaseScraper):
     def scrape(self, page, ingredient_name: str, ingredient_name_fr: str) -> ScrapeResult | None:
@@ -44,7 +38,7 @@ class CarrefourFrScraper(BaseScraper):
             # the v1 failure mode (razor blades, cat food). Let the cascade
             # move on to the Google fallback instead.
             matches = [p for p in products
-                       if _match(ingredient_name_fr or ingredient_name, p['title'])]
+                       if keyword_match(ingredient_name_fr or ingredient_name, p['title'], _STOP)]
             if not matches:
                 return None
             best = matches[0]

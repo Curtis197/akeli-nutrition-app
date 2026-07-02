@@ -1,6 +1,6 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from scrapers.base import ScrapeResult, parse_price_per_100g, parse_package_info
+from scrapers.base import ScrapeResult, parse_price_per_100g, parse_package_info, keyword_match
 
 def test_scrape_result_fields():
     r = ScrapeResult(
@@ -53,3 +53,15 @@ def test_parse_package_info_unit():
     size, unit = parse_package_info('Chou vert à la pièce')
     assert size == 1.0
     assert unit == 'unit'
+
+def test_keyword_match_true_on_overlap():
+    assert keyword_match('Chicken', 'Chicken Breast Fillets', {'fresh'}) is True
+
+def test_keyword_match_false_on_no_overlap():
+    assert keyword_match('Akpi', 'Great Value Paper Towels', {'great', 'value'}) is False
+
+def test_keyword_match_false_when_query_is_all_stopwords():
+    # Behavioral fix: an ingredient name that is entirely stopwords/short tokens
+    # must NOT match every candidate — that reproduces the "fallback to first
+    # result" bug this rewrite was built to eliminate.
+    assert keyword_match('de la', 'Anything At All', {'de', 'la'}) is False

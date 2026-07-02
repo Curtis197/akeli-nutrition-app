@@ -18,6 +18,15 @@ class BaseScraper:
     def scrape(self, page, ingredient_name: str, ingredient_name_fr: str) -> 'ScrapeResult | None':
         raise NotImplementedError
 
+def keyword_match(query: str, title: str, stop_words: set) -> bool:
+    """True if any significant word in `query` appears in (or contains) a word in `title`."""
+    q = re.sub(r'\(.*?\)', '', query.lower()).strip()
+    q_words = {w for w in re.findall(r'\w+', q) if w not in stop_words and len(w) > 2}
+    if not q_words:
+        return False
+    t_words = set(re.findall(r'\w+', title.lower()))
+    return any(qw in tw or tw in qw for qw in q_words for tw in t_words)
+
 def parse_package_info(title: str) -> tuple:
     """Return (package_size, package_unit) parsed from a product title, or (None, None)."""
     t = title.lower()

@@ -1,13 +1,7 @@
 import re, urllib.parse
-from scrapers.base import BaseScraper, ScrapeResult, parse_price_per_100g
+from scrapers.base import BaseScraper, ScrapeResult, parse_price_per_100g, keyword_match
 
 _STOP = {'great','value','walmart','brand','organic','fresh','frozen'}
-
-def _match(query: str, title: str) -> bool:
-    q = re.sub(r'\(.*?\)', '', query.lower()).strip()
-    q_words = {w for w in re.findall(r'\w+', q) if w not in _STOP and len(w) > 2}
-    t_words = set(re.findall(r'\w+', title.lower()))
-    return not q_words or any(qw in tw or tw in qw for qw in q_words for tw in t_words)
 
 _JS_NEXT_DATA = """() => {
     try {
@@ -38,7 +32,7 @@ class WalmartCaScraper(BaseScraper):
             page.goto(url, wait_until='domcontentloaded', timeout=25000)
             page.wait_for_timeout(4000)
             products = page.evaluate(_JS_NEXT_DATA) or page.evaluate(_JS_DOM_FALLBACK)
-            matches = [p for p in products if _match(ingredient_name, p['title'])]
+            matches = [p for p in products if keyword_match(ingredient_name, p['title'], _STOP)]
             if not matches:
                 return None
             best = matches[0]
