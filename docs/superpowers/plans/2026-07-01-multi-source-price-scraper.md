@@ -141,7 +141,7 @@ def parse_package_info(title: str) -> tuple:
         if unit == 'cl': return val * 10.0,   'ml'
         if unit in ('g', 'oz', 'lb'): return val, 'g'
         return val, 'ml'
-    if any(kw in t for kw in ('à la pièce', 'a la piece', 'each', 'per unit', 'unité', 'each')):
+    if any(kw in t for kw in ('à la pièce', 'a la piece', 'each', 'per unit', 'unité')):
         return 1.0, 'unit'
     return None, None
 
@@ -169,9 +169,7 @@ def parse_price_per_100g(price_str: str, title: str) -> tuple:
         return val / 0.2835, 1000.0, 'g'
     if '/l' in s or '/ l' in s or 'per litre' in s or 'per liter' in s or 'le litre' in s:
         return val / 10.0, 1000.0, 'ml'
-    if '100ml' in s or '/ 100 ml' in s:
-        return val, 100.0, 'ml'
-    if 'each' in s or 'per unit' in s or '/ u' in s or '/ pce' in s:
+    if re.search(r'\beach\b', s) or 'per unit' in s or '/ u' in s or '/ pce' in s:
         return val, 1.0, 'unit'
 
     # Fallback: infer from title package info
@@ -265,6 +263,9 @@ def save_market_price(ing_id, country, currency, price_per_100g,
             return True
         except Exception as e:
             print(f"  Postgres save failed: {e}")
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        print("  No REST credentials — save skipped.")
+        return False
     hdrs = _headers(); hdrs['Prefer'] = 'resolution=merge-duplicates'
     payload = json.dumps({
         'ingredient_id': ing_id, 'country_code': country, 'currency': currency,
@@ -272,10 +273,14 @@ def save_market_price(ing_id, country, currency, price_per_100g,
         'package_unit': package_unit, 'source': source,
         'scraped_at': datetime.utcnow().isoformat()
     }).encode()
-    with urllib.request.urlopen(urllib.request.Request(
-            f"{SUPABASE_URL}/rest/v1/ingredient_market_price",
-            headers=hdrs, data=payload, method='POST')) as r:
-        return True
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                f"{SUPABASE_URL}/rest/v1/ingredient_market_price",
+                headers=hdrs, data=payload, method='POST')):
+            return True
+    except Exception as e:
+        print(f"  REST save failed: {e}")
+        return False
 
 def trigger_recipe_recalc(country_code):
     if DATABASE_URL:
@@ -288,12 +293,19 @@ def trigger_recipe_recalc(country_code):
             return True
         except Exception as e:
             print(f"  RPC failed: {e}")
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        print("  No REST credentials — recalc skipped.")
+        return False
     payload = json.dumps({'p_country_code': country_code}).encode()
-    with urllib.request.urlopen(urllib.request.Request(
-            f"{SUPABASE_URL}/rest/v1/rpc/recalculate_recipe_costs",
-            headers=_headers(), data=payload, method='POST')):
-        print(f"  Recalculation done: {country_code} (REST)")
-    return True
+    try:
+        with urllib.request.urlopen(urllib.request.Request(
+                f"{SUPABASE_URL}/rest/v1/rpc/recalculate_recipe_costs",
+                headers=_headers(), data=payload, method='POST')):
+            print(f"  Recalculation done: {country_code} (REST)")
+        return True
+    except Exception as e:
+        print(f"  REST recalc failed: {e}")
+        return False
 ```
 
 - [ ] **Step 7: Commit**
@@ -367,10 +379,18 @@ def test_reject_zero_overlap():
 
 # Check 3 — price range
 def test_reject_extreme_high_price():
+    # 150 > spice max (20) × 5 = 100 → REJECT per spec
+    r = _r(ingredient_name='Suya spice powder',
+            scraped_title='Suya Spice Mix', price_per_100g=150.0)
+    vr = validate(r, 'Suya spice powder', 'spice')
+    assert vr.verdict == 'REJECT'
+
+def test_warn_high_but_not_extreme_price():
+    # 67.5 is above spice max (20) but below the ×5 reject cutoff → WARN
     r = _r(ingredient_name='Suya spice powder',
             scraped_title='Suya Spice Mix', price_per_100g=67.5)
     vr = validate(r, 'Suya spice powder', 'spice')
-    assert vr.verdict == 'REJECT'
+    assert vr.verdict == 'WARN'
 
 def test_warn_slightly_outside_range():
     # Ginger at 0.45 €/100g is below spice min of 0.50 but within ×5 buffer
@@ -403,7 +423,7 @@ def test_no_correction_for_liquid():
 ```
 python -m pytest python/tests/test_validator.py -v
 ```
-Expected: 10 FAILED (ImportError)
+Expected: 11 FAILED (ImportError)
 
 - [ ] **Step 3: Create `python/validator.py`**
 
@@ -422,12 +442,12 @@ class ValidationResult:
 NON_FOOD_BLACKLIST = [
     'calcaire', 'anti-calcaire', 'nettoyant', 'menager', 'detartrant',
     'lessive', 'vaisselle', 'desinfectant', 'antibacterien',
-    'baume', 'pieds', 'crevasses', 'cicabiafine', 'reparateur peaux',
+    'baume', 'crevasses', 'cicabiafine',
     'rasoir', 'lame de rasoir', 'philips oneblade',
     'matifiant', 'poudre legere', 'rimmel', 'peach glow', 'stay matte',
     'fond de teint', 'mascara', 'rouge a levres',
     'anti-mites', 'mites alimentaires', 'insecticide', 'piege vegetal',
-    'croquettes', 'pour chat', 'pour chien', 'senior sterilis',
+    'croquettes', 'pour chat', 'pour chien',
     'captain morgan', 'spiced gold 0.0',
 ]
 
@@ -553,7 +573,7 @@ def validate(result: ScrapeResult, ingredient_name: str,
 ```
 python -m pytest python/tests/test_validator.py -v
 ```
-Expected: 10 PASSED
+Expected: 11 PASSED
 
 - [ ] **Step 5: Commit**
 
@@ -664,14 +684,14 @@ class OpenFoodFactsScraper(BaseScraper):
                 item['price'] for item in data.get('items', [])
                 if item.get('price')
                 and item.get('location_country', '').upper() == self.country_code
-            ]
+            ][:5]  # spec: median of the top 5 results
             if len(prices) < 3:
                 return None
 
             # OFF prices are per kg; convert to per 100g
             price_per_100g = statistics.median(prices) / 10.0
             first_title = next(
-                (i['product'].get('product_name', original_name)
+                (i.get('product', {}).get('product_name') or original_name
                  for i in data['items'] if i.get('price')),
                 original_name
             )
@@ -744,6 +764,15 @@ def test_returns_none_when_no_products():
     result = CarrefourFrScraper().scrape(_page([]), 'Akpi', 'Akpi')
     assert result is None
 
+def test_returns_none_when_first_result_is_unrelated():
+    # v1 failure mode: search "Akpi" returned a descaler as first hit.
+    # No keyword match against the French name → scraper must return None,
+    # NOT fall back to the first result.
+    page = _page([{'title': 'Nettoyant Ménager Anti-Calcaire ANTIKAL',
+                   'priceStr': '3,50 € / l'}])
+    result = CarrefourFrScraper().scrape(page, 'Akpi', 'Akpi')
+    assert result is None
+
 def test_parses_per_100g_price():
     page = _page([{'title': 'Poivre Noir Moulu CARREFOUR', 'priceStr': '2,36 € / 100g'}])
     result = CarrefourFrScraper().scrape(page, 'Black pepper', 'Poivre noir')
@@ -761,7 +790,7 @@ def test_returns_none_on_page_error():
 ```
 python -m pytest python/tests/test_carrefour_fr.py -v
 ```
-Expected: 4 FAILED (ImportError)
+Expected: 5 FAILED (ImportError)
 
 - [ ] **Step 3: Create `python/scrapers/carrefour_fr.py`**
 
@@ -807,10 +836,15 @@ class CarrefourFrScraper(BaseScraper):
                 return res;
             }""")
 
-            matches = [p for p in products if _match(ingredient_name, p['title'])]
-            if not matches and not products:
+            # Match against the French name — that's the language we searched in.
+            # No fallback to products[0]: an unmatched first result is exactly
+            # the v1 failure mode (razor blades, cat food). Let the cascade
+            # move on to the Google fallback instead.
+            matches = [p for p in products
+                       if _match(ingredient_name_fr or ingredient_name, p['title'])]
+            if not matches:
                 return None
-            best = matches[0] if matches else products[0]
+            best = matches[0]
 
             try:
                 price_per_100g, pkg_size, pkg_unit = parse_price_per_100g(
@@ -834,7 +868,7 @@ class CarrefourFrScraper(BaseScraper):
 ```
 python -m pytest python/tests/test_carrefour_fr.py -v
 ```
-Expected: 4 PASSED
+Expected: 5 PASSED
 
 - [ ] **Step 5: Commit**
 
@@ -1465,12 +1499,22 @@ def main():
         try:
             with open('review_queue.json', encoding='utf-8') as f:
                 queue = json.load(f)
-            ingredients = [{'id': e['ingredient_id'], 'name': e['ingredient_name'],
-                             'name_fr': e['ingredient_name'], 'category': e.get('category', '')}
-                           for e in queue]
-            target = list({e['country_code'] for e in queue if e['country_code'] in COUNTRIES})
         except FileNotFoundError:
             print("review_queue.json not found."); sys.exit(1)
+        # Group queue entries: one ingredient row with only its failed countries.
+        by_id = {}
+        for e in queue:
+            if e['country_code'] not in COUNTRIES:
+                continue
+            row = by_id.setdefault(e['ingredient_id'], {
+                'id': e['ingredient_id'], 'name': e['ingredient_name'],
+                'name_fr': e.get('name_fr') or e['ingredient_name'],
+                'category': e.get('category', ''), '_countries': []})
+            row['_countries'].append(e['country_code'])
+        ingredients = list(by_id.values())
+        target = sorted({c for row in ingredients for c in row['_countries']})
+        if not ingredients:
+            print("review_queue.json is empty — nothing to retry."); sys.exit(0)
     else:
         ingredients = get_ingredients(name_filter=args.name_filter)
 
@@ -1488,7 +1532,9 @@ def main():
 
         for idx, ing in enumerate(ingredients):
             print(f"\n[{idx+1}/{len(ingredients)}] {ing.get('name','')}")
-            for code in target:
+            # In retry mode each row carries only its failed countries;
+            # normal rows (from the DB) have no '_countries' key → all targets.
+            for code in ing.get('_countries') or target:
                 print(f"  [{code}] ...", end='', flush=True)
                 result, vr = run_cascade(pages[code], contexts[code], ing, code)
                 if result and vr:
@@ -1515,6 +1561,7 @@ def main():
                     print(f" UNFOUND")
                     review.append({'ingredient_id': ing.get('id',''),
                                    'ingredient_name': ing.get('name',''),
+                                   'name_fr': ing.get('name_fr') or '',
                                    'country_code': code,
                                    'category': ing.get('category',''),
                                    'last_source': 'all_failed',
@@ -1553,7 +1600,7 @@ Expected: 4 PASSED
 ```
 python -m pytest python/tests/ -v
 ```
-Expected: 34 PASSED across 7 test files
+Expected: 45 PASSED across 8 test files (base 9, validator 11, openfoodfacts 3, carrefour 5, tesco 4, walmart 5, google 4, orchestrator 4)
 
 - [ ] **Step 6: Smoke test (dry-run, one ingredient)**
 
@@ -1563,15 +1610,14 @@ cd python
 venv\Scripts\Activate.ps1
 python orchestrator.py --filter "chicken" --countries FR --dry-run
 ```
-Expected output:
+Expected output (source may be `openfoodfacts` or `carrefour_fr` depending on OFF coverage; price will vary):
 ```
 Scraping 1 ingredients x ['FR']
 
 [1/1] Chicken
   [FR] ... PASS | carrefour_fr | 1.190 EUR/100g
 
-Saved 1 results to scraped_prices.json
-0 flagged for review
+Saved 1 results | 0 flagged for review
 
 [SUCCESS] Scraper finished.
 ```
