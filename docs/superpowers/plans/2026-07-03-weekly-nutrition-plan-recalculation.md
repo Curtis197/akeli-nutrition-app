@@ -377,7 +377,7 @@ REVOKE ALL ON FUNCTION public.recalculate_nutrition_plans_from_weight() FROM aut
 - [ ] **Step 4: Run the test to verify it passes**
 
 Run: `supabase test db`
-Expected: `recalculate_nutrition_plans_from_weight_test.sql ... ok` — all 32 assertions pass, total suite now `Files=4, Tests=59` (was `Files=3, Tests=27` per prior local testing notes).
+Expected: `recalculate_nutrition_plans_from_weight_test.sql ... ok` — all 32 assertions pass, total suite now `Files=5, Tests=65` (verified baseline before this task was `Files=4, Tests=33`).
 
 - [ ] **Step 5: Commit**
 
@@ -561,7 +561,7 @@ Expected: completes without error; seeds the 4 test users from project memory.
 - [ ] **Step 2: Confirm the pgTAP suite passes as part of the full run**
 
 Run: `supabase test db`
-Expected: `Files=4, Tests=59, Result: PASS` (this repo's baseline was `Files=3, Tests=27` before Task 1 added the 4th file with 32 tests).
+Expected: `Files=5, Tests=65, Result: PASS` (baseline was `Files=4, Tests=33` before Task 1 added the 5th file with 32 tests).
 
 - [ ] **Step 3: Insert a fresh weight_log entry for test user A (standard)**
 
