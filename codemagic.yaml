@@ -48,10 +48,12 @@ workflows:
           include: true
       cancel_previous_builds: true
     environment:
-      flutter: stable
+      flutter: 3.41.4
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
+      - name: Generate l10n
+        script: flutter gen-l10n
       - name: Analyze
         script: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Run tests

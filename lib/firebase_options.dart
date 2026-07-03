@@ -66,7 +66,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1080340252277',
     projectId: 'afro-health-oyks8y',
     storageBucket: 'afro-health-oyks8y.firebasestorage.app',
-    iosBundleId: 'io.akeli.com',
+    iosBundleId: 'com.akeli.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
