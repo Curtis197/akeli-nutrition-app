@@ -61,3 +61,9 @@ lib/features/cooking/unsplash
 analyze_user*.js
 generate_migrations.js
 test_*.js
+
+# Apple signing keys — never commit
+*.p8
+
+# Google Cloud service account keys — never commit
+afro-health-*.json
