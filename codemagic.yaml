@@ -13,7 +13,7 @@ workflows:
           include: true
       cancel_previous_builds: true
     environment:
-      flutter: stable
+      flutter: 3.41.4
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.akeli.app
