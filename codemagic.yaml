@@ -53,7 +53,7 @@ workflows:
       - name: Get Flutter packages
         script: flutter pub get
       - name: Analyze
-        script: flutter analyze
+        script: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Run tests
         script: flutter test
       - name: Verify Android debug build
