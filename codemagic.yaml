@@ -27,7 +27,6 @@ workflows:
       - name: Build release IPA
         script: |
           flutter build ipa --release \
-            --build-number=$((CM_BUILD_NUMBER + 100)) \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
