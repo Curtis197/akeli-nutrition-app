@@ -22,11 +22,13 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: flutter pub get
+      - name: Set up code signing
+        script: xcode-project use-profiles
       - name: Build release IPA
         script: |
           flutter build ipa --release \
             --build-number=$CM_BUILD_NUMBER \
-            --export-options-plist=ios/ExportOptions.plist
+            --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
