@@ -9,6 +9,9 @@
 .env.*
 token.txt
 
+# Apple signing keys — never commit
+*.p8
+
 # Editors
 .vscode/
 .idea/

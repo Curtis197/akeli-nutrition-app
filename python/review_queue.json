@@ -1,0 +1,5204 @@
+[
+  {
+    "ingredient_id": "7501980d-ded3-4e04-910f-830f3b3ac0ce",
+    "ingredient_name": "African eggplant",
+    "name_fr": "Aubergine africaine",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7501980d-ded3-4e04-910f-830f3b3ac0ce",
+    "ingredient_name": "African eggplant",
+    "name_fr": "Aubergine africaine",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7501980d-ded3-4e04-910f-830f3b3ac0ce",
+    "ingredient_name": "African eggplant",
+    "name_fr": "Aubergine africaine",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae57aa76-e3eb-4814-8f24-579e6eb06ea2",
+    "ingredient_name": "African pea eggplant (Gnangnan)",
+    "name_fr": "Petite aubergine africaine (gnangnan)",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae57aa76-e3eb-4814-8f24-579e6eb06ea2",
+    "ingredient_name": "African pea eggplant (Gnangnan)",
+    "name_fr": "Petite aubergine africaine (gnangnan)",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae57aa76-e3eb-4814-8f24-579e6eb06ea2",
+    "ingredient_name": "African pea eggplant (Gnangnan)",
+    "name_fr": "Petite aubergine africaine (gnangnan)",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "030f2b81-b413-436d-aa6a-316f61250bb9",
+    "ingredient_name": "Akpi",
+    "name_fr": "Akpi",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "030f2b81-b413-436d-aa6a-316f61250bb9",
+    "ingredient_name": "Akpi",
+    "name_fr": "Akpi",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "030f2b81-b413-436d-aa6a-316f61250bb9",
+    "ingredient_name": "Akpi",
+    "name_fr": "Akpi",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "030f2b81-b413-436d-aa6a-316f61250bb9",
+    "ingredient_name": "Akpi",
+    "name_fr": "Akpi",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "788cebc0-3a2d-4476-9d9f-0360a71fab39",
+    "ingredient_name": "Apricot jam",
+    "name_fr": "Confiture d'assaisonnement",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "788cebc0-3a2d-4476-9d9f-0360a71fab39",
+    "ingredient_name": "Apricot jam",
+    "name_fr": "Confiture d'assaisonnement",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "788cebc0-3a2d-4476-9d9f-0360a71fab39",
+    "ingredient_name": "Apricot jam",
+    "name_fr": "Confiture d'assaisonnement",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f1ac124-4c33-4cd3-9336-e55791d1af7d",
+    "ingredient_name": "Attiéké",
+    "name_fr": "Attiéké",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f1ac124-4c33-4cd3-9336-e55791d1af7d",
+    "ingredient_name": "Attiéké",
+    "name_fr": "Attiéké",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f1ac124-4c33-4cd3-9336-e55791d1af7d",
+    "ingredient_name": "Attiéké",
+    "name_fr": "Attiéké",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f1ac124-4c33-4cd3-9336-e55791d1af7d",
+    "ingredient_name": "Attiéké",
+    "name_fr": "Attiéké",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f4edf417-cc82-4f9c-b82f-8e26f63cf21d",
+    "ingredient_name": "Bakers yeast",
+    "name_fr": "Levure de boulanger",
+    "country_code": "FR",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f4edf417-cc82-4f9c-b82f-8e26f63cf21d",
+    "ingredient_name": "Bakers yeast",
+    "name_fr": "Levure de boulanger",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f4edf417-cc82-4f9c-b82f-8e26f63cf21d",
+    "ingredient_name": "Bakers yeast",
+    "name_fr": "Levure de boulanger",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f4edf417-cc82-4f9c-b82f-8e26f63cf21d",
+    "ingredient_name": "Bakers yeast",
+    "name_fr": "Levure de boulanger",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3529831a-5adb-48b3-9e4b-b19d4fdd6297",
+    "ingredient_name": "Baking powder",
+    "name_fr": "Levure chimique",
+    "country_code": "FR",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3529831a-5adb-48b3-9e4b-b19d4fdd6297",
+    "ingredient_name": "Baking powder",
+    "name_fr": "Levure chimique",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3529831a-5adb-48b3-9e4b-b19d4fdd6297",
+    "ingredient_name": "Baking powder",
+    "name_fr": "Levure chimique",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3529831a-5adb-48b3-9e4b-b19d4fdd6297",
+    "ingredient_name": "Baking powder",
+    "name_fr": "Levure chimique",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "aceeabe6-c657-4c45-a6f6-d59815c6cd97",
+    "ingredient_name": "Baking soda",
+    "name_fr": "Bicarbonate de soude",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "aceeabe6-c657-4c45-a6f6-d59815c6cd97",
+    "ingredient_name": "Baking soda",
+    "name_fr": "Bicarbonate de soude",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "aceeabe6-c657-4c45-a6f6-d59815c6cd97",
+    "ingredient_name": "Baking soda",
+    "name_fr": "Bicarbonate de soude",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "aceeabe6-c657-4c45-a6f6-d59815c6cd97",
+    "ingredient_name": "Baking soda",
+    "name_fr": "Bicarbonate de soude",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f7690223-9651-42b3-a81b-f284c6fd32ef",
+    "ingredient_name": "Banana leaves",
+    "name_fr": "Feuilles de bananier",
+    "country_code": "FR",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f7690223-9651-42b3-a81b-f284c6fd32ef",
+    "ingredient_name": "Banana leaves",
+    "name_fr": "Feuilles de bananier",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f7690223-9651-42b3-a81b-f284c6fd32ef",
+    "ingredient_name": "Banana leaves",
+    "name_fr": "Feuilles de bananier",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f7690223-9651-42b3-a81b-f284c6fd32ef",
+    "ingredient_name": "Banana leaves",
+    "name_fr": "Feuilles de bananier",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "903f01c4-4773-4b57-85be-34589e9acdb7",
+    "ingredient_name": "Bay leaf",
+    "name_fr": "Feuille de laurier",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "903f01c4-4773-4b57-85be-34589e9acdb7",
+    "ingredient_name": "Bay leaf",
+    "name_fr": "Feuille de laurier",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "903f01c4-4773-4b57-85be-34589e9acdb7",
+    "ingredient_name": "Bay leaf",
+    "name_fr": "Feuille de laurier",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "903f01c4-4773-4b57-85be-34589e9acdb7",
+    "ingredient_name": "Bay leaf",
+    "name_fr": "Feuille de laurier",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000006",
+    "ingredient_name": "Bay Leaf",
+    "name_fr": "Laurier",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000006",
+    "ingredient_name": "Bay Leaf",
+    "name_fr": "Laurier",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000006",
+    "ingredient_name": "Bay Leaf",
+    "name_fr": "Laurier",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000006",
+    "ingredient_name": "Bay Leaf",
+    "name_fr": "Laurier",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fe5a8d8-cdf9-4da2-b1ce-0fadd3660831",
+    "ingredient_name": "Beef",
+    "name_fr": "Bœuf",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fe5a8d8-cdf9-4da2-b1ce-0fadd3660831",
+    "ingredient_name": "Beef",
+    "name_fr": "Bœuf",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fe5a8d8-cdf9-4da2-b1ce-0fadd3660831",
+    "ingredient_name": "Beef",
+    "name_fr": "Bœuf",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fe5a8d8-cdf9-4da2-b1ce-0fadd3660831",
+    "ingredient_name": "Beef",
+    "name_fr": "Bœuf",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98fc2f35-74a8-4509-9622-18585ab2eba3",
+    "ingredient_name": "Beef blood",
+    "name_fr": "Sang de bœuf",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98fc2f35-74a8-4509-9622-18585ab2eba3",
+    "ingredient_name": "Beef blood",
+    "name_fr": "Sang de bœuf",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98fc2f35-74a8-4509-9622-18585ab2eba3",
+    "ingredient_name": "Beef blood",
+    "name_fr": "Sang de bœuf",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d968708f-8577-47e0-ba57-e8df7c86650e",
+    "ingredient_name": "Beef stock cube",
+    "name_fr": "Bouillon de bœuf",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d968708f-8577-47e0-ba57-e8df7c86650e",
+    "ingredient_name": "Beef stock cube",
+    "name_fr": "Bouillon de bœuf",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d968708f-8577-47e0-ba57-e8df7c86650e",
+    "ingredient_name": "Beef stock cube",
+    "name_fr": "Bouillon de bœuf",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000002",
+    "ingredient_name": "Berbere Spice",
+    "name_fr": "Berbere",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000002",
+    "ingredient_name": "Berbere Spice",
+    "name_fr": "Berbere",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000002",
+    "ingredient_name": "Berbere Spice",
+    "name_fr": "Berbere",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000002",
+    "ingredient_name": "Berbere Spice",
+    "name_fr": "Berbere",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5309b6f5-3de0-4799-8c57-113ffb5151dc",
+    "ingredient_name": "Berbere spice mix",
+    "name_fr": "Poudre de Berbéré",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5309b6f5-3de0-4799-8c57-113ffb5151dc",
+    "ingredient_name": "Berbere spice mix",
+    "name_fr": "Poudre de Berbéré",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5309b6f5-3de0-4799-8c57-113ffb5151dc",
+    "ingredient_name": "Berbere spice mix",
+    "name_fr": "Poudre de Berbéré",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5309b6f5-3de0-4799-8c57-113ffb5151dc",
+    "ingredient_name": "Berbere spice mix",
+    "name_fr": "Poudre de Berbéré",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0db4283f-e06e-439c-a18e-c38639c91d9d",
+    "ingredient_name": "Biltong (Dried meat)",
+    "name_fr": "Viande séchée (Biltong)",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0db4283f-e06e-439c-a18e-c38639c91d9d",
+    "ingredient_name": "Biltong (Dried meat)",
+    "name_fr": "Viande séchée (Biltong)",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0db4283f-e06e-439c-a18e-c38639c91d9d",
+    "ingredient_name": "Biltong (Dried meat)",
+    "name_fr": "Viande séchée (Biltong)",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0db4283f-e06e-439c-a18e-c38639c91d9d",
+    "ingredient_name": "Biltong (Dried meat)",
+    "name_fr": "Viande séchée (Biltong)",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60c9b4c8-bba7-4986-b297-38a6cfde6613",
+    "ingredient_name": "Bird's eye chili",
+    "name_fr": "Piment oiseau",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60c9b4c8-bba7-4986-b297-38a6cfde6613",
+    "ingredient_name": "Bird's eye chili",
+    "name_fr": "Piment oiseau",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60c9b4c8-bba7-4986-b297-38a6cfde6613",
+    "ingredient_name": "Bird's eye chili",
+    "name_fr": "Piment oiseau",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f1bacca8-3af6-4911-b8a2-3d9f7a980e53",
+    "ingredient_name": "Black pepper",
+    "name_fr": "Poivre noir",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f1bacca8-3af6-4911-b8a2-3d9f7a980e53",
+    "ingredient_name": "Black pepper",
+    "name_fr": "Poivre noir",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f1bacca8-3af6-4911-b8a2-3d9f7a980e53",
+    "ingredient_name": "Black pepper",
+    "name_fr": "Poivre noir",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "70a2520a-fcd7-4971-9e01-19ea87f9b321",
+    "ingredient_name": "Black-eyed peas",
+    "name_fr": "Haricots niébé",
+    "country_code": "FR",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "70a2520a-fcd7-4971-9e01-19ea87f9b321",
+    "ingredient_name": "Black-eyed peas",
+    "name_fr": "Haricots niébé",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "70a2520a-fcd7-4971-9e01-19ea87f9b321",
+    "ingredient_name": "Black-eyed peas",
+    "name_fr": "Haricots niébé",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "70a2520a-fcd7-4971-9e01-19ea87f9b321",
+    "ingredient_name": "Black-eyed peas",
+    "name_fr": "Haricots niébé",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "453eb4db-189b-4d80-8d34-a36a00a48fc8",
+    "ingredient_name": "Bread",
+    "name_fr": "Pain",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "453eb4db-189b-4d80-8d34-a36a00a48fc8",
+    "ingredient_name": "Bread",
+    "name_fr": "Pain",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "453eb4db-189b-4d80-8d34-a36a00a48fc8",
+    "ingredient_name": "Bread",
+    "name_fr": "Pain",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4613f0b2-726f-4e5f-aa72-0f43cca8cf05",
+    "ingredient_name": "Breadcrumbs",
+    "name_fr": "Chapelure",
+    "country_code": "FR",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4613f0b2-726f-4e5f-aa72-0f43cca8cf05",
+    "ingredient_name": "Breadcrumbs",
+    "name_fr": "Chapelure",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4613f0b2-726f-4e5f-aa72-0f43cca8cf05",
+    "ingredient_name": "Breadcrumbs",
+    "name_fr": "Chapelure",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4613f0b2-726f-4e5f-aa72-0f43cca8cf05",
+    "ingredient_name": "Breadcrumbs",
+    "name_fr": "Chapelure",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cb4e6810-e5a6-4dba-93b8-f6e8b944c4b5",
+    "ingredient_name": "Bredes leaves",
+    "name_fr": "Feuilles de brèdes",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cb4e6810-e5a6-4dba-93b8-f6e8b944c4b5",
+    "ingredient_name": "Bredes leaves",
+    "name_fr": "Feuilles de brèdes",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cb4e6810-e5a6-4dba-93b8-f6e8b944c4b5",
+    "ingredient_name": "Bredes leaves",
+    "name_fr": "Feuilles de brèdes",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cb4e6810-e5a6-4dba-93b8-f6e8b944c4b5",
+    "ingredient_name": "Bredes leaves",
+    "name_fr": "Feuilles de brèdes",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0518aacb-1289-432d-bf37-ac8ef2bc2f1d",
+    "ingredient_name": "Brick pastry leaf",
+    "name_fr": "Feuille de brick",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0518aacb-1289-432d-bf37-ac8ef2bc2f1d",
+    "ingredient_name": "Brick pastry leaf",
+    "name_fr": "Feuille de brick",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0518aacb-1289-432d-bf37-ac8ef2bc2f1d",
+    "ingredient_name": "Brick pastry leaf",
+    "name_fr": "Feuille de brick",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6a15717c-d541-4fe2-8c5a-e2ce9c6241cd",
+    "ingredient_name": "Broken rice",
+    "name_fr": "Riz brisé",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6a15717c-d541-4fe2-8c5a-e2ce9c6241cd",
+    "ingredient_name": "Broken rice",
+    "name_fr": "Riz brisé",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6a15717c-d541-4fe2-8c5a-e2ce9c6241cd",
+    "ingredient_name": "Broken rice",
+    "name_fr": "Riz brisé",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "89426f21-7fe5-4015-be2c-6e887f1cd99f",
+    "ingredient_name": "Butter",
+    "name_fr": "Beurre",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "89426f21-7fe5-4015-be2c-6e887f1cd99f",
+    "ingredient_name": "Butter",
+    "name_fr": "Beurre",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "89426f21-7fe5-4015-be2c-6e887f1cd99f",
+    "ingredient_name": "Butter",
+    "name_fr": "Beurre",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "79fbd745-185b-429f-a637-e2e4e00a9fdf",
+    "ingredient_name": "Canned tuna",
+    "name_fr": "Thon à l'huile",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "79fbd745-185b-429f-a637-e2e4e00a9fdf",
+    "ingredient_name": "Canned tuna",
+    "name_fr": "Thon à l'huile",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "79fbd745-185b-429f-a637-e2e4e00a9fdf",
+    "ingredient_name": "Canned tuna",
+    "name_fr": "Thon à l'huile",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d8ed8b8a-c88b-45b2-862d-a2f854e6d016",
+    "ingredient_name": "Captain fish",
+    "name_fr": "Poisson capitaine",
+    "country_code": "FR",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d8ed8b8a-c88b-45b2-862d-a2f854e6d016",
+    "ingredient_name": "Captain fish",
+    "name_fr": "Poisson capitaine",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d8ed8b8a-c88b-45b2-862d-a2f854e6d016",
+    "ingredient_name": "Captain fish",
+    "name_fr": "Poisson capitaine",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d8ed8b8a-c88b-45b2-862d-a2f854e6d016",
+    "ingredient_name": "Captain fish",
+    "name_fr": "Poisson capitaine",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20fbc5e5-665c-4037-85cb-4c55951d198c",
+    "ingredient_name": "Cardamom",
+    "name_fr": "Cardamome",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20fbc5e5-665c-4037-85cb-4c55951d198c",
+    "ingredient_name": "Cardamom",
+    "name_fr": "Cardamome",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20fbc5e5-665c-4037-85cb-4c55951d198c",
+    "ingredient_name": "Cardamom",
+    "name_fr": "Cardamome",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "43edbbcf-b85b-4fe2-a96f-a3ca48270565",
+    "ingredient_name": "Carrot",
+    "name_fr": "Carotte",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "43edbbcf-b85b-4fe2-a96f-a3ca48270565",
+    "ingredient_name": "Carrot",
+    "name_fr": "Carotte",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "43edbbcf-b85b-4fe2-a96f-a3ca48270565",
+    "ingredient_name": "Carrot",
+    "name_fr": "Carotte",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b59deb77-08f4-461e-8909-1fc46f3ed580",
+    "ingredient_name": "Cashew nuts",
+    "name_fr": "Noix de cajou",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b59deb77-08f4-461e-8909-1fc46f3ed580",
+    "ingredient_name": "Cashew nuts",
+    "name_fr": "Noix de cajou",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b59deb77-08f4-461e-8909-1fc46f3ed580",
+    "ingredient_name": "Cashew nuts",
+    "name_fr": "Noix de cajou",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b59deb77-08f4-461e-8909-1fc46f3ed580",
+    "ingredient_name": "Cashew nuts",
+    "name_fr": "Noix de cajou",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "19b2863a-509a-46b1-8b0e-518493068ead",
+    "ingredient_name": "Cassava",
+    "name_fr": "Manioc",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "19b2863a-509a-46b1-8b0e-518493068ead",
+    "ingredient_name": "Cassava",
+    "name_fr": "Manioc",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "19b2863a-509a-46b1-8b0e-518493068ead",
+    "ingredient_name": "Cassava",
+    "name_fr": "Manioc",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "10e1c90f-d3f6-4671-8d9e-66de83de5a4f",
+    "ingredient_name": "Cassava flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "10e1c90f-d3f6-4671-8d9e-66de83de5a4f",
+    "ingredient_name": "Cassava flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "10e1c90f-d3f6-4671-8d9e-66de83de5a4f",
+    "ingredient_name": "Cassava flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "10e1c90f-d3f6-4671-8d9e-66de83de5a4f",
+    "ingredient_name": "Cassava flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b6cfd0a8-24d4-4325-9879-8587785ee402",
+    "ingredient_name": "Cassava Flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b6cfd0a8-24d4-4325-9879-8587785ee402",
+    "ingredient_name": "Cassava Flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b6cfd0a8-24d4-4325-9879-8587785ee402",
+    "ingredient_name": "Cassava Flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b6cfd0a8-24d4-4325-9879-8587785ee402",
+    "ingredient_name": "Cassava Flour",
+    "name_fr": "Farine de manioc",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b0995b26-533b-4273-95b0-b37fcaf55c7d",
+    "ingredient_name": "Celery",
+    "name_fr": "Céleri",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b0995b26-533b-4273-95b0-b37fcaf55c7d",
+    "ingredient_name": "Celery",
+    "name_fr": "Céleri",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b0995b26-533b-4273-95b0-b37fcaf55c7d",
+    "ingredient_name": "Celery",
+    "name_fr": "Céleri",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b0995b26-533b-4273-95b0-b37fcaf55c7d",
+    "ingredient_name": "Celery",
+    "name_fr": "Céleri",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebb40465-7ba1-4568-870e-2fbcf0061911",
+    "ingredient_name": "Chicken",
+    "name_fr": "Poulet",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebb40465-7ba1-4568-870e-2fbcf0061911",
+    "ingredient_name": "Chicken",
+    "name_fr": "Poulet",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebb40465-7ba1-4568-870e-2fbcf0061911",
+    "ingredient_name": "Chicken",
+    "name_fr": "Poulet",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "56256ed5-4fb7-4c43-b3d4-d63e047a2696",
+    "ingredient_name": "Chicken stock cube",
+    "name_fr": "Bouillon de poulet",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "56256ed5-4fb7-4c43-b3d4-d63e047a2696",
+    "ingredient_name": "Chicken stock cube",
+    "name_fr": "Bouillon de poulet",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "56256ed5-4fb7-4c43-b3d4-d63e047a2696",
+    "ingredient_name": "Chicken stock cube",
+    "name_fr": "Bouillon de poulet",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000004",
+    "ingredient_name": "Chickpea flour",
+    "name_fr": "Farine de pois chiches",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000004",
+    "ingredient_name": "Chickpea flour",
+    "name_fr": "Farine de pois chiches",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000004",
+    "ingredient_name": "Chickpea flour",
+    "name_fr": "Farine de pois chiches",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8fa1b338-c717-43d2-9eed-bff13952b8fb",
+    "ingredient_name": "Chickpea powder Shiro",
+    "name_fr": "Pois chiches en poudre (Shiro)",
+    "country_code": "FR",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8fa1b338-c717-43d2-9eed-bff13952b8fb",
+    "ingredient_name": "Chickpea powder Shiro",
+    "name_fr": "Pois chiches en poudre (Shiro)",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8fa1b338-c717-43d2-9eed-bff13952b8fb",
+    "ingredient_name": "Chickpea powder Shiro",
+    "name_fr": "Pois chiches en poudre (Shiro)",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8fa1b338-c717-43d2-9eed-bff13952b8fb",
+    "ingredient_name": "Chickpea powder Shiro",
+    "name_fr": "Pois chiches en poudre (Shiro)",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cfccc387-c34f-49be-93d1-2e2ae8c6048d",
+    "ingredient_name": "Chickpeas",
+    "name_fr": "Pois chiches",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cfccc387-c34f-49be-93d1-2e2ae8c6048d",
+    "ingredient_name": "Chickpeas",
+    "name_fr": "Pois chiches",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cfccc387-c34f-49be-93d1-2e2ae8c6048d",
+    "ingredient_name": "Chickpeas",
+    "name_fr": "Pois chiches",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3107db95-5b32-4b3b-83c1-4639e9453c3b",
+    "ingredient_name": "Chinese noodles",
+    "name_fr": "Nouilles chinoises",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3107db95-5b32-4b3b-83c1-4639e9453c3b",
+    "ingredient_name": "Chinese noodles",
+    "name_fr": "Nouilles chinoises",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3107db95-5b32-4b3b-83c1-4639e9453c3b",
+    "ingredient_name": "Chinese noodles",
+    "name_fr": "Nouilles chinoises",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3107db95-5b32-4b3b-83c1-4639e9453c3b",
+    "ingredient_name": "Chinese noodles",
+    "name_fr": "Nouilles chinoises",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "fd2d2f4b-b342-4e9e-9277-75d7c378cf00",
+    "ingredient_name": "Chopped cassava leaves",
+    "name_fr": "Feuilles de manioc hachées",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "fd2d2f4b-b342-4e9e-9277-75d7c378cf00",
+    "ingredient_name": "Chopped cassava leaves",
+    "name_fr": "Feuilles de manioc hachées",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "fd2d2f4b-b342-4e9e-9277-75d7c378cf00",
+    "ingredient_name": "Chopped cassava leaves",
+    "name_fr": "Feuilles de manioc hachées",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "fd2d2f4b-b342-4e9e-9277-75d7c378cf00",
+    "ingredient_name": "Chopped cassava leaves",
+    "name_fr": "Feuilles de manioc hachées",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "42065998-c8b0-4eff-b804-b18e5039666e",
+    "ingredient_name": "Cinnamon",
+    "name_fr": "Cannelle",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "42065998-c8b0-4eff-b804-b18e5039666e",
+    "ingredient_name": "Cinnamon",
+    "name_fr": "Cannelle",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "42065998-c8b0-4eff-b804-b18e5039666e",
+    "ingredient_name": "Cinnamon",
+    "name_fr": "Cannelle",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "9cc327af-a831-4d2b-8b48-4b35516abe62",
+    "ingredient_name": "Clarified butter",
+    "name_fr": "Beurre clarifié (Niter Kibbeh)",
+    "country_code": "FR",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "9cc327af-a831-4d2b-8b48-4b35516abe62",
+    "ingredient_name": "Clarified butter",
+    "name_fr": "Beurre clarifié (Niter Kibbeh)",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "9cc327af-a831-4d2b-8b48-4b35516abe62",
+    "ingredient_name": "Clarified butter",
+    "name_fr": "Beurre clarifié (Niter Kibbeh)",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "9cc327af-a831-4d2b-8b48-4b35516abe62",
+    "ingredient_name": "Clarified butter",
+    "name_fr": "Beurre clarifié (Niter Kibbeh)",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000003",
+    "ingredient_name": "Cloves",
+    "name_fr": "Clou de girofle",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000003",
+    "ingredient_name": "Cloves",
+    "name_fr": "Clou de girofle",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000003",
+    "ingredient_name": "Cloves",
+    "name_fr": "Clou de girofle",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000003",
+    "ingredient_name": "Cloves",
+    "name_fr": "Clou de girofle",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e73c9f62-22f6-4517-a7f7-2c5e1b45837b",
+    "ingredient_name": "Cocoa Powder",
+    "name_fr": "Cacao en poudre",
+    "country_code": "FR",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e73c9f62-22f6-4517-a7f7-2c5e1b45837b",
+    "ingredient_name": "Cocoa Powder",
+    "name_fr": "Cacao en poudre",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e73c9f62-22f6-4517-a7f7-2c5e1b45837b",
+    "ingredient_name": "Cocoa Powder",
+    "name_fr": "Cacao en poudre",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e73c9f62-22f6-4517-a7f7-2c5e1b45837b",
+    "ingredient_name": "Cocoa Powder",
+    "name_fr": "Cacao en poudre",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b3cf0640-e025-4eb7-aeaf-2fd737c3bd64",
+    "ingredient_name": "Coconut milk",
+    "name_fr": "Lait de coco",
+    "country_code": "GB",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b3cf0640-e025-4eb7-aeaf-2fd737c3bd64",
+    "ingredient_name": "Coconut milk",
+    "name_fr": "Lait de coco",
+    "country_code": "US",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b3cf0640-e025-4eb7-aeaf-2fd737c3bd64",
+    "ingredient_name": "Coconut milk",
+    "name_fr": "Lait de coco",
+    "country_code": "CA",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000001",
+    "ingredient_name": "Cod",
+    "name_fr": "Cabillaud",
+    "country_code": "GB",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000001",
+    "ingredient_name": "Cod",
+    "name_fr": "Cabillaud",
+    "country_code": "US",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000001",
+    "ingredient_name": "Cod",
+    "name_fr": "Cabillaud",
+    "country_code": "CA",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000005",
+    "ingredient_name": "Cod fish",
+    "name_fr": "Morue",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000005",
+    "ingredient_name": "Cod fish",
+    "name_fr": "Morue",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000005",
+    "ingredient_name": "Cod fish",
+    "name_fr": "Morue",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d56452de-1442-4a27-9e5e-8e628180af2d",
+    "ingredient_name": "Coriander",
+    "name_fr": "Coriandre",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d56452de-1442-4a27-9e5e-8e628180af2d",
+    "ingredient_name": "Coriander",
+    "name_fr": "Coriandre",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d56452de-1442-4a27-9e5e-8e628180af2d",
+    "ingredient_name": "Coriander",
+    "name_fr": "Coriandre",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16496886-5655-4372-a41a-56198d46e62b",
+    "ingredient_name": "Corn flour",
+    "name_fr": "Farine de maïs",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16496886-5655-4372-a41a-56198d46e62b",
+    "ingredient_name": "Corn flour",
+    "name_fr": "Farine de maïs",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16496886-5655-4372-a41a-56198d46e62b",
+    "ingredient_name": "Corn flour",
+    "name_fr": "Farine de maïs",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "65f582ad-88c9-4385-b173-8d14dc9a4b50",
+    "ingredient_name": "Corn kernels",
+    "name_fr": "Maïs en grains",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "65f582ad-88c9-4385-b173-8d14dc9a4b50",
+    "ingredient_name": "Corn kernels",
+    "name_fr": "Maïs en grains",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "65f582ad-88c9-4385-b173-8d14dc9a4b50",
+    "ingredient_name": "Corn kernels",
+    "name_fr": "Maïs en grains",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "65f582ad-88c9-4385-b173-8d14dc9a4b50",
+    "ingredient_name": "Corn kernels",
+    "name_fr": "Maïs en grains",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "18e234c6-7b19-4d44-b090-be582bf3bd2b",
+    "ingredient_name": "Cornmeal",
+    "name_fr": "Farine de maïs",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "18e234c6-7b19-4d44-b090-be582bf3bd2b",
+    "ingredient_name": "Cornmeal",
+    "name_fr": "Farine de maïs",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "18e234c6-7b19-4d44-b090-be582bf3bd2b",
+    "ingredient_name": "Cornmeal",
+    "name_fr": "Farine de maïs",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "18e234c6-7b19-4d44-b090-be582bf3bd2b",
+    "ingredient_name": "Cornmeal",
+    "name_fr": "Farine de maïs",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0dbbe89c-6328-4baf-9ba4-d1c55cf5524f",
+    "ingredient_name": "Couscous",
+    "name_fr": "Couscous",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0dbbe89c-6328-4baf-9ba4-d1c55cf5524f",
+    "ingredient_name": "Couscous",
+    "name_fr": "Couscous",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0dbbe89c-6328-4baf-9ba4-d1c55cf5524f",
+    "ingredient_name": "Couscous",
+    "name_fr": "Couscous",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ec120eb3-b357-4a3f-8668-4ec08ecca3bd",
+    "ingredient_name": "Crab",
+    "name_fr": "Crabe",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ec120eb3-b357-4a3f-8668-4ec08ecca3bd",
+    "ingredient_name": "Crab",
+    "name_fr": "Crabe",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ec120eb3-b357-4a3f-8668-4ec08ecca3bd",
+    "ingredient_name": "Crab",
+    "name_fr": "Crabe",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "948afa87-15bf-4c49-87b1-42b2903053ad",
+    "ingredient_name": "Creme fraiche",
+    "name_fr": "Crème fraîche",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "948afa87-15bf-4c49-87b1-42b2903053ad",
+    "ingredient_name": "Creme fraiche",
+    "name_fr": "Crème fraîche",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "948afa87-15bf-4c49-87b1-42b2903053ad",
+    "ingredient_name": "Creme fraiche",
+    "name_fr": "Crème fraîche",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b14d283b-5595-40b1-b66b-66f5d9bc0999",
+    "ingredient_name": "Cumin",
+    "name_fr": "Cumin",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b14d283b-5595-40b1-b66b-66f5d9bc0999",
+    "ingredient_name": "Cumin",
+    "name_fr": "Cumin",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "b14d283b-5595-40b1-b66b-66f5d9bc0999",
+    "ingredient_name": "Cumin",
+    "name_fr": "Cumin",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c13edece-9271-42bd-ad73-6ccb7a7265e1",
+    "ingredient_name": "Curdled milk",
+    "name_fr": "Lait caillé",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c13edece-9271-42bd-ad73-6ccb7a7265e1",
+    "ingredient_name": "Curdled milk",
+    "name_fr": "Lait caillé",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c13edece-9271-42bd-ad73-6ccb7a7265e1",
+    "ingredient_name": "Curdled milk",
+    "name_fr": "Lait caillé",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5d0080c5-f549-4df5-be2a-da1ec1980812",
+    "ingredient_name": "Curry powder",
+    "name_fr": "Curry en poudre",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5d0080c5-f549-4df5-be2a-da1ec1980812",
+    "ingredient_name": "Curry powder",
+    "name_fr": "Curry en poudre",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5d0080c5-f549-4df5-be2a-da1ec1980812",
+    "ingredient_name": "Curry powder",
+    "name_fr": "Curry en poudre",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f2c7549-b4e2-40d4-8833-239e3ad891ad",
+    "ingredient_name": "Dijon mustard",
+    "name_fr": "Moutarde de Dijon",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f2c7549-b4e2-40d4-8833-239e3ad891ad",
+    "ingredient_name": "Dijon mustard",
+    "name_fr": "Moutarde de Dijon",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7f2c7549-b4e2-40d4-8833-239e3ad891ad",
+    "ingredient_name": "Dijon mustard",
+    "name_fr": "Moutarde de Dijon",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "760e194b-7928-442a-893f-a5171ad33e4a",
+    "ingredient_name": "Dried chili",
+    "name_fr": "Piment sec",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "760e194b-7928-442a-893f-a5171ad33e4a",
+    "ingredient_name": "Dried chili",
+    "name_fr": "Piment sec",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "760e194b-7928-442a-893f-a5171ad33e4a",
+    "ingredient_name": "Dried chili",
+    "name_fr": "Piment sec",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daaaf4a-4c58-4479-9dd3-1e70c974dc9b",
+    "ingredient_name": "Dried crayfish",
+    "name_fr": "Écrevisses séchées",
+    "country_code": "FR",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daaaf4a-4c58-4479-9dd3-1e70c974dc9b",
+    "ingredient_name": "Dried crayfish",
+    "name_fr": "Écrevisses séchées",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daaaf4a-4c58-4479-9dd3-1e70c974dc9b",
+    "ingredient_name": "Dried crayfish",
+    "name_fr": "Écrevisses séchées",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daaaf4a-4c58-4479-9dd3-1e70c974dc9b",
+    "ingredient_name": "Dried crayfish",
+    "name_fr": "Écrevisses séchées",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d629708b-4222-4f88-9ecb-5b99f3872092",
+    "ingredient_name": "Dried fava beans",
+    "name_fr": "Fèves sèches",
+    "country_code": "FR",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d629708b-4222-4f88-9ecb-5b99f3872092",
+    "ingredient_name": "Dried fava beans",
+    "name_fr": "Fèves sèches",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d629708b-4222-4f88-9ecb-5b99f3872092",
+    "ingredient_name": "Dried fava beans",
+    "name_fr": "Fèves sèches",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d629708b-4222-4f88-9ecb-5b99f3872092",
+    "ingredient_name": "Dried fava beans",
+    "name_fr": "Fèves sèches",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3428f263-2d25-4f29-b1ba-c1cd5ee8e357",
+    "ingredient_name": "Dried fish Guedj",
+    "name_fr": "Poisson séché (Guedj)",
+    "country_code": "FR",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3428f263-2d25-4f29-b1ba-c1cd5ee8e357",
+    "ingredient_name": "Dried fish Guedj",
+    "name_fr": "Poisson séché (Guedj)",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3428f263-2d25-4f29-b1ba-c1cd5ee8e357",
+    "ingredient_name": "Dried fish Guedj",
+    "name_fr": "Poisson séché (Guedj)",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3428f263-2d25-4f29-b1ba-c1cd5ee8e357",
+    "ingredient_name": "Dried fish Guedj",
+    "name_fr": "Poisson séché (Guedj)",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a0401da7-ce09-43f3-ab62-b20efdd26354",
+    "ingredient_name": "Dried fish powder",
+    "name_fr": "Poudre de poisson séché",
+    "country_code": "FR",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a0401da7-ce09-43f3-ab62-b20efdd26354",
+    "ingredient_name": "Dried fish powder",
+    "name_fr": "Poudre de poisson séché",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a0401da7-ce09-43f3-ab62-b20efdd26354",
+    "ingredient_name": "Dried fish powder",
+    "name_fr": "Poudre de poisson séché",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a0401da7-ce09-43f3-ab62-b20efdd26354",
+    "ingredient_name": "Dried fish powder",
+    "name_fr": "Poudre de poisson séché",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "577f503c-0134-4236-b831-ed70bcd30347",
+    "ingredient_name": "Dried shellfish Yet",
+    "name_fr": "Yet (mollusque séché)",
+    "country_code": "FR",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "577f503c-0134-4236-b831-ed70bcd30347",
+    "ingredient_name": "Dried shellfish Yet",
+    "name_fr": "Yet (mollusque séché)",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "577f503c-0134-4236-b831-ed70bcd30347",
+    "ingredient_name": "Dried shellfish Yet",
+    "name_fr": "Yet (mollusque séché)",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "577f503c-0134-4236-b831-ed70bcd30347",
+    "ingredient_name": "Dried shellfish Yet",
+    "name_fr": "Yet (mollusque séché)",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "03b1c134-8447-4677-9b1f-265618bc340e",
+    "ingredient_name": "Dried shrimp powder",
+    "name_fr": "Poudre de crevette séchée",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "03b1c134-8447-4677-9b1f-265618bc340e",
+    "ingredient_name": "Dried shrimp powder",
+    "name_fr": "Poudre de crevette séchée",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "03b1c134-8447-4677-9b1f-265618bc340e",
+    "ingredient_name": "Dried shrimp powder",
+    "name_fr": "Poudre de crevette séchée",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3a4aa70b-a57b-47ff-bfd0-dcfa39f19938",
+    "ingredient_name": "Egg",
+    "name_fr": "Œuf",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3a4aa70b-a57b-47ff-bfd0-dcfa39f19938",
+    "ingredient_name": "Egg",
+    "name_fr": "Œuf",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3a4aa70b-a57b-47ff-bfd0-dcfa39f19938",
+    "ingredient_name": "Egg",
+    "name_fr": "Œuf",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3a4aa70b-a57b-47ff-bfd0-dcfa39f19938",
+    "ingredient_name": "Egg",
+    "name_fr": "Œuf",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3f79c877-c9bb-430d-bd50-f88034c24d82",
+    "ingredient_name": "Eggplant",
+    "name_fr": "Aubergine",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3f79c877-c9bb-430d-bd50-f88034c24d82",
+    "ingredient_name": "Eggplant",
+    "name_fr": "Aubergine",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3f79c877-c9bb-430d-bd50-f88034c24d82",
+    "ingredient_name": "Eggplant",
+    "name_fr": "Aubergine",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4abff6ec-4f9f-4dbe-bdf8-2c45a6ecb648",
+    "ingredient_name": "Egusi seeds",
+    "name_fr": "Graines d'egusi",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4abff6ec-4f9f-4dbe-bdf8-2c45a6ecb648",
+    "ingredient_name": "Egusi seeds",
+    "name_fr": "Graines d'egusi",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4abff6ec-4f9f-4dbe-bdf8-2c45a6ecb648",
+    "ingredient_name": "Egusi seeds",
+    "name_fr": "Graines d'egusi",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4abff6ec-4f9f-4dbe-bdf8-2c45a6ecb648",
+    "ingredient_name": "Egusi seeds",
+    "name_fr": "Graines d'egusi",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cf1c5ee6-6688-4205-b5db-07682ad627e3",
+    "ingredient_name": "Evaporated milk",
+    "name_fr": "Lait concentré non sucré",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cf1c5ee6-6688-4205-b5db-07682ad627e3",
+    "ingredient_name": "Evaporated milk",
+    "name_fr": "Lait concentré non sucré",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "cf1c5ee6-6688-4205-b5db-07682ad627e3",
+    "ingredient_name": "Evaporated milk",
+    "name_fr": "Lait concentré non sucré",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e44776ac-66a8-46ec-a27d-4f2e51e63fc8",
+    "ingredient_name": "Fermented fish (Adjovan)",
+    "name_fr": "Poisson fermenté (Adjovan)",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e44776ac-66a8-46ec-a27d-4f2e51e63fc8",
+    "ingredient_name": "Fermented fish (Adjovan)",
+    "name_fr": "Poisson fermenté (Adjovan)",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e44776ac-66a8-46ec-a27d-4f2e51e63fc8",
+    "ingredient_name": "Fermented fish (Adjovan)",
+    "name_fr": "Poisson fermenté (Adjovan)",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8c3eff4b-1ed8-42ce-a867-975df2f5e648",
+    "ingredient_name": "Fine semolina",
+    "name_fr": "Semoule fine",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8c3eff4b-1ed8-42ce-a867-975df2f5e648",
+    "ingredient_name": "Fine semolina",
+    "name_fr": "Semoule fine",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8c3eff4b-1ed8-42ce-a867-975df2f5e648",
+    "ingredient_name": "Fine semolina",
+    "name_fr": "Semoule fine",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000003",
+    "ingredient_name": "Fish sauce",
+    "name_fr": "Nuoc mam",
+    "country_code": "GB",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000003",
+    "ingredient_name": "Fish sauce",
+    "name_fr": "Nuoc mam",
+    "country_code": "US",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000003",
+    "ingredient_name": "Fish sauce",
+    "name_fr": "Nuoc mam",
+    "country_code": "CA",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "126ab536-b38a-4553-885e-d789b79bc23d",
+    "ingredient_name": "Fresh chili",
+    "name_fr": "Piment frais",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "126ab536-b38a-4553-885e-d789b79bc23d",
+    "ingredient_name": "Fresh chili",
+    "name_fr": "Piment frais",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "126ab536-b38a-4553-885e-d789b79bc23d",
+    "ingredient_name": "Fresh chili",
+    "name_fr": "Piment frais",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000007",
+    "ingredient_name": "Fresh coriander",
+    "name_fr": "Coriandre fraîche",
+    "country_code": "GB",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000007",
+    "ingredient_name": "Fresh coriander",
+    "name_fr": "Coriandre fraîche",
+    "country_code": "US",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000007",
+    "ingredient_name": "Fresh coriander",
+    "name_fr": "Coriandre fraîche",
+    "country_code": "CA",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad32a0e5-4882-47cc-8d57-f0d9e7c26704",
+    "ingredient_name": "Fresh fish (Tilapia)",
+    "name_fr": "Poisson frais (Tilapia)",
+    "country_code": "FR",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad32a0e5-4882-47cc-8d57-f0d9e7c26704",
+    "ingredient_name": "Fresh fish (Tilapia)",
+    "name_fr": "Poisson frais (Tilapia)",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad32a0e5-4882-47cc-8d57-f0d9e7c26704",
+    "ingredient_name": "Fresh fish (Tilapia)",
+    "name_fr": "Poisson frais (Tilapia)",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad32a0e5-4882-47cc-8d57-f0d9e7c26704",
+    "ingredient_name": "Fresh fish (Tilapia)",
+    "name_fr": "Poisson frais (Tilapia)",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b64c0ab-f3a3-4a93-9ea6-4dac5367002c",
+    "ingredient_name": "Fresh habanero pepper",
+    "name_fr": "Piment antillais frais",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b64c0ab-f3a3-4a93-9ea6-4dac5367002c",
+    "ingredient_name": "Fresh habanero pepper",
+    "name_fr": "Piment antillais frais",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b64c0ab-f3a3-4a93-9ea6-4dac5367002c",
+    "ingredient_name": "Fresh habanero pepper",
+    "name_fr": "Piment antillais frais",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ab2e10a2-3e35-4170-811b-74d5b93d954f",
+    "ingredient_name": "Fresh okra",
+    "name_fr": "Gombo frais",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ab2e10a2-3e35-4170-811b-74d5b93d954f",
+    "ingredient_name": "Fresh okra",
+    "name_fr": "Gombo frais",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ab2e10a2-3e35-4170-811b-74d5b93d954f",
+    "ingredient_name": "Fresh okra",
+    "name_fr": "Gombo frais",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "41b5ebd0-6dce-44e4-a5a6-23406e3fc7cd",
+    "ingredient_name": "Fresh tomato",
+    "name_fr": "Tomate fraîche",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "41b5ebd0-6dce-44e4-a5a6-23406e3fc7cd",
+    "ingredient_name": "Fresh tomato",
+    "name_fr": "Tomate fraîche",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "41b5ebd0-6dce-44e4-a5a6-23406e3fc7cd",
+    "ingredient_name": "Fresh tomato",
+    "name_fr": "Tomate fraîche",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000001",
+    "ingredient_name": "Gari (Cassava granules)",
+    "name_fr": "Gari",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000001",
+    "ingredient_name": "Gari (Cassava granules)",
+    "name_fr": "Gari",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-2222-4aaa-8888-000000000001",
+    "ingredient_name": "Gari (Cassava granules)",
+    "name_fr": "Gari",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6fc3cb0c-5aec-4ecb-aff3-3a300dc7c0a2",
+    "ingredient_name": "Garlic",
+    "name_fr": "Ail",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6fc3cb0c-5aec-4ecb-aff3-3a300dc7c0a2",
+    "ingredient_name": "Garlic",
+    "name_fr": "Ail",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6fc3cb0c-5aec-4ecb-aff3-3a300dc7c0a2",
+    "ingredient_name": "Garlic",
+    "name_fr": "Ail",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae86ddf2-2773-4739-8594-688e579b75a2",
+    "ingredient_name": "Ginger",
+    "name_fr": "Gingembre",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae86ddf2-2773-4739-8594-688e579b75a2",
+    "ingredient_name": "Ginger",
+    "name_fr": "Gingembre",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ae86ddf2-2773-4739-8594-688e579b75a2",
+    "ingredient_name": "Ginger",
+    "name_fr": "Gingembre",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0303dcc2-a8ec-41a6-867b-615fbc5f8841",
+    "ingredient_name": "Goat meat",
+    "name_fr": "Viande de chèvre",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0303dcc2-a8ec-41a6-867b-615fbc5f8841",
+    "ingredient_name": "Goat meat",
+    "name_fr": "Viande de chèvre",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0303dcc2-a8ec-41a6-867b-615fbc5f8841",
+    "ingredient_name": "Goat meat",
+    "name_fr": "Viande de chèvre",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0303dcc2-a8ec-41a6-867b-615fbc5f8841",
+    "ingredient_name": "Goat meat",
+    "name_fr": "Viande de chèvre",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eadc6c81-6f73-458e-bdd8-b61a5c769c72",
+    "ingredient_name": "Green bananas Matoke",
+    "name_fr": "Bananes vertes (Matoke)",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eadc6c81-6f73-458e-bdd8-b61a5c769c72",
+    "ingredient_name": "Green bananas Matoke",
+    "name_fr": "Bananes vertes (Matoke)",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eadc6c81-6f73-458e-bdd8-b61a5c769c72",
+    "ingredient_name": "Green bananas Matoke",
+    "name_fr": "Bananes vertes (Matoke)",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eadc6c81-6f73-458e-bdd8-b61a5c769c72",
+    "ingredient_name": "Green bananas Matoke",
+    "name_fr": "Bananes vertes (Matoke)",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "26948271-ec06-4dbf-8ed4-21f72d35c297",
+    "ingredient_name": "Green bell pepper",
+    "name_fr": "Poivron vert",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "26948271-ec06-4dbf-8ed4-21f72d35c297",
+    "ingredient_name": "Green bell pepper",
+    "name_fr": "Poivron vert",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "26948271-ec06-4dbf-8ed4-21f72d35c297",
+    "ingredient_name": "Green bell pepper",
+    "name_fr": "Poivron vert",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000004",
+    "ingredient_name": "Green cabbage",
+    "name_fr": "Chou vert",
+    "country_code": "FR",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000004",
+    "ingredient_name": "Green cabbage",
+    "name_fr": "Chou vert",
+    "country_code": "GB",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000004",
+    "ingredient_name": "Green cabbage",
+    "name_fr": "Chou vert",
+    "country_code": "US",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000004",
+    "ingredient_name": "Green cabbage",
+    "name_fr": "Chou vert",
+    "country_code": "CA",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "46ab4f78-eebc-436d-8c5d-2bb3a90563f6",
+    "ingredient_name": "Ground coriander",
+    "name_fr": "Coriandre moulue",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "46ab4f78-eebc-436d-8c5d-2bb3a90563f6",
+    "ingredient_name": "Ground coriander",
+    "name_fr": "Coriandre moulue",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "46ab4f78-eebc-436d-8c5d-2bb3a90563f6",
+    "ingredient_name": "Ground coriander",
+    "name_fr": "Coriandre moulue",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f0106e5b-5e34-4a35-8b6a-39695a7d7825",
+    "ingredient_name": "Ground meat",
+    "name_fr": "Viande hachée",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f0106e5b-5e34-4a35-8b6a-39695a7d7825",
+    "ingredient_name": "Ground meat",
+    "name_fr": "Viande hachée",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f0106e5b-5e34-4a35-8b6a-39695a7d7825",
+    "ingredient_name": "Ground meat",
+    "name_fr": "Viande hachée",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f0106e5b-5e34-4a35-8b6a-39695a7d7825",
+    "ingredient_name": "Ground meat",
+    "name_fr": "Viande hachée",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d31ab33f-f895-4781-8c78-fbf81098feb5",
+    "ingredient_name": "Ground nutmeg",
+    "name_fr": "Muscade moulue",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d31ab33f-f895-4781-8c78-fbf81098feb5",
+    "ingredient_name": "Ground nutmeg",
+    "name_fr": "Muscade moulue",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d31ab33f-f895-4781-8c78-fbf81098feb5",
+    "ingredient_name": "Ground nutmeg",
+    "name_fr": "Muscade moulue",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d31ab33f-f895-4781-8c78-fbf81098feb5",
+    "ingredient_name": "Ground nutmeg",
+    "name_fr": "Muscade moulue",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8774e94a-f5b7-470f-96b5-f6c0368cc37e",
+    "ingredient_name": "Harissa",
+    "name_fr": "Harissa",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8774e94a-f5b7-470f-96b5-f6c0368cc37e",
+    "ingredient_name": "Harissa",
+    "name_fr": "Harissa",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8774e94a-f5b7-470f-96b5-f6c0368cc37e",
+    "ingredient_name": "Harissa",
+    "name_fr": "Harissa",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8db8f9ce-093c-4fe8-9007-a51d9a6d9933",
+    "ingredient_name": "Honey",
+    "name_fr": "Miel",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8db8f9ce-093c-4fe8-9007-a51d9a6d9933",
+    "ingredient_name": "Honey",
+    "name_fr": "Miel",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8db8f9ce-093c-4fe8-9007-a51d9a6d9933",
+    "ingredient_name": "Honey",
+    "name_fr": "Miel",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12d7af9b-6bb7-4534-a4d7-5a4b6bbd84dd",
+    "ingredient_name": "Kale Sukuma",
+    "name_fr": "Chou frisé (Sukuma)",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12d7af9b-6bb7-4534-a4d7-5a4b6bbd84dd",
+    "ingredient_name": "Kale Sukuma",
+    "name_fr": "Chou frisé (Sukuma)",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12d7af9b-6bb7-4534-a4d7-5a4b6bbd84dd",
+    "ingredient_name": "Kale Sukuma",
+    "name_fr": "Chou frisé (Sukuma)",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12d7af9b-6bb7-4534-a4d7-5a4b6bbd84dd",
+    "ingredient_name": "Kale Sukuma",
+    "name_fr": "Chou frisé (Sukuma)",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d635c1cc-138d-4446-afcb-ccc2ef9e7fce",
+    "ingredient_name": "Lamb",
+    "name_fr": "Agneau",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d635c1cc-138d-4446-afcb-ccc2ef9e7fce",
+    "ingredient_name": "Lamb",
+    "name_fr": "Agneau",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "d635c1cc-138d-4446-afcb-ccc2ef9e7fce",
+    "ingredient_name": "Lamb",
+    "name_fr": "Agneau",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20f9c17c-6f0c-4ea6-9597-421d0b2209be",
+    "ingredient_name": "Large chili",
+    "name_fr": "Gros piment",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20f9c17c-6f0c-4ea6-9597-421d0b2209be",
+    "ingredient_name": "Large chili",
+    "name_fr": "Gros piment",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "20f9c17c-6f0c-4ea6-9597-421d0b2209be",
+    "ingredient_name": "Large chili",
+    "name_fr": "Gros piment",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60359615-c55a-4ebc-a623-79779a180f2c",
+    "ingredient_name": "Lemon",
+    "name_fr": "Citron",
+    "country_code": "FR",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60359615-c55a-4ebc-a623-79779a180f2c",
+    "ingredient_name": "Lemon",
+    "name_fr": "Citron",
+    "country_code": "GB",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60359615-c55a-4ebc-a623-79779a180f2c",
+    "ingredient_name": "Lemon",
+    "name_fr": "Citron",
+    "country_code": "US",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "60359615-c55a-4ebc-a623-79779a180f2c",
+    "ingredient_name": "Lemon",
+    "name_fr": "Citron",
+    "country_code": "CA",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12fc8028-c73f-4eab-982a-cb39225ea871",
+    "ingredient_name": "Lemon juice",
+    "name_fr": "Jus de citron",
+    "country_code": "FR",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12fc8028-c73f-4eab-982a-cb39225ea871",
+    "ingredient_name": "Lemon juice",
+    "name_fr": "Jus de citron",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12fc8028-c73f-4eab-982a-cb39225ea871",
+    "ingredient_name": "Lemon juice",
+    "name_fr": "Jus de citron",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "12fc8028-c73f-4eab-982a-cb39225ea871",
+    "ingredient_name": "Lemon juice",
+    "name_fr": "Jus de citron",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "85abe029-b02d-4fe5-b7cf-7a1bd280ba02",
+    "ingredient_name": "Long grain rice",
+    "name_fr": "Riz long grain",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "85abe029-b02d-4fe5-b7cf-7a1bd280ba02",
+    "ingredient_name": "Long grain rice",
+    "name_fr": "Riz long grain",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "85abe029-b02d-4fe5-b7cf-7a1bd280ba02",
+    "ingredient_name": "Long grain rice",
+    "name_fr": "Riz long grain",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7de555b3-1ee2-48ef-b4cd-f2f96a87bb3a",
+    "ingredient_name": "Merguez sausage",
+    "name_fr": "Merguez (viande)",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7de555b3-1ee2-48ef-b4cd-f2f96a87bb3a",
+    "ingredient_name": "Merguez sausage",
+    "name_fr": "Merguez (viande)",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7de555b3-1ee2-48ef-b4cd-f2f96a87bb3a",
+    "ingredient_name": "Merguez sausage",
+    "name_fr": "Merguez (viande)",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "37d55922-71d2-4474-9ad4-7af4eebeb255",
+    "ingredient_name": "Milk",
+    "name_fr": "Lait",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "37d55922-71d2-4474-9ad4-7af4eebeb255",
+    "ingredient_name": "Milk",
+    "name_fr": "Lait",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "37d55922-71d2-4474-9ad4-7af4eebeb255",
+    "ingredient_name": "Milk",
+    "name_fr": "Lait",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "2ca6fb1e-60b1-4bbf-85ab-eea711a8db7c",
+    "ingredient_name": "Millet grains",
+    "name_fr": "Grains de mil",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "2ca6fb1e-60b1-4bbf-85ab-eea711a8db7c",
+    "ingredient_name": "Millet grains",
+    "name_fr": "Grains de mil",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "2ca6fb1e-60b1-4bbf-85ab-eea711a8db7c",
+    "ingredient_name": "Millet grains",
+    "name_fr": "Grains de mil",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "2ca6fb1e-60b1-4bbf-85ab-eea711a8db7c",
+    "ingredient_name": "Millet grains",
+    "name_fr": "Grains de mil",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6d024e7d-71e3-4e13-89f9-0c1238aea2de",
+    "ingredient_name": "Natural casings",
+    "name_fr": "Boyaux naturels",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6d024e7d-71e3-4e13-89f9-0c1238aea2de",
+    "ingredient_name": "Natural casings",
+    "name_fr": "Boyaux naturels",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6d024e7d-71e3-4e13-89f9-0c1238aea2de",
+    "ingredient_name": "Natural casings",
+    "name_fr": "Boyaux naturels",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6d024e7d-71e3-4e13-89f9-0c1238aea2de",
+    "ingredient_name": "Natural casings",
+    "name_fr": "Boyaux naturels",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "efd2c9ea-cacc-4589-835d-656b196d6695",
+    "ingredient_name": "Ndole leaves",
+    "name_fr": "Feuilles de ndolé",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "efd2c9ea-cacc-4589-835d-656b196d6695",
+    "ingredient_name": "Ndole leaves",
+    "name_fr": "Feuilles de ndolé",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "efd2c9ea-cacc-4589-835d-656b196d6695",
+    "ingredient_name": "Ndole leaves",
+    "name_fr": "Feuilles de ndolé",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "efd2c9ea-cacc-4589-835d-656b196d6695",
+    "ingredient_name": "Ndole leaves",
+    "name_fr": "Feuilles de ndolé",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "858493a7-aa3e-4a2f-b933-6c3f61f1c0cc",
+    "ingredient_name": "Nutmeg",
+    "name_fr": "Noix de muscade",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "858493a7-aa3e-4a2f-b933-6c3f61f1c0cc",
+    "ingredient_name": "Nutmeg",
+    "name_fr": "Noix de muscade",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "858493a7-aa3e-4a2f-b933-6c3f61f1c0cc",
+    "ingredient_name": "Nutmeg",
+    "name_fr": "Noix de muscade",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "858493a7-aa3e-4a2f-b933-6c3f61f1c0cc",
+    "ingredient_name": "Nutmeg",
+    "name_fr": "Noix de muscade",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8b8e5310-e4ab-4114-b79d-08f4abb4a60c",
+    "ingredient_name": "Oil",
+    "name_fr": "Huile",
+    "country_code": "GB",
+    "category": "frying_oil",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8b8e5310-e4ab-4114-b79d-08f4abb4a60c",
+    "ingredient_name": "Oil",
+    "name_fr": "Huile",
+    "country_code": "US",
+    "category": "frying_oil",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8b8e5310-e4ab-4114-b79d-08f4abb4a60c",
+    "ingredient_name": "Oil",
+    "name_fr": "Huile",
+    "country_code": "CA",
+    "category": "frying_oil",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0d541be1-ec3c-4f19-a5ab-6c994e6a831f",
+    "ingredient_name": "Olive oil",
+    "name_fr": "Huile d'olive",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0d541be1-ec3c-4f19-a5ab-6c994e6a831f",
+    "ingredient_name": "Olive oil",
+    "name_fr": "Huile d'olive",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0d541be1-ec3c-4f19-a5ab-6c994e6a831f",
+    "ingredient_name": "Olive oil",
+    "name_fr": "Huile d'olive",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1069eaed-2000-4b8d-8d5c-c493fc901a40",
+    "ingredient_name": "Onion",
+    "name_fr": "Oignon",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1069eaed-2000-4b8d-8d5c-c493fc901a40",
+    "ingredient_name": "Onion",
+    "name_fr": "Oignon",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1069eaed-2000-4b8d-8d5c-c493fc901a40",
+    "ingredient_name": "Onion",
+    "name_fr": "Oignon",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a2707fda-62de-4ba3-a790-83e2a3c4d779",
+    "ingredient_name": "Palm fruit",
+    "name_fr": "Graine de palme",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a2707fda-62de-4ba3-a790-83e2a3c4d779",
+    "ingredient_name": "Palm fruit",
+    "name_fr": "Graine de palme",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a2707fda-62de-4ba3-a790-83e2a3c4d779",
+    "ingredient_name": "Palm fruit",
+    "name_fr": "Graine de palme",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1434c6f7-3985-4ff5-b3b9-795e8cb748e6",
+    "ingredient_name": "Palm nuts",
+    "name_fr": "Noix de palme",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1434c6f7-3985-4ff5-b3b9-795e8cb748e6",
+    "ingredient_name": "Palm nuts",
+    "name_fr": "Noix de palme",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1434c6f7-3985-4ff5-b3b9-795e8cb748e6",
+    "ingredient_name": "Palm nuts",
+    "name_fr": "Noix de palme",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1434c6f7-3985-4ff5-b3b9-795e8cb748e6",
+    "ingredient_name": "Palm nuts",
+    "name_fr": "Noix de palme",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8387df68-9592-4ccf-b1b0-2c3140e0c0bb",
+    "ingredient_name": "Palm oil",
+    "name_fr": "Huile de palme",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8387df68-9592-4ccf-b1b0-2c3140e0c0bb",
+    "ingredient_name": "Palm oil",
+    "name_fr": "Huile de palme",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8387df68-9592-4ccf-b1b0-2c3140e0c0bb",
+    "ingredient_name": "Palm oil",
+    "name_fr": "Huile de palme",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3fd80d27-f2b0-4219-a5b1-4520b28ff9de",
+    "ingredient_name": "Paprika",
+    "name_fr": "Paprika",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3fd80d27-f2b0-4219-a5b1-4520b28ff9de",
+    "ingredient_name": "Paprika",
+    "name_fr": "Paprika",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "3fd80d27-f2b0-4219-a5b1-4520b28ff9de",
+    "ingredient_name": "Paprika",
+    "name_fr": "Paprika",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5b682a2-58d9-4a59-bb0e-4f9cb85c1b11",
+    "ingredient_name": "Parsley",
+    "name_fr": "Persil",
+    "country_code": "FR",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5b682a2-58d9-4a59-bb0e-4f9cb85c1b11",
+    "ingredient_name": "Parsley",
+    "name_fr": "Persil",
+    "country_code": "GB",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5b682a2-58d9-4a59-bb0e-4f9cb85c1b11",
+    "ingredient_name": "Parsley",
+    "name_fr": "Persil",
+    "country_code": "US",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5b682a2-58d9-4a59-bb0e-4f9cb85c1b11",
+    "ingredient_name": "Parsley",
+    "name_fr": "Persil",
+    "country_code": "CA",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16e0c917-ea5c-47ba-81fe-60bc6b8efb2c",
+    "ingredient_name": "Pasta",
+    "name_fr": "Pâtes",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16e0c917-ea5c-47ba-81fe-60bc6b8efb2c",
+    "ingredient_name": "Pasta",
+    "name_fr": "Pâtes",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "16e0c917-ea5c-47ba-81fe-60bc6b8efb2c",
+    "ingredient_name": "Pasta",
+    "name_fr": "Pâtes",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c1b73095-0f82-47d7-8d59-8ef444a70d17",
+    "ingredient_name": "Peanut butter",
+    "name_fr": "Pâte d'arachide",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c1b73095-0f82-47d7-8d59-8ef444a70d17",
+    "ingredient_name": "Peanut butter",
+    "name_fr": "Pâte d'arachide",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c1b73095-0f82-47d7-8d59-8ef444a70d17",
+    "ingredient_name": "Peanut butter",
+    "name_fr": "Pâte d'arachide",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "86f7ba25-0e8c-4196-8ea2-aed5051ce140",
+    "ingredient_name": "Peanut oil",
+    "name_fr": "Huile d'arachide",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "86f7ba25-0e8c-4196-8ea2-aed5051ce140",
+    "ingredient_name": "Peanut oil",
+    "name_fr": "Huile d'arachide",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "86f7ba25-0e8c-4196-8ea2-aed5051ce140",
+    "ingredient_name": "Peanut oil",
+    "name_fr": "Huile d'arachide",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c3c6e095-cebc-4428-bfb9-7bda597aaaf6",
+    "ingredient_name": "Pepper",
+    "name_fr": "Poivre",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c3c6e095-cebc-4428-bfb9-7bda597aaaf6",
+    "ingredient_name": "Pepper",
+    "name_fr": "Poivre",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "c3c6e095-cebc-4428-bfb9-7bda597aaaf6",
+    "ingredient_name": "Pepper",
+    "name_fr": "Poivre",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5f7a0770-182f-41c1-bfb0-184273b614ca",
+    "ingredient_name": "Pigs' feet",
+    "name_fr": "Pieds de porc",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5f7a0770-182f-41c1-bfb0-184273b614ca",
+    "ingredient_name": "Pigs' feet",
+    "name_fr": "Pieds de porc",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5f7a0770-182f-41c1-bfb0-184273b614ca",
+    "ingredient_name": "Pigs' feet",
+    "name_fr": "Pieds de porc",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5f7a0770-182f-41c1-bfb0-184273b614ca",
+    "ingredient_name": "Pigs' feet",
+    "name_fr": "Pieds de porc",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4e9983fc-5ea9-4459-b909-96446f1881d9",
+    "ingredient_name": "Pilau spice mix",
+    "name_fr": "Épices pour Pilau",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4e9983fc-5ea9-4459-b909-96446f1881d9",
+    "ingredient_name": "Pilau spice mix",
+    "name_fr": "Épices pour Pilau",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4e9983fc-5ea9-4459-b909-96446f1881d9",
+    "ingredient_name": "Pilau spice mix",
+    "name_fr": "Épices pour Pilau",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4e9983fc-5ea9-4459-b909-96446f1881d9",
+    "ingredient_name": "Pilau spice mix",
+    "name_fr": "Épices pour Pilau",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "092c7caa-3b27-4ed2-92b4-0069294035cc",
+    "ingredient_name": "Pklala leaves (Crincrin)",
+    "name_fr": "Feuilles de pklala (crincrin)",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "092c7caa-3b27-4ed2-92b4-0069294035cc",
+    "ingredient_name": "Pklala leaves (Crincrin)",
+    "name_fr": "Feuilles de pklala (crincrin)",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "092c7caa-3b27-4ed2-92b4-0069294035cc",
+    "ingredient_name": "Pklala leaves (Crincrin)",
+    "name_fr": "Feuilles de pklala (crincrin)",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "092c7caa-3b27-4ed2-92b4-0069294035cc",
+    "ingredient_name": "Pklala leaves (Crincrin)",
+    "name_fr": "Feuilles de pklala (crincrin)",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000002",
+    "ingredient_name": "Pork",
+    "name_fr": "Porc",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000002",
+    "ingredient_name": "Pork",
+    "name_fr": "Porc",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a1b2c3d4-1111-4aaa-8888-000000000002",
+    "ingredient_name": "Pork",
+    "name_fr": "Porc",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98b02012-bee4-4f76-890a-02a258789b0d",
+    "ingredient_name": "Potato",
+    "name_fr": "Pomme de terre",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98b02012-bee4-4f76-890a-02a258789b0d",
+    "ingredient_name": "Potato",
+    "name_fr": "Pomme de terre",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "98b02012-bee4-4f76-890a-02a258789b0d",
+    "ingredient_name": "Potato",
+    "name_fr": "Pomme de terre",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "59ae653c-732e-45ab-ba6f-8a62c8a7846e",
+    "ingredient_name": "Prunes",
+    "name_fr": "Pruneaux",
+    "country_code": "FR",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "59ae653c-732e-45ab-ba6f-8a62c8a7846e",
+    "ingredient_name": "Prunes",
+    "name_fr": "Pruneaux",
+    "country_code": "GB",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "59ae653c-732e-45ab-ba6f-8a62c8a7846e",
+    "ingredient_name": "Prunes",
+    "name_fr": "Pruneaux",
+    "country_code": "US",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "59ae653c-732e-45ab-ba6f-8a62c8a7846e",
+    "ingredient_name": "Prunes",
+    "name_fr": "Pruneaux",
+    "country_code": "CA",
+    "category": "fruit",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1aeb3469-713c-41ff-a94f-04b53562ee0a",
+    "ingredient_name": "Pumpkin seeds (Egusi)",
+    "name_fr": "Pistaches (graines de courge)",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1aeb3469-713c-41ff-a94f-04b53562ee0a",
+    "ingredient_name": "Pumpkin seeds (Egusi)",
+    "name_fr": "Pistaches (graines de courge)",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1aeb3469-713c-41ff-a94f-04b53562ee0a",
+    "ingredient_name": "Pumpkin seeds (Egusi)",
+    "name_fr": "Pistaches (graines de courge)",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1aeb3469-713c-41ff-a94f-04b53562ee0a",
+    "ingredient_name": "Pumpkin seeds (Egusi)",
+    "name_fr": "Pistaches (graines de courge)",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "841b7164-de9e-4726-92be-c6930c6734cc",
+    "ingredient_name": "Ras el hanout",
+    "name_fr": "Ras el hanout",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "841b7164-de9e-4726-92be-c6930c6734cc",
+    "ingredient_name": "Ras el hanout",
+    "name_fr": "Ras el hanout",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "841b7164-de9e-4726-92be-c6930c6734cc",
+    "ingredient_name": "Ras el hanout",
+    "name_fr": "Ras el hanout",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "551158fb-fe66-4a68-805a-67313ce19ebe",
+    "ingredient_name": "Red bell pepper",
+    "name_fr": "Poivron rouge",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "551158fb-fe66-4a68-805a-67313ce19ebe",
+    "ingredient_name": "Red bell pepper",
+    "name_fr": "Poivron rouge",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "551158fb-fe66-4a68-805a-67313ce19ebe",
+    "ingredient_name": "Red bell pepper",
+    "name_fr": "Poivron rouge",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a106d6c6-46bc-4bce-ad29-25b2f1928222",
+    "ingredient_name": "Red lentils",
+    "name_fr": "Lentilles rouges",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a106d6c6-46bc-4bce-ad29-25b2f1928222",
+    "ingredient_name": "Red lentils",
+    "name_fr": "Lentilles rouges",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a106d6c6-46bc-4bce-ad29-25b2f1928222",
+    "ingredient_name": "Red lentils",
+    "name_fr": "Lentilles rouges",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "252a0008-d501-47d8-9334-63a629527984",
+    "ingredient_name": "Red onion",
+    "name_fr": "Oignon rouge",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "252a0008-d501-47d8-9334-63a629527984",
+    "ingredient_name": "Red onion",
+    "name_fr": "Oignon rouge",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "252a0008-d501-47d8-9334-63a629527984",
+    "ingredient_name": "Red onion",
+    "name_fr": "Oignon rouge",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5361030d-01e0-49dd-b763-722cdb0c520d",
+    "ingredient_name": "Rice",
+    "name_fr": "Riz",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5361030d-01e0-49dd-b763-722cdb0c520d",
+    "ingredient_name": "Rice",
+    "name_fr": "Riz",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5361030d-01e0-49dd-b763-722cdb0c520d",
+    "ingredient_name": "Rice",
+    "name_fr": "Riz",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8f7b07f3-967a-488a-bceb-632136418bbd",
+    "ingredient_name": "Ripe plantain",
+    "name_fr": "Banane plantain mûre",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8f7b07f3-967a-488a-bceb-632136418bbd",
+    "ingredient_name": "Ripe plantain",
+    "name_fr": "Banane plantain mûre",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "8f7b07f3-967a-488a-bceb-632136418bbd",
+    "ingredient_name": "Ripe plantain",
+    "name_fr": "Banane plantain mûre",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "079dae0e-6f4c-4bf1-8619-31473a165852",
+    "ingredient_name": "Roasted peanuts",
+    "name_fr": "Arachides grillées",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "079dae0e-6f4c-4bf1-8619-31473a165852",
+    "ingredient_name": "Roasted peanuts",
+    "name_fr": "Arachides grillées",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "079dae0e-6f4c-4bf1-8619-31473a165852",
+    "ingredient_name": "Roasted peanuts",
+    "name_fr": "Arachides grillées",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "079dae0e-6f4c-4bf1-8619-31473a165852",
+    "ingredient_name": "Roasted peanuts",
+    "name_fr": "Arachides grillées",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b894f69-8c77-40a1-9a17-9b19ebb79e25",
+    "ingredient_name": "Salt",
+    "name_fr": "Sel",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b894f69-8c77-40a1-9a17-9b19ebb79e25",
+    "ingredient_name": "Salt",
+    "name_fr": "Sel",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b894f69-8c77-40a1-9a17-9b19ebb79e25",
+    "ingredient_name": "Salt",
+    "name_fr": "Sel",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "47e224bf-e343-4913-b554-dd055ec46b69",
+    "ingredient_name": "Seasoning cube",
+    "name_fr": "Cube d'assaisonnement",
+    "country_code": "FR",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "47e224bf-e343-4913-b554-dd055ec46b69",
+    "ingredient_name": "Seasoning cube",
+    "name_fr": "Cube d'assaisonnement",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "47e224bf-e343-4913-b554-dd055ec46b69",
+    "ingredient_name": "Seasoning cube",
+    "name_fr": "Cube d'assaisonnement",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "47e224bf-e343-4913-b554-dd055ec46b69",
+    "ingredient_name": "Seasoning cube",
+    "name_fr": "Cube d'assaisonnement",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daa159e-0a74-4c9a-b487-b84e6761fd92",
+    "ingredient_name": "Sesame oil",
+    "name_fr": "Huile de sésame",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daa159e-0a74-4c9a-b487-b84e6761fd92",
+    "ingredient_name": "Sesame oil",
+    "name_fr": "Huile de sésame",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1daa159e-0a74-4c9a-b487-b84e6761fd92",
+    "ingredient_name": "Sesame oil",
+    "name_fr": "Huile de sésame",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6cbfb86e-27fb-4e33-99d0-faf173b9b5c3",
+    "ingredient_name": "Shrimp",
+    "name_fr": "Crevettes",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6cbfb86e-27fb-4e33-99d0-faf173b9b5c3",
+    "ingredient_name": "Shrimp",
+    "name_fr": "Crevettes",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6cbfb86e-27fb-4e33-99d0-faf173b9b5c3",
+    "ingredient_name": "Shrimp",
+    "name_fr": "Crevettes",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad2aa169-7011-4f1f-9666-70dafc50d875",
+    "ingredient_name": "Slivered almonds",
+    "name_fr": "Amandes effilées",
+    "country_code": "FR",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad2aa169-7011-4f1f-9666-70dafc50d875",
+    "ingredient_name": "Slivered almonds",
+    "name_fr": "Amandes effilées",
+    "country_code": "GB",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad2aa169-7011-4f1f-9666-70dafc50d875",
+    "ingredient_name": "Slivered almonds",
+    "name_fr": "Amandes effilées",
+    "country_code": "US",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ad2aa169-7011-4f1f-9666-70dafc50d875",
+    "ingredient_name": "Slivered almonds",
+    "name_fr": "Amandes effilées",
+    "country_code": "CA",
+    "category": "nut",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7a070ae2-62da-4300-826b-bd0064762e48",
+    "ingredient_name": "Smoked chicken",
+    "name_fr": "Poulet fumé",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7a070ae2-62da-4300-826b-bd0064762e48",
+    "ingredient_name": "Smoked chicken",
+    "name_fr": "Poulet fumé",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "7a070ae2-62da-4300-826b-bd0064762e48",
+    "ingredient_name": "Smoked chicken",
+    "name_fr": "Poulet fumé",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "036fa17b-7abf-4846-bd9f-a4d31ef09cdd",
+    "ingredient_name": "Smoked fish",
+    "name_fr": "Poisson fumé",
+    "country_code": "GB",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "036fa17b-7abf-4846-bd9f-a4d31ef09cdd",
+    "ingredient_name": "Smoked fish",
+    "name_fr": "Poisson fumé",
+    "country_code": "US",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "036fa17b-7abf-4846-bd9f-a4d31ef09cdd",
+    "ingredient_name": "Smoked fish",
+    "name_fr": "Poisson fumé",
+    "country_code": "CA",
+    "category": "dried_fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000002",
+    "ingredient_name": "Smoked mackerel",
+    "name_fr": "Maquereau fumé",
+    "country_code": "FR",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000002",
+    "ingredient_name": "Smoked mackerel",
+    "name_fr": "Maquereau fumé",
+    "country_code": "GB",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000002",
+    "ingredient_name": "Smoked mackerel",
+    "name_fr": "Maquereau fumé",
+    "country_code": "US",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e0000001-bbbb-4ccc-9ddd-000000000002",
+    "ingredient_name": "Smoked mackerel",
+    "name_fr": "Maquereau fumé",
+    "country_code": "CA",
+    "category": "",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b031477-b9a5-4add-82dc-873e35e31295",
+    "ingredient_name": "Smoked pork",
+    "name_fr": "Porc fumé",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b031477-b9a5-4add-82dc-873e35e31295",
+    "ingredient_name": "Smoked pork",
+    "name_fr": "Porc fumé",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6b031477-b9a5-4add-82dc-873e35e31295",
+    "ingredient_name": "Smoked pork",
+    "name_fr": "Porc fumé",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "68090810-2346-4808-b319-3fcc5f7e854a",
+    "ingredient_name": "Smoked sausage",
+    "name_fr": "Saucisse fumée",
+    "country_code": "FR",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "68090810-2346-4808-b319-3fcc5f7e854a",
+    "ingredient_name": "Smoked sausage",
+    "name_fr": "Saucisse fumée",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "68090810-2346-4808-b319-3fcc5f7e854a",
+    "ingredient_name": "Smoked sausage",
+    "name_fr": "Saucisse fumée",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "68090810-2346-4808-b319-3fcc5f7e854a",
+    "ingredient_name": "Smoked sausage",
+    "name_fr": "Saucisse fumée",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1c85d1f9-2034-42b9-b82a-4bc69bbb61b7",
+    "ingredient_name": "Sorghum leaves",
+    "name_fr": "Feuilles de sorgho",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1c85d1f9-2034-42b9-b82a-4bc69bbb61b7",
+    "ingredient_name": "Sorghum leaves",
+    "name_fr": "Feuilles de sorgho",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1c85d1f9-2034-42b9-b82a-4bc69bbb61b7",
+    "ingredient_name": "Sorghum leaves",
+    "name_fr": "Feuilles de sorgho",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1c85d1f9-2034-42b9-b82a-4bc69bbb61b7",
+    "ingredient_name": "Sorghum leaves",
+    "name_fr": "Feuilles de sorgho",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4515358f-5ca1-45d9-b3b5-8432707c9b4b",
+    "ingredient_name": "Soy sauce",
+    "name_fr": "Sauce soja",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4515358f-5ca1-45d9-b3b5-8432707c9b4b",
+    "ingredient_name": "Soy sauce",
+    "name_fr": "Sauce soja",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4515358f-5ca1-45d9-b3b5-8432707c9b4b",
+    "ingredient_name": "Soy sauce",
+    "name_fr": "Sauce soja",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "674dc70c-f4d2-46c1-a0b3-27b843de2bd3",
+    "ingredient_name": "Spinach",
+    "name_fr": "Épinards",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "674dc70c-f4d2-46c1-a0b3-27b843de2bd3",
+    "ingredient_name": "Spinach",
+    "name_fr": "Épinards",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "674dc70c-f4d2-46c1-a0b3-27b843de2bd3",
+    "ingredient_name": "Spinach",
+    "name_fr": "Épinards",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "00719400-b807-4a97-b538-bb029e5700bd",
+    "ingredient_name": "Stale bread",
+    "name_fr": "Pain rassis",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "00719400-b807-4a97-b538-bb029e5700bd",
+    "ingredient_name": "Stale bread",
+    "name_fr": "Pain rassis",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "00719400-b807-4a97-b538-bb029e5700bd",
+    "ingredient_name": "Stale bread",
+    "name_fr": "Pain rassis",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebc37455-bfad-471e-9197-3d4544cd8d04",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebc37455-bfad-471e-9197-3d4544cd8d04",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebc37455-bfad-471e-9197-3d4544cd8d04",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f311de50-07dd-4954-bda3-d04b08c8bddc",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "GB",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f311de50-07dd-4954-bda3-d04b08c8bddc",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "US",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "f311de50-07dd-4954-bda3-d04b08c8bddc",
+    "ingredient_name": "Sugar",
+    "name_fr": "Sucre",
+    "country_code": "CA",
+    "category": "other",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "52337c18-8277-4a99-b075-6ff461087727",
+    "ingredient_name": "Suya spice powder",
+    "name_fr": "Poudre de Suya",
+    "country_code": "FR",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "52337c18-8277-4a99-b075-6ff461087727",
+    "ingredient_name": "Suya spice powder",
+    "name_fr": "Poudre de Suya",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "52337c18-8277-4a99-b075-6ff461087727",
+    "ingredient_name": "Suya spice powder",
+    "name_fr": "Poudre de Suya",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "52337c18-8277-4a99-b075-6ff461087727",
+    "ingredient_name": "Suya spice powder",
+    "name_fr": "Poudre de Suya",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e12b449a-924f-4a4c-94bd-2895f87b8e00",
+    "ingredient_name": "Sweet potato",
+    "name_fr": "Patate douce",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e12b449a-924f-4a4c-94bd-2895f87b8e00",
+    "ingredient_name": "Sweet potato",
+    "name_fr": "Patate douce",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e12b449a-924f-4a4c-94bd-2895f87b8e00",
+    "ingredient_name": "Sweet potato",
+    "name_fr": "Patate douce",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "54b4b99a-6435-4ecb-82c7-2ce549985ec9",
+    "ingredient_name": "Taro",
+    "name_fr": "Taro",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "54b4b99a-6435-4ecb-82c7-2ce549985ec9",
+    "ingredient_name": "Taro",
+    "name_fr": "Taro",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "54b4b99a-6435-4ecb-82c7-2ce549985ec9",
+    "ingredient_name": "Taro",
+    "name_fr": "Taro",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "447e1f54-7513-41d9-89e3-319caee3b21a",
+    "ingredient_name": "Teff flour",
+    "name_fr": "Farine de teff",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "447e1f54-7513-41d9-89e3-319caee3b21a",
+    "ingredient_name": "Teff flour",
+    "name_fr": "Farine de teff",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "447e1f54-7513-41d9-89e3-319caee3b21a",
+    "ingredient_name": "Teff flour",
+    "name_fr": "Farine de teff",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "447e1f54-7513-41d9-89e3-319caee3b21a",
+    "ingredient_name": "Teff flour",
+    "name_fr": "Farine de teff",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5f80293-4f90-4bf2-9905-057877db9999",
+    "ingredient_name": "Teff Flour",
+    "name_fr": "Farine de teff",
+    "country_code": "FR",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5f80293-4f90-4bf2-9905-057877db9999",
+    "ingredient_name": "Teff Flour",
+    "name_fr": "Farine de teff",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5f80293-4f90-4bf2-9905-057877db9999",
+    "ingredient_name": "Teff Flour",
+    "name_fr": "Farine de teff",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "a5f80293-4f90-4bf2-9905-057877db9999",
+    "ingredient_name": "Teff Flour",
+    "name_fr": "Farine de teff",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "da6a2d9a-de80-4800-b7ef-eeb29a6061f1",
+    "ingredient_name": "Thiof fish",
+    "name_fr": "Poisson (Thiof)",
+    "country_code": "GB",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "da6a2d9a-de80-4800-b7ef-eeb29a6061f1",
+    "ingredient_name": "Thiof fish",
+    "name_fr": "Poisson (Thiof)",
+    "country_code": "US",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "da6a2d9a-de80-4800-b7ef-eeb29a6061f1",
+    "ingredient_name": "Thiof fish",
+    "name_fr": "Poisson (Thiof)",
+    "country_code": "CA",
+    "category": "fish",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fad7094-e1dc-4557-a3a1-eb249779bda0",
+    "ingredient_name": "Thyme",
+    "name_fr": "Thym",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fad7094-e1dc-4557-a3a1-eb249779bda0",
+    "ingredient_name": "Thyme",
+    "name_fr": "Thym",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "4fad7094-e1dc-4557-a3a1-eb249779bda0",
+    "ingredient_name": "Thyme",
+    "name_fr": "Thym",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "bb924ba0-7f5d-4a16-a9de-8bebe29a3f47",
+    "ingredient_name": "Tomato",
+    "name_fr": "Tomate",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "bb924ba0-7f5d-4a16-a9de-8bebe29a3f47",
+    "ingredient_name": "Tomato",
+    "name_fr": "Tomate",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "bb924ba0-7f5d-4a16-a9de-8bebe29a3f47",
+    "ingredient_name": "Tomato",
+    "name_fr": "Tomate",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "53a56817-c881-45d6-b38d-5e1ef74e1fc4",
+    "ingredient_name": "Tomato paste",
+    "name_fr": "Tomate concentrée",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "53a56817-c881-45d6-b38d-5e1ef74e1fc4",
+    "ingredient_name": "Tomato paste",
+    "name_fr": "Tomate concentrée",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "53a56817-c881-45d6-b38d-5e1ef74e1fc4",
+    "ingredient_name": "Tomato paste",
+    "name_fr": "Tomate concentrée",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "64c6793f-227d-4e2f-bb29-39361b889656",
+    "ingredient_name": "Turmeric",
+    "name_fr": "Curcuma",
+    "country_code": "GB",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "64c6793f-227d-4e2f-bb29-39361b889656",
+    "ingredient_name": "Turmeric",
+    "name_fr": "Curcuma",
+    "country_code": "US",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "64c6793f-227d-4e2f-bb29-39361b889656",
+    "ingredient_name": "Turmeric",
+    "name_fr": "Curcuma",
+    "country_code": "CA",
+    "category": "spice",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "49ab348f-df65-4c4e-bc5a-05239fddd53b",
+    "ingredient_name": "Turnip",
+    "name_fr": "Navet",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "49ab348f-df65-4c4e-bc5a-05239fddd53b",
+    "ingredient_name": "Turnip",
+    "name_fr": "Navet",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "49ab348f-df65-4c4e-bc5a-05239fddd53b",
+    "ingredient_name": "Turnip",
+    "name_fr": "Navet",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "49ab348f-df65-4c4e-bc5a-05239fddd53b",
+    "ingredient_name": "Turnip",
+    "name_fr": "Navet",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eee6b5a4-00af-4f9e-9d6d-64638839476c",
+    "ingredient_name": "Unripe plantain",
+    "name_fr": "Banane plantain non mûre",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eee6b5a4-00af-4f9e-9d6d-64638839476c",
+    "ingredient_name": "Unripe plantain",
+    "name_fr": "Banane plantain non mûre",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "eee6b5a4-00af-4f9e-9d6d-64638839476c",
+    "ingredient_name": "Unripe plantain",
+    "name_fr": "Banane plantain non mûre",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e5621ff6-6e50-4b64-9d7f-2414ff344c1a",
+    "ingredient_name": "Vegetable oil",
+    "name_fr": "Huile végétale",
+    "country_code": "GB",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e5621ff6-6e50-4b64-9d7f-2414ff344c1a",
+    "ingredient_name": "Vegetable oil",
+    "name_fr": "Huile végétale",
+    "country_code": "US",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "e5621ff6-6e50-4b64-9d7f-2414ff344c1a",
+    "ingredient_name": "Vegetable oil",
+    "name_fr": "Huile végétale",
+    "country_code": "CA",
+    "category": "fat",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6003c07d-327d-48ed-a48f-1ad2b9f04840",
+    "ingredient_name": "Vinegar",
+    "name_fr": "Vinaigre",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6003c07d-327d-48ed-a48f-1ad2b9f04840",
+    "ingredient_name": "Vinegar",
+    "name_fr": "Vinaigre",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "6003c07d-327d-48ed-a48f-1ad2b9f04840",
+    "ingredient_name": "Vinegar",
+    "name_fr": "Vinaigre",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "918699d3-8ce0-4dac-87c3-40e9759f075c",
+    "ingredient_name": "Water",
+    "name_fr": "Eau",
+    "country_code": "FR",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "918699d3-8ce0-4dac-87c3-40e9759f075c",
+    "ingredient_name": "Water",
+    "name_fr": "Eau",
+    "country_code": "GB",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "918699d3-8ce0-4dac-87c3-40e9759f075c",
+    "ingredient_name": "Water",
+    "name_fr": "Eau",
+    "country_code": "US",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "918699d3-8ce0-4dac-87c3-40e9759f075c",
+    "ingredient_name": "Water",
+    "name_fr": "Eau",
+    "country_code": "CA",
+    "category": "liquid",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0bb80446-58e5-43b2-92a0-dba5a0e2914c",
+    "ingredient_name": "Wheat flour",
+    "name_fr": "Farine de blé",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0bb80446-58e5-43b2-92a0-dba5a0e2914c",
+    "ingredient_name": "Wheat flour",
+    "name_fr": "Farine de blé",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "0bb80446-58e5-43b2-92a0-dba5a0e2914c",
+    "ingredient_name": "Wheat flour",
+    "name_fr": "Farine de blé",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5df7820c-fafa-4f92-9def-c4fa4bd1c291",
+    "ingredient_name": "Wheat Flour",
+    "name_fr": "Farine de blé",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5df7820c-fafa-4f92-9def-c4fa4bd1c291",
+    "ingredient_name": "Wheat Flour",
+    "name_fr": "Farine de blé",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "5df7820c-fafa-4f92-9def-c4fa4bd1c291",
+    "ingredient_name": "Wheat Flour",
+    "name_fr": "Farine de blé",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "158e8919-4fec-4634-a1a2-2ba88529b57f",
+    "ingredient_name": "White beans",
+    "name_fr": "Haricots blancs",
+    "country_code": "GB",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "158e8919-4fec-4634-a1a2-2ba88529b57f",
+    "ingredient_name": "White beans",
+    "name_fr": "Haricots blancs",
+    "country_code": "US",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "158e8919-4fec-4634-a1a2-2ba88529b57f",
+    "ingredient_name": "White beans",
+    "name_fr": "Haricots blancs",
+    "country_code": "CA",
+    "category": "legume",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebcbee58-c573-47e4-a187-d1c23aaf4421",
+    "ingredient_name": "White cabbage",
+    "name_fr": "Chou blanc",
+    "country_code": "FR",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebcbee58-c573-47e4-a187-d1c23aaf4421",
+    "ingredient_name": "White cabbage",
+    "name_fr": "Chou blanc",
+    "country_code": "GB",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebcbee58-c573-47e4-a187-d1c23aaf4421",
+    "ingredient_name": "White cabbage",
+    "name_fr": "Chou blanc",
+    "country_code": "US",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "ebcbee58-c573-47e4-a187-d1c23aaf4421",
+    "ingredient_name": "White cabbage",
+    "name_fr": "Chou blanc",
+    "country_code": "CA",
+    "category": "vegetable",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "900b468c-9c3b-45fc-bc66-bfe5b0715b07",
+    "ingredient_name": "White hibiscus leaves (Bissap)",
+    "name_fr": "Feuilles de bissap blanc (hibiscus)",
+    "country_code": "FR",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "900b468c-9c3b-45fc-bc66-bfe5b0715b07",
+    "ingredient_name": "White hibiscus leaves (Bissap)",
+    "name_fr": "Feuilles de bissap blanc (hibiscus)",
+    "country_code": "GB",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "900b468c-9c3b-45fc-bc66-bfe5b0715b07",
+    "ingredient_name": "White hibiscus leaves (Bissap)",
+    "name_fr": "Feuilles de bissap blanc (hibiscus)",
+    "country_code": "US",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "900b468c-9c3b-45fc-bc66-bfe5b0715b07",
+    "ingredient_name": "White hibiscus leaves (Bissap)",
+    "name_fr": "Feuilles de bissap blanc (hibiscus)",
+    "country_code": "CA",
+    "category": "herb",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "317f6b5e-cc83-4e19-b7cf-cd8f66f2249b",
+    "ingredient_name": "Whole chicken",
+    "name_fr": "Poulet entier",
+    "country_code": "GB",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "317f6b5e-cc83-4e19-b7cf-cd8f66f2249b",
+    "ingredient_name": "Whole chicken",
+    "name_fr": "Poulet entier",
+    "country_code": "US",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "317f6b5e-cc83-4e19-b7cf-cd8f66f2249b",
+    "ingredient_name": "Whole chicken",
+    "name_fr": "Poulet entier",
+    "country_code": "CA",
+    "category": "protein",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "24b9de28-9352-45ec-a7f1-773a6d1d15ae",
+    "ingredient_name": "Worcestershire sauce",
+    "name_fr": "Sauce Worcestershire",
+    "country_code": "GB",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "24b9de28-9352-45ec-a7f1-773a6d1d15ae",
+    "ingredient_name": "Worcestershire sauce",
+    "name_fr": "Sauce Worcestershire",
+    "country_code": "US",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "24b9de28-9352-45ec-a7f1-773a6d1d15ae",
+    "ingredient_name": "Worcestershire sauce",
+    "name_fr": "Sauce Worcestershire",
+    "country_code": "CA",
+    "category": "condiment",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "27b79b42-0d62-4398-a8c6-ba36bb1c1f2c",
+    "ingredient_name": "Yam",
+    "name_fr": "Igname",
+    "country_code": "GB",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "27b79b42-0d62-4398-a8c6-ba36bb1c1f2c",
+    "ingredient_name": "Yam",
+    "name_fr": "Igname",
+    "country_code": "US",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "27b79b42-0d62-4398-a8c6-ba36bb1c1f2c",
+    "ingredient_name": "Yam",
+    "name_fr": "Igname",
+    "country_code": "CA",
+    "category": "starch",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b4b908b-5d21-4416-8cd9-5b152e6bbf85",
+    "ingredient_name": "Yogurt",
+    "name_fr": "Yaourt",
+    "country_code": "GB",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b4b908b-5d21-4416-8cd9-5b152e6bbf85",
+    "ingredient_name": "Yogurt",
+    "name_fr": "Yaourt",
+    "country_code": "US",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  },
+  {
+    "ingredient_id": "1b4b908b-5d21-4416-8cd9-5b152e6bbf85",
+    "ingredient_name": "Yogurt",
+    "name_fr": "Yaourt",
+    "country_code": "CA",
+    "category": "dairy",
+    "last_source": "all_failed",
+    "reject_reason": "no source returned a valid result"
+  }
+]

@@ -1,0 +1,60 @@
+workflows:
+
+  # ── iOS: build IPA → upload to App Store Connect (direct submission) ──────
+  ios-release:
+    name: iOS Release → App Store
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+      cancel_previous_builds: true
+    environment:
+      flutter: stable
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.akeli.app
+    integrations:
+      app_store_connect: Akeli ASC Key
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Build release IPA
+        script: |
+          flutter build ipa --release \
+            --build-number=$CM_BUILD_NUMBER \
+            --export-options-plist=ios/ExportOptions.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+        submit_to_app_store: true
+
+  # ── Build health check on every push to main (no deployment) ─────────────
+  build-check:
+    name: Build Check (main branch)
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+      cancel_previous_builds: true
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get Flutter packages
+        script: flutter pub get
+      - name: Analyze
+        script: flutter analyze
+      - name: Run tests
+        script: flutter test
+      - name: Verify Android debug build
+        script: flutter build apk --debug
