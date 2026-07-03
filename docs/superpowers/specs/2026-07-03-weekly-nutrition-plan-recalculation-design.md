@@ -15,6 +15,10 @@ instead of only updating when a user manually edits their health profile.
   already uses (`lib/core/nutrition_calculator.dart`).
 - Keep `user_health_profile.weight_kg` in sync with the latest `weight_log` entry
   used in the calculation.
+- Keep `user_goal`'s numeric goal columns (`calorie_goal`, `protein_goal`,
+  `carbs_goal`, `fat_goal`) in sync with the recalculated targets, since
+  `generate_meal_plan_internal`'s fallback path and `swap_meal_plan_entry` read
+  `user_goal.calorie_goal` directly rather than `nutrition_plan.calorie_goal`.
 - Run early enough that the existing Monday meal-plan generation batch job picks up
   the updated `calorie_goal` for that week's plan.
 
@@ -117,13 +121,19 @@ silently excluded from the set-based update (no error, no row touched):
 - `SECURITY DEFINER`, granted to `service_role` only (same convention as
   `generate_meal_plan_internal`).
 - Implemented as a single set-based statement (CTEs for candidate selection →
-  computed targets → two `UPDATE`s), not a per-user loop — this is pure
+  computed targets → three `UPDATE`s), not a per-user loop — this is pure
   arithmetic, so one statement handles every eligible user in one pass:
   1. `UPDATE nutrition_plan SET calorie_goal = ..., bmr = ..., tdee = ...,
      protein_goal_g = ..., carb_goal_g = ..., fat_goal_g = ... FROM (candidates)
      WHERE nutrition_plan.id = candidates.id` — fires the existing
      `trg_sync_calorie_target_on_plan` trigger automatically.
-  2. `UPDATE user_health_profile SET weight_kg = candidates.latest_weight_kg FROM
+  2. `UPDATE user_goal SET calorie_goal = ..., protein_goal = ..., carbs_goal =
+     ..., fat_goal = ... FROM (candidates) WHERE user_goal.id = candidates.
+     goal_id` — same active row, `goal_type`/`is_active` untouched. Keeps
+     `generate_meal_plan_internal`'s fallback path and `swap_meal_plan_entry`
+     (both of which read `user_goal.calorie_goal` directly) from drifting out of
+     sync with `nutrition_plan`.
+  3. `UPDATE user_health_profile SET weight_kg = candidates.latest_weight_kg FROM
      (candidates) WHERE user_health_profile.user_id = candidates.user_id`.
 - Header comment cross-references `lib/core/nutrition_calculator.dart` and
   `lib/providers/health_profile_provider.dart` as the source of truth, flagging
@@ -177,6 +187,7 @@ cron migrations (`20260531210607_register_batch_meal_plan_cron.sql`,
 | T6 | **No active user_goal** | `user_goal.is_active = false` for all rows | `nutrition_plan` unchanged |
 | T7 | **No active nutrition_plan** | `nutrition_plan.is_active = false` | Nothing updated for that user |
 | T8 | **weight_kg snapshot sync** | Same setup as T1 | `user_health_profile.weight_kg` equals the `weight_log.weight_kg` used |
+| T8b | **user_goal numeric sync** | Same setup as T1 | Active `user_goal` row's `calorie_goal`/`protein_goal`/`carbs_goal`/`fat_goal` match the new `nutrition_plan` values; `goal_type` and `is_active` unchanged |
 | T9 | **meal_distribution cascade** | User has `meal_distribution` rows with `calorie_pct` set | `calorie_target` on each row rescales to match the new `calorie_goal` (via existing trigger, not touched directly by this function) |
 | T10 | **goal_type branches** | Three users: `weight_loss`, `muscle_gain`, `maintenance` | `calorie_goal` offset (-500/+300/0) and macro % splits match section 1.4/1.5 |
 | T11 | **Return value** | Batch of N eligible + M ineligible users | Function returns exactly N |
