@@ -10,6 +10,8 @@ import '../../providers/meal_plan_provider.dart';
 
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/shopping_row.dart';
+import '../recipes/widgets/ingredient_detail_sheet.dart';
+import '../../shared/models/recipe.dart';
 
 enum _ShoppingFilter { all, bought, remaining }
 
@@ -31,6 +33,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
     final localeState = ref.watch(localeProvider);
     final isUsLocale = localeState.isUsLocale;
     final localeName = l10n.localeName;
+    final mealPlan = ref.watch(activeMealPlanProvider).valueOrNull;
 
     _logger.provider('ShoppingListPage build() | listAsync.isLoading: ${listAsync.isLoading}');
 
@@ -188,6 +191,27 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
                           onToggle: () {
                             ref.read(shoppingListProvider.notifier).toggleItem(item.id, !item.isChecked);
                           },
+                          onInfoTap: (item.ingredientId == null || mealPlan == null)
+                              ? null
+                              : () {
+                                  _logger.userAction(
+                                    'Open ingredient detail from shopping list',
+                                    screen: 'ShoppingListPage',
+                                    metadata: {'ingredientId': item.ingredientId},
+                                  );
+                                  IngredientDetailSheet.show(
+                                    context,
+                                    RecipeIngredient(
+                                      id: item.id,
+                                      ingredientId: item.ingredientId!,
+                                      name: item.name,
+                                      quantity: item.quantity,
+                                      unit: item.unit,
+                                      isOptional: false,
+                                    ),
+                                    mealPlanId: mealPlan.id,
+                                  );
+                                },
                         ),
                       );
                     },
