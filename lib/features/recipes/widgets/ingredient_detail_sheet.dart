@@ -9,21 +9,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:akeli/core/quantity_formatter.dart';
 import 'package:akeli/l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:akeli/core/router.dart';
+import 'package:akeli/shared/models/recipe_usage.dart';
 
 class IngredientDetailSheet extends ConsumerWidget {
   final RecipeIngredient ingredient;
   final ScrollController? scrollController;
+  final String? mealPlanId;
 
   const IngredientDetailSheet({
     super.key,
     required this.ingredient,
     this.scrollController,
+    this.mealPlanId,
   });
 
-  static Future<void> show(BuildContext context, RecipeIngredient ingredient) {
+  static Future<void> show(
+    BuildContext context,
+    RecipeIngredient ingredient, {
+    String? mealPlanId,
+  }) {
     appLogger.userAction('IngredientDetailSheet opened',
         screen: 'IngredientDetailSheet',
-        metadata: {'ingredientId': ingredient.ingredientId});
+        metadata: {'ingredientId': ingredient.ingredientId, 'mealPlanId': mealPlanId});
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -36,6 +45,7 @@ class IngredientDetailSheet extends ConsumerWidget {
         builder: (_, scrollController) => IngredientDetailSheet(
           ingredient: ingredient,
           scrollController: scrollController,
+          mealPlanId: mealPlanId,
         ),
       ),
     );
@@ -252,6 +262,11 @@ class IngredientDetailSheet extends ConsumerWidget {
                     );
                   },
                 ),
+                if (mealPlanId != null)
+                  _RecipeUsageSection(
+                    mealPlanId: mealPlanId!,
+                    ingredientId: ingredient.ingredientId,
+                  ),
               ],
             ),
           ),
@@ -412,6 +427,123 @@ class _MacroChip extends StatelessWidget {
                 color: AkeliColors.primary),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RecipeUsageSection extends ConsumerWidget {
+  final String mealPlanId;
+  final String ingredientId;
+  const _RecipeUsageSection({required this.mealPlanId, required this.ingredientId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final recipesAsync =
+        ref.watch(ingredientRecipesInPlanProvider((mealPlanId, ingredientId)));
+
+    return recipesAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 16),
+        child: Center(child: CircularProgressIndicator(color: AkeliColors.primary)),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (recipes) {
+        if (recipes.isEmpty) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.ingredientDetailUsedInTitle,
+                style: GoogleFonts.plusJakartaSans(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurface),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 72,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: recipes.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) => _RecipeUsageCard(recipe: recipes[index]),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RecipeUsageCard extends StatelessWidget {
+  final RecipeUsage recipe;
+  const _RecipeUsageCard({required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      key: const Key('recipe-usage-card'),
+      onTap: () {
+        appLogger.userAction('Recipe usage card tapped',
+            screen: 'IngredientDetailSheet', metadata: {'recipeId': recipe.id});
+        Navigator.of(context).pop();
+        context.push(AkeliRoutes.recipeDetailPath(recipe.id));
+      },
+      child: Container(
+        width: 160,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AkeliColors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AkeliRadius.md),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: recipe.thumbnailUrl != null
+                  ? CachedNetworkImage(
+                      imageUrl: recipe.thumbnailUrl!,
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, __, ___) =>
+                          Container(width: 48, height: 48, color: AkeliColors.surfaceContainer),
+                    )
+                  : Container(width: 48, height: 48, color: AkeliColors.surfaceContainer),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    recipe.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${recipe.prepTimeMin + recipe.cookTimeMin} min',
+                    style: GoogleFonts.inter(fontSize: 11, color: AkeliColors.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

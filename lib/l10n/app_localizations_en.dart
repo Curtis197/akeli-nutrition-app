@@ -2053,6 +2053,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ingredientDetailEnergy => 'Energy';
 
   @override
+  String get ingredientDetailUsedInTitle => 'Used in';
+
+  @override
   String get cookingSessionTitle => 'Cooking Session';
 
   @override

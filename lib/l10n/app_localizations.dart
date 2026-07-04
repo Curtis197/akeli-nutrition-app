@@ -3944,6 +3944,12 @@ abstract class AppLocalizations {
   /// **'Energy'**
   String get ingredientDetailEnergy;
 
+  /// No description provided for @ingredientDetailUsedInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Used in'**
+  String get ingredientDetailUsedInTitle;
+
   /// No description provided for @cookingSessionTitle.
   ///
   /// In en, this message translates to:

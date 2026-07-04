@@ -2077,6 +2077,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ingredientDetailEnergy => 'Énergie';
 
   @override
+  String get ingredientDetailUsedInTitle => 'Utilisé dans';
+
+  @override
   String get cookingSessionTitle => 'Session de cuisine';
 
   @override
