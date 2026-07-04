@@ -24,21 +24,35 @@ BEGIN
     WHERE wl.logged_at >= CURRENT_DATE - INTERVAL '14 days'
     ORDER BY wl.user_id, wl.logged_at DESC, wl.created_at DESC
   ),
+  latest_goal AS (
+    -- Defensive de-duplication: user_goal has no unique constraint/trigger
+    -- enforcing "one active goal per user" (unlike nutrition_plan's
+    -- trg_one_active_nutrition_plan), so mirror generate_meal_plan_internal's
+    -- guard (20260531204547_add_generate_meal_plan_internal.sql:67-72) here to
+    -- pick a single deterministic active goal row per user.
+    SELECT DISTINCT ON (ug.user_id)
+      ug.user_id,
+      ug.id AS goal_id,
+      ug.goal_type
+    FROM user_goal ug
+    WHERE ug.is_active = true
+    ORDER BY ug.user_id, ug.created_at DESC
+  ),
   candidates AS (
     SELECT
       np.id                                                     AS plan_id,
-      ug.id                                                      AS goal_id,
+      lg.goal_id                                                 AS goal_id,
       hp.user_id                                                 AS user_id,
       lw.weight_kg                                               AS weight_kg,
       hp.height_cm                                               AS height_cm,
       DATE_PART('year', AGE(CURRENT_DATE, hp.birth_date))::int   AS age,
       hp.sex                                                     AS sex,
       hp.activity_level                                          AS activity_level,
-      ug.goal_type                                                AS goal_type
+      lg.goal_type                                                AS goal_type
     FROM user_health_profile hp
     JOIN latest_weight lw  ON lw.user_id = hp.user_id
     JOIN nutrition_plan np ON np.user_id = hp.user_id AND np.is_active = true
-    JOIN user_goal ug      ON ug.user_id = hp.user_id AND ug.is_active = true
+    JOIN latest_goal lg    ON lg.user_id = hp.user_id
     WHERE hp.height_cm IS NOT NULL
       AND hp.birth_date IS NOT NULL
       AND hp.sex IS NOT NULL
