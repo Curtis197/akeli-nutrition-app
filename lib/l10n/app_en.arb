@@ -109,6 +109,15 @@
   "authErrorGeneric": "An error occurred. Please try again.",
   "@authErrorGeneric": {},
 
+  "authOrDivider": "or",
+  "@authOrDivider": {},
+
+  "authContinueWithGoogle": "Continue with Google",
+  "@authContinueWithGoogle": {},
+
+  "authErrorGoogleSignIn": "Google Sign-In failed. Please try again.",
+  "@authErrorGoogleSignIn": {},
+
   "homeGreeting": "Hello, {name}!",
   "@homeGreeting": {
     "placeholders": { "name": { "type": "String" } }

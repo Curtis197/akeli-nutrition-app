@@ -40,6 +40,10 @@
   "authErrorEmailNotConfirmed": "Veuillez confirmer votre adresse email avant de vous connecter.",
   "authErrorGeneric": "Une erreur est survenue. Réessayez.",
 
+  "authOrDivider": "ou",
+  "authContinueWithGoogle": "Continuer avec Google",
+  "authErrorGoogleSignIn": "Connexion Google échouée. Réessayez.",
+
   "homeGreeting": "Bonjour, {name} !",
   "homeGreetingFallback": "Bonjour !",
   "homeWelcomeBack": "Heureux de vous revoir.",

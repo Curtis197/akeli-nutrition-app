@@ -314,6 +314,24 @@ abstract class AppLocalizations {
   /// **'An error occurred. Please try again.'**
   String get authErrorGeneric;
 
+  /// No description provided for @authOrDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get authOrDivider;
+
+  /// No description provided for @authContinueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// No description provided for @authErrorGoogleSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Sign-In failed. Please try again.'**
+  String get authErrorGoogleSignIn;
+
   /// No description provided for @homeGreeting.
   ///
   /// In en, this message translates to:

@@ -92,6 +92,26 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    final l10n = AppLocalizations.of(context);
+    _logger.userAction('Google Sign-In button tapped', screen: 'AuthPage');
+    setState(() => _errorMessage = null);
+    await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+    if (!mounted) return;
+    final s = ref.read(authNotifierProvider);
+    if (s.hasError) {
+      final raw = s.error.toString();
+      if (raw.contains('cancelled') || raw.contains('canceled') ||
+          raw.contains('sign_in_canceled')) {
+        return;
+      }
+      _logger.auth('Google signIn ERROR displayed | error: $raw');
+      setState(() => _errorMessage = _friendly(raw, l10n));
+    } else {
+      _logger.auth('Google signIn SUCCESS | router redirect will handle navigation');
+    }
+  }
+
   String _friendly(String raw, AppLocalizations l10n) {
     if (raw.contains('Invalid login credentials')) return l10n.authErrorInvalidCredentials;
     if (raw.contains('User already registered')) return l10n.authErrorEmailInUse;
@@ -99,6 +119,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (raw.contains('email_not_confirmed') ||
         raw.toLowerCase().contains('email not confirmed')) {
       return l10n.authErrorEmailNotConfirmed;
+    }
+    if (raw.contains('sign_in_failed') || raw.contains('ApiException') ||
+        raw.contains('Google Sign-In')) {
+      return l10n.authErrorGoogleSignIn;
     }
     return l10n.authErrorGeneric;
   }
@@ -293,8 +317,8 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           ],
                           AnimatedCrossFade(
                             duration: const Duration(milliseconds: 200),
-                            crossFadeState: _isLogin 
-                                ? CrossFadeState.showSecond 
+                            crossFadeState: _isLogin
+                                ? CrossFadeState.showSecond
                                 : CrossFadeState.showFirst,
                             firstChild: _SignUpForm(
                               key: const ValueKey('signup'),
@@ -323,6 +347,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               onForgotPassword: _handleForgotPassword,
                               isLoading: isLoading,
                             ),
+                          ),
+                          const SizedBox(height: AkeliSpacing.lg),
+                          const _OrDivider(),
+                          const SizedBox(height: AkeliSpacing.md),
+                          _GoogleSignInButton(
+                            onPressed: isLoading ? null : _signInWithGoogle,
                           ),
                         ],
                       ),
@@ -713,6 +743,95 @@ class _VisibilityToggle extends StatelessWidget {
         size: 20,
       ),
       onPressed: onTap,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Or Divider
+// ---------------------------------------------------------------------------
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        const Expanded(
+          child: Divider(color: AkeliColors.outline, thickness: 0.5),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
+          child: Text(
+            l10n.authOrDivider,
+            style: GoogleFonts.inter(fontSize: 13, color: AkeliColors.outline),
+          ),
+        ),
+        const Expanded(
+          child: Divider(color: AkeliColors.outline, thickness: 0.5),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Google Sign-In Button
+// ---------------------------------------------------------------------------
+
+class _GoogleSignInButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const _GoogleSignInButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        side: BorderSide(
+          color: AkeliColors.outline.withValues(alpha: 0.3),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        backgroundColor: AkeliColors.surfaceContainerLow,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 20,
+            height: 20,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white,
+            ),
+            child: const Center(
+              child: Text(
+                'G',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF4285F4),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: AkeliSpacing.sm),
+          Text(
+            l10n.authContinueWithGoogle,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AkeliColors.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -120,6 +120,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authErrorGeneric => 'Une erreur est survenue. Réessayez.';
 
   @override
+  String get authOrDivider => 'ou';
+
+  @override
+  String get authContinueWithGoogle => 'Continuer avec Google';
+
+  @override
+  String get authErrorGoogleSignIn => 'Connexion Google échouée. Réessayez.';
+
+  @override
   String homeGreeting(String name) {
     return 'Bonjour, $name !';
   }

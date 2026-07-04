@@ -119,6 +119,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorGeneric => 'An error occurred. Please try again.';
 
   @override
+  String get authOrDivider => 'or';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authErrorGoogleSignIn =>
+      'Google Sign-In failed. Please try again.';
+
+  @override
   String homeGreeting(String name) {
     return 'Hello, $name!';
   }

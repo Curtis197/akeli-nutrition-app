@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase_client.dart';
 import '../core/logger.dart';
@@ -201,6 +202,48 @@ class AuthNotifier extends AsyncNotifier<void> {
       } catch (e, st) {
         _logger.auth('recoveryUpdatePassword ERROR | unexpected: $e', error: e, stackTrace: st);
         _logger.provider('AuthNotifier → error (recoveryUpdatePassword unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  Future<void> signInWithGoogle() async {
+    _logger.auth('signInWithGoogle BEFORE');
+    _logger.provider('AuthNotifier → loading (signInWithGoogle)');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final googleSignIn = GoogleSignIn(
+          serverClientId: '1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com',
+        );
+        _logger.auth('signInWithGoogle | launching picker');
+        final googleUser = await googleSignIn.signIn();
+        if (googleUser == null) {
+          _logger.auth('signInWithGoogle CANCELLED | user dismissed picker');
+          return;
+        }
+        _logger.auth('signInWithGoogle | user selected | email: ${LogHelper.maskEmail(googleUser.email)}');
+        final googleAuth = await googleUser.authentication;
+        final idToken = googleAuth.idToken;
+        if (idToken == null) {
+          throw Exception('Google Sign-In: no ID token received');
+        }
+        final client = ref.read(supabaseClientProvider);
+        _logger.db('BEFORE | op: signInWithIdToken | provider: google');
+        await client.auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          accessToken: googleAuth.accessToken,
+        );
+        _logger.auth('signInWithGoogle SUCCESS | userId: ${client.auth.currentUser?.id}');
+        _logger.provider('AuthNotifier → data (signInWithGoogle success)');
+      } on AuthException catch (e, st) {
+        _logger.auth('signInWithGoogle ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithGoogle AuthException)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('signInWithGoogle ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithGoogle unexpected)');
         rethrow;
       }
     });
