@@ -10,6 +10,7 @@ class AkeliShoppingRow extends StatelessWidget {
   final VoidCallback onToggle;
   final bool isUsLocale;
   final String locale;
+  final VoidCallback? onInfoTap;
 
   const AkeliShoppingRow({
     super.key,
@@ -18,6 +19,7 @@ class AkeliShoppingRow extends StatelessWidget {
     required this.onToggle,
     this.isUsLocale = false,
     this.locale = 'fr',
+    this.onInfoTap,
   });
 
   @override
@@ -107,6 +109,18 @@ class AkeliShoppingRow extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onInfoTap != null)
+                IconButton(
+                  key: const Key('shopping-row-info'),
+                  icon: const Icon(
+                    Icons.info_outline,
+                    size: 20,
+                    color: AkeliColors.onSurfaceVariant,
+                  ),
+                  onPressed: onInfoTap,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.zero,
+                ),
             ],
           ),
         ),
