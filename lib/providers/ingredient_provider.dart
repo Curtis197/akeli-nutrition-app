@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/logger.dart';
 import '../shared/models/ingredient_detail.dart';
+import '../shared/models/recipe_usage.dart';
 import '../providers/user_profile_provider.dart';
 
 final ingredientDetailProvider =
@@ -77,6 +78,40 @@ final searchIngredientsProvider =
   } catch (e, st) {
     appLogger.db('ERROR | searchIngredients', error: e, stackTrace: st);
     return [];
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Recipes in the current plan that use a given ingredient
+// ---------------------------------------------------------------------------
+
+final ingredientRecipesInPlanProvider =
+    FutureProvider.family<List<RecipeUsage>, (String mealPlanId, String ingredientId)>(
+        (ref, args) async {
+  final (mealPlanId, ingredientId) = args;
+  final logger = appLogger;
+  logger.provider(
+      'ingredientRecipesInPlanProvider build() | mealPlanId: $mealPlanId | ingredientId: $ingredientId');
+  ref.onDispose(() => logger.provider(
+      'ingredientRecipesInPlanProvider disposed | mealPlanId: $mealPlanId | ingredientId: $ingredientId'));
+
+  logger.db(
+      'BEFORE rpc | fn: get_ingredient_recipes_in_plan | mealPlanId: $mealPlanId | ingredientId: $ingredientId');
+
+  try {
+    final data = await Supabase.instance.client.rpc(
+      'get_ingredient_recipes_in_plan',
+      params: {
+        'p_meal_plan_id': mealPlanId,
+        'p_ingredient_id': ingredientId,
+      },
+    ) as List<dynamic>;
+
+    logger.db('AFTER rpc | fn: get_ingredient_recipes_in_plan | rows: ${data.length}');
+    return data.map((e) => RecipeUsage.fromJson(e as Map<String, dynamic>)).toList();
+  } catch (e, st) {
+    logger.db('ERROR | rpc: get_ingredient_recipes_in_plan | $e', error: e, stackTrace: st);
+    return <RecipeUsage>[];
   }
 });
 
