@@ -72,3 +72,7 @@ test_*.js
 
 # Google Cloud service account keys — never commit
 afro-health-*.json
+
+# Google OAuth client secrets — never commit
+client_secret_*.json
+client_*.apps.googleusercontent.com.plist

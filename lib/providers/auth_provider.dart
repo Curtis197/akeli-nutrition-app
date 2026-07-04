@@ -215,7 +215,7 @@ class AuthNotifier extends AsyncNotifier<void> {
       try {
         final googleSignIn = GoogleSignIn(
           clientId: '1080340252277-bk0ihbgua0a2avus25ri7os1lq0e8kti.apps.googleusercontent.com',
-          serverClientId: '1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com',
+          serverClientId: '1080340252277-d412699vsp80741vg65draja56em44st.apps.googleusercontent.com',
         );
         _logger.auth('signInWithGoogle | launching picker');
         final googleUser = await googleSignIn.signIn();
