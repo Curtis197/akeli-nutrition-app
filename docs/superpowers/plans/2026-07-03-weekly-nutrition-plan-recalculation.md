@@ -561,7 +561,7 @@ Expected: completes without error; seeds the 4 test users from project memory.
 - [ ] **Step 2: Confirm the pgTAP suite passes as part of the full run**
 
 Run: `supabase test db`
-Expected: `Files=5, Tests=65, Result: PASS` (baseline was `Files=4, Tests=33` before Task 1 added the 5th file with 32 tests).
+Expected: `Files=5, Tests=68, Result: PASS` against a fully fresh reset with only this feature's own tests runnable in isolation (baseline was `Files=4, Tests=33`; Task 1 added 32 assertions, later grown to 35 by the `user_goal` dedup fix's regression test). Note: as of this writing, two unrelated pre-existing bugs in older migrations (documented separately, out of this feature's scope) make a true full-suite fresh-reset run show other files failing — this feature's own test file passes cleanly in isolation via `supabase test db supabase/tests/recalculate_nutrition_plans_from_weight_test.sql` (`Files=1, Tests=35, PASS`).
 
 - [ ] **Step 3: Insert a fresh weight_log entry for test user A (standard)**
 

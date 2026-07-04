@@ -52,6 +52,9 @@ verify_jwt = false
 [functions.send-meal-reminders]
 verify_jwt = false
 
+[functions.recalculate-nutrition-plans]
+verify_jwt = false
+
 [functions.stripe-webhook]
 verify_jwt = false
 
