@@ -54,7 +54,7 @@ CREATE OR REPLACE FUNCTION get_ingredient_recipes_in_plan(
 RETURNS TABLE (
   recipe_id uuid,
   title text,
-  thumbnail_url text,
+  cover_image_url text,
   prep_time_min int,
   cook_time_min int
 )
@@ -73,7 +73,7 @@ AS $$
     SELECT recipe_id FROM cooking_session
     WHERE meal_plan_id = p_meal_plan_id AND recipe_id IS NOT NULL
   )
-  SELECT DISTINCT r.id, r.title, r.thumbnail_url, r.prep_time_min, r.cook_time_min
+  SELECT DISTINCT r.id, r.title, r.cover_image_url, r.prep_time_min, r.cook_time_min
   FROM recipe r
   JOIN recipe_ingredient ri ON ri.recipe_id = r.id
   WHERE r.id IN (SELECT recipe_id FROM plan_recipes)
@@ -83,9 +83,11 @@ $$;
 
 `SECURITY INVOKER` (the default) is sufficient — `meal_plan_entry`,
 `meal_plan_entry_component`, and `cooking_session` are already RLS-scoped to
-`user_id = auth.uid()` via their owning `meal_plan`/`cooking_session` rows,
-and `recipe`/`recipe_ingredient` are public-read. No privilege escalation
-needed.
+`user_id = auth.uid()` via their owning `meal_plan`/`cooking_session` rows.
+`recipe` allows public `SELECT` for `is_published = true` rows (plus
+creator-owned rows for their own drafts) and `recipe_ingredient` has no
+additional restriction beyond its parent recipe — matching how recipe
+detail pages already read this data. No privilege escalation needed.
 
 ## Flutter
 
