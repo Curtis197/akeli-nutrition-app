@@ -42,13 +42,10 @@ class _CookingModePageState extends State<CookingModePage> {
       widget.recipe.steps[_currentStepIndex];
 
   List<RecipeIngredient> get _stepIngredients {
-    if (_currentStep.ingredientIds.isNotEmpty) {
-      return widget.recipe.ingredients
-          .where((i) =>
-              _currentStep.ingredientIds.contains(i.ingredientId))
-          .toList();
-    }
-    return widget.recipe.ingredients;
+    return widget.recipe.ingredients
+        .where((i) =>
+            _currentStep.ingredientIds.contains(i.ingredientId))
+        .toList();
   }
 
   @override
@@ -256,11 +253,9 @@ class _CookingModePageState extends State<CookingModePage> {
                     itemCount: totalSteps,
                     itemBuilder: (_, index) {
                       final s = widget.recipe.steps[index];
-                      final ingredients = s.ingredientIds.isNotEmpty
-                          ? widget.recipe.ingredients
-                              .where((i) => s.ingredientIds.contains(i.ingredientId))
-                              .toList()
-                          : widget.recipe.ingredients;
+                      final ingredients = widget.recipe.ingredients
+                          .where((i) => s.ingredientIds.contains(i.ingredientId))
+                          .toList();
 
                       if (s.isSectionHeader) {
                         _logger.provider(
@@ -1148,11 +1143,9 @@ class _LandscapeBody extends StatelessWidget {
                     itemCount: totalSteps,
                     itemBuilder: (_, index) {
                       final s = recipe.steps[index];
-                      final ingredients = s.ingredientIds.isNotEmpty
-                          ? recipe.ingredients
-                              .where((i) => s.ingredientIds.contains(i.ingredientId))
-                              .toList()
-                          : recipe.ingredients;
+                      final ingredients = recipe.ingredients
+                          .where((i) => s.ingredientIds.contains(i.ingredientId))
+                          .toList();
                       final sCount = () {
                         int count = 0;
                         for (int i = index + 1; i < recipe.steps.length; i++) {

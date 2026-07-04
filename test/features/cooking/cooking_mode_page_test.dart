@@ -44,6 +44,7 @@ Recipe _recipe({
   bool withTimer = false,
   bool withImage = false,
   bool withIngredients = false,
+  List<String>? stepIngredientIds,
 }) {
   final ingredients = withIngredients
       ? [
@@ -72,7 +73,7 @@ Recipe _recipe({
       instruction: 'Instruction étape ${i + 1}',
       durationMin: withTimer ? 3 : null,
       imageUrl: withImage ? 'https://example.com/img.jpg' : null,
-      ingredientIds: withIngredients ? ['i1', 'i2'] : [],
+      ingredientIds: stepIngredientIds ?? (withIngredients ? ['i1', 'i2'] : []),
     ),
   );
 
@@ -190,6 +191,23 @@ void main() {
 
       await tester.pumpWidget(_wrap(
         CookingModePage(recipe: _recipe(withIngredients: false)),
+      ));
+      await tester.pump();
+
+      expect(find.byIcon(Icons.info_outline_rounded), findsNothing);
+    });
+
+    testWidgets('info icon hidden when step has empty ingredientIds but recipe has ingredients', (tester) async {
+      _setLandscape(tester);
+      addTearDown(() => _resetView(tester));
+
+      await tester.pumpWidget(_wrap(
+        CookingModePage(
+          recipe: _recipe(
+            withIngredients: true,
+            stepIngredientIds: [],
+          ),
+        ),
       ));
       await tester.pump();
 
