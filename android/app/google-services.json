@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "1080340252277-0crn2fsnrc9507rdf7adgp8bjcen3k60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.akeli.com",
+            "certificate_hash": "d51cb9d21d11862fd1c011e600a48480f00f3461"
+          }
+        },
+        {
           "client_id": "1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,6 +37,13 @@
             {
               "client_id": "1080340252277-2avopaptnq55l8i959dlf4nvbvcqd3on.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1080340252277-bk0ihbgua0a2avus25ri7os1lq0e8kti.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.akeli.app"
+              }
             }
           ]
         }
