@@ -47,10 +47,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     _logger.userAction('Onboarding next tapped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
     final notifier = ref.read(onboardingProvider.notifier);
     if (!notifier.canAdvance(_currentStep)) {
-      const messages = {
-        1: 'Veuillez accepter les deux conditions pour continuer.',
-        2: 'Veuillez entrer votre prénom pour continuer.',
-        3: 'Veuillez entrer votre poids cible pour continuer.',
+      final l10n = AppLocalizations.of(context);
+      final messages = {
+        1: l10n.onboardingValidationConsent,
+        2: l10n.onboardingValidationName,
+        3: l10n.onboardingValidationTargetWeight,
       };
       final msg = messages[_currentStep];
       if (msg != null) {
@@ -162,9 +163,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       _logger.edge('complete-onboarding', 'ERROR | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Erreur de synchronisation. Vos données peuvent être complétées depuis votre profil.',
+              AppLocalizations.of(context).onboardingSubmitSyncError,
             ),
           ),
         );
@@ -187,10 +188,6 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               step: _currentStep,
               totalSteps: _totalSteps,
               onBack: _currentStep > 0 ? _back : null,
-              onSkip: () {
-                _logger.userAction('Onboarding skipped', screen: 'OnboardingPage', metadata: {'step': _currentStep});
-                context.go(AkeliRoutes.home);
-              },
             ),
             Expanded(
               child: PageView(
@@ -242,13 +239,11 @@ class _OnboardingHeader extends StatelessWidget {
   final int step;
   final int totalSteps;
   final VoidCallback? onBack;
-  final VoidCallback onSkip;
 
   const _OnboardingHeader({
     required this.step,
     required this.totalSteps,
     this.onBack,
-    required this.onSkip,
   });
 
   @override
@@ -281,18 +276,7 @@ class _OnboardingHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: onSkip,
-                child: Text(
-                  l10n.onboardingSkip,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AkeliColors.primary,
-                    letterSpacing: 0.05,
-                  ),
-                ),
-              ),
+              const SizedBox(width: 48),
             ],
           ),
         ),
@@ -453,8 +437,9 @@ class _StepLanguage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final data = ref.watch(onboardingProvider);
+    final l10n = AppLocalizations.of(context);
     final notifier = ref.read(onboardingProvider.notifier);
+    final currentLocale = ref.watch(localeProvider).stringValue;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -462,7 +447,7 @@ class _StepLanguage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Choisir votre langue',
+            l10n.onboardingLanguageTitle,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 36,
               fontWeight: FontWeight.w800,
@@ -473,7 +458,7 @@ class _StepLanguage extends ConsumerWidget {
           ),
           const SizedBox(height: AkeliSpacing.sm),
           Text(
-            "Veuillez sélectionner la langue de l'interface.",
+            l10n.onboardingLanguageSubtitle,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: AkeliSpacing.xl),
@@ -482,7 +467,7 @@ class _StepLanguage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'LANGUE',
+                  l10n.onboardingLanguageSectionLabel,
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -500,22 +485,25 @@ class _StepLanguage extends ConsumerWidget {
                       horizontal: AkeliSpacing.md),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
-                      value: data.language,
+                      value: currentLocale,
                       isExpanded: true,
                       style: GoogleFonts.inter(
                           fontSize: 16, color: AkeliColors.onSurface),
                       dropdownColor: AkeliColors.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(AkeliRadius.md),
-                      items: const [
-                        DropdownMenuItem(value: 'fr', child: Text('Français')),
-                        DropdownMenuItem(value: 'en', child: Text('English')),
-                        DropdownMenuItem(value: 'es', child: Text('Español')),
-                        DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                      items: [
+                        DropdownMenuItem(value: 'fr', child: Text(l10n.languageFrench)),
+                        DropdownMenuItem(value: 'en', child: Text(l10n.languageEnglish)),
+                        DropdownMenuItem(value: 'en-US', child: Text(l10n.preferencesLocaleUsImperial)),
                       ],
                       onChanged: (v) {
                         if (v != null) {
+                          final locale = v == 'en-US'
+                              ? const Locale('en', 'US')
+                              : Locale(v);
                           appLogger.userAction('Language selected', screen: 'OnboardingPage', metadata: {'language': v});
                           notifier.updateLanguage(v);
+                          ref.read(localeProvider.notifier).setLocale(locale);
                         }
                       },
                     ),
@@ -585,7 +573,7 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
           ),
           const SizedBox(height: AkeliSpacing.sm),
           Text(
-            "Avant de plonger dans l'expérience, prenons un instant pour clarifier la protection de votre vie privée.",
+            l10n.onboardingConsentSubtitle,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: AkeliSpacing.xl),
@@ -593,23 +581,23 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
             padding: EdgeInsets.zero,
             child: Column(
               children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.lg, 0),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AkeliSpacing.lg, AkeliSpacing.lg, AkeliSpacing.lg, 0),
                   child: Column(
                     children: [
                       _ConsentSection(
-                        title: 'Données collectées',
+                        title: l10n.onboardingConsentDataTitle,
                         items: [
-                          ('Identité et contact :', "Nom, prénom et adresse email pour sécuriser votre compte."),
-                          ("Usage de l'application :", "Statistiques anonymes pour améliorer votre expérience quotidienne."),
+                          (l10n.onboardingConsentDataIdentityTitle, l10n.onboardingConsentDataIdentityDesc),
+                          (l10n.onboardingConsentDataUsageTitle, l10n.onboardingConsentDataUsageDesc),
                         ],
                       ),
-                      SizedBox(height: AkeliSpacing.lg),
+                      const SizedBox(height: AkeliSpacing.lg),
                       _ConsentSection(
-                        title: 'Vos droits',
+                        title: l10n.onboardingConsentRightsTitle,
                         items: [
-                          ('Accès total :', "Consultez, modifiez ou exportez vos données à tout moment depuis les paramètres."),
-                          ("Droit à l'oubli :", "Suppression définitive de votre compte et de vos données sur simple demande."),
+                          (l10n.onboardingConsentRightsAccessTitle, l10n.onboardingConsentRightsAccessDesc),
+                          (l10n.onboardingConsentRightsForgetTitle, l10n.onboardingConsentRightsForgetDesc),
                         ],
                       ),
                     ],
@@ -639,16 +627,16 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
                               height: 1.5,
                             ),
                             children: [
-                              const TextSpan(text: "J'accepte la "),
+                              TextSpan(text: l10n.onboardingConsentPrivacyPre),
                               TextSpan(
-                                text: "Politique de Confidentialité",
+                                text: l10n.legalPrivacyTitle,
                                 style: const TextStyle(
                                   color: AkeliColors.primary,
                                   decoration: TextDecoration.underline,
                                 ),
                                 recognizer: _privacyRecognizer,
                               ),
-                              const TextSpan(text: " et confirme avoir lu les informations concernant le traitement de mes données personnelles (RGPD)."),
+                              TextSpan(text: l10n.onboardingConsentPrivacyPost),
                             ],
                           ),
                         ),
@@ -666,16 +654,16 @@ class _StepConsentState extends ConsumerState<_StepConsent> {
                               height: 1.5,
                             ),
                             children: [
-                              const TextSpan(text: "J'accepte les "),
+                              TextSpan(text: l10n.onboardingConsentCguPre),
                               TextSpan(
-                                text: "Conditions Générales d'Utilisation (CGU)",
+                                text: l10n.onboardingConsentCguLink,
                                 style: const TextStyle(
                                   color: AkeliColors.primary,
                                   decoration: TextDecoration.underline,
                                 ),
                                 recognizer: _cguRecognizer,
                               ),
-                              const TextSpan(text: " d'Akeli."),
+                              TextSpan(text: l10n.onboardingConsentCguPost),
                             ],
                           ),
                         ),
@@ -823,16 +811,16 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
   final _logger = appLogger;
   late final TextEditingController _nameCtrl;
 
-  static const _activities = [
-    ('sedentary', 'Sédentaire',
-        "Travail de bureau, peu ou pas d'exercice quotidien.", Icons.weekend_rounded),
-    ('light', 'Légère',
-        "1-3 jours/semaine d'exercice léger.", Icons.directions_walk_rounded),
-    ('moderate', 'Modérée',
-        '3-5 jours/semaine.', Icons.directions_run_rounded),
-    ('active', 'Active',
-        '6-7 jours/semaine.', Icons.fitness_center_rounded),
-  ];
+  static List<(String, String, String, IconData)> _activities(AppLocalizations l10n) => [
+        ('sedentary', l10n.healthActivitySedentary,
+            l10n.onboardingActivitySedentaryDesc, Icons.weekend_rounded),
+        ('light', l10n.healthActivityLight,
+            l10n.onboardingActivityLightDesc, Icons.directions_walk_rounded),
+        ('moderate', l10n.healthActivityModerate,
+            l10n.onboardingActivityModerateDesc, Icons.directions_run_rounded),
+        ('active', l10n.healthActivityActive,
+            l10n.onboardingActivityActiveDesc, Icons.fitness_center_rounded),
+      ];
 
   @override
   void initState() {
@@ -871,7 +859,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Comment vous appelez-vous ?',
+                Text(l10n.onboardingProfileNameQuestion,
                     style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -899,7 +887,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Quel est votre âge ?',
+                          Text(l10n.onboardingAge,
                               style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -907,7 +895,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                           const SizedBox(height: AkeliSpacing.sm),
                           _MetricField(
                             value: data.age?.toString() ?? '',
-                            suffix: 'ans',
+                            suffix: l10n.onboardingProfileAgeSuffix,
                             onChanged: (v) => notifier.updateProfile(
                                 age: int.tryParse(v)),
                           ),
@@ -919,7 +907,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Sexe biologique',
+                          Text(l10n.onboardingProfileSexLabel,
                               style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -937,12 +925,13 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Poids',
+                          Text(l10n.onboardingProfileWeightLabel,
                               style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -969,21 +958,64 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                     ),
                     const SizedBox(width: AkeliSpacing.md),
                     Expanded(
+                      flex: isUs ? 2 : 1,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Taille',
+                          Text(l10n.healthHeight,
                               style: GoogleFonts.inter(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: AkeliColors.onSurface)),
                           const SizedBox(height: AkeliSpacing.sm),
-                          _MetricField(
-                            value: data.height?.toString() ?? '',
-                            suffix: 'cm',
-                            onChanged: (v) => notifier.updateProfile(
-                                height: double.tryParse(v)),
-                          ),
+                          if (isUs)
+                            Builder(builder: (context) {
+                              final feetIn = data.height != null
+                                  ? UnitConverter.cmToFeetIn(data.height!)
+                                  : null;
+                              return Row(
+                                children: [
+                                  Expanded(
+                                    child: _MetricField(
+                                      value: feetIn != null ? feetIn.$1.toString() : '',
+                                      suffix: 'ft',
+                                      onChanged: (v) {
+                                        final feet = int.tryParse(v);
+                                        notifier.updateProfile(
+                                          height: feet == null
+                                              ? null
+                                              : UnitConverter.feetInToCm(
+                                                  feet, feetIn?.$2 ?? 0),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: AkeliSpacing.xs),
+                                  Expanded(
+                                    child: _MetricField(
+                                      value: feetIn != null ? feetIn.$2.toString() : '',
+                                      suffix: 'in',
+                                      onChanged: (v) {
+                                        final inches = int.tryParse(v);
+                                        notifier.updateProfile(
+                                          height: inches == null
+                                              ? null
+                                              : UnitConverter.feetInToCm(
+                                                  feetIn?.$1 ?? 0, inches),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            })
+                          else
+                            _MetricField(
+                              value: data.height?.toString() ?? '',
+                              suffix: 'cm',
+                              onChanged: (v) => notifier.updateProfile(
+                                  height: double.tryParse(v)),
+                            ),
                         ],
                       ),
                     ),
@@ -1003,7 +1035,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                   crossAxisSpacing: AkeliSpacing.sm,
                   mainAxisSpacing: AkeliSpacing.sm,
                   childAspectRatio: 1.2,
-                  children: _activities.map((a) {
+                  children: _activities(l10n).map((a) {
                     final selected = data.activityLevel == a.$1;
                     return GestureDetector(
                       onTap: () {
@@ -1179,6 +1211,7 @@ class _SexSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       height: 54,
       padding: const EdgeInsets.all(6),
@@ -1189,14 +1222,14 @@ class _SexSegment extends StatelessWidget {
       child: Row(
         children: [
           _SexOption(
-              label: 'Femme',
+              label: l10n.healthSexFemale,
               selected: value == 'female',
               onTap: () {
                 appLogger.userAction('Sex selected', screen: 'OnboardingPage', metadata: {'sex': 'female'});
                 onChanged('female');
               }),
           _SexOption(
-              label: 'Homme',
+              label: l10n.healthSexMale,
               selected: value == 'male',
               onTap: () {
                 appLogger.userAction('Sex selected', screen: 'OnboardingPage', metadata: {'sex': 'male'});
@@ -1292,6 +1325,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('_StepGoals build()');
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
     final isUs = ref.watch(localeProvider).isUsLocale;
@@ -1301,7 +1335,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Vos objectifs',
+          Text(l10n.onboardingGoalsTitle,
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
@@ -1309,7 +1343,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   letterSpacing: -0.02)),
           const SizedBox(height: AkeliSpacing.sm),
           Text(
-              'Définissons ensemble ce que vous souhaitez accomplir.',
+              l10n.onboardingGoalsSubtitle,
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AkeliSpacing.xl),
 
@@ -1318,7 +1352,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('OBJECTIF POIDS',
+                Text(l10n.onboardingGoalsWeightSectionLabel,
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1328,7 +1362,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'loss',
                   groupValue: data.weightGoal,
-                  label: 'Perdre du poids',
+                  label: l10n.onboardingGoalsWeightLoss,
                   icon: Icons.trending_down_rounded,
                   onChanged: (v) {
                     _logger.userAction('Weight goal selected',
@@ -1339,7 +1373,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'maintenance',
                   groupValue: data.weightGoal,
-                  label: 'Maintenir mon poids',
+                  label: l10n.onboardingGoalsWeightMaintain,
                   icon: Icons.balance_rounded,
                   onChanged: (v) {
                     _logger.userAction('Weight goal selected',
@@ -1350,7 +1384,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'gain',
                   groupValue: data.weightGoal,
-                  label: 'Prendre de la masse',
+                  label: l10n.onboardingGoalsWeightGain,
                   icon: Icons.trending_up_rounded,
                   onChanged: (v) {
                     _logger.userAction('Weight goal selected',
@@ -1369,7 +1403,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('OBJECTIF MUSCULAIRE',
+                Text(l10n.onboardingGoalsMuscleSectionLabel,
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1379,7 +1413,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'loss',
                   groupValue: data.muscleGoal,
-                  label: 'Réduire la masse musculaire',
+                  label: l10n.onboardingGoalsMuscleLoss,
                   icon: Icons.remove_circle_outline_rounded,
                   onChanged: (v) {
                     _logger.userAction('Muscle goal selected',
@@ -1390,7 +1424,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'maintenance',
                   groupValue: data.muscleGoal,
-                  label: 'Maintenir mes muscles',
+                  label: l10n.onboardingGoalsMuscleMaintain,
                   icon: Icons.fitness_center_rounded,
                   onChanged: (v) {
                     _logger.userAction('Muscle goal selected',
@@ -1401,7 +1435,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'gain',
                   groupValue: data.muscleGoal,
-                  label: 'Développer mes muscles',
+                  label: l10n.onboardingGoalsMuscleGain,
                   icon: Icons.add_circle_outline_rounded,
                   onChanged: (v) {
                     _logger.userAction('Muscle goal selected',
@@ -1420,7 +1454,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('POIDS CIBLE',
+                Text(l10n.onboardingGoalsTargetWeightSectionLabel,
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1454,7 +1488,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('DÉLAI ESTIMÉ',
+                    Text(l10n.onboardingEstimatedDeadline,
                         style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1481,7 +1515,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                               height: 1),
                         ),
                         TextSpan(
-                          text: 'mois',
+                          text: l10n.onboardingGoalsMonthsUnit,
                           style: GoogleFonts.inter(
                               fontSize: 20,
                               color: AkeliColors.onSurfaceVariant),
@@ -1517,12 +1551,12 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('1 mois',
+                    Text(l10n.onboardingGoalsMonthMin,
                         style: GoogleFonts.inter(
                             fontSize: 10,
                             color: AkeliColors.onSurfaceVariant,
                             letterSpacing: 0.1)),
-                    Text('12 mois',
+                    Text(l10n.onboardingGoalsMonthMax,
                         style: GoogleFonts.inter(
                             fontSize: 10,
                             color: AkeliColors.onSurfaceVariant,
@@ -1530,7 +1564,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
-                Text('VOS MOTIVATIONS',
+                Text(l10n.onboardingGoalsMotivationsLabel,
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1553,7 +1587,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     style: GoogleFonts.inter(
                         fontSize: 15, color: AkeliColors.onSurface),
                     decoration: InputDecoration(
-                      hintText: 'Qu\'est-ce qui vous motive ?',
+                      hintText: l10n.onboardingGoalsMotivationsHint,
                       hintStyle: GoogleFonts.inter(
                           fontSize: 15,
                           color: AkeliColors.onSurfaceVariant),
@@ -1574,7 +1608,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('TEMPS DE CUISINE',
+                Text(l10n.onboardingGoalsCookingTimeSectionLabel,
                     style: GoogleFonts.inter(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -1584,7 +1618,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'quick',
                   groupValue: data.cookingTime,
-                  label: 'Rapide (< 30 min)',
+                  label: l10n.onboardingGoalsCookingQuick,
                   icon: Icons.bolt_rounded,
                   onChanged: (v) {
                     _logger.userAction('Cooking time selected',
@@ -1595,7 +1629,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'medium',
                   groupValue: data.cookingTime,
-                  label: 'Moyen (30–60 min)',
+                  label: l10n.onboardingGoalsCookingMedium,
                   icon: Icons.timer_outlined,
                   onChanged: (v) {
                     _logger.userAction('Cooking time selected',
@@ -1606,7 +1640,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 _GoalRadioOption(
                   value: 'any',
                   groupValue: data.cookingTime,
-                  label: 'Peu importe',
+                  label: l10n.onboardingGoalsCookingAny,
                   icon: Icons.all_inclusive_rounded,
                   onChanged: (v) {
                     _logger.userAction('Cooking time selected',
@@ -1629,7 +1663,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('CUISSON EN BATCH',
+                    Text(l10n.onboardingGoalsBatchSectionLabel,
                         style: GoogleFonts.inter(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1642,13 +1676,13 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Préparer plusieurs repas à la fois',
+                              Text(l10n.onboardingBatchPrepMeals,
                                   style: GoogleFonts.inter(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w500,
                                       color: AkeliColors.onSurface)),
                               const SizedBox(height: 2),
-                              Text('Cuire en grande quantité pour la semaine',
+                              Text(l10n.onboardingBatchCookWeek,
                                   style: GoogleFonts.inter(
                                       fontSize: 13,
                                       color: AkeliColors.onSurfaceVariant)),
@@ -1677,7 +1711,7 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Portions max par session',
+                                  Text(l10n.onboardingGoalsBatchMaxPortions,
                                       style: GoogleFonts.inter(
                                           fontSize: 15,
                                           color: AkeliColors.onSurface)),
@@ -1795,15 +1829,15 @@ class _StepPreferences extends ConsumerStatefulWidget {
 class _StepPreferencesState extends ConsumerState<_StepPreferences> {
   final _logger = appLogger;
 
-  static const _kRegions = [
-    ('west_africa',    'Afrique de l\'Ouest'),
-    ('east_africa',    'Afrique de l\'Est'),
-    ('north_africa',   'Afrique du Nord'),
-    ('central_africa', 'Afrique Centrale'),
-    ('south_africa',   'Afrique Australe'),
-    ('caribbean',      'Caraïbes'),
-    ('occidental',     'Occident'),
-  ];
+  static List<(String, String)> _kRegions(AppLocalizations l10n) => [
+        ('west_africa', l10n.preferencesRegionWestAfrica),
+        ('east_africa', l10n.preferencesRegionEastAfrica),
+        ('north_africa', l10n.preferencesRegionNorthAfrica),
+        ('central_africa', l10n.preferencesRegionCentralAfrica),
+        ('south_africa', l10n.preferencesRegionSouthAfrica),
+        ('caribbean', l10n.preferencesRegionCaribbean),
+        ('occidental', l10n.preferencesRegionWestern),
+      ];
 
   @override
   void dispose() {
@@ -1813,6 +1847,7 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
   @override
   Widget build(BuildContext context) {
     _logger.provider('_StepPreferencesState build()');
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
 
@@ -1821,21 +1856,21 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Vos préférences',
+          Text(l10n.onboardingPreferences,
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
                   color: AkeliColors.onSurface,
                   letterSpacing: -0.02)),
           const SizedBox(height: AkeliSpacing.sm),
-          Text('Personnalisons votre expérience culinaire.',
+          Text(l10n.onboardingPreferencesSubtitle,
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AkeliSpacing.xl),
           _StepCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Régime alimentaire',
+                Text(l10n.onboardingDietLabel,
                     style: GoogleFonts.plusJakartaSans(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -1843,32 +1878,32 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                 const SizedBox(height: AkeliSpacing.md),
                 _DietToggle(
                   icon: Icons.no_meals_rounded,
-                  label: 'Sans Porc',
-                  description: 'Exclure tous les plats contenant du porc',
+                  label: l10n.dietNoPork,
+                  description: l10n.onboardingDietNoPorkDesc,
                   value: data.noPork,
                   onChanged: (v) => notifier.updatePreferences(noPork: v),
                 ),
                 const SizedBox(height: AkeliSpacing.sm),
                 _DietToggle(
                   icon: Icons.eco_rounded,
-                  label: 'Sans Viande',
-                  description: 'Options végétariennes uniquement',
+                  label: l10n.onboardingDietNoMeatLabel,
+                  description: l10n.onboardingDietNoMeatDesc,
                   value: data.noMeat,
                   onChanged: (v) => notifier.updatePreferences(noMeat: v),
                 ),
                 const SizedBox(height: AkeliSpacing.sm),
                 _DietToggle(
                   icon: Icons.grain_rounded,
-                  label: 'Sans Gluten',
-                  description: 'Exclure le gluten de votre alimentation',
+                  label: l10n.dietGlutenFree,
+                  description: l10n.onboardingDietGlutenFreeDesc,
                   value: data.noGluten,
                   onChanged: (v) => notifier.updatePreferences(noGluten: v),
                 ),
                 const SizedBox(height: AkeliSpacing.sm),
                 _DietToggle(
                   icon: Icons.local_drink_outlined,
-                  label: 'Sans Lactose',
-                  description: 'Exclure les produits laitiers',
+                  label: l10n.dietLactoseFree,
+                  description: l10n.onboardingDietLactoseFreeDesc,
                   value: data.noLactose,
                   onChanged: (v) => notifier.updatePreferences(noLactose: v),
                 ),
@@ -1879,12 +1914,12 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Allergies & Intolérances',
+                        Text(l10n.onboardingAllergens,
                             style: GoogleFonts.plusJakartaSans(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
                                 color: AkeliColors.onSurface)),
-                        Text('Ajoutez les ingrédients à éviter.',
+                        Text(l10n.onboardingAllergensHint,
                             style: GoogleFonts.inter(
                                 fontSize: 13,
                                 color: AkeliColors.onSurfaceVariant)),
@@ -1908,7 +1943,7 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Inspirations Régionales',
+                  l10n.onboardingRegionsTitle,
                   style: GoogleFonts.plusJakartaSans(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1916,12 +1951,12 @@ class _StepPreferencesState extends ConsumerState<_StepPreferences> {
                 ),
                 const SizedBox(height: AkeliSpacing.xs),
                 Text(
-                  'Sélectionnez votre région de prédilection pour des recommandations ciblées.',
+                  l10n.onboardingRegionsSubtitle,
                   style: GoogleFonts.inter(
                       fontSize: 13, color: AkeliColors.onSurfaceVariant),
                 ),
                 const SizedBox(height: AkeliSpacing.md),
-                ..._kRegions.map((r) => Padding(
+                ..._kRegions(l10n).map((r) => Padding(
                       padding: const EdgeInsets.only(bottom: AkeliSpacing.xs),
                       child: _RegionTile(
                         label: r.$2,
@@ -2014,8 +2049,24 @@ class _StepSummary extends ConsumerWidget {
   final int step;
   const _StepSummary({required this.step});
 
+  static String _activityLabel(AppLocalizations l10n, String? level) {
+    switch (level) {
+      case 'sedentary':
+        return l10n.healthActivitySedentary;
+      case 'light':
+        return l10n.healthActivityLight;
+      case 'moderate':
+        return l10n.healthActivityModerate;
+      case 'active':
+        return l10n.healthActivityActive;
+      default:
+        return l10n.onboardingSummaryNotSet;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final data = ref.watch(onboardingProvider);
     final isUs = ref.watch(localeProvider).isUsLocale;
 
@@ -2024,14 +2075,14 @@ class _StepSummary extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Récapitulatif',
+          Text(l10n.onboardingSummary,
               style: GoogleFonts.plusJakartaSans(
                   fontSize: 36,
                   fontWeight: FontWeight.w800,
                   color: AkeliColors.onSurface,
                   letterSpacing: -0.02)),
           const SizedBox(height: AkeliSpacing.sm),
-          Text('Votre profil est prêt. Vérifions les détails avant de commencer.',
+          Text(l10n.onboardingSummarySubtitle,
               style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: AkeliSpacing.xl),
           Container(
@@ -2085,7 +2136,9 @@ class _StepSummary extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  data.name.isNotEmpty ? data.name : 'Votre nom',
+                                  data.name.isNotEmpty
+                                      ? data.name
+                                      : l10n.onboardingSummaryNamePlaceholder,
                                   style: GoogleFonts.plusJakartaSans(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w700,
@@ -2096,9 +2149,11 @@ class _StepSummary extends ConsumerWidget {
                                   spacing: AkeliSpacing.xs,
                                   children: [
                                     if (data.age != null)
-                                      _SummaryChip('${data.age} ans'),
+                                      _SummaryChip(l10n.onboardingSummaryAge(data.age!)),
                                     if (data.height != null)
-                                      _SummaryChip('${data.height?.toInt()} cm'),
+                                      _SummaryChip(isUs
+                                          ? '${UnitConverter.cmToFeetIn(data.height!).$1}\'${UnitConverter.cmToFeetIn(data.height!).$2}"'
+                                          : '${data.height?.toInt()} cm'),
                                     if (data.weight != null)
                                       _SummaryChip(isUs
                                           ? '${UnitConverter.kgToLb(data.weight!).toStringAsFixed(1)} lb'
@@ -2121,15 +2176,15 @@ class _StepSummary extends ConsumerWidget {
                         children: [
                           _SummaryCard(
                             icon: Icons.directions_run_rounded,
-                            title: "Niveau d'activité",
-                            value: data.activityLevel ?? 'Non défini',
+                            title: l10n.healthActivityLevel,
+                            value: _activityLabel(l10n, data.activityLevel),
                           ),
                           _SummaryCard(
                             icon: Icons.flag_rounded,
-                            title: 'Objectif poids',
+                            title: l10n.healthWeightGoal,
                             value: data.targetWeight != null
                                 ? '${data.targetWeight?.toInt()} kg'
-                                : 'Non défini',
+                                : l10n.onboardingSummaryNotSet,
                             iconColor: AkeliColors.primary,
                           ),
                         ],
@@ -2158,7 +2213,7 @@ class _StepSummary extends ConsumerWidget {
                                         size: 18),
                                   ),
                                   const SizedBox(width: AkeliSpacing.sm),
-                                  Text('Préférences alimentaires',
+                                  Text(l10n.onboardingDietaryPreferences,
                                       style: GoogleFonts.plusJakartaSans(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
@@ -2171,13 +2226,13 @@ class _StepSummary extends ConsumerWidget {
                                 runSpacing: AkeliSpacing.xs,
                                 children: [
                                   if (data.noPork)
-                                    const _SummaryChip('Sans Porc'),
+                                    _SummaryChip(l10n.dietNoPork),
                                   if (data.noMeat)
-                                    const _SummaryChip('Végétarien'),
+                                    _SummaryChip(l10n.dietVegetarian),
                                   if (data.noGluten)
-                                    const _SummaryChip('Sans Gluten'),
+                                    _SummaryChip(l10n.dietGlutenFree),
                                   if (data.noLactose)
-                                    const _SummaryChip('Sans Lactose'),
+                                    _SummaryChip(l10n.dietLactoseFree),
                                 ],
                               ),
                             ],

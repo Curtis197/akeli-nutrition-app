@@ -1298,6 +1298,9 @@
   "dietNutFree": "Nut Free",
   "@dietNutFree": {},
 
+  "dietNoPork": "Pork Free",
+  "@dietNoPork": {},
+
   "languageSelectorTitle": "Choose Language",
   "@languageSelectorTitle": {},
 
@@ -1307,8 +1310,77 @@
   "languageFrench": "Français",
   "@languageFrench": {},
 
+  "onboardingValidationConsent": "Please accept both conditions to continue.",
+  "@onboardingValidationConsent": {},
+
+  "onboardingValidationName": "Please enter your first name to continue.",
+  "@onboardingValidationName": {},
+
+  "onboardingValidationTargetWeight": "Please enter your target weight to continue.",
+  "@onboardingValidationTargetWeight": {},
+
+  "onboardingSubmitSyncError": "Sync error. Your data may be completed from your profile.",
+  "@onboardingSubmitSyncError": {},
+
+  "onboardingLanguageTitle": "Choose your language",
+  "@onboardingLanguageTitle": {},
+
+  "onboardingLanguageSubtitle": "Please select your interface language.",
+  "@onboardingLanguageSubtitle": {},
+
+  "onboardingLanguageSectionLabel": "LANGUAGE",
+  "@onboardingLanguageSectionLabel": {},
+
   "onboardingWelcome": "Welcome to Akeli",
   "@onboardingWelcome": {},
+
+  "onboardingConsentSubtitle": "Before diving into the experience, let's take a moment to clarify how we protect your privacy.",
+  "@onboardingConsentSubtitle": {},
+
+  "onboardingConsentDataTitle": "Data collected",
+  "@onboardingConsentDataTitle": {},
+
+  "onboardingConsentDataIdentityTitle": "Identity and contact:",
+  "@onboardingConsentDataIdentityTitle": {},
+
+  "onboardingConsentDataIdentityDesc": "Name, first name and email address to secure your account.",
+  "@onboardingConsentDataIdentityDesc": {},
+
+  "onboardingConsentDataUsageTitle": "App usage:",
+  "@onboardingConsentDataUsageTitle": {},
+
+  "onboardingConsentDataUsageDesc": "Anonymous statistics to improve your daily experience.",
+  "@onboardingConsentDataUsageDesc": {},
+
+  "onboardingConsentRightsTitle": "Your rights",
+  "@onboardingConsentRightsTitle": {},
+
+  "onboardingConsentRightsAccessTitle": "Full access:",
+  "@onboardingConsentRightsAccessTitle": {},
+
+  "onboardingConsentRightsAccessDesc": "View, edit or export your data at any time from settings.",
+  "@onboardingConsentRightsAccessDesc": {},
+
+  "onboardingConsentRightsForgetTitle": "Right to be forgotten:",
+  "@onboardingConsentRightsForgetTitle": {},
+
+  "onboardingConsentRightsForgetDesc": "Permanent deletion of your account and data upon simple request.",
+  "@onboardingConsentRightsForgetDesc": {},
+
+  "onboardingConsentPrivacyPre": "I accept the ",
+  "@onboardingConsentPrivacyPre": {},
+
+  "onboardingConsentPrivacyPost": " and confirm I have read the information regarding the processing of my personal data (GDPR).",
+  "@onboardingConsentPrivacyPost": {},
+
+  "onboardingConsentCguPre": "I accept the ",
+  "@onboardingConsentCguPre": {},
+
+  "onboardingConsentCguLink": "Terms of Service (ToS)",
+  "@onboardingConsentCguLink": {},
+
+  "onboardingConsentCguPost": " from Akeli.",
+  "@onboardingConsentCguPost": {},
 
   "onboardingSubtitle": "Let's personalize your experience",
   "@onboardingSubtitle": {},
@@ -1349,6 +1421,19 @@
   "onboardingDietaryPreferences": "Dietary Preferences",
   "@onboardingDietaryPreferences": {},
 
+  "onboardingSummaryNamePlaceholder": "Your name",
+  "@onboardingSummaryNamePlaceholder": {},
+
+  "onboardingSummaryAge": "{age} years",
+  "@onboardingSummaryAge": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+
+  "onboardingSummaryNotSet": "Not set",
+  "@onboardingSummaryNotSet": {},
+
   "feedSortBestRated": "Best rated",
   "@feedSortBestRated": {},
 
@@ -1381,9 +1466,6 @@
     "placeholders": { "min": { "type": "int" } }
   },
 
-  "onboardingSkip": "Skip",
-  "@onboardingSkip": {},
-
   "onboardingStep": "Step {current} of {total}",
   "@onboardingStep": {
     "placeholders": {
@@ -1404,11 +1486,122 @@
   "onboardingProfileTitle": "Your Profile",
   "@onboardingProfileTitle": {},
 
+  "onboardingProfileNameQuestion": "What should we call you?",
+  "@onboardingProfileNameQuestion": {},
+
   "onboardingDisplayNameHint": "How should we call you?",
   "@onboardingDisplayNameHint": {},
 
+  "onboardingProfileAgeSuffix": "yrs",
+  "@onboardingProfileAgeSuffix": {},
+
+  "onboardingProfileSexLabel": "Biological sex",
+  "@onboardingProfileSexLabel": {},
+
+  "onboardingProfileWeightLabel": "Weight",
+  "@onboardingProfileWeightLabel": {},
+
   "onboardingActivityTitle": "Activity Level",
   "@onboardingActivityTitle": {},
+
+  "onboardingActivitySedentaryDesc": "Office job, little to no daily exercise.",
+  "@onboardingActivitySedentaryDesc": {},
+
+  "onboardingActivityLightDesc": "1-3 days/week of light exercise.",
+  "@onboardingActivityLightDesc": {},
+
+  "onboardingActivityModerateDesc": "3-5 days/week.",
+  "@onboardingActivityModerateDesc": {},
+
+  "onboardingActivityActiveDesc": "6-7 days/week.",
+  "@onboardingActivityActiveDesc": {},
+
+  "onboardingGoalsTitle": "Your Goals",
+  "@onboardingGoalsTitle": {},
+
+  "onboardingGoalsSubtitle": "Let's define together what you want to achieve.",
+  "@onboardingGoalsSubtitle": {},
+
+  "onboardingGoalsWeightSectionLabel": "WEIGHT GOAL",
+  "@onboardingGoalsWeightSectionLabel": {},
+
+  "onboardingGoalsWeightLoss": "Lose weight",
+  "@onboardingGoalsWeightLoss": {},
+
+  "onboardingGoalsWeightMaintain": "Maintain my weight",
+  "@onboardingGoalsWeightMaintain": {},
+
+  "onboardingGoalsWeightGain": "Gain weight",
+  "@onboardingGoalsWeightGain": {},
+
+  "onboardingGoalsMuscleSectionLabel": "MUSCLE GOAL",
+  "@onboardingGoalsMuscleSectionLabel": {},
+
+  "onboardingGoalsMuscleLoss": "Reduce muscle mass",
+  "@onboardingGoalsMuscleLoss": {},
+
+  "onboardingGoalsMuscleMaintain": "Maintain my muscles",
+  "@onboardingGoalsMuscleMaintain": {},
+
+  "onboardingGoalsMuscleGain": "Build muscle",
+  "@onboardingGoalsMuscleGain": {},
+
+  "onboardingGoalsTargetWeightSectionLabel": "TARGET WEIGHT",
+  "@onboardingGoalsTargetWeightSectionLabel": {},
+
+  "onboardingGoalsMonthsUnit": "months",
+  "@onboardingGoalsMonthsUnit": {},
+
+  "onboardingGoalsMonthMin": "1 month",
+  "@onboardingGoalsMonthMin": {},
+
+  "onboardingGoalsMonthMax": "12 months",
+  "@onboardingGoalsMonthMax": {},
+
+  "onboardingGoalsMotivationsLabel": "YOUR MOTIVATIONS",
+  "@onboardingGoalsMotivationsLabel": {},
+
+  "onboardingGoalsMotivationsHint": "What motivates you?",
+  "@onboardingGoalsMotivationsHint": {},
+
+  "onboardingGoalsCookingTimeSectionLabel": "COOKING TIME",
+  "@onboardingGoalsCookingTimeSectionLabel": {},
+
+  "onboardingGoalsCookingQuick": "Quick (< 30 min)",
+  "@onboardingGoalsCookingQuick": {},
+
+  "onboardingGoalsCookingMedium": "Medium (30–60 min)",
+  "@onboardingGoalsCookingMedium": {},
+
+  "onboardingGoalsCookingAny": "No preference",
+  "@onboardingGoalsCookingAny": {},
+
+  "onboardingGoalsBatchSectionLabel": "BATCH COOKING",
+  "@onboardingGoalsBatchSectionLabel": {},
+
+  "onboardingGoalsBatchMaxPortions": "Max portions per session",
+  "@onboardingGoalsBatchMaxPortions": {},
+
+  "onboardingDietNoPorkDesc": "Exclude all dishes containing pork",
+  "@onboardingDietNoPorkDesc": {},
+
+  "onboardingDietNoMeatLabel": "No Meat",
+  "@onboardingDietNoMeatLabel": {},
+
+  "onboardingDietNoMeatDesc": "Vegetarian options only",
+  "@onboardingDietNoMeatDesc": {},
+
+  "onboardingDietGlutenFreeDesc": "Exclude gluten from your diet",
+  "@onboardingDietGlutenFreeDesc": {},
+
+  "onboardingDietLactoseFreeDesc": "Exclude dairy products",
+  "@onboardingDietLactoseFreeDesc": {},
+
+  "onboardingRegionsTitle": "Regional Inspirations",
+  "@onboardingRegionsTitle": {},
+
+  "onboardingRegionsSubtitle": "Select your preferred region for targeted recommendations.",
+  "@onboardingRegionsSubtitle": {},
 
   "mealDetailNotFound": "Meal not found",
   "@mealDetailNotFound": {},
@@ -2281,6 +2474,35 @@
   "@mealScheduleRandomSubtitle": {},
   "nutritionPlanSaveButton": "Save plan",
   "@nutritionPlanSaveButton": {},
+  "nutritionPlanTitle": "My Nutrition Plan",
+  "@nutritionPlanTitle": {},
+  "nutritionPlanHealthParamsSection": "1. Health Parameters",
+  "@nutritionPlanHealthParamsSection": {},
+  "nutritionPlanGoalLabel": "Goal",
+  "@nutritionPlanGoalLabel": {},
+  "nutritionPlanCalculateButton": "Calculate my goal",
+  "@nutritionPlanCalculateButton": {},
+  "nutritionPlanDailyGoalTitle": "Daily Goal",
+  "@nutritionPlanDailyGoalTitle": {},
+  "nutritionPlanBmrTdeeLabel": "BMR: {bmr} kcal  |  TDEE: {tdee} kcal",
+  "@nutritionPlanBmrTdeeLabel": {
+    "placeholders": {
+      "bmr": { "type": "String" },
+      "tdee": { "type": "String" }
+    }
+  },
+  "nutritionPlanMacrosSection": "2. Macros",
+  "@nutritionPlanMacrosSection": {},
+  "nutritionPlanMealDistributionSection": "3. Meal Distribution",
+  "@nutritionPlanMealDistributionSection": {},
+  "nutritionPlanSaveSuccess": "Nutrition plan saved successfully",
+  "@nutritionPlanSaveSuccess": {},
+  "nutritionPlanSaveError": "Error while saving: {error}",
+  "@nutritionPlanSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "nutritionToday": "Today",
   "@nutritionToday": {},
   "nutritionYesterday": "Yesterday",

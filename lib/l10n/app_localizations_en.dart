@@ -1338,6 +1338,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dietNutFree => 'Nut Free';
 
   @override
+  String get dietNoPork => 'Pork Free';
+
+  @override
   String get languageSelectorTitle => 'Choose Language';
 
   @override
@@ -1347,7 +1350,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageFrench => 'Français';
 
   @override
+  String get onboardingValidationConsent =>
+      'Please accept both conditions to continue.';
+
+  @override
+  String get onboardingValidationName =>
+      'Please enter your first name to continue.';
+
+  @override
+  String get onboardingValidationTargetWeight =>
+      'Please enter your target weight to continue.';
+
+  @override
+  String get onboardingSubmitSyncError =>
+      'Sync error. Your data may be completed from your profile.';
+
+  @override
+  String get onboardingLanguageTitle => 'Choose your language';
+
+  @override
+  String get onboardingLanguageSubtitle =>
+      'Please select your interface language.';
+
+  @override
+  String get onboardingLanguageSectionLabel => 'LANGUAGE';
+
+  @override
   String get onboardingWelcome => 'Welcome to Akeli';
+
+  @override
+  String get onboardingConsentSubtitle =>
+      'Before diving into the experience, let\'s take a moment to clarify how we protect your privacy.';
+
+  @override
+  String get onboardingConsentDataTitle => 'Data collected';
+
+  @override
+  String get onboardingConsentDataIdentityTitle => 'Identity and contact:';
+
+  @override
+  String get onboardingConsentDataIdentityDesc =>
+      'Name, first name and email address to secure your account.';
+
+  @override
+  String get onboardingConsentDataUsageTitle => 'App usage:';
+
+  @override
+  String get onboardingConsentDataUsageDesc =>
+      'Anonymous statistics to improve your daily experience.';
+
+  @override
+  String get onboardingConsentRightsTitle => 'Your rights';
+
+  @override
+  String get onboardingConsentRightsAccessTitle => 'Full access:';
+
+  @override
+  String get onboardingConsentRightsAccessDesc =>
+      'View, edit or export your data at any time from settings.';
+
+  @override
+  String get onboardingConsentRightsForgetTitle => 'Right to be forgotten:';
+
+  @override
+  String get onboardingConsentRightsForgetDesc =>
+      'Permanent deletion of your account and data upon simple request.';
+
+  @override
+  String get onboardingConsentPrivacyPre => 'I accept the ';
+
+  @override
+  String get onboardingConsentPrivacyPost =>
+      ' and confirm I have read the information regarding the processing of my personal data (GDPR).';
+
+  @override
+  String get onboardingConsentCguPre => 'I accept the ';
+
+  @override
+  String get onboardingConsentCguLink => 'Terms of Service (ToS)';
+
+  @override
+  String get onboardingConsentCguPost => ' from Akeli.';
 
   @override
   String get onboardingSubtitle => 'Let\'s personalize your experience';
@@ -1391,6 +1474,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingDietaryPreferences => 'Dietary Preferences';
 
   @override
+  String get onboardingSummaryNamePlaceholder => 'Your name';
+
+  @override
+  String onboardingSummaryAge(int age) {
+    return '$age years';
+  }
+
+  @override
+  String get onboardingSummaryNotSet => 'Not set';
+
+  @override
   String get feedSortBestRated => 'Best rated';
 
   @override
@@ -1423,9 +1517,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get onboardingSkip => 'Skip';
-
-  @override
   String onboardingStep(int current, int total) {
     return 'Step $current of $total';
   }
@@ -1443,10 +1534,124 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingProfileTitle => 'Your Profile';
 
   @override
+  String get onboardingProfileNameQuestion => 'What should we call you?';
+
+  @override
   String get onboardingDisplayNameHint => 'How should we call you?';
 
   @override
+  String get onboardingProfileAgeSuffix => 'yrs';
+
+  @override
+  String get onboardingProfileSexLabel => 'Biological sex';
+
+  @override
+  String get onboardingProfileWeightLabel => 'Weight';
+
+  @override
   String get onboardingActivityTitle => 'Activity Level';
+
+  @override
+  String get onboardingActivitySedentaryDesc =>
+      'Office job, little to no daily exercise.';
+
+  @override
+  String get onboardingActivityLightDesc => '1-3 days/week of light exercise.';
+
+  @override
+  String get onboardingActivityModerateDesc => '3-5 days/week.';
+
+  @override
+  String get onboardingActivityActiveDesc => '6-7 days/week.';
+
+  @override
+  String get onboardingGoalsTitle => 'Your Goals';
+
+  @override
+  String get onboardingGoalsSubtitle =>
+      'Let\'s define together what you want to achieve.';
+
+  @override
+  String get onboardingGoalsWeightSectionLabel => 'WEIGHT GOAL';
+
+  @override
+  String get onboardingGoalsWeightLoss => 'Lose weight';
+
+  @override
+  String get onboardingGoalsWeightMaintain => 'Maintain my weight';
+
+  @override
+  String get onboardingGoalsWeightGain => 'Gain weight';
+
+  @override
+  String get onboardingGoalsMuscleSectionLabel => 'MUSCLE GOAL';
+
+  @override
+  String get onboardingGoalsMuscleLoss => 'Reduce muscle mass';
+
+  @override
+  String get onboardingGoalsMuscleMaintain => 'Maintain my muscles';
+
+  @override
+  String get onboardingGoalsMuscleGain => 'Build muscle';
+
+  @override
+  String get onboardingGoalsTargetWeightSectionLabel => 'TARGET WEIGHT';
+
+  @override
+  String get onboardingGoalsMonthsUnit => 'months';
+
+  @override
+  String get onboardingGoalsMonthMin => '1 month';
+
+  @override
+  String get onboardingGoalsMonthMax => '12 months';
+
+  @override
+  String get onboardingGoalsMotivationsLabel => 'YOUR MOTIVATIONS';
+
+  @override
+  String get onboardingGoalsMotivationsHint => 'What motivates you?';
+
+  @override
+  String get onboardingGoalsCookingTimeSectionLabel => 'COOKING TIME';
+
+  @override
+  String get onboardingGoalsCookingQuick => 'Quick (< 30 min)';
+
+  @override
+  String get onboardingGoalsCookingMedium => 'Medium (30–60 min)';
+
+  @override
+  String get onboardingGoalsCookingAny => 'No preference';
+
+  @override
+  String get onboardingGoalsBatchSectionLabel => 'BATCH COOKING';
+
+  @override
+  String get onboardingGoalsBatchMaxPortions => 'Max portions per session';
+
+  @override
+  String get onboardingDietNoPorkDesc => 'Exclude all dishes containing pork';
+
+  @override
+  String get onboardingDietNoMeatLabel => 'No Meat';
+
+  @override
+  String get onboardingDietNoMeatDesc => 'Vegetarian options only';
+
+  @override
+  String get onboardingDietGlutenFreeDesc => 'Exclude gluten from your diet';
+
+  @override
+  String get onboardingDietLactoseFreeDesc => 'Exclude dairy products';
+
+  @override
+  String get onboardingRegionsTitle => 'Regional Inspirations';
+
+  @override
+  String get onboardingRegionsSubtitle =>
+      'Select your preferred region for targeted recommendations.';
 
   @override
   String get mealDetailNotFound => 'Meal not found';
@@ -2401,6 +2606,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nutritionPlanSaveButton => 'Save plan';
+
+  @override
+  String get nutritionPlanTitle => 'My Nutrition Plan';
+
+  @override
+  String get nutritionPlanHealthParamsSection => '1. Health Parameters';
+
+  @override
+  String get nutritionPlanGoalLabel => 'Goal';
+
+  @override
+  String get nutritionPlanCalculateButton => 'Calculate my goal';
+
+  @override
+  String get nutritionPlanDailyGoalTitle => 'Daily Goal';
+
+  @override
+  String nutritionPlanBmrTdeeLabel(String bmr, String tdee) {
+    return 'BMR: $bmr kcal  |  TDEE: $tdee kcal';
+  }
+
+  @override
+  String get nutritionPlanMacrosSection => '2. Macros';
+
+  @override
+  String get nutritionPlanMealDistributionSection => '3. Meal Distribution';
+
+  @override
+  String get nutritionPlanSaveSuccess => 'Nutrition plan saved successfully';
+
+  @override
+  String nutritionPlanSaveError(String error) {
+    return 'Error while saving: $error';
+  }
 
   @override
   String get nutritionToday => 'Today';

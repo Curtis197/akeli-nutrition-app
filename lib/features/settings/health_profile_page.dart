@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../core/unit_converter.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
 import 'models/health_profile_model.dart';
@@ -28,6 +30,8 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
   final _logger = appLogger;
 
   final _heightCtrl = TextEditingController();
+  final _heightFeetCtrl = TextEditingController();
+  final _heightInchesCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
   final _targetWeightCtrl = TextEditingController();
 
@@ -35,20 +39,36 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
   void dispose() {
     _logger.provider('HealthProfilePage disposed');
     _heightCtrl.dispose();
+    _heightFeetCtrl.dispose();
+    _heightInchesCtrl.dispose();
     _weightCtrl.dispose();
     _targetWeightCtrl.dispose();
     super.dispose();
   }
 
-  void _initControllers(HealthProfileModel prefs) {
-    if (_heightCtrl.text.isEmpty && prefs.heightCm != null) {
-      _heightCtrl.text = prefs.heightCm!.toStringAsFixed(1);
+  void _initControllers(HealthProfileModel prefs, bool isUs) {
+    if (prefs.heightCm != null) {
+      if (isUs) {
+        if (_heightFeetCtrl.text.isEmpty && _heightInchesCtrl.text.isEmpty) {
+          final (feet, inches) = UnitConverter.cmToFeetIn(prefs.heightCm!);
+          _heightFeetCtrl.text = feet.toString();
+          _heightInchesCtrl.text = inches.toString();
+        }
+      } else if (_heightCtrl.text.isEmpty) {
+        _heightCtrl.text = prefs.heightCm!.toStringAsFixed(1);
+      }
     }
     if (_weightCtrl.text.isEmpty && prefs.weightKg != null) {
-      _weightCtrl.text = prefs.weightKg!.toStringAsFixed(1);
+      _weightCtrl.text = (isUs
+              ? UnitConverter.kgToLb(prefs.weightKg!)
+              : prefs.weightKg!)
+          .toStringAsFixed(1);
     }
     if (_targetWeightCtrl.text.isEmpty && prefs.targetWeightKg != null) {
-      _targetWeightCtrl.text = prefs.targetWeightKg!.toStringAsFixed(1);
+      _targetWeightCtrl.text = (isUs
+              ? UnitConverter.kgToLb(prefs.targetWeightKg!)
+              : prefs.targetWeightKg!)
+          .toStringAsFixed(1);
     }
   }
 
@@ -57,6 +77,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
     _logger.provider('HealthProfilePage build()');
     final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(healthProfileProvider);
+    final isUs = ref.watch(localeProvider).isUsLocale;
 
     final activityOptions = [
       ('sedentary',  l10n.healthActivitySedentary,  Icons.weekend_outlined),
@@ -102,7 +123,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
       data: (prefs) {
         if (_local == null) {
           _local = prefs;
-          _initControllers(prefs);
+          _initControllers(prefs, isUs);
         }
         final local = _local!;
 
@@ -243,17 +264,54 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
 
                       SettingsLabel(l10n.healthHeight),
                       const SizedBox(height: 8),
-                      _NumericField(
-                        controller: _heightCtrl,
-                        suffix: 'cm',
-                        onChanged: (v) {
-                          _logger.userAction('Height changed', screen: 'HealthProfilePage');
-                          final parsed = double.tryParse(v);
-                          if (parsed != null && parsed > 0) {
-                            setState(() => _local = local.copyWith(heightCm: parsed));
-                          }
-                        },
-                      ),
+                      if (isUs)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _NumericField(
+                                controller: _heightFeetCtrl,
+                                suffix: 'ft',
+                                onChanged: (v) {
+                                  _logger.userAction('Height changed', screen: 'HealthProfilePage');
+                                  final feet = int.tryParse(v);
+                                  final inches = int.tryParse(_heightInchesCtrl.text) ?? 0;
+                                  if (feet != null) {
+                                    setState(() => _local = local.copyWith(
+                                        heightCm: UnitConverter.feetInToCm(feet, inches)));
+                                  }
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _NumericField(
+                                controller: _heightInchesCtrl,
+                                suffix: 'in',
+                                onChanged: (v) {
+                                  _logger.userAction('Height changed', screen: 'HealthProfilePage');
+                                  final inches = int.tryParse(v);
+                                  final feet = int.tryParse(_heightFeetCtrl.text) ?? 0;
+                                  if (inches != null) {
+                                    setState(() => _local = local.copyWith(
+                                        heightCm: UnitConverter.feetInToCm(feet, inches)));
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      else
+                        _NumericField(
+                          controller: _heightCtrl,
+                          suffix: 'cm',
+                          onChanged: (v) {
+                            _logger.userAction('Height changed', screen: 'HealthProfilePage');
+                            final parsed = double.tryParse(v);
+                            if (parsed != null && parsed > 0) {
+                              setState(() => _local = local.copyWith(heightCm: parsed));
+                            }
+                          },
+                        ),
 
                       const Divider(height: 24),
 
@@ -261,12 +319,13 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                       const SizedBox(height: 8),
                       _NumericField(
                         controller: _weightCtrl,
-                        suffix: 'kg',
+                        suffix: isUs ? 'lb' : 'kg',
                         onChanged: (v) {
                           _logger.userAction('Weight changed', screen: 'HealthProfilePage');
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
-                            setState(() => _local = local.copyWith(weightKg: parsed));
+                            final kg = isUs ? UnitConverter.lbToKg(parsed) : parsed;
+                            setState(() => _local = local.copyWith(weightKg: kg));
                           }
                         },
                       ),
@@ -277,12 +336,13 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                       const SizedBox(height: 8),
                       _NumericField(
                         controller: _targetWeightCtrl,
-                        suffix: 'kg',
+                        suffix: isUs ? 'lb' : 'kg',
                         onChanged: (v) {
                           _logger.userAction('Target weight changed', screen: 'HealthProfilePage');
                           final parsed = double.tryParse(v);
                           if (parsed != null && parsed > 0) {
-                            setState(() => _local = local.copyWith(targetWeightKg: parsed));
+                            final kg = isUs ? UnitConverter.lbToKg(parsed) : parsed;
+                            setState(() => _local = local.copyWith(targetWeightKg: kg));
                           }
                         },
                       ),

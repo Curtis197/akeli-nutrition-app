@@ -66,6 +66,15 @@ class UnitConverter {
   static double kgToLb(double kg) => double.parse((kg * 2.20462).toStringAsFixed(1));
   static double lbToKg(double lb) => double.parse((lb / 2.20462).toStringAsFixed(3));
 
+  /// Body height display helpers — whole feet/inches for US display (e.g. 175 cm -> 5'9"), higher precision (cm) for saving.
+  static (int feet, int inches) cmToFeetIn(double cm) {
+    final totalInches = (cm / 2.54).round();
+    return (totalInches ~/ 12, totalInches % 12);
+  }
+
+  static double feetInToCm(int feet, int inches) =>
+      double.parse(((feet * 12 + inches) * 2.54).toStringAsFixed(3));
+
   /// Convert a US/Imperial quantity and unit back to metric (for saving).
   static ({double quantity, String unit}) toMetric(double qty, String unit) {
     final u = unit.toLowerCase().trim();

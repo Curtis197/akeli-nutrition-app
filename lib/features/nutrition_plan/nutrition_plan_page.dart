@@ -12,6 +12,7 @@ import '../../core/theme.dart';
 import '../../core/unit_converter.dart';
 import '../../core/nutrition_calculator.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/health_profile_provider.dart' show activityLevelForCalculator;
 import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/models/nutrition_plan.dart';
@@ -38,9 +39,13 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   double _weightKg = 70.0;
   late final TextEditingController _weightCtrl;
   double _heightCm = 170.0;
+  late final TextEditingController _heightCtrl;
+  late final TextEditingController _heightFeetCtrl;
+  late final TextEditingController _heightInchesCtrl;
   int _age = 30;
+  late final TextEditingController _ageCtrl;
   String _sex = 'female';
-  String _activityLevel = 'moderately_active';
+  String _activityLevel = 'moderate';
   String _primaryGoal = 'maintenance';
 
   double? _bmr;
@@ -60,6 +65,10 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   void initState() {
     super.initState();
     _weightCtrl = TextEditingController(text: '70');
+    _heightCtrl = TextEditingController(text: '170');
+    _heightFeetCtrl = TextEditingController();
+    _heightInchesCtrl = TextEditingController();
+    _ageCtrl = TextEditingController(text: '30');
     _logger.provider('NutritionPlanPage initState | isOnboarding: ${widget.isOnboarding}');
     _loadInitialData();
   }
@@ -67,14 +76,26 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   @override
   void dispose() {
     _weightCtrl.dispose();
+    _heightCtrl.dispose();
+    _heightFeetCtrl.dispose();
+    _heightInchesCtrl.dispose();
+    _ageCtrl.dispose();
     super.dispose();
   }
 
-  void _syncWeightCtrl() {
+  void _syncHealthParamCtrls() {
     final isUs = ref.read(localeProvider).isUsLocale;
     _weightCtrl.text = isUs
         ? UnitConverter.kgToLb(_weightKg).toStringAsFixed(1)
         : _weightKg.toStringAsFixed(1);
+    if (isUs) {
+      final (feet, inches) = UnitConverter.cmToFeetIn(_heightCm);
+      _heightFeetCtrl.text = feet.toString();
+      _heightInchesCtrl.text = inches.toString();
+    } else {
+      _heightCtrl.text = _heightCm.toStringAsFixed(0);
+    }
+    _ageCtrl.text = _age.toString();
   }
 
   Future<void> _loadInitialData() async {
@@ -91,7 +112,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         _heightCm = obData.height ?? 170.0;
         _age = obData.age ?? 30;
         _sex = obData.sex ?? 'female';
-        _activityLevel = obData.activityLevel ?? 'moderately_active';
+        _activityLevel = obData.activityLevel ?? 'moderate';
 
         if (obData.targetWeight != null && obData.weight != null) {
           if (obData.targetWeight! < obData.weight!) {
@@ -105,17 +126,17 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
           _primaryGoal = 'maintenance';
         }
       });
-      _syncWeightCtrl();
+      _syncHealthParamCtrls();
     } else if (healthProfile != null) {
       setState(() {
         _weightKg = healthProfile.weightKg ?? 70.0;
         _heightCm = healthProfile.heightCm ?? 170.0;
         _age = healthProfile.age ?? 30;
         _sex = healthProfile.sex ?? 'female';
-        _activityLevel = healthProfile.activityLevel ?? 'moderately_active';
+        _activityLevel = healthProfile.activityLevel ?? 'moderate';
         _primaryGoal = healthProfile.primaryGoal ?? 'maintenance';
       });
-      _syncWeightCtrl();
+      _syncHealthParamCtrls();
     }
 
     if (activePlan != null && activePlan.distributions != null && activePlan.distributions!.isNotEmpty) {
@@ -148,7 +169,8 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       age: _age,
       sex: _sex,
     );
-    final tdee = NutritionCalculatorService.calculateTDEE(bmr, _activityLevel);
+    final tdee = NutritionCalculatorService.calculateTDEE(
+        bmr, activityLevelForCalculator(_activityLevel));
     final calorieGoal = NutritionCalculatorService.calculateCalorieGoal(tdee, _primaryGoal);
     final defaultMacros = NutritionCalculatorService.getDefaultMacros(_primaryGoal);
     final defaultSplits = NutritionCalculatorService.getDefaultMealSplits(3);
@@ -227,7 +249,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         widget.onCompleted!();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Plan nutritionnel enregistré avec succès')));
+            SnackBar(content: Text(l10n.nutritionPlanSaveSuccess)));
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
         } else {
@@ -239,7 +261,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       _logger.provider('NutritionPlanPage → save error | $e', error: e, stackTrace: st);
       if (!mounted) return false;
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Erreur lors de la sauvegarde: $e')));
+          .showSnackBar(SnackBar(content: Text(l10n.nutritionPlanSaveError(e.toString()))));
       return false;
     } finally {
       if (mounted) setState(() => _isSaving = false);
@@ -248,6 +270,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isUs = ref.watch(localeProvider).isUsLocale;
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;
@@ -261,7 +284,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       appBar: widget.isOnboarding
           ? null
           : AppBar(
-              title: const Text('Mon Plan Nutritionnel'),
+              title: Text(l10n.nutritionPlanTitle),
               backgroundColor: AkeliColors.background,
             ),
       body: SingleChildScrollView(
@@ -271,7 +294,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
           children: [
             if (!widget.isOnboarding) ...[
               // ── Section 1: Health Parameters ──────────────────────────────
-              Text('1. Paramètres de santé',
+              Text(l10n.nutritionPlanHealthParamsSection,
                   style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               Row(
@@ -280,7 +303,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                     child: TextFormField(
                       controller: _weightCtrl,
                       decoration: InputDecoration(
-                        labelText: isUs ? 'Weight (lb)' : 'Poids (kg)',
+                        labelText: '${l10n.healthCurrentWeight} (${isUs ? 'lb' : 'kg'})',
                         border: const OutlineInputBorder(),
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -293,9 +316,72 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Expanded(child: _numInput('Taille (cm)', _heightCm, (v) => setState(() => _heightCm = v))),
+                  if (isUs) ...[
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightFeetCtrl,
+                        decoration: InputDecoration(
+                          labelText: '${l10n.healthHeight} (ft)',
+                          border: const OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) {
+                          final feet = int.tryParse(v);
+                          if (feet != null) {
+                            final inches = int.tryParse(_heightInchesCtrl.text) ?? 0;
+                            setState(() => _heightCm = UnitConverter.feetInToCm(feet, inches));
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightInchesCtrl,
+                        decoration: const InputDecoration(
+                          labelText: '(in)',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) {
+                          final inches = int.tryParse(v);
+                          if (inches != null) {
+                            final feet = int.tryParse(_heightFeetCtrl.text) ?? 0;
+                            setState(() => _heightCm = UnitConverter.feetInToCm(feet, inches));
+                          }
+                        },
+                      ),
+                    ),
+                  ] else
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightCtrl,
+                        decoration: InputDecoration(
+                          labelText: '${l10n.healthHeight} (cm)',
+                          border: const OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) {
+                          final parsed = double.tryParse(v);
+                          if (parsed != null) setState(() => _heightCm = parsed);
+                        },
+                      ),
+                    ),
                   const SizedBox(width: 8),
-                  Expanded(child: _numInput('Âge', _age.toDouble(), (v) => setState(() => _age = v.toInt()))),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _ageCtrl,
+                      decoration: InputDecoration(
+                        labelText: l10n.healthProfileAge,
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.number,
+                      onChanged: (v) {
+                        final parsed = int.tryParse(v);
+                        if (parsed != null) setState(() => _age = parsed);
+                      },
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -304,10 +390,10 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _sex,
-                      decoration: const InputDecoration(labelText: 'Sexe', border: OutlineInputBorder()),
-                      items: const [
-                        DropdownMenuItem(value: 'female', child: Text('Femme')),
-                        DropdownMenuItem(value: 'male', child: Text('Homme')),
+                      decoration: InputDecoration(labelText: l10n.healthSex, border: const OutlineInputBorder()),
+                      items: [
+                        DropdownMenuItem(value: 'female', child: Text(l10n.healthSexFemale)),
+                        DropdownMenuItem(value: 'male', child: Text(l10n.healthSexMale)),
                       ],
                       onChanged: (v) => setState(() => _sex = v!),
                     ),
@@ -316,11 +402,11 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _primaryGoal,
-                      decoration: const InputDecoration(labelText: 'Objectif', border: OutlineInputBorder()),
-                      items: const [
-                        DropdownMenuItem(value: 'weight_loss', child: Text('Perte de poids')),
-                        DropdownMenuItem(value: 'maintenance', child: Text('Maintien')),
-                        DropdownMenuItem(value: 'muscle_gain', child: Text('Prise de muscle')),
+                      decoration: InputDecoration(labelText: l10n.nutritionPlanGoalLabel, border: const OutlineInputBorder()),
+                      items: [
+                        DropdownMenuItem(value: 'weight_loss', child: Text(l10n.healthGoalWeightLoss)),
+                        DropdownMenuItem(value: 'maintenance', child: Text(l10n.healthGoalMaintenance)),
+                        DropdownMenuItem(value: 'muscle_gain', child: Text(l10n.healthGoalMuscleGain)),
                       ],
                       onChanged: (v) => setState(() => _primaryGoal = v!),
                     ),
@@ -330,13 +416,13 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: _activityLevel,
-                decoration: const InputDecoration(labelText: 'Niveau d\'activité', border: OutlineInputBorder()),
-                items: const [
-                  DropdownMenuItem(value: 'sedentary', child: Text('Sédentaire')),
-                  DropdownMenuItem(value: 'lightly_active', child: Text('Légèrement actif')),
-                  DropdownMenuItem(value: 'moderately_active', child: Text('Modérément actif')),
-                  DropdownMenuItem(value: 'very_active', child: Text('Très actif')),
-                  DropdownMenuItem(value: 'extremely_active', child: Text('Extrêmement actif')),
+                decoration: InputDecoration(labelText: l10n.healthActivityLevel, border: const OutlineInputBorder()),
+                items: [
+                  DropdownMenuItem(value: 'sedentary', child: Text(l10n.healthActivitySedentary)),
+                  DropdownMenuItem(value: 'light', child: Text(l10n.healthActivityLight)),
+                  DropdownMenuItem(value: 'moderate', child: Text(l10n.healthActivityModerate)),
+                  DropdownMenuItem(value: 'active', child: Text(l10n.healthActivityActive)),
+                  DropdownMenuItem(value: 'very_active', child: Text(l10n.healthActivityVeryActive)),
                 ],
                 onChanged: (v) => setState(() => _activityLevel = v!),
               ),
@@ -345,7 +431,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _calculateResults,
-                  child: const Text('Calculer mon objectif'),
+                  child: Text(l10n.nutritionPlanCalculateButton),
                 ),
               ),
               const SizedBox(height: 24),
@@ -360,7 +446,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      Text('Objectif Quotidien',
+                      Text(l10n.nutritionPlanDailyGoalTitle,
                           style: GoogleFonts.plusJakartaSans(fontSize: 16)),
                       Text('$_calorieGoal kcal',
                           style: GoogleFonts.plusJakartaSans(
@@ -369,7 +455,8 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                               color: AkeliColors.primary)),
                       const SizedBox(height: 4),
                       Text(
-                          'BMR: ${_bmr?.toStringAsFixed(0)} kcal  |  TDEE: ${_tdee?.toStringAsFixed(0)} kcal',
+                          l10n.nutritionPlanBmrTdeeLabel(
+                              _bmr?.toStringAsFixed(0) ?? '–', _tdee?.toStringAsFixed(0) ?? '–'),
                           style: const TextStyle(color: Colors.grey, fontSize: 12)),
                     ],
                   ),
@@ -378,25 +465,25 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               const SizedBox(height: 24),
 
               // ── Section 3: Macros ──────────────────────────────────────
-              Text('2. Macros',
+              Text(l10n.nutritionPlanMacrosSection,
                   style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
               if (!isValidMacros)
-                const Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Text('Le total des macros doit être 100%',
-                      style: TextStyle(color: Colors.red, fontSize: 12)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(l10n.mealScheduleMacroError,
+                      style: const TextStyle(color: Colors.red, fontSize: 12)),
                 ),
               const SizedBox(height: 8),
-              _macroRow('Protéines', _proteinPct, proteinG, Colors.blue,
+              _macroRow(l10n.nutritionProtein, _proteinPct, proteinG, Colors.blue,
                   (v) => setState(() => _proteinPct = v), min: 10, max: 60),
-              _macroRow('Glucides', _carbPct, carbG, Colors.orange,
+              _macroRow(l10n.nutritionCarbs, _carbPct, carbG, Colors.orange,
                   (v) => setState(() => _carbPct = v), min: 10, max: 70),
-              _macroRow('Lipides', _fatPct, fatG, Colors.green,
+              _macroRow(l10n.nutritionFat, _fatPct, fatG, Colors.green,
                   (v) => setState(() => _fatPct = v), min: 10, max: 50),
               const SizedBox(height: 24),
 
               // ── Section 4: Meal Distribution ───────────────────────────
-              Text('3. Répartition des repas',
+              Text(l10n.nutritionPlanMealDistributionSection,
                   style: GoogleFonts.plusJakartaSans(
                       fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
@@ -436,17 +523,6 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     );
   }
 
-  Widget _numInput(String label, double value, Function(double) onChanged) {
-    return TextFormField(
-      initialValue: value.toStringAsFixed(0),
-      decoration: InputDecoration(labelText: label, border: const OutlineInputBorder()),
-      keyboardType: TextInputType.number,
-      onChanged: (v) {
-        final parsed = double.tryParse(v);
-        if (parsed != null) onChanged(parsed);
-      },
-    );
-  }
 
   Widget _macroRow(String label, double pct, double grams, Color color,
       ValueChanged<double> onChanged, {required double min, required double max}) {
