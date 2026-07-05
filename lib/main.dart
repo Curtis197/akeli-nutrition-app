@@ -9,6 +9,7 @@ import 'firebase_options.dart';
 import 'core/locale_provider.dart';
 import 'core/router.dart';
 import 'core/supabase_client.dart';
+import 'core/google_sign_in_client.dart';
 import 'core/theme.dart';
 import 'core/logger.dart';
 import 'core/notification_handler.dart';
@@ -77,6 +78,12 @@ Future<void> main() async {
 
   await initializeSupabase();
   appLogger.i('✅ Supabase initialized | launching ProviderScope');
+
+  try {
+    await initializeGoogleSignIn();
+  } catch (e, st) {
+    appLogger.e('⚠️ GoogleSignIn init failed', error: e, stackTrace: st);
+  }
 
   // Single ProviderContainer shared with the widget tree so the router instance
   // used by notification tap handlers is identical to the one used by GoRouter.

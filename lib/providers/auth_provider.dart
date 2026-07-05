@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase_client.dart';
+import '../core/google_sign_in_client.dart';
 import '../core/logger.dart';
 
 // ---------------------------------------------------------------------------
@@ -213,31 +214,33 @@ class AuthNotifier extends AsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       try {
-        final googleSignIn = GoogleSignIn(
-          clientId: '1080340252277-bk0ihbgua0a2avus25ri7os1lq0e8kti.apps.googleusercontent.com',
-          serverClientId: '1080340252277-d412699vsp80741vg65draja56em44st.apps.googleusercontent.com',
-        );
         _logger.auth('signInWithGoogle | launching picker');
-        final googleUser = await googleSignIn.signIn();
-        if (googleUser == null) {
-          _logger.auth('signInWithGoogle CANCELLED | user dismissed picker');
-          return;
-        }
-        _logger.auth('signInWithGoogle | user selected | email: ${LogHelper.maskEmail(googleUser.email)}');
-        final googleAuth = await googleUser.authentication;
-        final idToken = googleAuth.idToken;
+        final googleUser = await GoogleSignIn.instance.authenticate();
+        final idToken = googleUser.authentication.idToken;
         if (idToken == null) {
           throw Exception('Google Sign-In: no ID token received');
         }
+        _logger.auth('signInWithGoogle | user selected | email: ${LogHelper.maskEmail(googleUser.email)}');
+
         final client = ref.read(supabaseClientProvider);
         _logger.db('BEFORE | op: signInWithIdToken | provider: google');
+        // accessToken omitted: google_sign_in v7 requires a separate scope
+        // authorization step that isn't needed for basic identity sign-in.
         await client.auth.signInWithIdToken(
           provider: OAuthProvider.google,
           idToken: idToken,
-          accessToken: googleAuth.accessToken,
+          nonce: googleSignInRawNonce,
         );
         _logger.auth('signInWithGoogle SUCCESS | userId: ${client.auth.currentUser?.id}');
         _logger.provider('AuthNotifier → data (signInWithGoogle success)');
+      } on GoogleSignInException catch (e, st) {
+        if (e.code == GoogleSignInExceptionCode.canceled) {
+          _logger.auth('signInWithGoogle CANCELLED | user dismissed picker');
+          return;
+        }
+        _logger.auth('signInWithGoogle ERROR | GoogleSignInException: ${e.code} | ${e.description}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithGoogle GoogleSignInException)');
+        rethrow;
       } on AuthException catch (e, st) {
         _logger.auth('signInWithGoogle ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
         _logger.provider('AuthNotifier → error (signInWithGoogle AuthException)');
