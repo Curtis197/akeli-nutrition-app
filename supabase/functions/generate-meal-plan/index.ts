@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { handleCors } from "../_shared/cors.ts";
 import { ok, err, unauthorized, serverError } from "../_shared/response.ts";
-import { getAuthUser } from "../_shared/supabase.ts";
+import { getAuthUser, serviceClient } from "../_shared/supabase.ts";
 import { createLogger, logRLSCheck, logQueryResult } from "../_shared/logger.ts";
 
 serve(async (req) => {
@@ -61,7 +61,7 @@ serve(async (req) => {
     if (useSavedRecipes && isSavedEligible) {
       logger.debug("[STEP 2a] RPC call | fn: generate_meal_plan_from_saved | maxRecipeRepeat: " + maxRecipeRepeat);
       logRLSCheck(logger, "generate_meal_plan_from_saved", "RPC", user.id);
-      const res = await client.rpc("generate_meal_plan_from_saved", {
+      const res = await serviceClient().rpc("generate_meal_plan_from_saved", {
         p_user_id: user.id,
         p_days: days,
         p_meals_per_day: meals_per_day,
