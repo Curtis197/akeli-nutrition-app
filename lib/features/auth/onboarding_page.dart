@@ -2183,7 +2183,9 @@ class _StepSummary extends ConsumerWidget {
                             icon: Icons.flag_rounded,
                             title: l10n.healthWeightGoal,
                             value: data.targetWeight != null
-                                ? '${data.targetWeight?.toInt()} kg'
+                                ? (isUs
+                                    ? '${UnitConverter.kgToLb(data.targetWeight!).toStringAsFixed(1)} lb'
+                                    : '${data.targetWeight?.toInt()} kg')
                                 : l10n.onboardingSummaryNotSet,
                             iconColor: AkeliColors.primary,
                           ),
