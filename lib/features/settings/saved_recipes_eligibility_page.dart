@@ -11,6 +11,7 @@ import '../../providers/saved_recipe_progress_provider.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/meal_type_l10n.dart';
 
 class SavedRecipesEligibilityPage extends ConsumerWidget {
   const SavedRecipesEligibilityPage({super.key});
@@ -88,7 +89,11 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
             return Center(child: Text(l10n.savedRecipesEligibilityNoData));
           }
 
-          final isEligible = progressData.isEligible;
+          final isEligible = progressData.progress.isNotEmpty &&
+              progressData.progress.every((p) => p.savedCount >= p.targetCount);
+          final currentTarget = progressData.progress.isNotEmpty
+              ? progressData.progress.first.targetCount
+              : 7;
           
           return prefsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -221,28 +226,54 @@ class SavedRecipesEligibilityPage extends ConsumerWidget {
                         );
                       }),
                       const SizedBox(height: 32),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AkeliColors.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AkeliColors.surfaceContainerHighest),
-                        ),
-                        child: SwitchListTile(
-                          title: Text(l10n.savedRecipesEligibilityToggleTitle),
-                          subtitle: Text(
-                            isEligible
-                                ? l10n.savedRecipesEligibilityEnabled
-                                : l10n.savedRecipesEligibilityBlocked,
+                      GestureDetector(
+                        onTap: isEligible
+                            ? null
+                            : () {
+                                final shortfalls = progressData.progress
+                                    .where((p) => p.savedCount < p.targetCount)
+                                    .toList();
+                                appLogger.userAction(
+                                    'Saved-recipes toggle tapped while ineligible',
+                                    screen: 'SavedRecipesEligibilityPage',
+                                    metadata: {
+                                      'shortfallCount': shortfalls.length.toString(),
+                                    });
+                                final message = shortfalls
+                                    .map((p) => l10n.savedRecipesEligibilityShortfallToast(
+                                          mealTypeLabel(l10n, p.mealType),
+                                          p.targetCount - p.savedCount,
+                                          p.savedCount,
+                                          p.targetCount,
+                                        ))
+                                    .join('\n');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(message)),
+                                );
+                              },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AkeliColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: AkeliColors.surfaceContainerHighest),
                           ),
-                          value: prefs.useSavedRecipesOnly,
-                          onChanged: isEligible
-                              ? (val) async {
-                                  final updated = prefs.copyWith(useSavedRecipesOnly: val);
-                                  await ref.read(userPreferencesProvider.notifier).save(updated);
-                                }
-                              : null,
-                          activeThumbColor: AkeliColors.primary,
-                          inactiveThumbColor: Colors.white,
+                          child: SwitchListTile(
+                            title: Text(l10n.savedRecipesEligibilityToggleTitle),
+                            subtitle: Text(
+                              isEligible
+                                  ? l10n.savedRecipesEligibilityEnabled
+                                  : l10n.savedRecipesEligibilityBlocked(currentTarget),
+                            ),
+                            value: prefs.useSavedRecipesOnly,
+                            onChanged: isEligible
+                                ? (val) async {
+                                    final updated = prefs.copyWith(useSavedRecipesOnly: val);
+                                    await ref.read(userPreferencesProvider.notifier).save(updated);
+                                  }
+                                : null,
+                            activeThumbColor: AkeliColors.primary,
+                            inactiveThumbColor: Colors.white,
+                          ),
                         ),
                       ),
                     ],
