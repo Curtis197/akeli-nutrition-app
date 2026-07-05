@@ -9,8 +9,17 @@
 .env.*
 token.txt
 
-# Apple signing keys — never commit
+# Apple signing keys and certificates — never commit
 *.p8
+*.p12
+*.pem
+
+# Google Cloud service account keys — never commit
+afro-health-*.json
+
+# Google OAuth client secrets — never commit
+client_secret_*.json
+client_*.apps.googleusercontent.com.plist
 
 # Editors
 .vscode/
