@@ -2047,8 +2047,20 @@
   "savedRecipesEligibilityEnabled": "Enabled",
   "@savedRecipesEligibilityEnabled": {},
 
-  "savedRecipesEligibilityBlocked": "Locked: You must reach 7 recipes for each category above.",
-  "@savedRecipesEligibilityBlocked": {},
+  "savedRecipesEligibilityBlocked": "Locked: You need at least {target} recipes for each category above.",
+  "@savedRecipesEligibilityBlocked": {
+    "placeholders": { "target": { "type": "int" } }
+  },
+
+  "savedRecipesEligibilityShortfallToast": "{mealType}: save {needed} more (currently {saved}/{target})",
+  "@savedRecipesEligibilityShortfallToast": {
+    "placeholders": {
+      "mealType": { "type": "String" },
+      "needed": { "type": "int" },
+      "saved": { "type": "int" },
+      "target": { "type": "int" }
+    }
+  },
 
   "legalPrivacyTitle": "Privacy Policy",
   "@legalPrivacyTitle": {},
@@ -2259,6 +2271,10 @@
   "@mealScheduleVariety7Days": {},
   "mealScheduleVariety15Days": "15 days",
   "@mealScheduleVariety15Days": {},
+  "mealScheduleVarietyDisablesSavedOnly": "Switching to {days}-day variety will turn off \"use only saved recipes\" — you don't have enough saved recipes for this level of variety.",
+  "@mealScheduleVarietyDisablesSavedOnly": {
+    "placeholders": { "days": { "type": "int" } }
+  },
   "mealScheduleRandomTitle": "Randomize schedule",
   "@mealScheduleRandomTitle": {},
   "mealScheduleRandomSubtitle": "Shuffle meal days across the week randomly",

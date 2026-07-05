@@ -4061,8 +4061,15 @@ abstract class AppLocalizations {
   /// No description provided for @savedRecipesEligibilityBlocked.
   ///
   /// In en, this message translates to:
-  /// **'Locked: You must reach 7 recipes for each category above.'**
-  String get savedRecipesEligibilityBlocked;
+  /// **'Locked: You need at least {target} recipes for each category above.'**
+  String savedRecipesEligibilityBlocked(int target);
+
+  /// No description provided for @savedRecipesEligibilityShortfallToast.
+  ///
+  /// In en, this message translates to:
+  /// **'{mealType}: save {needed} more (currently {saved}/{target})'**
+  String savedRecipesEligibilityShortfallToast(
+      String mealType, int needed, int saved, int target);
 
   /// No description provided for @legalPrivacyTitle.
   ///
@@ -4537,6 +4544,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'15 days'**
   String get mealScheduleVariety15Days;
+
+  /// No description provided for @mealScheduleVarietyDisablesSavedOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching to {days}-day variety will turn off \"use only saved recipes\" — you don\'t have enough saved recipes for this level of variety.'**
+  String mealScheduleVarietyDisablesSavedOnly(int days);
 
   /// No description provided for @mealScheduleRandomTitle.
   ///

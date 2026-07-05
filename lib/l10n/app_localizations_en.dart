@@ -2119,8 +2119,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get savedRecipesEligibilityEnabled => 'Enabled';
 
   @override
-  String get savedRecipesEligibilityBlocked =>
-      'Locked: You must reach 7 recipes for each category above.';
+  String savedRecipesEligibilityBlocked(int target) {
+    return 'Locked: You need at least $target recipes for each category above.';
+  }
+
+  @override
+  String savedRecipesEligibilityShortfallToast(
+      String mealType, int needed, int saved, int target) {
+    return '$mealType: save $needed more (currently $saved/$target)';
+  }
 
   @override
   String get legalPrivacyTitle => 'Privacy Policy';
@@ -2379,6 +2386,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mealScheduleVariety15Days => '15 days';
+
+  @override
+  String mealScheduleVarietyDisablesSavedOnly(int days) {
+    return 'Switching to $days-day variety will turn off \"use only saved recipes\" — you don\'t have enough saved recipes for this level of variety.';
+  }
 
   @override
   String get mealScheduleRandomTitle => 'Randomize schedule';

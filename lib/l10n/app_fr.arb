@@ -718,7 +718,8 @@
   "savedRecipesEligibilityMissing": "{count, plural, one{Il manque {count} recette} other{Il manque {count} recettes}}",
   "savedRecipesEligibilityToggleTitle": "Utiliser uniquement les favoris",
   "savedRecipesEligibilityEnabled": "Activé",
-  "savedRecipesEligibilityBlocked": "Bloqué: Vous devez atteindre 7 recettes pour chaque catégorie ci-dessus.",
+  "savedRecipesEligibilityBlocked": "Bloqué : vous devez atteindre {target} recettes pour chaque catégorie ci-dessus.",
+  "savedRecipesEligibilityShortfallToast": "{mealType} : enregistrez {needed} recette(s) de plus (actuellement {saved}/{target})",
 
   "legalPrivacyTitle": "Politique de Confidentialité",
   "legalPrivacyHeroTitle": "Vos données sont protégées",
@@ -833,6 +834,7 @@
   "@mealScheduleVariety7Days": {},
   "mealScheduleVariety15Days": "15 jours",
   "@mealScheduleVariety15Days": {},
+  "mealScheduleVarietyDisablesSavedOnly": "Passer à une variété de {days} jours désactivera « utiliser uniquement les favoris » — vous n'avez pas assez de recettes enregistrées pour ce niveau de variété.",
   "mealScheduleRandomTitle": "Planning aléatoire",
   "@mealScheduleRandomTitle": {},
   "mealScheduleRandomSubtitle": "Répartir les jours de repas de manière aléatoire sur la semaine",

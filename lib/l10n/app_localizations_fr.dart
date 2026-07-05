@@ -2143,8 +2143,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get savedRecipesEligibilityEnabled => 'Activé';
 
   @override
-  String get savedRecipesEligibilityBlocked =>
-      'Bloqué: Vous devez atteindre 7 recettes pour chaque catégorie ci-dessus.';
+  String savedRecipesEligibilityBlocked(int target) {
+    return 'Bloqué : vous devez atteindre $target recettes pour chaque catégorie ci-dessus.';
+  }
+
+  @override
+  String savedRecipesEligibilityShortfallToast(
+      String mealType, int needed, int saved, int target) {
+    return '$mealType : enregistrez $needed recette(s) de plus (actuellement $saved/$target)';
+  }
 
   @override
   String get legalPrivacyTitle => 'Politique de Confidentialité';
@@ -2411,6 +2418,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get mealScheduleVariety15Days => '15 jours';
+
+  @override
+  String mealScheduleVarietyDisablesSavedOnly(int days) {
+    return 'Passer à une variété de $days jours désactivera « utiliser uniquement les favoris » — vous n\'avez pas assez de recettes enregistrées pour ce niveau de variété.';
+  }
 
   @override
   String get mealScheduleRandomTitle => 'Planning aléatoire';
