@@ -5,6 +5,7 @@ import '../core/logger.dart';
 import '../core/supabase_client.dart';
 import '../shared/models/user_profile.dart';
 import 'auth_provider.dart';
+import 'saved_recipe_progress_provider.dart';
 
 // ---------------------------------------------------------------------------
 // UserProfile fetch
@@ -370,6 +371,7 @@ final setMealVarietyDaysProvider =
         .eq('id', args.userId);
     appLogger.db('AFTER | table: user_profile | op: UPDATE | success');
     ref.invalidate(userProfileProvider);
+    ref.invalidate(savedRecipeProgressProvider);
   } on PostgrestException catch (e, st) {
     appLogger.db(
         'ERROR | table: user_profile | UPDATE meal_variety_days | ${e.message}',

@@ -8,6 +8,9 @@ import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/providers/nutrition_plan_provider.dart';
 import 'package:akeli/providers/user_profile_provider.dart';
 import 'package:akeli/shared/models/nutrition_plan.dart';
+import 'package:akeli/core/saved_recipe_eligibility.dart';
+import 'package:akeli/providers/saved_recipe_progress_provider.dart';
+import 'package:akeli/providers/user_preferences_provider.dart';
 
 class MealSchedulePage extends ConsumerStatefulWidget {
   const MealSchedulePage({super.key});
@@ -154,6 +157,10 @@ class _VarietySection extends ConsumerWidget {
       (15, l10n.mealScheduleVariety15Days),
     ];
 
+    final useSavedRecipesOnly =
+        ref.watch(userPreferencesProvider).valueOrNull?.useSavedRecipesOnly ?? false;
+    final savedProgress = ref.watch(savedRecipeProgressProvider).valueOrNull;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -178,6 +185,22 @@ class _VarietySection extends ConsumerWidget {
                     'MealSchedulePage variety chip tapped',
                     screen: 'MealSchedulePage',
                     metadata: {'days': days.toString()});
+
+                if (useSavedRecipesOnly && savedProgress != null) {
+                  final target = savedRecipeEligibilityTarget(days);
+                  final wouldBreak = savedProgress.progress
+                      .any((p) => p.savedCount < target);
+                  if (wouldBreak) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          l10n.mealScheduleVarietyDisablesSavedOnly(days),
+                        ),
+                      ),
+                    );
+                  }
+                }
+
                 ref.read(setMealVarietyDaysProvider(
                         (userId: profileId!, days: days))
                     .future);
