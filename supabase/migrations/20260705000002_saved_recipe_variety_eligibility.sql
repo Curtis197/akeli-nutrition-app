@@ -416,3 +416,120 @@ $function$;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_from_saved(uuid, integer, integer, date, integer) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_from_saved(uuid, integer, integer, date, integer) FROM anon;
 REVOKE ALL ON FUNCTION public.generate_meal_plan_from_saved(uuid, integer, integer, date, integer) FROM authenticated;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Part 2: couple the eligibility threshold to meal_variety_days.
+-- 0 -> 7 (unchanged baseline), 7 -> 14, 15 -> 30.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.evaluate_saved_recipe_eligibility(p_user_id uuid)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_breakfast_count int;
+  v_lunch_count int;
+  v_dinner_count int;
+  v_was_eligible boolean;
+  v_now_eligible boolean;
+  v_variety_days int;
+  v_target_count int;
+BEGIN
+  SELECT is_saved_recipe_eligible, COALESCE(meal_variety_days, 7)
+  INTO v_was_eligible, v_variety_days
+  FROM user_profile WHERE id = p_user_id;
+
+  v_target_count := CASE WHEN v_variety_days = 0 THEN 7 ELSE v_variety_days * 2 END;
+
+  SELECT count(*) INTO v_breakfast_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'breakfast' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_lunch_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'lunch' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_dinner_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'dinner' = ANY(r.meal_types);
+
+  IF v_breakfast_count >= v_target_count AND v_lunch_count >= v_target_count AND v_dinner_count >= v_target_count THEN
+    v_now_eligible := true;
+  ELSE
+    v_now_eligible := false;
+  END IF;
+
+  IF v_now_eligible != COALESCE(v_was_eligible, false) THEN
+    IF v_now_eligible = false THEN
+      UPDATE user_profile
+      SET is_saved_recipe_eligible = false, use_saved_recipes_only = false
+      WHERE id = p_user_id;
+    ELSE
+      UPDATE user_profile
+      SET is_saved_recipe_eligible = true
+      WHERE id = p_user_id;
+    END IF;
+  END IF;
+END;
+$$;
+
+DROP FUNCTION IF EXISTS public.get_saved_recipe_eligibility_progress(uuid);
+
+CREATE OR REPLACE FUNCTION public.get_saved_recipe_eligibility_progress(p_user_id uuid)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_breakfast_count int;
+  v_lunch_count int;
+  v_dinner_count int;
+  v_is_eligible boolean;
+  v_variety_days int;
+  v_target_count int;
+BEGIN
+  IF p_user_id IS DISTINCT FROM auth.uid() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+
+  SELECT is_saved_recipe_eligible, COALESCE(meal_variety_days, 7)
+  INTO v_is_eligible, v_variety_days
+  FROM user_profile WHERE id = p_user_id;
+
+  v_target_count := CASE WHEN v_variety_days = 0 THEN 7 ELSE v_variety_days * 2 END;
+
+  SELECT count(*) INTO v_breakfast_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'breakfast' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_lunch_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'lunch' = ANY(r.meal_types);
+
+  SELECT count(*) INTO v_dinner_count
+  FROM recipe_save rs
+  JOIN recipe r ON r.id = rs.recipe_id
+  WHERE rs.user_id = p_user_id AND 'dinner' = ANY(r.meal_types);
+
+  RETURN json_build_object(
+    'is_eligible', COALESCE(v_is_eligible, false),
+    'progress', json_build_array(
+      json_build_object('meal_type', 'breakfast', 'saved_count', v_breakfast_count, 'target_count', v_target_count),
+      json_build_object('meal_type', 'lunch', 'saved_count', v_lunch_count, 'target_count', v_target_count),
+      json_build_object('meal_type', 'dinner', 'saved_count', v_dinner_count, 'target_count', v_target_count)
+    )
+  );
+END;
+$$;
+
+REVOKE ALL ON FUNCTION get_saved_recipe_eligibility_progress(uuid) FROM PUBLIC;
+REVOKE ALL ON FUNCTION get_saved_recipe_eligibility_progress(uuid) FROM anon;
+GRANT EXECUTE ON FUNCTION get_saved_recipe_eligibility_progress(uuid) TO authenticated;
