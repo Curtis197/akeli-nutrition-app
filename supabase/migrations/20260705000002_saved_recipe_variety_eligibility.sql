@@ -533,3 +533,73 @@ $$;
 REVOKE ALL ON FUNCTION get_saved_recipe_eligibility_progress(uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION get_saved_recipe_eligibility_progress(uuid) FROM anon;
 GRANT EXECUTE ON FUNCTION get_saved_recipe_eligibility_progress(uuid) TO authenticated;
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Part 4a: re-evaluate eligibility live when meal_variety_days changes.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.trg_fn_evaluate_saved_recipe_eligibility_on_variety_change()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  PERFORM public.evaluate_saved_recipe_eligibility(NEW.id);
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_evaluate_saved_recipe_eligibility_on_variety_change ON public.user_profile;
+CREATE TRIGGER trg_evaluate_saved_recipe_eligibility_on_variety_change
+  AFTER UPDATE OF meal_variety_days ON public.user_profile
+  FOR EACH ROW
+  WHEN (OLD.meal_variety_days IS DISTINCT FROM NEW.meal_variety_days)
+  EXECUTE FUNCTION public.trg_fn_evaluate_saved_recipe_eligibility_on_variety_change();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Part 4b: security backstop — silently revert any attempt to set
+-- use_saved_recipes_only=true while ineligible, regardless of which client
+-- or code path performed the write.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE OR REPLACE FUNCTION public.trg_fn_guard_use_saved_recipes_only()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.use_saved_recipes_only = true AND COALESCE(NEW.is_saved_recipe_eligible, false) = false THEN
+    NEW.use_saved_recipes_only := false;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_guard_use_saved_recipes_only ON public.user_profile;
+CREATE TRIGGER trg_guard_use_saved_recipes_only
+  BEFORE UPDATE OF use_saved_recipes_only ON public.user_profile
+  FOR EACH ROW
+  EXECUTE FUNCTION public.trg_fn_guard_use_saved_recipes_only();
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Part 4c: backfill — apply the new (higher) thresholds to existing rows now,
+-- rather than waiting for each user's next recipe-save or variety-day change.
+-- Known, accepted effect: some users eligible today under the old threshold
+-- of 7 will become ineligible immediately (e.g. exactly 7 saved recipes/type
+-- at meal_variety_days=7, old target 7, new target 14), and if
+-- use_saved_recipes_only was on, it will be force-disabled — identical to
+-- what happens today when a user unsaves a recipe below threshold.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+DO $$
+DECLARE
+  v_row record;
+BEGIN
+  FOR v_row IN SELECT id FROM public.user_profile LOOP
+    PERFORM public.evaluate_saved_recipe_eligibility(v_row.id);
+  END LOOP;
+END;
+$$;
