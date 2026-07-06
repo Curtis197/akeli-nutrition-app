@@ -58,5 +58,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Heureux de vous revoir !'), findsOneWidget);
     });
+
+    testWidgets('shows native Google button on non-web platforms', (tester) async {
+      await tester.pumpWidget(_testApp(const AuthPage()));
+      await tester.pumpAndSettle();
+      expect(find.text('Continuer avec Google'), findsOneWidget);
+    });
   });
 }

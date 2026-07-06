@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import '../../core/logger.dart';
 import '../../l10n/app_localizations.dart';
+import 'google_web_signin_button.dart';
 
 class AuthPage extends ConsumerStatefulWidget {
   const AuthPage({super.key});
@@ -241,6 +243,17 @@ class _AuthPageState extends ConsumerState<AuthPage> {
   Widget build(BuildContext context) {
     _logger.provider('_AuthPageState build() | tab: ${_isLogin ? "login" : "signup"}');
     final isLoading = ref.watch(authNotifierProvider).isLoading;
+
+    ref.listen<AsyncValue<void>>(authNotifierProvider, (previous, next) {
+      if (!kIsWeb) return;
+      if (next.hasError && previous?.hasError != true) {
+        final raw = next.error.toString();
+        if (raw.contains('cancelled') || raw.contains('canceled')) return;
+        _logger.auth('Google signIn (web) ERROR displayed | error: $raw');
+        setState(() => _errorMessage = _friendly(raw, AppLocalizations.of(context)));
+      }
+    });
+
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -351,9 +364,11 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                           const SizedBox(height: AkeliSpacing.lg),
                           const _OrDivider(),
                           const SizedBox(height: AkeliSpacing.md),
-                          _GoogleSignInButton(
-                            onPressed: isLoading ? null : _signInWithGoogle,
-                          ),
+                          kIsWeb
+                              ? GoogleWebSignInButton(isLoading: isLoading)
+                              : _GoogleSignInButton(
+                                  onPressed: isLoading ? null : _signInWithGoogle,
+                                ),
                         ],
                       ),
                     ),
