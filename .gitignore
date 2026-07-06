@@ -19,6 +19,9 @@ token.txt
 *.swp
 *.tmp
 
+# Git worktrees (local scratch, never committed)
+.worktrees/
+
 # Flutter / Dart build outputs
 build/
 .dart_tool/
