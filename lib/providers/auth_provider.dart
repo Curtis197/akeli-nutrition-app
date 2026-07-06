@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -46,6 +47,39 @@ class AuthNotifier extends AsyncNotifier<void> {
   FutureOr<void> build() {
     _logger.provider('AuthNotifier build()');
     ref.onDispose(() => _logger.provider('AuthNotifier disposed'));
+
+    if (kIsWeb) {
+      _logger.auth('signInWithGoogle (web) | subscribing to authenticationEvents');
+      final subscription = GoogleSignIn.instance.authenticationEvents.listen(
+        _handleGoogleAuthEvent,
+        onError: (Object e, StackTrace st) {
+          _logger.auth('signInWithGoogle (web) ERROR | authenticationEvents stream: $e', error: e, stackTrace: st);
+          _logger.provider('AuthNotifier → error (signInWithGoogle web stream)');
+          state = AsyncError(e, st);
+        },
+      );
+      ref.onDispose(subscription.cancel);
+    }
+  }
+
+  void _handleGoogleAuthEvent(GoogleSignInAuthenticationEvent event) {
+    switch (event) {
+      case GoogleSignInAuthenticationEventSignIn():
+        _logger.auth('signInWithGoogle (web) | authenticationEvents: sign-in received | email: ${LogHelper.maskEmail(event.user.email)}');
+        unawaited(_handleWebGoogleSignIn(event.user));
+      case GoogleSignInAuthenticationEventSignOut():
+        _logger.auth('signInWithGoogle (web) | authenticationEvents: sign-out');
+    }
+  }
+
+  Future<void> _handleWebGoogleSignIn(GoogleSignInAccount account) async {
+    _logger.provider('AuthNotifier → loading (signInWithGoogle web)');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _completeGoogleSignIn(account));
+    if (state.hasError) {
+      _logger.auth('signInWithGoogle (web) ERROR | ${state.error}', error: state.error, stackTrace: state.stackTrace);
+      _logger.provider('AuthNotifier → error (signInWithGoogle web)');
+    }
   }
 
   Future<void> signUp({
