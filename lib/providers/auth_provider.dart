@@ -216,23 +216,7 @@ class AuthNotifier extends AsyncNotifier<void> {
       try {
         _logger.auth('signInWithGoogle | launching picker');
         final googleUser = await GoogleSignIn.instance.authenticate();
-        final idToken = googleUser.authentication.idToken;
-        if (idToken == null) {
-          throw Exception('Google Sign-In: no ID token received');
-        }
-        _logger.auth('signInWithGoogle | user selected | email: ${LogHelper.maskEmail(googleUser.email)}');
-
-        final client = ref.read(supabaseClientProvider);
-        _logger.db('BEFORE | op: signInWithIdToken | provider: google');
-        // accessToken omitted: google_sign_in v7 requires a separate scope
-        // authorization step that isn't needed for basic identity sign-in.
-        await client.auth.signInWithIdToken(
-          provider: OAuthProvider.google,
-          idToken: idToken,
-          nonce: googleSignInRawNonce,
-        );
-        _logger.auth('signInWithGoogle SUCCESS | userId: ${client.auth.currentUser?.id}');
-        _logger.provider('AuthNotifier → data (signInWithGoogle success)');
+        await _completeGoogleSignIn(googleUser);
       } on GoogleSignInException catch (e, st) {
         if (e.code == GoogleSignInExceptionCode.canceled) {
           _logger.auth('signInWithGoogle CANCELLED | user dismissed picker');
@@ -251,6 +235,30 @@ class AuthNotifier extends AsyncNotifier<void> {
         rethrow;
       }
     });
+  }
+
+  /// Exchanges a Google [account]'s ID token for a Supabase session. Shared
+  /// by the mobile flow (called after `authenticate()` resolves, above) and
+  /// the web flow (called from an `authenticationEvents` sign-in event, see
+  /// `build()` below) — web has no imperative `authenticate()` call to await.
+  Future<void> _completeGoogleSignIn(GoogleSignInAccount account) async {
+    final idToken = account.authentication.idToken;
+    if (idToken == null) {
+      throw Exception('Google Sign-In: no ID token received');
+    }
+    _logger.auth('signInWithGoogle | user selected | email: ${LogHelper.maskEmail(account.email)}');
+
+    final client = ref.read(supabaseClientProvider);
+    _logger.db('BEFORE | op: signInWithIdToken | provider: google');
+    // accessToken omitted: google_sign_in v7 requires a separate scope
+    // authorization step that isn't needed for basic identity sign-in.
+    await client.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      nonce: googleSignInRawNonce,
+    );
+    _logger.auth('signInWithGoogle SUCCESS | userId: ${client.auth.currentUser?.id}');
+    _logger.provider('AuthNotifier → data (signInWithGoogle success)');
   }
 
   Future<void> deleteAccount() async {
