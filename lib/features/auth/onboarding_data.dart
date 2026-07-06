@@ -251,7 +251,9 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         return true;
       case 5: // NutritionPlanPage — already validated via savePlan
         return true;
-      case 6: // Summary — always valid
+      case 6: // MealScheduleOnboardingStep — already validated via onCompleted/onSkipped
+        return true;
+      case 7: // Summary — always valid
         return true;
       default:
         return false;

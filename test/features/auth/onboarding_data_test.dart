@@ -51,6 +51,12 @@ void main() {
       expect(c.read(onboardingProvider.notifier).canAdvance(0), isTrue);
     });
 
+    test('canAdvance returns true on the final Summary step (step 7)', () {
+      final c = _container();
+      addTearDown(c.dispose);
+      expect(c.read(onboardingProvider.notifier).canAdvance(7), isTrue);
+    });
+
     test('updateCuisineRegion sets single region', () {
       final c = _container();
       addTearDown(c.dispose);

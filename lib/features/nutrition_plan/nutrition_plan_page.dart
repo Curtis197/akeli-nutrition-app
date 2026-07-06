@@ -483,17 +483,22 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               const SizedBox(height: 24),
 
               // ── Section 4: Meal Distribution ───────────────────────────
-              Text(l10n.nutritionPlanMealDistributionSection,
-                  style: GoogleFonts.plusJakartaSans(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              MealScheduleWidget(
-                initialDistributions: _distributions,
-                totalCalorieGoal: _calorieGoal,
-                onChanged: (dists) => setState(() => _distributions = dists),
-                onSaveEnabled: (valid) => setState(() => _isScheduleValid = valid),
-              ),
-              const SizedBox(height: 32),
+              // Skipped during onboarding: MealScheduleOnboardingStep is a
+              // dedicated later step covering the same distribution editor —
+              // showing both back-to-back duplicated the same UI twice.
+              if (!widget.isOnboarding) ...[
+                Text(l10n.nutritionPlanMealDistributionSection,
+                    style: GoogleFonts.plusJakartaSans(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                MealScheduleWidget(
+                  initialDistributions: _distributions,
+                  totalCalorieGoal: _calorieGoal,
+                  onChanged: (dists) => setState(() => _distributions = dists),
+                  onSaveEnabled: (valid) => setState(() => _isScheduleValid = valid),
+                ),
+                const SizedBox(height: 32),
+              ],
 
               // ── Save ───────────────────────────────────────────────────
               if (!widget.isOnboarding)
