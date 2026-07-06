@@ -50,6 +50,7 @@ flow (`authenticate()` + awaited result) completely unchanged.
 | `lib/providers/auth_provider.dart` (`AuthNotifier`) | Yes — extract shared idToken→Supabase exchange helper; subscribe to `authenticationEvents` on web |
 | Mobile `signInWithGoogle()` / `_GoogleSignInButton` | **No change** — existing `authenticate()`-awaited flow stays as-is |
 | Pixel-perfect visual match to the custom mobile button | **Out of scope** — accepted trade-off (see Decisions) |
+| `lib/core/google_sign_in_client.dart` (`initializeGoogleSignIn`) | Yes — **addendum, found during planning**: unconditionally passes `clientId: _iosClientId` + `serverClientId: _webClientId` today. On web, `serverClientId` isn't supported at all (the plugin asserts on it) and the `clientId` must be a **web** OAuth client, not the iOS one — otherwise GIS rejects the origin regardless of the render-button fix. Branch on `kIsWeb`: web passes `clientId: _webClientId` and omits `serverClientId`; mobile keeps today's call unchanged. No new Google Cloud Console config needed — `_webClientId` already exists and is already the audience Supabase accepts (it's used as `serverClientId` today). |
 
 ## Decisions (confirmed with user)
 
