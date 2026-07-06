@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'logger.dart';
 
@@ -19,12 +20,23 @@ Future<void> initializeGoogleSignIn() async {
   final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
   _googleSignInRawNonce = rawNonce;
 
-  appLogger.auth('GoogleSignIn: initializing | clientId: ios | serverClientId: web');
-  await GoogleSignIn.instance.initialize(
-    clientId: _iosClientId,
-    serverClientId: _webClientId,
-    nonce: hashedNonce,
-  );
+  if (kIsWeb) {
+    // Web's GIS SDK requires a web-type OAuth client for the current page's
+    // origin, and does not support serverClientId at all (the platform
+    // plugin asserts on it).
+    appLogger.auth('GoogleSignIn: initializing | platform: web | clientId: web');
+    await GoogleSignIn.instance.initialize(
+      clientId: _webClientId,
+      nonce: hashedNonce,
+    );
+  } else {
+    appLogger.auth('GoogleSignIn: initializing | platform: mobile | clientId: ios | serverClientId: web');
+    await GoogleSignIn.instance.initialize(
+      clientId: _iosClientId,
+      serverClientId: _webClientId,
+      nonce: hashedNonce,
+    );
+  }
   appLogger.i('✅ GoogleSignIn: initialized');
 }
 
