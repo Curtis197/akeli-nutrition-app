@@ -72,9 +72,13 @@ SELECT results_eq(
   $$SELECT calorie_goal, effective_pace_kg_week, estimated_weeks_to_target
     FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 75, 26)$$,
   $$VALUES (2250, 0::numeric, NULL::numeric)$$, 'loss with target above current -> maintenance');
+-- Regression: cal_c's integer ROUND() vs unrounded tdee_c can leave eff_c a
+-- tiny nonzero residue instead of an exact zero; estimated_weeks_to_target
+-- must still come back NULL via the pace_c = 0 guard, not a bogus huge value.
 SELECT results_eq(
-  $$SELECT calorie_goal FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'muscle_gain', 65, 26)$$,
-  $$VALUES (2250)$$, 'gain with target below current -> maintenance');
+  $$SELECT calorie_goal, estimated_weeks_to_target
+    FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'muscle_gain', 65, 26)$$,
+  $$VALUES (2250, NULL::numeric)$$, 'gain with target below current -> maintenance, NULL ETA not a rounding-residue bug');
 
 -- ── Clamps & caps ──────────────────────────────────────────────────────────
 -- Deficit floor is pure BMR (D8): M sedentary loss default: 1944−550 < 1620 -> 1620
