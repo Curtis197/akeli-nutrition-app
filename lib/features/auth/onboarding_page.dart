@@ -18,6 +18,7 @@ import '../nutrition_plan/nutrition_plan_page.dart';
 import '../settings/widgets/allergen_picker_widget.dart';
 import '../settings/widgets/intensity_badge.dart';
 import 'widgets/meal_schedule_onboarding_step.dart';
+import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromMonths;
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -1495,9 +1496,10 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                             color: AkeliColors.onSurfaceVariant,
                             letterSpacing: 0.1)),
                     IntensityBadge(
-                      currentKg: data.weight,
-                      targetKg: data.targetWeight,
-                      months: data.timelineMonths.toDouble(),
+                      paceKgWeek: (data.weight != null && data.targetWeight != null && data.timelineMonths > 0)
+                          ? (data.targetWeight! - data.weight!).abs() / (remainingWeeksFromMonths(data.timelineMonths))
+                          : null,
+                      isGain: (data.targetWeight ?? 0) > (data.weight ?? 0),
                     ),
                   ],
                 ),

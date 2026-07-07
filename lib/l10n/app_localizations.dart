@@ -5198,6 +5198,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By Ingredients'**
   String get feedTabByIngredients;
+
+  /// No description provided for @intensityRelaxed.
+  ///
+  /// In en, this message translates to:
+  /// **'Relaxed'**
+  String get intensityRelaxed;
+
+  /// No description provided for @intensityIdeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Ideal'**
+  String get intensityIdeal;
+
+  /// No description provided for @intensityAggressive.
+  ///
+  /// In en, this message translates to:
+  /// **'Aggressive'**
+  String get intensityAggressive;
+
+  /// No description provided for @intensityDangerous.
+  ///
+  /// In en, this message translates to:
+  /// **'Dangerous'**
+  String get intensityDangerous;
 }
 
 class _AppLocalizationsDelegate

@@ -2779,4 +2779,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get feedTabByIngredients => 'Par ingrédients';
+
+  @override
+  String get intensityRelaxed => 'Modéré';
+
+  @override
+  String get intensityIdeal => 'Idéal';
+
+  @override
+  String get intensityAggressive => 'Intense';
+
+  @override
+  String get intensityDangerous => 'Dangereux';
 }

@@ -2739,4 +2739,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedTabByIngredients => 'By Ingredients';
+
+  @override
+  String get intensityRelaxed => 'Relaxed';
+
+  @override
+  String get intensityIdeal => 'Ideal';
+
+  @override
+  String get intensityAggressive => 'Aggressive';
+
+  @override
+  String get intensityDangerous => 'Dangerous';
 }

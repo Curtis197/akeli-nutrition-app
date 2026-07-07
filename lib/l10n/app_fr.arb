@@ -1002,5 +1002,13 @@
   "shoppingListCostLeft": "Restant",
   "@shoppingListCostLeft": {},
   "feedTabByIngredients": "Par ingrédients",
-  "@feedTabByIngredients": {}
+  "@feedTabByIngredients": {},
+  "intensityRelaxed": "Modéré",
+  "@intensityRelaxed": {},
+  "intensityIdeal": "Idéal",
+  "@intensityIdeal": {},
+  "intensityAggressive": "Intense",
+  "@intensityAggressive": {},
+  "intensityDangerous": "Dangereux",
+  "@intensityDangerous": {}
 }

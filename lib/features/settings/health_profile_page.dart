@@ -454,9 +454,10 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                         children: [
                           SettingsLabel(l10n.healthTargetDuration),
                           IntensityBadge(
-                            currentKg: local.weightKg,
-                            targetKg: local.targetWeightKg,
-                            months: targetWeeks / 4.33,
+                            paceKgWeek: (local.weightKg != null && local.targetWeightKg != null)
+                                ? (local.targetWeightKg! - local.weightKg!).abs() / targetWeeks
+                                : null,
+                            isGain: (local.targetWeightKg ?? 0) > (local.weightKg ?? 0),
                           ),
                         ],
                       ),
