@@ -1,6 +1,6 @@
 -- supabase/tests/recalculate_nutrition_plans_from_weight_test.sql
 BEGIN;
-SELECT plan(35);
+SELECT plan(40);
 
 -- Helper: seeds one test user with a health profile, goal, nutrition plan,
 -- and (optionally) a weight_log entry. Reused across all scenarios below.
@@ -15,7 +15,9 @@ CREATE OR REPLACE FUNCTION _test_seed_recalc_user(
   p_goal_type           text,
   p_goal_active         boolean,
   p_plan_active         boolean,
-  p_sentinel_calorie    int        -- pre-set on nutrition_plan + user_goal; unchanged = "not recalculated"
+  p_sentinel_calorie    int,       -- pre-set on nutrition_plan + user_goal; unchanged = "not recalculated"
+  p_target_weight_kg    numeric DEFAULT NULL,
+  p_target_date_days    int     DEFAULT NULL   -- days from today; NULL = no target_date
 ) RETURNS void LANGUAGE plpgsql AS $$
 BEGIN
   INSERT INTO auth.users (id, email, role, created_at, updated_at)
@@ -26,20 +28,25 @@ BEGIN
   VALUES (p_user_id, true, false, now(), 'user', 'fr')
   ON CONFLICT (id) DO NOTHING;
 
-  INSERT INTO user_health_profile (user_id, sex, birth_date, height_cm, activity_level)
+  INSERT INTO user_health_profile (user_id, sex, birth_date, height_cm, activity_level, target_weight_kg, target_date)
   VALUES (
     p_user_id,
     p_sex,
     CASE WHEN p_age_years IS NULL THEN NULL
          ELSE (CURRENT_DATE - (p_age_years || ' years')::interval)::date END,
     p_height_cm,
-    p_activity_level
+    p_activity_level,
+    p_target_weight_kg,
+    CASE WHEN p_target_date_days IS NULL THEN NULL
+         ELSE (CURRENT_DATE + p_target_date_days)::date END
   )
   ON CONFLICT (user_id) DO UPDATE SET
     sex = EXCLUDED.sex,
     birth_date = EXCLUDED.birth_date,
     height_cm = EXCLUDED.height_cm,
-    activity_level = EXCLUDED.activity_level;
+    activity_level = EXCLUDED.activity_level,
+    target_weight_kg = EXCLUDED.target_weight_kg,
+    target_date = EXCLUDED.target_date;
 
   INSERT INTO user_goal (user_id, goal_type, calorie_goal, protein_goal, carbs_goal, fat_goal, is_active)
   VALUES (p_user_id, p_goal_type, p_sentinel_calorie, 1, 1, 1, p_goal_active);
@@ -92,14 +99,10 @@ SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000010'::uuid, 64.0
 SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000011'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'maintenance', true, false, 9999);
 
 -- T10a: weight_loss — same base bmr/tdee (1620/1944).
--- calorie_goal = 1944-500 = 1444; protein=30%,carb=40%,fat=30%
--- protein_g = 1444*0.30/4 = 108.3 ; carb_g = 1444*0.40/4 = 144.4
--- fat_g = 1444*0.30/9 = 48.1333... (repeating; assert rounded to 4dp)
+-- calorie_goal = 1620 (BMR floor); protein_g = 128.0; fat_g = 45.0; carb_g = 175.8
 SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000012'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'weight_loss', true, true, 9999);
 
--- T10b: muscle_gain — calorie_goal = 1944+300 = 2244; protein=30%,carb=45%,fat=25%
--- protein_g = 2244*0.30/4 = 168.3 ; carb_g = 2244*0.45/4 = 252.45
--- fat_g = 2244*0.25/9 = 62.3333... (repeating; assert rounded to 4dp)
+-- T10b: muscle_gain — calorie_goal = 2219; protein_g = 115.2; fat_g = 61.6; carb_g = 300.9
 SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000013'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'muscle_gain', true, true, 9999);
 
 -- T12: duplicate active user_goal rows — dedup regression guard for
@@ -123,9 +126,34 @@ INSERT INTO user_goal (user_id, goal_type, calorie_goal, protein_goal, carbs_goa
 VALUES ('a0000000-0000-4000-8000-000000000014'::uuid, 'weight_loss', 8888, 1, 1, 1, true, now() - interval '1 day');
 
 -- Newer active goal (created now): this is the one latest_goal must pick.
--- calorie_goal = tdee + 300 = 1944 + 300 = 2244 (muscle_gain branch)
+-- calorie_goal = 2219 (muscle_gain default pace)
 INSERT INTO user_goal (user_id, goal_type, calorie_goal, protein_goal, carbs_goal, fat_goal, is_active, created_at)
 VALUES ('a0000000-0000-4000-8000-000000000014'::uuid, 'muscle_gain', 9999, 1, 1, 1, true, now());
+
+-- T13: 7-day smoothing — three logs (63, 64, 65 kg) within the last 7 days
+-- -> smoothed weight 64.0 used (same outputs as U1's 64 kg user).
+SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000015'::uuid, 63.0, 1, 180.0, 30, 'male', 'sedentary', 'maintenance', true, true, 9999);
+INSERT INTO weight_log (user_id, weight_kg, logged_at) VALUES
+  ('a0000000-0000-4000-8000-000000000015', 64.0, CURRENT_DATE - 3),
+  ('a0000000-0000-4000-8000-000000000015', 65.0, CURRENT_DATE - 5);
+
+-- T14: crossed target -> maintenance. weight_loss user, smoothed 64 kg,
+-- target 65 kg (already below target) -> calorie_goal = TDEE = 1944.
+SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000016'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'weight_loss', true, true, 9999, 65.0, 60);
+
+-- T15: overdue target_date -> 4-week floor. weight_loss, 64 kg, target 62,
+-- date 10 days in the PAST -> remaining_weeks pinned 4 -> pace 0.5 ->
+-- GREATEST(1944-550, 1620) = 1620.
+SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000017'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'weight_loss', true, true, 9999, 62.0, -10);
+
+-- T16: dated target drives pace. weight_loss, 64 kg, target 60 (4 kg),
+-- date 140 days out -> remaining_weeks = 20 -> pace 0.2 -> deficit 220 ->
+-- GREATEST(1944-220, 1620) = 1724.
+SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000018'::uuid, 64.0, 1, 180.0, 30, 'male', 'sedentary', 'weight_loss', true, true, 9999, 60.0, 140);
+
+-- T17: invalid profile skipped untouched — weight_log 320 kg (> 300 bound)
+-- -> calculate_nutrition_targets returns zero rows -> sentinel 9999 remains.
+SELECT _test_seed_recalc_user('a0000000-0000-4000-8000-000000000019'::uuid, 320.0, 1, 180.0, 30, 'male', 'sedentary', 'maintenance', true, true, 9999);
 
 -- T9: meal_distribution cascade — add a 3-slot distribution to U1's plan.
 INSERT INTO meal_distribution (nutrition_plan_id, meal_type, sort_order, calorie_pct, calorie_target)
@@ -136,26 +164,25 @@ UNION ALL
 SELECT id, 'dinner', 2, 35, 35.0 * 9999 / 100 FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true;
 
 -- ── Run the function once (set-based — processes all seeded users) ─────────
--- T11: exactly 8 users are eligible (U1, U2b-e, T10a, T10b, U14); the other 5
--- (T3-T7) are excluded by the candidate-selection conditions.
+-- U1, U2b-e, T10a, T10b, U14, T13, T14, T15, T16 are eligible -> 12 users.
 SELECT is(
   (SELECT recalculate_nutrition_plans_from_weight()),
-  8,
-  'T11: returns count of 8 eligible users'
+  12,
+  'T11: returns count of 12 eligible users'
 );
 
 -- ── T1: standard recalculation (nutrition_plan) ─────────────────────────────
 SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 1944, 'T1: calorie_goal');
 SELECT is((SELECT bmr FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 1620::numeric, 'T1: bmr');
 SELECT is((SELECT tdee FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 1944::numeric, 'T1: tdee');
-SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 121.5::numeric, 'T1: protein_goal_g');
-SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 243::numeric, 'T1: carb_goal_g');
+SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 89.6::numeric, 'T1: protein_goal_g');
+SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 274.9::numeric, 'T1: carb_goal_g');
 SELECT is((SELECT fat_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 54::numeric, 'T1: fat_goal_g');
 
 -- ── T8b: user_goal numeric sync ──────────────────────────────────────────────
 SELECT is((SELECT calorie_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 1944::numeric, 'T8b: user_goal.calorie_goal');
-SELECT is((SELECT protein_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 121.5::numeric, 'T8b: user_goal.protein_goal');
-SELECT is((SELECT carbs_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 243::numeric, 'T8b: user_goal.carbs_goal');
+SELECT is((SELECT protein_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 89.6::numeric, 'T8b: user_goal.protein_goal');
+SELECT is((SELECT carbs_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 274.9::numeric, 'T8b: user_goal.carbs_goal');
 SELECT is((SELECT fat_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000001'::uuid AND is_active = true), 54::numeric, 'T8b: user_goal.fat_goal');
 
 -- ── T8: weight_kg snapshot sync ──────────────────────────────────────────────
@@ -175,16 +202,16 @@ SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-000
 SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000011'::uuid AND is_active = false), 9999, 'T7: no active plan skipped');
 
 -- ── T10a: weight_loss branch ─────────────────────────────────────────────────
-SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 1444, 'T10a: weight_loss calorie_goal');
-SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 108.3::numeric, 'T10a: weight_loss protein_g');
-SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 144.4::numeric, 'T10a: weight_loss carb_g');
-SELECT is((SELECT round(fat_goal_g, 4) FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 48.1333::numeric, 'T10a: weight_loss fat_g (rounded)');
+SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 1620, 'T10a: weight_loss calorie_goal');
+SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 128.0::numeric, 'T10a: weight_loss protein_g');
+SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 175.8::numeric, 'T10a: weight_loss carb_g');
+SELECT is((SELECT fat_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000012'::uuid AND is_active = true), 45::numeric, 'T10a: weight_loss fat_g');
 
 -- ── T10b: muscle_gain branch ─────────────────────────────────────────────────
-SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 2244, 'T10b: muscle_gain calorie_goal');
-SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 168.3::numeric, 'T10b: muscle_gain protein_g');
-SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 252.45::numeric, 'T10b: muscle_gain carb_g');
-SELECT is((SELECT round(fat_goal_g, 4) FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 62.3333::numeric, 'T10b: muscle_gain fat_g (rounded)');
+SELECT is((SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 2219, 'T10b: muscle_gain calorie_goal');
+SELECT is((SELECT protein_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 115.2::numeric, 'T10b: muscle_gain protein_g');
+SELECT is((SELECT carb_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 300.9::numeric, 'T10b: muscle_gain carb_g');
+SELECT is((SELECT fat_goal_g FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000013'::uuid AND is_active = true), 61.6::numeric, 'T10b: muscle_gain fat_g');
 
 -- ── T12: duplicate active user_goal rows — only the latest is updated ──────
 -- Verifies the latest_goal DISTINCT ON dedup guard: nutrition_plan must
@@ -192,18 +219,53 @@ SELECT is((SELECT round(fat_goal_g, 4) FROM nutrition_plan WHERE user_id = 'a000
 -- be updated, and the OLDER row must be left completely untouched.
 SELECT is(
   (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000014'::uuid AND is_active = true),
-  2244,
+  2219,
   'T12: nutrition_plan.calorie_goal reflects newer (muscle_gain) goal_type'
 );
 SELECT is(
   (SELECT calorie_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000014'::uuid AND goal_type = 'muscle_gain'),
-  2244::numeric,
+  2219::numeric,
   'T12: newer user_goal row (muscle_gain) updated'
 );
 SELECT is(
   (SELECT calorie_goal FROM user_goal WHERE user_id = 'a0000000-0000-4000-8000-000000000014'::uuid AND goal_type = 'weight_loss'),
   8888::numeric,
   'T12: older user_goal row (weight_loss) left untouched'
+);
+
+-- ── T13: 7-day weight smoothing ──
+SELECT is(
+  (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000015'::uuid AND is_active = true),
+  1944,
+  'T13: smoothed weight is 64.0 -> calorie_goal 1944'
+);
+
+-- ── T14: crossed target ──
+SELECT is(
+  (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000016'::uuid AND is_active = true),
+  1944,
+  'T14: crossed target -> maintenance calorie_goal'
+);
+
+-- ── T15: overdue target date ──
+SELECT is(
+  (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000017'::uuid AND is_active = true),
+  1620,
+  'T15: overdue target_date -> remaining_weeks 4 floor -> calorie_goal BMR floor 1620'
+);
+
+-- ── T16: dated target pace 0.2 ──
+SELECT is(
+  (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000018'::uuid AND is_active = true),
+  1724,
+  'T16: dated target pace 0.2 -> calorie_goal 1724'
+);
+
+-- ── T17: invalid profile skipped ──
+SELECT is(
+  (SELECT calorie_goal FROM nutrition_plan WHERE user_id = 'a0000000-0000-4000-8000-000000000019'::uuid AND is_active = true),
+  9999,
+  'T17: invalid profile (>300kg) skipped untouched'
 );
 
 -- ── T9: meal_distribution cascade (trg_sync_calorie_target_on_plan) ─────────
