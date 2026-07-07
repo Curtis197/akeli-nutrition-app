@@ -5,7 +5,7 @@ import 'package:akeli/features/settings/models/health_profile_model.dart';
 
 void main() {
   group('HealthProfileModel', () {
-    const base = HealthProfileModel(
+    final base = HealthProfileModel(
       sex: 'male',
       heightCm: 175.0,
       weightKg: 75.0,
@@ -14,7 +14,7 @@ void main() {
       weightGoal: 'loss',
       muscleGoal: 'maintenance',
       startingWeightKg: 80.0,
-      targetTimeWeeks: 12,
+      targetDate: DateTime(2026, 12, 1),
       goalType: 'weight_loss',
     );
 
@@ -31,6 +31,12 @@ void main() {
       expect(withDate.birthDate, isNotNull);
       final cleared = withDate.copyWith(clearBirthDate: true);
       expect(cleared.birthDate, isNull);
+    });
+
+    test('copyWith clearTargetDate removes targetDate', () {
+      expect(base.targetDate, isNotNull);
+      final cleared = base.copyWith(clearTargetDate: true);
+      expect(cleared.targetDate, isNull);
     });
 
     test('default constructor produces empty model', () {
@@ -76,7 +82,7 @@ void main() {
           'weight_goal': 'loss',
           'muscle_goal': 'maintenance',
           'starting_weight_kg': 62.0,
-          'target_time_weeks': 8,
+          'target_date': '2026-12-01',
         },
         goal: {'goal_type': 'weight_loss'},
       );
@@ -85,7 +91,7 @@ void main() {
       expect(model.heightCm, 165.0);
       expect(model.weightKg, 60.0);
       expect(model.goalType, 'weight_loss');
-      expect(model.targetTimeWeeks, 8);
+      expect(model.targetDate, DateTime(2026, 12, 1));
     });
 
     test('fromJson with nulls produces empty model', () {

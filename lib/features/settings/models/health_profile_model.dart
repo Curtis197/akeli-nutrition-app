@@ -17,7 +17,7 @@ class HealthProfileModel {
   final String? weightGoal;
   final String? muscleGoal;
   final double? startingWeightKg;
-  final int? targetTimeWeeks;
+  final DateTime? targetDate;
   final String? goalType;
 
   const HealthProfileModel({
@@ -30,7 +30,7 @@ class HealthProfileModel {
     this.weightGoal,
     this.muscleGoal,
     this.startingWeightKg,
-    this.targetTimeWeeks,
+    this.targetDate,
     this.goalType,
   });
 
@@ -55,13 +55,14 @@ class HealthProfileModel {
     String? weightGoal,
     String? muscleGoal,
     double? startingWeightKg,
-    int? targetTimeWeeks,
+    DateTime? targetDate,
     String? goalType,
     bool clearBirthDate = false,
     bool clearSex = false,
     bool clearActivityLevel = false,
     bool clearWeightGoal = false,
     bool clearMuscleGoal = false,
+    bool clearTargetDate = false,
     bool clearGoalType = false,
   }) {
     return HealthProfileModel(
@@ -75,7 +76,7 @@ class HealthProfileModel {
       weightGoal: clearWeightGoal ? null : (weightGoal ?? this.weightGoal),
       muscleGoal: clearMuscleGoal ? null : (muscleGoal ?? this.muscleGoal),
       startingWeightKg: startingWeightKg ?? this.startingWeightKg,
-      targetTimeWeeks: targetTimeWeeks ?? this.targetTimeWeeks,
+      targetDate: clearTargetDate ? null : (targetDate ?? this.targetDate),
       goalType: clearGoalType ? null : (goalType ?? this.goalType),
     );
   }
@@ -96,7 +97,9 @@ class HealthProfileModel {
       weightGoal: health?['weight_goal'] as String?,
       muscleGoal: health?['muscle_goal'] as String?,
       startingWeightKg: (health?['starting_weight_kg'] as num?)?.toDouble(),
-      targetTimeWeeks: health?['target_time_weeks'] as int?,
+      targetDate: health?['target_date'] != null
+          ? DateTime.tryParse(health!['target_date'] as String)
+          : null,
       goalType: goal?['goal_type'] as String?,
     );
   }
@@ -114,12 +117,12 @@ class HealthProfileModel {
           weightGoal == other.weightGoal &&
           muscleGoal == other.muscleGoal &&
           startingWeightKg == other.startingWeightKg &&
-          targetTimeWeeks == other.targetTimeWeeks &&
+          targetDate == other.targetDate &&
           goalType == other.goalType;
 
   @override
   int get hashCode => Object.hash(
       sex, birthDate, heightCm, weightKg, targetWeightKg,
       activityLevel, weightGoal, muscleGoal,
-      startingWeightKg, targetTimeWeeks, goalType);
+      startingWeightKg, targetDate, goalType);
 }

@@ -14,6 +14,7 @@ import 'package:akeli/core/locale_provider.dart';
 import 'package:akeli/core/meal_type_l10n.dart';
 import 'package:akeli/core/unit_converter.dart';
 import 'package:akeli/l10n/app_localizations.dart';
+import 'package:akeli/providers/nutrition_targets_provider.dart' show remainingWeeksFromDate;
 
 /// [Akeli] DietPlanPage - High-Fidelity Editorial Redesign
 /// This page presents the weekly meal plan with an editorial summary and a vertical
@@ -156,11 +157,12 @@ class _DietPlanPageState extends ConsumerState<DietPlanPage> {
     final startingWeight = cvt(startingWeightKg);
     final currentWeight = cvt(currentWeightKg);
     final targetWeight = cvt(targetWeightKg);
-    final targetTimeWeeks = health?.targetTimeWeeks;
+    final targetDate = health?.targetDate;
 
     double? weeklyLoss;
-    if (startingWeight != null && targetWeight != null && targetTimeWeeks != null && targetTimeWeeks > 0) {
-      weeklyLoss = (startingWeight - targetWeight) / targetTimeWeeks;
+    final remainingWeeks = remainingWeeksFromDate(targetDate);
+    if (startingWeight != null && targetWeight != null && remainingWeeks != null && remainingWeeks > 0) {
+      weeklyLoss = (startingWeight - targetWeight) / remainingWeeks;
     }
 
     double progress = 0.0;

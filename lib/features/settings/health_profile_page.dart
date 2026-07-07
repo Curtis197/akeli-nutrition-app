@@ -13,6 +13,7 @@ import '../../core/theme.dart';
 import '../../core/unit_converter.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
+import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromDate;
 import 'models/health_profile_model.dart';
 import 'widgets/intensity_badge.dart';
 import 'widgets/settings_widgets.dart';
@@ -126,6 +127,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
           _initControllers(prefs, isUs);
         }
         final local = _local!;
+        final targetWeeks = (remainingWeeksFromDate(local.targetDate) ?? 26).clamp(4, 52);
 
         return Scaffold(
           backgroundColor: AkeliColors.background,
@@ -454,7 +456,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           IntensityBadge(
                             currentKg: local.weightKg,
                             targetKg: local.targetWeightKg,
-                            months: (local.targetTimeWeeks ?? 26) / 4.33,
+                            months: targetWeeks / 4.33,
                           ),
                         ],
                       ),
@@ -463,25 +465,26 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                         children: [
                           Expanded(
                             child: Slider(
-                              value: (local.targetTimeWeeks ?? 26).toDouble(),
+                              value: targetWeeks.toDouble(),
                               min: 4,
                               max: 52,
                               divisions: 48,
                               activeColor: AkeliColors.primary,
-                              label: l10n.healthWeeks(local.targetTimeWeeks ?? 26),
+                              label: l10n.healthWeeks(targetWeeks),
                               onChanged: (v) {
                                 _logger.userAction('Target weeks changed',
                                     screen: 'HealthProfilePage',
                                     metadata: {'weeks': v.round()});
-                                setState(() =>
-                                    _local = local.copyWith(targetTimeWeeks: v.round()));
+                                setState(() => _local = local.copyWith(
+                                    targetDate: DateTime.now()
+                                        .add(Duration(days: v.round() * 7))));
                               },
                             ),
                           ),
                           SizedBox(
                             width: 72,
                             child: Text(
-                              l10n.healthWeeksShort(local.targetTimeWeeks ?? 26),
+                              l10n.healthWeeksShort(targetWeeks),
                               style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

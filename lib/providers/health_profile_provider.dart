@@ -125,7 +125,7 @@ class HealthProfileNotifier
       final healthFuture = client
           .from('user_health_profile')
           .select(
-              'sex, birth_date, height_cm, weight_kg, target_weight_kg, activity_level, weight_goal, muscle_goal, starting_weight_kg, target_time_weeks')
+              'sex, birth_date, height_cm, weight_kg, target_weight_kg, activity_level, weight_goal, muscle_goal, starting_weight_kg, target_date')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -204,8 +204,9 @@ class HealthProfileNotifier
         if (updated.muscleGoal != null) 'muscle_goal': updated.muscleGoal,
         if (updated.startingWeightKg != null)
           'starting_weight_kg': updated.startingWeightKg,
-        if (updated.targetTimeWeeks != null)
-          'target_time_weeks': updated.targetTimeWeeks,
+        if (updated.targetDate != null)
+          'target_date':
+              updated.targetDate!.toIso8601String().split('T').first,
       }, onConflict: 'user_id');
       _logger
           .db('AFTER | table: user_health_profile | op: UPSERT | rows: 1');
