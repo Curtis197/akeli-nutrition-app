@@ -2578,5 +2578,17 @@
   "intensityAggressive": "Aggressive",
   "@intensityAggressive": {},
   "intensityDangerous": "Dangerous",
-  "@intensityDangerous": {}
+  "@intensityDangerous": {},
+  "onboardingGoalPaceLoss": "Loss Pace: {pace} kg/week",
+  "@onboardingGoalPaceLoss": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "onboardingGoalPaceGain": "Gain Pace: {pace} kg/week",
+  "@onboardingGoalPaceGain": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  }
 }

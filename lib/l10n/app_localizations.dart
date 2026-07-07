@@ -5222,6 +5222,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dangerous'**
   String get intensityDangerous;
+
+  /// No description provided for @onboardingGoalPaceLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss Pace: {pace} kg/week'**
+  String onboardingGoalPaceLoss(String pace);
+
+  /// No description provided for @onboardingGoalPaceGain.
+  ///
+  /// In en, this message translates to:
+  /// **'Gain Pace: {pace} kg/week'**
+  String onboardingGoalPaceGain(String pace);
 }
 
 class _AppLocalizationsDelegate

@@ -11,13 +11,33 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/unit_converter.dart';
 import '../../core/nutrition_calculator.dart';
+import '../../core/nutrition_input_bounds.dart';
+import '../../core/supabase_client.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/health_profile_provider.dart' show activityLevelForCalculator;
 import '../../providers/nutrition_plan_provider.dart';
+import '../../providers/nutrition_targets_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/models/nutrition_plan.dart';
 import '../auth/onboarding_data.dart';
 
+
+// Pure function — exported for testing.
+// Onboarding's Goals step collects weightGoal (required) and muscleGoal
+// (optional) as the user's explicit objective. weightGoal takes priority;
+// muscleGoal only breaks the tie when weightGoal is 'maintenance'.
+String primaryGoalFromOnboardingSelections({
+  required String? weightGoal,
+  required String? muscleGoal,
+}) {
+  if (weightGoal == 'loss') return 'weight_loss';
+  if (weightGoal == 'gain') return 'muscle_gain';
+  if (weightGoal == 'maintenance') {
+    if (muscleGoal == 'gain') return 'muscle_gain';
+    if (muscleGoal == 'loss') return 'weight_loss';
+  }
+  return 'maintenance';
+}
 
 class NutritionPlanPage extends ConsumerStatefulWidget {
   final bool isOnboarding;
@@ -60,6 +80,10 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   bool _isCalculated = false;
   bool _isSaving = false;
   bool _isScheduleValid = true;
+  bool _isLoading = false;
+  String? _errorText;
+  double? _effectivePaceKgWeek;
+  double? _estimatedWeeksToTarget;
 
   @override
   void initState() {
@@ -113,18 +137,10 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         _age = obData.age ?? 30;
         _sex = obData.sex ?? 'female';
         _activityLevel = obData.activityLevel ?? 'moderate';
-
-        if (obData.targetWeight != null && obData.weight != null) {
-          if (obData.targetWeight! < obData.weight!) {
-            _primaryGoal = 'weight_loss';
-          } else if (obData.targetWeight! > obData.weight!) {
-            _primaryGoal = 'muscle_gain';
-          } else {
-            _primaryGoal = 'maintenance';
-          }
-        } else {
-          _primaryGoal = 'maintenance';
-        }
+        _primaryGoal = primaryGoalFromOnboardingSelections(
+          weightGoal: obData.weightGoal,
+          muscleGoal: obData.muscleGoal,
+        );
       });
       _syncHealthParamCtrls();
     } else if (healthProfile != null) {
@@ -160,41 +176,102 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     }
   }
 
-  void _calculateResults() {
-    _logger.userAction('Calculate button tapped', screen: 'NutritionPlanPage');
-
-    final bmr = NutritionCalculatorService.calculateBMR(
-      weightKg: _weightKg,
-      heightCm: _heightCm,
-      age: _age,
-      sex: _sex,
-    );
-    final tdee = NutritionCalculatorService.calculateTDEE(
-        bmr, activityLevelForCalculator(_activityLevel));
-    final calorieGoal = NutritionCalculatorService.calculateCalorieGoal(tdee, _primaryGoal);
-    final defaultMacros = NutritionCalculatorService.getDefaultMacros(_primaryGoal);
-    final defaultSplits = NutritionCalculatorService.getDefaultMealSplits(3);
-
-    final newDistributions = defaultSplits.entries.mapIndexed((i, e) => MealDistribution(
-          mealType: e.key,
-          sortOrder: i,
-          caloriePct: e.value,
-          calorieTarget: calorieGoal.toDouble() * (e.value / 100),
-        )).toList();
-
-    _logger.provider(
-        'NutritionPlanPage → calculated | bmr: ${bmr.toStringAsFixed(0)} tdee: ${tdee.toStringAsFixed(0)} goal: $calorieGoal');
-
+  Future<void> _calculateResults() async {
+    _logger.userAction('Calculate results', screen: 'NutritionPlanPage');
+    if (!mounted) return;
+    
+    // Bounds guard checks (spec §1.9/§1.10)
+    if (_weightKg < NutritionInputBounds.minWeightKg || _weightKg > NutritionInputBounds.maxWeightKg ||
+        _heightCm < NutritionInputBounds.minHeightCm || _heightCm > NutritionInputBounds.maxHeightCm ||
+        _age < NutritionInputBounds.minAge || _age > NutritionInputBounds.maxAge) {
+      setState(() {
+        _errorText = 'Inputs out of allowed range';
+        _isCalculated = false;
+      });
+      return;
+    }
+    
     setState(() {
-      _bmr = bmr;
-      _tdee = tdee;
-      _calorieGoal = calorieGoal;
-      _proteinPct = defaultMacros['protein']!;
-      _carbPct = defaultMacros['carbs']!;
-      _fatPct = defaultMacros['fat']!;
-      _distributions = newDistributions;
-      _isCalculated = true;
+      _isLoading = true;
+      _errorText = null;
     });
+    
+    final client = ref.read(supabaseClientProvider);
+    final healthProfile = await ref.read(healthProfileProvider.future);
+    final remainingWeeks = remainingWeeksFromDate(healthProfile?.targetDate);
+    
+    try {
+      final targets = await fetchNutritionTargets(
+        client,
+        weightKg: _weightKg,
+        heightCm: _heightCm,
+        age: _age,
+        sex: _sex,
+        activityLevel: activityLevelForCalculator(_activityLevel),
+        primaryGoal: _primaryGoal,
+        targetWeightKg: healthProfile?.targetWeightKg,
+        remainingWeeks: remainingWeeks,
+      );
+      
+      if (!mounted) return;
+      
+      if (targets == null) {
+        setState(() {
+          _errorText = 'Calculator returned no targets. Please check input parameters.';
+          _isLoading = false;
+          _isCalculated = false;
+        });
+        return;
+      }
+      
+      // Update macros percentage from RPC calorieGoal ratios when loading default
+      // default ratios (30P/40C/30F for loss, 30P/45C/25F for gain, 25P/50C/25F for maint)
+      final double defaultProteinPct, defaultCarbPct, defaultFatPct;
+      if (_primaryGoal == 'weight_loss') {
+        defaultProteinPct = 30;
+        defaultCarbPct = 40;
+        defaultFatPct = 30;
+      } else if (_primaryGoal == 'muscle_gain' || _primaryGoal == 'weight_gain') {
+        defaultProteinPct = 30;
+        defaultCarbPct = 45;
+        defaultFatPct = 25;
+      } else {
+        defaultProteinPct = 25;
+        defaultCarbPct = 50;
+        defaultFatPct = 25;
+      }
+      
+      final defaultSplits = NutritionCalculatorService.getDefaultMealSplits(3);
+      final newDistributions = defaultSplits.entries.mapIndexed((i, e) => MealDistribution(
+            mealType: e.key,
+            sortOrder: i,
+            caloriePct: e.value,
+            calorieTarget: targets.calorieGoal.toDouble() * (e.value / 100),
+          )).toList();
+          
+      setState(() {
+        _bmr = targets.bmr;
+        _tdee = targets.tdee;
+        _calorieGoal = targets.calorieGoal;
+        _proteinPct = defaultProteinPct;
+        _carbPct = defaultCarbPct;
+        _fatPct = defaultFatPct;
+        _distributions = newDistributions;
+        _effectivePaceKgWeek = targets.effectivePaceKgWeek;
+        _estimatedWeeksToTarget = targets.estimatedWeeksToTarget;
+        _isCalculated = true;
+        _isLoading = false;
+      });
+    } catch (e, st) {
+      _logger.provider('NutritionPlanPage calculate error: $e', error: e, stackTrace: st);
+      if (mounted) {
+        setState(() {
+          _errorText = 'Error calculating targets: $e';
+          _isLoading = false;
+          _isCalculated = false;
+        });
+      }
+    }
   }
 
   Future<bool> savePlan() async {
@@ -232,9 +309,9 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     final plan = NutritionPlan(
       userId: user.id,
       calorieGoal: _calorieGoal,
-      proteinGoalG: NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _proteinPct, 'protein'),
-      carbGoalG: NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _carbPct, 'carbs'),
-      fatGoalG: NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _fatPct, 'fat'),
+      proteinGoalG: (_calorieGoal * _proteinPct / 100) / 4.0,
+      carbGoalG: (_calorieGoal * _carbPct / 100) / 4.0,
+      fatGoalG: (_calorieGoal * _fatPct / 100) / 9.0,
       bmr: _bmr,
       tdee: _tdee,
       isActive: true,
@@ -275,9 +352,9 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;
 
-    final proteinG = NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _proteinPct, 'protein');
-    final carbG = NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _carbPct, 'carbs');
-    final fatG = NutritionCalculatorService.calculateMacroGrams(_calorieGoal, _fatPct, 'fat');
+    final proteinG = (_calorieGoal * _proteinPct / 100) / 4.0;
+    final carbG = (_calorieGoal * _carbPct / 100) / 4.0;
+    final fatG = (_calorieGoal * _fatPct / 100) / 9.0;
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -430,10 +507,22 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _calculateResults,
-                  child: Text(l10n.nutritionPlanCalculateButton),
+                  onPressed: _isLoading ? null : _calculateResults,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : Text(l10n.nutritionPlanCalculateButton),
                 ),
               ),
+              if (_errorText != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  _errorText!,
+                  style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ],
               const SizedBox(height: 24),
             ],
 
@@ -458,6 +547,22 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                           l10n.nutritionPlanBmrTdeeLabel(
                               _bmr?.toStringAsFixed(0) ?? '–', _tdee?.toStringAsFixed(0) ?? '–'),
                           style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      if (_effectivePaceKgWeek != null && _effectivePaceKgWeek! > 0) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          _primaryGoal == 'muscle_gain' || _primaryGoal == 'weight_gain'
+                              ? l10n.onboardingGoalPaceGain(_effectivePaceKgWeek!.toStringAsFixed(2))
+                              : l10n.onboardingGoalPaceLoss(_effectivePaceKgWeek!.toStringAsFixed(2)),
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AkeliColors.primary),
+                        ),
+                      ],
+                      if (_estimatedWeeksToTarget != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          '${l10n.healthTargetDuration} : ${_estimatedWeeksToTarget!.round()} ${l10n.healthWeeksShort(_estimatedWeeksToTarget!.round())}',
+                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -505,7 +610,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: (_isScheduleValid && isValidMacros && !_isSaving) ? savePlan : null,
+                    onPressed: (_isScheduleValid && isValidMacros && !_isSaving && !_isLoading) ? savePlan : null,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: AkeliColors.primary,

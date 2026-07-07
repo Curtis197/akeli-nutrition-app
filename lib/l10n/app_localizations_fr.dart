@@ -2791,4 +2791,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get intensityDangerous => 'Dangereux';
+
+  @override
+  String onboardingGoalPaceLoss(String pace) {
+    return 'Vitesse de perte : $pace kg/semaine';
+  }
+
+  @override
+  String onboardingGoalPaceGain(String pace) {
+    return 'Vitesse de gain : $pace kg/semaine';
+  }
 }
