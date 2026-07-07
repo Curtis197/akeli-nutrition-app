@@ -2497,6 +2497,8 @@
   "@nutritionPlanMealDistributionSection": {},
   "nutritionPlanSaveSuccess": "Nutrition plan saved successfully",
   "@nutritionPlanSaveSuccess": {},
+  "nutritionPlanCalculateError": "Could not calculate your targets. Check your inputs and connection, then try again.",
+  "@nutritionPlanCalculateError": {},
   "nutritionPlanSaveError": "Error while saving: {error}",
   "@nutritionPlanSaveError": {
     "placeholders": {

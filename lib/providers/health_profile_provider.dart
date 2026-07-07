@@ -11,24 +11,6 @@ import '../providers/auth_provider.dart';
 import '../providers/nutrition_plan_provider.dart';
 import '../providers/nutrition_targets_provider.dart';
 
-// Pure function — exported for testing
-String activityLevelForCalculator(String dbValue) {
-  switch (dbValue) {
-    case 'sedentary':
-      return 'sedentary';
-    case 'light':
-      return 'lightly_active';
-    case 'moderate':
-      return 'moderately_active';
-    case 'active':
-      return 'very_active';
-    case 'very_active':
-      return 'extremely_active';
-    default:
-      return 'sedentary';
-  }
-}
-
 class HealthProfileNotifier
     extends AutoDisposeAsyncNotifier<HealthProfileModel> {
   final _logger = appLogger;
@@ -146,7 +128,7 @@ class HealthProfileNotifier
           heightCm: updated.heightCm!,
           age: age,
           sex: updated.sex ?? 'male',
-          activityLevel: activityLevelForCalculator(updated.activityLevel ?? 'sedentary'),
+          activityLevel: updated.activityLevel ?? 'sedentary',
           primaryGoal: updated.goalType!,
           targetWeightKg: updated.targetWeightKg,
           remainingWeeks: remainingWeeksFromDate(updated.targetDate),

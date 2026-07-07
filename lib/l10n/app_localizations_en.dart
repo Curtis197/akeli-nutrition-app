@@ -2637,6 +2637,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nutritionPlanSaveSuccess => 'Nutrition plan saved successfully';
 
   @override
+  String get nutritionPlanCalculateError =>
+      'Could not calculate your targets. Check your inputs and connection, then try again.';
+
+  @override
   String nutritionPlanSaveError(String error) {
     return 'Error while saving: $error';
   }

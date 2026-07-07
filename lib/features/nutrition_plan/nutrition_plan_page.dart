@@ -14,7 +14,6 @@ import '../../core/nutrition_calculator.dart';
 import '../../core/nutrition_input_bounds.dart';
 import '../../core/supabase_client.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/health_profile_provider.dart' show activityLevelForCalculator;
 import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/nutrition_targets_provider.dart';
 import '../../providers/user_profile_provider.dart';
@@ -179,27 +178,28 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   Future<void> _calculateResults() async {
     _logger.userAction('Calculate results', screen: 'NutritionPlanPage');
     if (!mounted) return;
-    
+    final l10n = AppLocalizations.of(context);
+
     // Bounds guard checks (spec §1.9/§1.10)
     if (_weightKg < NutritionInputBounds.minWeightKg || _weightKg > NutritionInputBounds.maxWeightKg ||
         _heightCm < NutritionInputBounds.minHeightCm || _heightCm > NutritionInputBounds.maxHeightCm ||
         _age < NutritionInputBounds.minAge || _age > NutritionInputBounds.maxAge) {
       setState(() {
-        _errorText = 'Inputs out of allowed range';
+        _errorText = l10n.nutritionPlanCalculateError;
         _isCalculated = false;
       });
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
       _errorText = null;
     });
-    
+
     final client = ref.read(supabaseClientProvider);
     final healthProfile = await ref.read(healthProfileProvider.future);
     final remainingWeeks = remainingWeeksFromDate(healthProfile?.targetDate);
-    
+
     try {
       final targets = await fetchNutritionTargets(
         client,
@@ -207,40 +207,30 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         heightCm: _heightCm,
         age: _age,
         sex: _sex,
-        activityLevel: activityLevelForCalculator(_activityLevel),
+        activityLevel: _activityLevel,
         primaryGoal: _primaryGoal,
         targetWeightKg: healthProfile?.targetWeightKg,
         remainingWeeks: remainingWeeks,
       );
-      
+
       if (!mounted) return;
-      
+
       if (targets == null) {
         setState(() {
-          _errorText = 'Calculator returned no targets. Please check input parameters.';
+          _errorText = l10n.nutritionPlanCalculateError;
           _isLoading = false;
           _isCalculated = false;
         });
         return;
       }
-      
-      // Update macros percentage from RPC calorieGoal ratios when loading default
-      // default ratios (30P/40C/30F for loss, 30P/45C/25F for gain, 25P/50C/25F for maint)
-      final double defaultProteinPct, defaultCarbPct, defaultFatPct;
-      if (_primaryGoal == 'weight_loss') {
-        defaultProteinPct = 30;
-        defaultCarbPct = 40;
-        defaultFatPct = 30;
-      } else if (_primaryGoal == 'muscle_gain' || _primaryGoal == 'weight_gain') {
-        defaultProteinPct = 30;
-        defaultCarbPct = 45;
-        defaultFatPct = 25;
-      } else {
-        defaultProteinPct = 25;
-        defaultCarbPct = 50;
-        defaultFatPct = 25;
-      }
-      
+
+      // Macro percentages are derived from the RPC's computed grams (g/kg
+      // bodyweight based — spec §1.7), NOT a fixed lookup table, so they
+      // actually vary with the calculated plan rather than just the goal
+      // label.
+      final totalMacroCal =
+          (targets.proteinG * 4) + (targets.carbG * 4) + (targets.fatG * 9);
+
       final defaultSplits = NutritionCalculatorService.getDefaultMealSplits(3);
       final newDistributions = defaultSplits.entries.mapIndexed((i, e) => MealDistribution(
             mealType: e.key,
@@ -248,14 +238,16 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
             caloriePct: e.value,
             calorieTarget: targets.calorieGoal.toDouble() * (e.value / 100),
           )).toList();
-          
+
       setState(() {
         _bmr = targets.bmr;
         _tdee = targets.tdee;
         _calorieGoal = targets.calorieGoal;
-        _proteinPct = defaultProteinPct;
-        _carbPct = defaultCarbPct;
-        _fatPct = defaultFatPct;
+        if (totalMacroCal > 0) {
+          _proteinPct = ((targets.proteinG * 4) / totalMacroCal) * 100;
+          _carbPct = ((targets.carbG * 4) / totalMacroCal) * 100;
+          _fatPct = ((targets.fatG * 9) / totalMacroCal) * 100;
+        }
         _distributions = newDistributions;
         _effectivePaceKgWeek = targets.effectivePaceKgWeek;
         _estimatedWeeksToTarget = targets.estimatedWeeksToTarget;
@@ -266,7 +258,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       _logger.provider('NutritionPlanPage calculate error: $e', error: e, stackTrace: st);
       if (mounted) {
         setState(() {
-          _errorText = 'Error calculating targets: $e';
+          _errorText = l10n.nutritionPlanCalculateError;
           _isLoading = false;
           _isCalculated = false;
         });

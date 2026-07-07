@@ -5001,6 +5001,12 @@ abstract class AppLocalizations {
   /// **'Nutrition plan saved successfully'**
   String get nutritionPlanSaveSuccess;
 
+  /// No description provided for @nutritionPlanCalculateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not calculate your targets. Check your inputs and connection, then try again.'**
+  String get nutritionPlanCalculateError;
+
   /// No description provided for @nutritionPlanSaveError.
   ///
   /// In en, this message translates to:

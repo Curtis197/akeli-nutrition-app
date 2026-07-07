@@ -2674,6 +2674,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Plan nutritionnel enregistré avec succès';
 
   @override
+  String get nutritionPlanCalculateError =>
+      'Impossible de calculer vos objectifs. Vérifiez vos saisies et votre connexion, puis réessayez.';
+
+  @override
   String nutritionPlanSaveError(String error) {
     return 'Erreur lors de la sauvegarde : $error';
   }

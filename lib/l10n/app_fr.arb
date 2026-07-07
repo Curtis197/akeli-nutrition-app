@@ -929,6 +929,8 @@
   "@nutritionPlanMealDistributionSection": {},
   "nutritionPlanSaveSuccess": "Plan nutritionnel enregistré avec succès",
   "@nutritionPlanSaveSuccess": {},
+  "nutritionPlanCalculateError": "Impossible de calculer vos objectifs. Vérifiez vos saisies et votre connexion, puis réessayez.",
+  "@nutritionPlanCalculateError": {},
   "nutritionPlanSaveError": "Erreur lors de la sauvegarde : {error}",
   "@nutritionPlanSaveError": {
     "placeholders": {
