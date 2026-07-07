@@ -2801,4 +2801,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String onboardingGoalPaceGain(String pace) {
     return 'Vitesse de gain : $pace kg/semaine';
   }
+
+  @override
+  String get onboardingWarningUnderweightTarget =>
+      'Avertissement : Le poids cible conduit à un IMC inférieur à 18,5';
+
+  @override
+  String get onboardingValidationWeightMin =>
+      'Le poids doit être d\'au moins 35 kg';
+
+  @override
+  String get onboardingValidationWeightMax =>
+      'Le poids doit être d\'au plus 250 kg';
+
+  @override
+  String get onboardingValidationHeightMin =>
+      'La taille doit être d\'au moins 120 cm';
+
+  @override
+  String get onboardingValidationHeightMax =>
+      'La taille doit être d\'au plus 230 cm';
+
+  @override
+  String get onboardingValidationAgeMin =>
+      'L\'âge doit être d\'au moins 15 ans';
+
+  @override
+  String get onboardingValidationAgeMax =>
+      'L\'âge doit être d\'au plus 100 ans';
 }

@@ -2761,4 +2761,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String onboardingGoalPaceGain(String pace) {
     return 'Gain Pace: $pace kg/week';
   }
+
+  @override
+  String get onboardingWarningUnderweightTarget =>
+      'Warning: Target weight results in a BMI under 18.5';
+
+  @override
+  String get onboardingValidationWeightMin => 'Weight must be at least 35 kg';
+
+  @override
+  String get onboardingValidationWeightMax => 'Weight must be at most 250 kg';
+
+  @override
+  String get onboardingValidationHeightMin => 'Height must be at least 120 cm';
+
+  @override
+  String get onboardingValidationHeightMax => 'Height must be at most 230 cm';
+
+  @override
+  String get onboardingValidationAgeMin => 'Age must be at least 15';
+
+  @override
+  String get onboardingValidationAgeMax => 'Age must be at most 100';
 }

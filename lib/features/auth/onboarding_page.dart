@@ -13,6 +13,7 @@ import 'onboarding_data.dart';
 import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/unit_converter.dart';
+import '../../core/nutrition_input_bounds.dart';
 import '../../l10n/app_localizations.dart';
 import '../nutrition_plan/nutrition_plan_page.dart';
 import '../settings/widgets/allergen_picker_widget.dart';
@@ -121,6 +122,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     if (d.muscleGoal == 'loss') goalSet.add('weight_loss');
     if (d.muscleGoal == 'maintenance') goalSet.add('maintenance');
     final inferredGoals = goalSet.toList();
+    
+    final remainingWeeks = remainingWeeksFromMonths(d.timelineMonths);
+    final targetDate = DateTime.now().add(Duration(days: (remainingWeeks * 7).round()));
+    final targetDateStr = targetDate.toUtc().toIso8601String().split('T')[0];
 
     final body = <String, dynamic>{
       'first_name': d.name,
@@ -129,6 +134,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       if (d.height != null) 'height_cm': d.height,
       if (d.weight != null) 'weight_kg': d.weight,
       if (d.targetWeight != null) 'target_weight_kg': d.targetWeight,
+      'target_date': targetDateStr,
       if (d.activityLevel != null) 'activity_level': d.activityLevel,
       'goals': inferredGoals,
       if (d.weightGoal != null) 'weight_goal': d.weightGoal,
@@ -844,6 +850,18 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
     final notifier = ref.read(onboardingProvider.notifier);
     final isUs = ref.watch(localeProvider).isUsLocale;
 
+    final String? ageError = (data.age != null && (data.age! < NutritionInputBounds.minAge || data.age! > NutritionInputBounds.maxAge))
+        ? (data.age! < NutritionInputBounds.minAge ? l10n.onboardingValidationAgeMin : l10n.onboardingValidationAgeMax)
+        : null;
+
+    final String? weightError = (data.weight != null && (data.weight! < NutritionInputBounds.minWeightKg || data.weight! > NutritionInputBounds.maxWeightKg))
+        ? (data.weight! < NutritionInputBounds.minWeightKg ? l10n.onboardingValidationWeightMin : l10n.onboardingValidationWeightMax)
+        : null;
+
+    final String? heightError = (data.height != null && (data.height! < NutritionInputBounds.minHeightCm || data.height! > NutritionInputBounds.maxHeightCm))
+        ? (data.height! < NutritionInputBounds.minHeightCm ? l10n.onboardingValidationHeightMin : l10n.onboardingValidationHeightMax)
+        : null;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       child: Column(
@@ -899,6 +917,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                             suffix: l10n.onboardingProfileAgeSuffix,
                             onChanged: (v) => notifier.updateProfile(
                                 age: int.tryParse(v)),
+                            errorText: ageError,
                           ),
                         ],
                       ),
@@ -953,6 +972,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                                     : (isUs ? UnitConverter.lbToKg(entered) : entered),
                               );
                             },
+                            errorText: weightError,
                           ),
                         ],
                       ),
@@ -989,6 +1009,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                                                   feet, feetIn?.$2 ?? 0),
                                         );
                                       },
+                                      errorText: heightError != null ? '' : null,
                                     ),
                                   ),
                                   const SizedBox(width: AkeliSpacing.xs),
@@ -1005,6 +1026,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                                                   feetIn?.$1 ?? 0, inches),
                                         );
                                       },
+                                      errorText: heightError,
                                     ),
                                   ),
                                 ],
@@ -1016,6 +1038,7 @@ class _StepProfileState extends ConsumerState<_StepProfile> {
                               suffix: 'cm',
                               onChanged: (v) => notifier.updateProfile(
                                   height: double.tryParse(v)),
+                              errorText: heightError,
                             ),
                         ],
                       ),
@@ -1122,11 +1145,13 @@ class _MetricField extends StatefulWidget {
   final String value;
   final String suffix;
   final ValueChanged<String> onChanged;
+  final String? errorText;
 
   const _MetricField({
     required this.value,
     required this.suffix,
     required this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -1163,44 +1188,63 @@ class _MetricFieldState extends State<_MetricField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AkeliColors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AkeliRadius.sm),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _ctrl,
-              focusNode: _focus,
-              onChanged: widget.onChanged,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AkeliColors.onSurface),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                filled: false,
-                contentPadding: EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: AkeliColors.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(AkeliRadius.sm),
+            border: widget.errorText != null
+                ? Border.all(color: AkeliColors.error, width: 1.5)
+                : null,
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Text(
-              widget.suffix,
-              style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AkeliColors.onSurfaceVariant,
-                  letterSpacing: 0.1),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _ctrl,
+                  focusNode: _focus,
+                  onChanged: widget.onChanged,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurface),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    filled: false,
+                    contentPadding: EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: Text(
+                  widget.suffix,
+                  style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AkeliColors.onSurfaceVariant,
+                      letterSpacing: 0.1),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (widget.errorText != null && widget.errorText!.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            widget.errorText!,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AkeliColors.error,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 }
@@ -1330,6 +1374,16 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
     final data = ref.watch(onboardingProvider);
     final notifier = ref.read(onboardingProvider.notifier);
     final isUs = ref.watch(localeProvider).isUsLocale;
+
+    final String? targetWeightError = (data.targetWeight != null && (data.targetWeight! < NutritionInputBounds.minWeightKg || data.targetWeight! > NutritionInputBounds.maxWeightKg))
+        ? (data.targetWeight! < NutritionInputBounds.minWeightKg ? l10n.onboardingValidationWeightMin : l10n.onboardingValidationWeightMax)
+        : null;
+
+    final heightM = data.height != null ? data.height! / 100.0 : null;
+    final bool showUnderweightWarning = targetWeightError == null &&
+        data.targetWeight != null &&
+        heightM != null &&
+        (data.targetWeight! / (heightM * heightM)) < 18.5;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
@@ -1484,7 +1538,27 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                       );
                     }
                   },
+                  errorText: targetWeightError,
                 ),
+                if (showUnderweightWarning) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          l10n.onboardingWarningUnderweightTarget,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AkeliSpacing.xl),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

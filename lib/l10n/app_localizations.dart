@@ -5234,6 +5234,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gain Pace: {pace} kg/week'**
   String onboardingGoalPaceGain(String pace);
+
+  /// No description provided for @onboardingWarningUnderweightTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning: Target weight results in a BMI under 18.5'**
+  String get onboardingWarningUnderweightTarget;
+
+  /// No description provided for @onboardingValidationWeightMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight must be at least 35 kg'**
+  String get onboardingValidationWeightMin;
+
+  /// No description provided for @onboardingValidationWeightMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight must be at most 250 kg'**
+  String get onboardingValidationWeightMax;
+
+  /// No description provided for @onboardingValidationHeightMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Height must be at least 120 cm'**
+  String get onboardingValidationHeightMin;
+
+  /// No description provided for @onboardingValidationHeightMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Height must be at most 230 cm'**
+  String get onboardingValidationHeightMax;
+
+  /// No description provided for @onboardingValidationAgeMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Age must be at least 15'**
+  String get onboardingValidationAgeMin;
+
+  /// No description provided for @onboardingValidationAgeMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Age must be at most 100'**
+  String get onboardingValidationAgeMax;
 }
 
 class _AppLocalizationsDelegate

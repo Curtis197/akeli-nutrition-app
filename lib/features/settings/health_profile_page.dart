@@ -11,6 +11,7 @@ import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../core/unit_converter.dart';
+import '../../core/nutrition_input_bounds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
 import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromDate;
@@ -127,6 +128,40 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
           _initControllers(prefs, isUs);
         }
         final local = _local!;
+        
+        int? age;
+        if (local.birthDate != null) {
+          final now = DateTime.now();
+          age = now.year - local.birthDate!.year;
+          if (now.month < local.birthDate!.month || (now.month == local.birthDate!.month && now.day < local.birthDate!.day)) {
+            age--;
+          }
+        }
+
+        final String? ageError = (age != null && (age < NutritionInputBounds.minAge || age > NutritionInputBounds.maxAge))
+            ? (age < NutritionInputBounds.minAge ? l10n.onboardingValidationAgeMin : l10n.onboardingValidationAgeMax)
+            : null;
+
+        final String? weightError = (local.weightKg != null && (local.weightKg! < NutritionInputBounds.minWeightKg || local.weightKg! > NutritionInputBounds.maxWeightKg))
+            ? (local.weightKg! < NutritionInputBounds.minWeightKg ? l10n.onboardingValidationWeightMin : l10n.onboardingValidationWeightMax)
+            : null;
+
+        final String? targetWeightError = (local.targetWeightKg != null && (local.targetWeightKg! < NutritionInputBounds.minWeightKg || local.targetWeightKg! > NutritionInputBounds.maxWeightKg))
+            ? (local.targetWeightKg! < NutritionInputBounds.minWeightKg ? l10n.onboardingValidationWeightMin : l10n.onboardingValidationWeightMax)
+            : null;
+
+        final String? heightError = (local.heightCm != null && (local.heightCm! < NutritionInputBounds.minHeightCm || local.heightCm! > NutritionInputBounds.maxHeightCm))
+            ? (local.heightCm! < NutritionInputBounds.minHeightCm ? l10n.onboardingValidationHeightMin : l10n.onboardingValidationHeightMax)
+            : null;
+
+        final heightM = local.heightCm != null ? local.heightCm! / 100.0 : null;
+        final bool showUnderweightWarning = targetWeightError == null &&
+            local.targetWeightKg != null &&
+            heightM != null &&
+            (local.targetWeightKg! / (heightM * heightM)) < 18.5;
+
+        final bool hasError = ageError != null || weightError != null || targetWeightError != null || heightError != null;
+
         final targetWeeks = (remainingWeeksFromDate(local.targetDate) ?? 26).clamp(4, 52);
 
         return Scaffold(
@@ -261,6 +296,17 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                           ),
                         ),
                       ),
+                      if (ageError != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          ageError,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AkeliColors.error,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
 
                       const Divider(height: 24),
 
@@ -282,6 +328,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                                         heightCm: UnitConverter.feetInToCm(feet, inches)));
                                   }
                                 },
+                                errorText: heightError != null ? '' : null,
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -298,6 +345,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                                         heightCm: UnitConverter.feetInToCm(feet, inches)));
                                   }
                                 },
+                                errorText: heightError,
                               ),
                             ),
                           ],
@@ -313,6 +361,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                               setState(() => _local = local.copyWith(heightCm: parsed));
                             }
                           },
+                          errorText: heightError,
                         ),
 
                       const Divider(height: 24),
@@ -330,6 +379,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             setState(() => _local = local.copyWith(weightKg: kg));
                           }
                         },
+                        errorText: weightError,
                       ),
 
                       const Divider(height: 24),
@@ -347,7 +397,27 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             setState(() => _local = local.copyWith(targetWeightKg: kg));
                           }
                         },
+                        errorText: targetWeightError,
                       ),
+                      if (showUnderweightWarning) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                l10n.onboardingWarningUnderweightTarget,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.amber,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
 
                       const Divider(height: 24),
 
@@ -505,7 +575,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _saving ? null : _save,
+                    onPressed: (_saving || hasError) ? null : _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: AkeliColors.primary,
                       padding: const EdgeInsets.symmetric(vertical: 18),
@@ -607,40 +677,72 @@ class _NumericField extends StatelessWidget {
   final TextEditingController controller;
   final String suffix;
   final ValueChanged<String> onChanged;
+  final String? errorText;
 
   const _NumericField({
     required this.controller,
     required this.suffix,
     required this.onChanged,
+    this.errorText,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+          ],
+          decoration: InputDecoration(
+            suffixText: suffix,
+            suffixStyle: const TextStyle(
+              color: AkeliColors.onSurfaceVariant,
+              fontSize: 15,
+            ),
+            filled: true,
+            fillColor: AkeliColors.surfaceContainerLowest,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: errorText != null
+                  ? const BorderSide(color: AkeliColors.error, width: 1.5)
+                  : BorderSide.none,
+            ),
+            focusedBorder: errorText != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AkeliColors.error, width: 1.5),
+                  )
+                : null,
+            enabledBorder: errorText != null
+                ? OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: AkeliColors.error, width: 1.5),
+                  )
+                : null,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          style: const TextStyle(
+            fontSize: 15,
+            color: AkeliColors.onSurface,
+          ),
+          onChanged: onChanged,
+        ),
+        if (errorText != null && errorText!.isNotEmpty) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText!,
+            style: const TextStyle(
+              fontSize: 12,
+              color: AkeliColors.error,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ],
-      decoration: InputDecoration(
-        suffixText: suffix,
-        suffixStyle: const TextStyle(
-          color: AkeliColors.onSurfaceVariant,
-          fontSize: 15,
-        ),
-        filled: true,
-        fillColor: AkeliColors.surfaceContainerLowest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      style: const TextStyle(
-        fontSize: 15,
-        color: AkeliColors.onSurface,
-      ),
-      onChanged: onChanged,
     );
   }
 }

@@ -2590,5 +2590,19 @@
     "placeholders": {
       "pace": { "type": "String" }
     }
-  }
+  },
+  "onboardingWarningUnderweightTarget": "Warning: Target weight results in a BMI under 18.5",
+  "@onboardingWarningUnderweightTarget": {},
+  "onboardingValidationWeightMin": "Weight must be at least 35 kg",
+  "@onboardingValidationWeightMin": {},
+  "onboardingValidationWeightMax": "Weight must be at most 250 kg",
+  "@onboardingValidationWeightMax": {},
+  "onboardingValidationHeightMin": "Height must be at least 120 cm",
+  "@onboardingValidationHeightMin": {},
+  "onboardingValidationHeightMax": "Height must be at most 230 cm",
+  "@onboardingValidationHeightMax": {},
+  "onboardingValidationAgeMin": "Age must be at least 15",
+  "@onboardingValidationAgeMin": {},
+  "onboardingValidationAgeMax": "Age must be at most 100",
+  "@onboardingValidationAgeMax": {}
 }

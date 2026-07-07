@@ -1022,5 +1022,19 @@
     "placeholders": {
       "pace": { "type": "String" }
     }
-  }
+  },
+  "onboardingWarningUnderweightTarget": "Avertissement : Le poids cible conduit à un IMC inférieur à 18,5",
+  "@onboardingWarningUnderweightTarget": {},
+  "onboardingValidationWeightMin": "Le poids doit être d'au moins 35 kg",
+  "@onboardingValidationWeightMin": {},
+  "onboardingValidationWeightMax": "Le poids doit être d'au plus 250 kg",
+  "@onboardingValidationWeightMax": {},
+  "onboardingValidationHeightMin": "La taille doit être d'au moins 120 cm",
+  "@onboardingValidationHeightMin": {},
+  "onboardingValidationHeightMax": "La taille doit être d'au plus 230 cm",
+  "@onboardingValidationHeightMax": {},
+  "onboardingValidationAgeMin": "L'âge doit être d'au moins 15 ans",
+  "@onboardingValidationAgeMin": {},
+  "onboardingValidationAgeMax": "L'âge doit être d'au plus 100 ans",
+  "@onboardingValidationAgeMax": {}
 }

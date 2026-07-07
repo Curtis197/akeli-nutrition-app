@@ -1,4 +1,5 @@
 import 'package:akeli/core/logger.dart';
+import 'package:akeli/core/nutrition_input_bounds.dart';
 import 'package:akeli/features/settings/models/allergen_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -243,10 +244,24 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         return true;
       case 1: // Consent — both boxes required
         return state.consentPrivacy && state.consentCgu;
-      case 2: // Profile — name required
-        return state.name.trim().isNotEmpty;
-      case 3: // Goals — weight goal required
-        return state.weightGoal != null;
+      case 2: // Profile — name, age, weight, height required and within bounds
+        if (state.name.trim().isEmpty) return false;
+        if (state.age == null || state.age! < NutritionInputBounds.minAge || state.age! > NutritionInputBounds.maxAge) {
+          return false;
+        }
+        if (state.weight == null || state.weight! < NutritionInputBounds.minWeightKg || state.weight! > NutritionInputBounds.maxWeightKg) {
+          return false;
+        }
+        if (state.height == null || state.height! < NutritionInputBounds.minHeightCm || state.height! > NutritionInputBounds.maxHeightCm) {
+          return false;
+        }
+        return true;
+      case 3: // Goals — weight goal required, targetWeight required and within bounds
+        if (state.weightGoal == null) return false;
+        if (state.targetWeight == null || state.targetWeight! < NutritionInputBounds.minWeightKg || state.targetWeight! > NutritionInputBounds.maxWeightKg) {
+          return false;
+        }
+        return true;
       case 4: // Preferences — no hard requirement
         return true;
       case 5: // NutritionPlanPage — already validated via savePlan
