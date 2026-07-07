@@ -545,12 +545,8 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
       await ref.read(healthProfileProvider.notifier).save(saved);
       _local = null;
       if (mounted) {
-        final kcal = computeCalorieGoal(saved);
-        final msg = kcal != null
-            ? '${l10n.healthProfileSaved} · $kcal kcal/jour'
-            : l10n.healthProfileSaved;
         rootScaffoldMessengerKey.currentState?.showSnackBar(
-          SnackBar(content: Text(msg)),
+          SnackBar(content: Text(l10n.healthProfileSaved)),
         );
         context.pop();
       }

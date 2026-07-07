@@ -1,5 +1,6 @@
 class NutritionCalculatorService {
   // Mifflin-St Jeor
+  @Deprecated('Moved to db RPC calculate_nutrition_targets')
   static double calculateBMR({
     required double weightKg,
     required double heightCm,
@@ -15,6 +16,7 @@ class NutritionCalculatorService {
     return bmr;
   }
 
+  @Deprecated('Moved to db RPC calculate_nutrition_targets')
   static double calculateTDEE(double bmr, String activityLevel) {
     switch (activityLevel) {
       case 'sedentary':
@@ -32,6 +34,7 @@ class NutritionCalculatorService {
     }
   }
 
+  @Deprecated('Moved to db RPC calculate_nutrition_targets')
   static int calculateCalorieGoal(double tdee, String primaryGoal) {
     if (primaryGoal == 'weight_loss') {
       return (tdee - 500).round();
@@ -41,6 +44,7 @@ class NutritionCalculatorService {
     return tdee.round(); // maintenance
   }
 
+  @Deprecated('Moved to db RPC calculate_nutrition_targets')
   static Map<String, double> getDefaultMacros(String primaryGoal) {
     if (primaryGoal == 'weight_loss') {
       return {'protein': 30, 'carbs': 40, 'fat': 30};
@@ -50,6 +54,7 @@ class NutritionCalculatorService {
     return {'protein': 25, 'carbs': 50, 'fat': 25}; // maintenance
   }
 
+  @Deprecated('Moved to db RPC calculate_nutrition_targets')
   static double calculateMacroGrams(int totalCalories, double percentage, String macroType) {
     double caloriesFromMacro = totalCalories * (percentage / 100);
     if (macroType == 'fat') {

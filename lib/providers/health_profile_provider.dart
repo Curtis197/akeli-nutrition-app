@@ -9,6 +9,7 @@ import '../features/settings/models/health_profile_model.dart';
 import '../shared/models/nutrition_plan.dart';
 import '../providers/auth_provider.dart';
 import '../providers/nutrition_plan_provider.dart';
+import '../providers/nutrition_targets_provider.dart';
 
 // Pure function — exported for testing
 String activityLevelForCalculator(String dbValue) {
@@ -26,82 +27,6 @@ String activityLevelForCalculator(String dbValue) {
     default:
       return 'sedentary';
   }
-}
-
-// Pure function — exported for testing
-int? computeCalorieGoal(HealthProfileModel model) {
-  final age = model.age;
-  if (age == null || model.weightKg == null || model.heightCm == null) {
-    return null;
-  }
-  final sex = model.sex ?? 'male';
-  final bmr = NutritionCalculatorService.calculateBMR(
-    weightKg: model.weightKg!,
-    heightCm: model.heightCm!,
-    age: age,
-    sex: sex,
-  );
-  final calcActivity =
-      activityLevelForCalculator(model.activityLevel ?? 'sedentary');
-  final tdee = NutritionCalculatorService.calculateTDEE(bmr, calcActivity);
-  final goalType = model.goalType ?? 'maintenance';
-  return NutritionCalculatorService.calculateCalorieGoal(tdee, goalType);
-}
-
-/// Full set of nutrition targets derived from a health profile in a single
-/// calculator run. Used to keep nutrition_plan, meal_distribution and user_goal
-/// in sync whenever the profile changes.
-class NutritionTargets {
-  final double bmr;
-  final double tdee;
-  final int calorieGoal;
-  final double proteinG;
-  final double carbsG;
-  final double fatG;
-
-  const NutritionTargets({
-    required this.bmr,
-    required this.tdee,
-    required this.calorieGoal,
-    required this.proteinG,
-    required this.carbsG,
-    required this.fatG,
-  });
-}
-
-// Pure function — exported for testing.
-// Returns null when the profile lacks the inputs needed to compute targets.
-NutritionTargets? computeNutritionTargets(HealthProfileModel model) {
-  final age = model.age;
-  if (age == null ||
-      model.weightKg == null ||
-      model.heightCm == null ||
-      model.goalType == null) {
-    return null;
-  }
-  final sex = model.sex ?? 'male';
-  final bmr = NutritionCalculatorService.calculateBMR(
-    weightKg: model.weightKg!,
-    heightCm: model.heightCm!,
-    age: age,
-    sex: sex,
-  );
-  final tdee = NutritionCalculatorService.calculateTDEE(
-      bmr, activityLevelForCalculator(model.activityLevel ?? 'sedentary'));
-  final calorieGoal =
-      NutritionCalculatorService.calculateCalorieGoal(tdee, model.goalType!);
-  final macros = NutritionCalculatorService.getDefaultMacros(model.goalType!);
-  return NutritionTargets(
-    bmr: bmr,
-    tdee: tdee,
-    calorieGoal: calorieGoal,
-    proteinG: NutritionCalculatorService.calculateMacroGrams(
-        calorieGoal, macros['protein']!, 'protein'),
-    carbsG: NutritionCalculatorService.calculateMacroGrams(
-        calorieGoal, macros['carbs']!, 'carbs'),
-    fatG: NutritionCalculatorService.calculateMacroGrams(
-        calorieGoal, macros['fat']!, 'fat'),
-  );
 }
 
 class HealthProfileNotifier
@@ -212,7 +137,21 @@ class HealthProfileNotifier
           .db('AFTER | table: user_health_profile | op: UPSERT | rows: 1');
 
       // 2. Recompute the full target set from the updated profile.
-      final targets = computeNutritionTargets(updated);
+      final age = updated.age;
+      NutritionTargetsResult? targets;
+      if (age != null && updated.weightKg != null && updated.heightCm != null && updated.goalType != null) {
+        targets = await fetchNutritionTargets(
+          client,
+          weightKg: updated.weightKg!,
+          heightCm: updated.heightCm!,
+          age: age,
+          sex: updated.sex ?? 'male',
+          activityLevel: activityLevelForCalculator(updated.activityLevel ?? 'sedentary'),
+          primaryGoal: updated.goalType!,
+          targetWeightKg: updated.targetWeightKg,
+          remainingWeeks: remainingWeeksFromDate(updated.targetDate),
+        );
+      }
 
       if (targets == null) {
         // Missing weight/height/age/goal — cannot recompute. Refresh the plan
@@ -240,7 +179,7 @@ class HealthProfileNotifier
                 sortOrder: d.sortOrder,
                 caloriePct: d.caloriePct,
                 calorieTarget: double.parse(
-                    (targets.calorieGoal * d.caloriePct / 100)
+                    (targets!.calorieGoal * d.caloriePct / 100)
                         .toStringAsFixed(1)),
               ))
           .toList();
@@ -253,7 +192,7 @@ class HealthProfileNotifier
         userId: user.id,
         calorieGoal: targets.calorieGoal,
         proteinGoalG: targets.proteinG,
-        carbGoalG: targets.carbsG,
+        carbGoalG: targets.carbG,
         fatGoalG: targets.fatG,
         bmr: targets.bmr,
         tdee: targets.tdee,
