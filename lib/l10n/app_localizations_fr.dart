@@ -1501,6 +1501,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get onboardingSummaryNotSet => 'Non défini';
 
   @override
+  String onboardingSummaryMacroValue(String grams, String pct) {
+    return '${grams}g ($pct%)';
+  }
+
+  @override
+  String onboardingSummaryBatchPortions(int count) {
+    return 'Jusqu\'à $count portions par session';
+  }
+
+  @override
   String get feedSortBestRated => 'Mieux noté';
 
   @override

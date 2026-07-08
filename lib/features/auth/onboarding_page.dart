@@ -20,6 +20,7 @@ import '../settings/widgets/allergen_picker_widget.dart';
 import '../settings/widgets/intensity_badge.dart';
 import 'widgets/meal_schedule_onboarding_step.dart';
 import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromMonths;
+import '../../providers/nutrition_plan_provider.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -2267,6 +2268,68 @@ class _StepSummary extends ConsumerWidget {
                           ),
                         ],
                       ),
+                      Consumer(builder: (context, ref, _) {
+                        final plan = ref.watch(activeNutritionPlanProvider).valueOrNull;
+                        if (plan == null) return const SizedBox.shrink();
+                        final totalMacroCal = (plan.proteinGoalG * 4) +
+                            (plan.carbGoalG * 4) +
+                            (plan.fatGoalG * 9);
+                        String macroValue(double grams, double calFactor) {
+                          final pct = totalMacroCal > 0
+                              ? (grams * calFactor / totalMacroCal * 100)
+                              : 0.0;
+                          return l10n.onboardingSummaryMacroValue(
+                              grams.toStringAsFixed(0), pct.toStringAsFixed(0));
+                        }
+
+                        return Column(
+                          children: [
+                            const SizedBox(height: AkeliSpacing.sm),
+                            Container(
+                              padding: const EdgeInsets.all(AkeliSpacing.md),
+                              decoration: BoxDecoration(
+                                color: AkeliColors.surfaceContainerLow,
+                                borderRadius:
+                                    BorderRadius.circular(AkeliRadius.xl),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(l10n.nutritionPlanDailyGoalTitle,
+                                          style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              color: AkeliColors.onSurface)),
+                                      Text('${plan.calorieGoal} kcal',
+                                          style: GoogleFonts.plusJakartaSans(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w800,
+                                              color: AkeliColors.primary)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: AkeliSpacing.sm),
+                                  Wrap(
+                                    spacing: AkeliSpacing.xs,
+                                    runSpacing: AkeliSpacing.xs,
+                                    children: [
+                                      _SummaryChip(
+                                          '${l10n.nutritionProtein}: ${macroValue(plan.proteinGoalG, 4)}'),
+                                      _SummaryChip(
+                                          '${l10n.nutritionCarbs}: ${macroValue(plan.carbGoalG, 4)}'),
+                                      _SummaryChip(
+                                          '${l10n.nutritionFat}: ${macroValue(plan.fatGoalG, 9)}'),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                       if (data.noPork || data.noMeat || data.noGluten || data.noLactose) ...[
                         const SizedBox(height: AkeliSpacing.sm),
                         Container(
@@ -2311,6 +2374,66 @@ class _StepSummary extends ConsumerWidget {
                                     _SummaryChip(l10n.dietGlutenFree),
                                   if (data.noLactose)
                                     _SummaryChip(l10n.dietLactoseFree),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (data.cookingTime != null ||
+                          data.batchCookingEnabled ||
+                          data.cuisinePreferences.isNotEmpty ||
+                          data.allergens.isNotEmpty) ...[
+                        const SizedBox(height: AkeliSpacing.sm),
+                        Container(
+                          padding: const EdgeInsets.all(AkeliSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AkeliColors.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(AkeliRadius.xl),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: AkeliColors.tertiaryFixed.withValues(alpha: 0.3),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.tune_rounded, size: 18),
+                                  ),
+                                  const SizedBox(width: AkeliSpacing.sm),
+                                  Text(l10n.onboardingPreferences,
+                                      style: GoogleFonts.plusJakartaSans(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: AkeliColors.onSurface)),
+                                ],
+                              ),
+                              const SizedBox(height: AkeliSpacing.sm),
+                              Wrap(
+                                spacing: AkeliSpacing.xs,
+                                runSpacing: AkeliSpacing.xs,
+                                children: [
+                                  if (data.cookingTime == 'quick')
+                                    _SummaryChip(l10n.onboardingGoalsCookingQuick),
+                                  if (data.cookingTime == 'medium')
+                                    _SummaryChip(l10n.onboardingGoalsCookingMedium),
+                                  if (data.cookingTime == 'any')
+                                    _SummaryChip(l10n.onboardingGoalsCookingAny),
+                                  if (data.batchCookingEnabled)
+                                    _SummaryChip(l10n.onboardingSummaryBatchPortions(
+                                        data.batchMaxPortions)),
+                                  if (data.cuisinePreferences.isNotEmpty)
+                                    ..._StepPreferencesState._kRegions(l10n)
+                                        .where((r) =>
+                                            data.cuisinePreferences.contains(r.$1))
+                                        .map((r) => _SummaryChip(r.$2)),
+                                  ...data.allergens
+                                      .map((a) => _SummaryChip(a.label)),
                                 ],
                               ),
                             ],

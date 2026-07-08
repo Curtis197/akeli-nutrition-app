@@ -2894,6 +2894,18 @@ abstract class AppLocalizations {
   /// **'Not set'**
   String get onboardingSummaryNotSet;
 
+  /// No description provided for @onboardingSummaryMacroValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{grams}g ({pct}%)'**
+  String onboardingSummaryMacroValue(String grams, String pct);
+
+  /// No description provided for @onboardingSummaryBatchPortions.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} portions per session'**
+  String onboardingSummaryBatchPortions(int count);
+
   /// No description provided for @feedSortBestRated.
   ///
   /// In en, this message translates to:

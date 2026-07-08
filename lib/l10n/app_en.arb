@@ -1434,6 +1434,21 @@
   "onboardingSummaryNotSet": "Not set",
   "@onboardingSummaryNotSet": {},
 
+  "onboardingSummaryMacroValue": "{grams}g ({pct}%)",
+  "@onboardingSummaryMacroValue": {
+    "placeholders": {
+      "grams": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+
+  "onboardingSummaryBatchPortions": "Up to {count} portions per session",
+  "@onboardingSummaryBatchPortions": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+
   "feedSortBestRated": "Best rated",
   "@feedSortBestRated": {},
 

@@ -506,6 +506,19 @@
   "onboardingSummaryNamePlaceholder": "Votre nom",
   "onboardingSummaryAge": "{age} ans",
   "onboardingSummaryNotSet": "Non défini",
+  "onboardingSummaryMacroValue": "{grams}g ({pct}%)",
+  "@onboardingSummaryMacroValue": {
+    "placeholders": {
+      "grams": { "type": "String" },
+      "pct": { "type": "String" }
+    }
+  },
+  "onboardingSummaryBatchPortions": "Jusqu'à {count} portions par session",
+  "@onboardingSummaryBatchPortions": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
 
   "feedSortBestRated": "Mieux noté",
   "feedSortPopular": "Populaire",
