@@ -108,7 +108,7 @@ Future<NutritionTargetsResult?> fetchNutritionTargets(
     final rows = await client.rpc('calculate_nutrition_targets',
         params: params) as List<dynamic>;
     _logger.db(
-        'AFTER rpc | fn: calculate_nutrition_targets | rows: ${rows.length}');
+        'AFTER rpc | fn: calculate_nutrition_targets | rows: ${rows.length} | data: ${rows.isEmpty ? null : rows.first}');
     if (rows.isEmpty) return null;
     return NutritionTargetsResult.fromRpcRow(
         rows.first as Map<String, dynamic>);
