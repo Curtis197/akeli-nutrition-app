@@ -89,7 +89,7 @@ serve(async (req) => {
         ...(weight_goal !== undefined && { weight_goal }),
         ...(muscle_goal !== undefined && { muscle_goal }),
         ...(cooking_time !== undefined && { cooking_time }),
-      });
+      }, { onConflict: "user_id" });
     logQueryResult(logger, "user_health_profile", "UPSERT", healthError ? 0 : 1, healthError ?? undefined);
     if (healthError) throw healthError;
 
