@@ -133,6 +133,7 @@ class HealthProfile {
   final DateTime? targetDate;
   final String? activityLevel;
   final String? primaryGoal;
+  final String? muscleGoal;
   final List<String> dietaryRestrictions;
   final List<String> cuisinePreferences;
 
@@ -147,6 +148,7 @@ class HealthProfile {
     this.targetDate,
     this.activityLevel,
     this.primaryGoal,
+    this.muscleGoal,
     required this.dietaryRestrictions,
     required this.cuisinePreferences,
   });
@@ -166,6 +168,7 @@ class HealthProfile {
             : null,
         activityLevel: json['activity_level'] as String?,
         primaryGoal: json['primary_goal'] as String?,
+        muscleGoal: json['muscle_goal'] as String?,
         dietaryRestrictions:
             (json['dietary_restrictions'] as List<dynamic>?)?.cast<String>() ??
                 [],

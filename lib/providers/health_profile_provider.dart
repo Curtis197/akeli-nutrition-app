@@ -132,6 +132,7 @@ class HealthProfileNotifier
           primaryGoal: updated.goalType!,
           targetWeightKg: updated.targetWeightKg,
           remainingWeeks: remainingWeeksFromDate(updated.targetDate),
+          muscleGoal: updated.muscleGoal,
         );
       }
 

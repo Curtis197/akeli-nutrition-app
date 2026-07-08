@@ -8,13 +8,14 @@ void main() {
       final p = buildCalculateTargetsParams(
         weightKg: 70, heightCm: 170, age: 30, sex: 'female',
         activityLevel: 'moderate', primaryGoal: 'weight_loss',
-        targetWeightKg: 60, remainingWeeks: 26,
+        targetWeightKg: 60, remainingWeeks: 26, muscleGoal: 'gain',
       );
       expect(p, {
         'p_weight_kg': 70.0, 'p_height_cm': 170.0, 'p_age': 30,
         'p_sex': 'female', 'p_activity_level': 'moderate',
         'p_primary_goal': 'weight_loss',
         'p_target_weight_kg': 60.0, 'p_remaining_weeks': 26,
+        'p_muscle_goal': 'gain',
       });
     });
 
@@ -26,6 +27,7 @@ void main() {
       expect(p['p_target_weight_kg'], isNull);
       expect(p['p_remaining_weeks'], isNull);
       expect(p['p_activity_level'], isNull);
+      expect(p['p_muscle_goal'], isNull);
     });
   });
 

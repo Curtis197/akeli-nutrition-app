@@ -54,6 +54,7 @@ Map<String, dynamic> buildCalculateTargetsParams({
   required String primaryGoal,
   double? targetWeightKg,
   int? remainingWeeks,
+  String? muscleGoal,
 }) =>
     {
       'p_weight_kg': weightKg,
@@ -64,6 +65,7 @@ Map<String, dynamic> buildCalculateTargetsParams({
       'p_primary_goal': primaryGoal,
       'p_target_weight_kg': targetWeightKg,
       'p_remaining_weeks': remainingWeeks,
+      'p_muscle_goal': muscleGoal,
     };
 
 /// Onboarding: target_date is "today + timelineMonths", so remaining weeks
@@ -92,6 +94,7 @@ Future<NutritionTargetsResult?> fetchNutritionTargets(
   required String primaryGoal,
   double? targetWeightKg,
   int? remainingWeeks,
+  String? muscleGoal,
 }) async {
   final params = buildCalculateTargetsParams(
     weightKg: weightKg,
@@ -102,6 +105,7 @@ Future<NutritionTargetsResult?> fetchNutritionTargets(
     primaryGoal: primaryGoal,
     targetWeightKg: targetWeightKg,
     remainingWeeks: remainingWeeks,
+    muscleGoal: muscleGoal,
   );
   _logger.db('BEFORE rpc | fn: calculate_nutrition_targets | params: $params');
   try {

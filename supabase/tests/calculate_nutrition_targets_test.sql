@@ -2,7 +2,7 @@
 -- Asserts the single-source-of-truth formula, spec §1 + §6.1:
 -- docs/superpowers/specs/2026-07-07-nutrition-targets-calculation-design-v2.md
 BEGIN;
-SELECT plan(25);
+SELECT plan(28);
 
 -- ── Baseline BMR/TDEE (profile M, maintenance) ─────────────────────────────
 SELECT results_eq(
@@ -10,11 +10,13 @@ SELECT results_eq(
   $$VALUES (1620::numeric, 1944::numeric, 1944)$$,
   'M maintenance: BMR 1620, TDEE 1944, goal = TDEE');
 
--- Maintenance macros: protein 1.4 g/kg, fat 25% kcal, carbs remainder
+-- Macros now driven by p_muscle_goal, independent of calorie direction
+-- (spec addendum 2026-07-08). NULL muscle_goal -> safe default tier:
+-- protein 1.6 g/kg, fat 25% kcal, carbs remainder.
 SELECT results_eq(
   $$SELECT protein_g, fat_g, carb_g FROM calculate_nutrition_targets(64, 180, 30, 'male', 'sedentary', 'maintenance')$$,
-  $$VALUES (89.6::numeric, 54.0::numeric, 274.9::numeric)$$,
-  'M maintenance macros: 89.6 P / 54.0 F / 274.9 C');
+  $$VALUES (102.4::numeric, 54.0::numeric, 262.1::numeric)$$,
+  'M maintenance macros, no muscle_goal: 102.4 P / 54.0 F / 262.1 C (default tier)');
 
 -- ── Activity multipliers ───────────────────────────────────────────────────
 SELECT results_eq(
@@ -29,11 +31,12 @@ SELECT results_eq(
 
 -- ── Worked matrix, profile F (spec §1.12) ──────────────────────────────────
 -- Row 1: lose 10 kg, 26 wks: pace .3846 -> −423.08 -> 1827; protein vs 60 kg
+-- ref weight, default (no muscle_goal) tier 1.6 g/kg: 60*1.6 = 96.0
 SELECT results_eq(
   $$SELECT calorie_goal, protein_g, effective_pace_kg_week, estimated_weeks_to_target
     FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 60, 26)$$,
-  $$VALUES (1827, 120.0::numeric, 0.38::numeric, 26.0::numeric)$$,
-  'F loss 10kg/26wk: 1827 kcal, P120, pace .38, est 26wk');
+  $$VALUES (1827, 96.0::numeric, 0.38::numeric, 26.0::numeric)$$,
+  'F loss 10kg/26wk, no muscle_goal: 1827 kcal, P96 (default tier), pace .38, est 26wk');
 
 -- Row 2: lose 10 kg, 9 wks: pace clamped 1.0 -> −1100 -> BMR floor 1452
 SELECT results_eq(
@@ -49,17 +52,41 @@ SELECT results_eq(
   $$VALUES (1576, 0.5::numeric)$$,
   'F regain 2kg @4wk floor: 1576 kcal, pace 0.5');
 
--- Row 5: loss, no target -> default 0.5 kg/wk; protein vs current 70 kg
+-- Row 5: loss, no target -> default 0.5 kg/wk; protein vs current 70 kg,
+-- default (no muscle_goal) tier 1.6 g/kg: 70*1.6 = 112.0
 SELECT results_eq(
   $$SELECT calorie_goal, protein_g, estimated_weeks_to_target
     FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss')$$,
-  $$VALUES (1700, 140.0::numeric, NULL::numeric)$$,
-  'F loss no target: 1700 kcal, P140, est NULL');
+  $$VALUES (1700, 112.0::numeric, NULL::numeric)$$,
+  'F loss no target, no muscle_goal: 1700 kcal, P112 (default tier), est NULL');
 
--- Row 7: gain, no target -> default 0.25 kg/wk
+-- Row 7: gain, no target -> default 0.25 kg/wk; default tier 70*1.6=112.0
 SELECT results_eq(
   $$SELECT calorie_goal, protein_g FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'muscle_gain')$$,
-  $$VALUES (2525, 126.0::numeric)$$, 'F gain no target: 2525 kcal, P126');
+  $$VALUES (2525, 112.0::numeric)$$, 'F gain no target, no muscle_goal: 2525 kcal, P112 (default tier)');
+
+-- ── muscle_goal independently drives protein g/kg + fat % (2026-07-08) ─────
+-- Recomposition: weight_loss calorie direction (unchanged, 1827) but
+-- muscle_gain-tier macros (2.2 g/kg vs 60kg ref, 20% fat) — this combo was
+-- impossible to express before muscle_goal decoupling.
+SELECT results_eq(
+  $$SELECT calorie_goal, protein_g, fat_g
+    FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 60, 26, 'gain')$$,
+  $$VALUES (1827, 132.0::numeric, 40.6::numeric)$$,
+  'Recomposition (loss calories + gain macros): 1827 kcal, P132, F40.6');
+-- Same calorie direction, muscle_goal=loss tier (1.2 g/kg, 30% fat) instead.
+SELECT results_eq(
+  $$SELECT calorie_goal, protein_g, fat_g
+    FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 60, 26, 'loss')$$,
+  $$VALUES (1827, 72.0::numeric, 60.9::numeric)$$,
+  'weight_loss + muscle_goal=loss: 1827 kcal, P72, F60.9');
+-- Explicit muscle_goal='maintenance' must equal the NULL default exactly.
+SELECT results_eq(
+  $$SELECT protein_g, fat_g, carb_g
+    FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 60, 26, 'maintenance')$$,
+  $$SELECT protein_g, fat_g, carb_g
+    FROM calculate_nutrition_targets(70, 170, 30, 'female', 'moderate', 'weight_loss', 60, 26)$$,
+  'muscle_goal=maintenance produces the same macros as omitting muscle_goal');
 
 -- Gain with target: 5 kg / 26 wks -> +211.5 -> 2461
 SELECT results_eq(

@@ -210,16 +210,19 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     // instead). Settings: the saved profile IS the source of truth.
     double? targetWeightKg;
     int? remainingWeeks;
+    String? muscleGoal;
     if (widget.isOnboarding) {
       final obData = ref.read(onboardingProvider);
       targetWeightKg = obData.targetWeight;
       remainingWeeks = obData.targetWeight != null
           ? remainingWeeksFromMonths(obData.timelineMonths)
           : null;
+      muscleGoal = obData.muscleGoal;
     } else {
       final healthProfile = await ref.read(healthProfileProvider.future);
       targetWeightKg = healthProfile?.targetWeightKg;
       remainingWeeks = remainingWeeksFromDate(healthProfile?.targetDate);
+      muscleGoal = healthProfile?.muscleGoal;
     }
 
     try {
@@ -233,6 +236,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         primaryGoal: _primaryGoal,
         targetWeightKg: targetWeightKg,
         remainingWeeks: remainingWeeks,
+        muscleGoal: muscleGoal,
       );
 
       if (!mounted) return;
