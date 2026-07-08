@@ -261,6 +261,9 @@ class OnboardingNotifier extends Notifier<OnboardingData> {
         if (state.targetWeight == null || state.targetWeight! < NutritionInputBounds.minWeightKg || state.targetWeight! > NutritionInputBounds.maxWeightKg) {
           return false;
         }
+        if (state.timelineMonths < 1 || state.timelineMonths > 12) {
+          return false;
+        }
         return true;
       case 4: // Preferences — no hard requirement
         return true;

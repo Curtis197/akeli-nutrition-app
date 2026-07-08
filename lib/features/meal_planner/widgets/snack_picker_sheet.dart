@@ -56,87 +56,113 @@ class _SnackPickerSheetState extends ConsumerState<SnackPickerSheet> {
   }
 
   Future<double?> _showWeightPicker(BuildContext ctx, Recipe recipe) async {
+    final controller = TextEditingController(text: '150');
     double weight = 150;
+    String? errorText;
+
     _logger.userAction('Weight picker opened', screen: 'SnackPickerSheet',
         metadata: {'recipeId': recipe.id});
-    return showDialog<double>(
+    final result = await showDialog<double>(
       context: ctx,
       builder: (dialogCtx) => StatefulBuilder(
-        builder: (dialogCtx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AkeliRadius.xl),
-          ),
-          title: Text(
-            recipe.title,
-            style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+        builder: (dialogCtx, setDialogState) {
+          final l10n = AppLocalizations.of(dialogCtx);
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AkeliRadius.xl),
+            ),
+            title: Text(
+              recipe.title,
+              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.snackPickerEstimatedQty,
+                  style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
+                        color: AkeliColors.onSurfaceVariant,
+                      ),
                 ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppLocalizations.of(ctx).snackPickerEstimatedQty,
-                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(
-                      color: AkeliColors.onSurfaceVariant,
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: controller,
+                  keyboardType: TextInputType.number,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText: '150',
+                    suffixText: 'g',
+                    errorText: errorText,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  ),
+                  onChanged: (val) {
+                    final parsed = double.tryParse(val);
+                    setDialogState(() {
+                      if (parsed == null || parsed <= 0) {
+                        weight = 0;
+                        errorText = Localizations.localeOf(dialogCtx).languageCode == 'fr'
+                            ? 'Veuillez entrer une quantité valide'
+                            : 'Please enter a valid quantity';
+                      } else if (parsed > 2000) {
+                        weight = parsed;
+                        errorText = Localizations.localeOf(dialogCtx).languageCode == 'fr'
+                            ? 'La quantité max est 2000g'
+                            : 'Maximum quantity is 2000g';
+                      } else {
+                        weight = parsed;
+                        errorText = null;
+                      }
+                    });
+                  },
+                ),
+                if (weight > 0 && errorText == null) ...[
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      recipe.calories100g != null
+                          ? '${weight.toInt()} g • ${(recipe.calories100g! * weight / 100.0).round()} kcal'
+                          : '${weight.toInt()} g',
+                      style: Theme.of(ctx).textTheme.headlineSmall?.copyWith(
+                            color: AkeliColors.primary,
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                recipe.calories100g != null
-                    ? '${weight.toInt()} g • ${(recipe.calories100g! * weight / 100.0).round()} kcal'
-                    : '${weight.toInt()} g',
-                style: Theme.of(ctx).textTheme.headlineMedium?.copyWith(
-                      color: AkeliColors.primary,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              Slider(
-                value: weight,
-                min: 25,
-                max: 600,
-                divisions: 23,
-                activeColor: AkeliColors.primary,
-                onChanged: (v) => setDialogState(() => weight = v),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('25 g',
-                      style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
-                            color: AkeliColors.onSurfaceVariant,
-                          )),
-                  Text('600 g',
-                      style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
-                            color: AkeliColors.onSurfaceVariant,
-                          )),
+                  ),
                 ],
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  _logger.userAction('Weight picker cancelled', screen: 'SnackPickerSheet');
+                  Navigator.of(dialogCtx).pop();
+                },
+                child: Text(l10n.commonCancel),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: AkeliColors.primary),
+                onPressed: (weight > 0 && errorText == null)
+                    ? () {
+                        _logger.userAction('Weight confirmed', screen: 'SnackPickerSheet',
+                            metadata: {'weightG': weight});
+                        Navigator.of(dialogCtx).pop(weight);
+                      }
+                    : null,
+                child: Text(l10n.commonAdd),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _logger.userAction('Weight picker cancelled', screen: 'SnackPickerSheet');
-                Navigator.of(dialogCtx).pop();
-              },
-              child: Text(AppLocalizations.of(dialogCtx).commonCancel),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: AkeliColors.primary),
-              onPressed: () {
-                _logger.userAction('Weight confirmed', screen: 'SnackPickerSheet',
-                    metadata: {'weightG': weight});
-                Navigator.of(dialogCtx).pop(weight);
-              },
-              child: Text(AppLocalizations.of(dialogCtx).commonAdd),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
+    controller.dispose();
+    return result;
   }
 
   Future<void> _openPersonalSnack() async {

@@ -35,7 +35,6 @@ class AkeliRecipeCard extends StatelessWidget {
   final bool isMinimalist;
   final bool horizontal;
   final String? creatorId;
-  final String? priceTier;
   final VoidCallback? onTap;
 
   const AkeliRecipeCard({
@@ -54,7 +53,6 @@ class AkeliRecipeCard extends StatelessWidget {
     this.isMinimalist = false,
     this.horizontal = false,
     this.creatorId,
-    this.priceTier,
     this.onTap,
   });
 
@@ -392,18 +390,6 @@ class _StatsRow extends StatelessWidget {
               '${card.saves}',
               style: Theme.of(context).textTheme.labelSmall,
             ),
-            if (card.priceTier != null && card.priceTier!.isNotEmpty) ...[
-              const SizedBox(width: AkeliSpacing.xs),
-              const Icon(Icons.monetization_on_outlined, size: 14, color: AkeliColors.primary),
-              const SizedBox(width: 2),
-              Text(
-                card.priceTier!,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AkeliColors.primary,
-                    ),
-              ),
-            ],
           ],
         ),
       ],

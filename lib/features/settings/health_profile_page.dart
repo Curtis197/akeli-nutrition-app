@@ -160,6 +160,18 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
             heightM != null &&
             (local.targetWeightKg! / (heightM * heightM)) < 18.5;
 
+        // Weight coherence (spec D3): non-blocking, mirrors onboarding.
+        final bool showContradictsLoss = targetWeightError == null &&
+            local.weightGoal == 'loss' &&
+            local.targetWeightKg != null &&
+            local.weightKg != null &&
+            local.targetWeightKg! >= local.weightKg!;
+        final bool showContradictsGain = targetWeightError == null &&
+            local.weightGoal == 'gain' &&
+            local.targetWeightKg != null &&
+            local.weightKg != null &&
+            local.targetWeightKg! <= local.weightKg!;
+
         final bool hasError = ageError != null || weightError != null || targetWeightError != null || heightError != null;
 
         final targetWeeks = (remainingWeeksFromDate(local.targetDate) ?? 26).clamp(4, 52);
@@ -408,6 +420,27 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             Expanded(
                               child: Text(
                                 l10n.onboardingWarningUnderweightTarget,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.amber,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (showContradictsLoss || showContradictsGain) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                showContradictsLoss
+                                    ? l10n.onboardingWarningTargetContradictsLoss
+                                    : l10n.onboardingWarningTargetContradictsGain,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: Colors.amber,

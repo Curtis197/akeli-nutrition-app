@@ -1088,7 +1088,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         : null,
                     tags: recipe.mealTypes.take(2).toList(),
                     creatorId: recipe.creatorId,
-                    priceTier: recipe.priceTier,
                     onTap: () async {
                       _logger.userAction('Recipe card tapped', screen: 'FeedPage', metadata: {'recipeId': recipe.id});
 
@@ -1555,7 +1554,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           : null,
                       tags: recipe.mealTypes.take(2).toList(),
                       creatorId: recipe.creatorId,
-                      priceTier: recipe.priceTier,
                       onTap: () {
                         context.push(
                           AkeliRoutes.recipeDetailPath(recipe.id),

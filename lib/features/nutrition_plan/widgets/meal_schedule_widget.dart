@@ -297,33 +297,31 @@ class _SlotCard extends StatelessWidget {
               )),
             ),
 
-            // Calorie % slider
+            // Calorie % input
             Row(
               children: [
                 Text(l10n.mealScheduleCaloriePct,
                     style: const TextStyle(
                         fontSize: 12,
                         color: AkeliColors.onSurfaceVariant)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Slider(
-                    value: distribution.caloriePct.clamp(0, 100),
-                    min: 0,
-                    max: 100,
-                    divisions: 100,
-                    activeColor: AkeliColors.primary,
-                    onChanged: (val) => onUpdate(distribution.copyWith(
-                      caloriePct: val,
-                      calorieTarget: totalCalorieGoal * val / 100,
-                    )),
-                  ),
+                const Spacer(),
+                _InlinePercentField(
+                  value: distribution.caloriePct,
+                  min: 0,
+                  max: 100,
+                  color: AkeliColors.primary,
+                  onChanged: (val) => onUpdate(distribution.copyWith(
+                    caloriePct: val,
+                    calorieTarget: totalCalorieGoal * val / 100,
+                  )),
                 ),
-                SizedBox(
-                  width: 70,
-                  child: Text(
-                    '${distribution.caloriePct.toStringAsFixed(0)}% · $kcal kcal',
-                    style: const TextStyle(fontSize: 11),
-                    textAlign: TextAlign.right,
+                const SizedBox(width: 8),
+                Text(
+                  '· $kcal kcal',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AkeliColors.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -351,19 +349,19 @@ class _SlotCard extends StatelessWidget {
               ),
             ),
             if (isMacroExpanded) ...[
-              _macroSlider(
+              _macroInput(
                 context,
                 l10n.mealScheduleProteinPct,
                 distribution.proteinPct ?? 25.0,
                 (v) => onUpdate(distribution.copyWith(proteinPct: v)),
               ),
-              _macroSlider(
+              _macroInput(
                 context,
                 l10n.mealScheduleCarbsPct,
                 distribution.carbsPct ?? 50.0,
                 (v) => onUpdate(distribution.copyWith(carbsPct: v)),
               ),
-              _macroSlider(
+              _macroInput(
                 context,
                 l10n.mealScheduleFatPct,
                 distribution.fatPct ?? 25.0,
@@ -377,35 +375,27 @@ class _SlotCard extends StatelessWidget {
     );
   }
 
-  Widget _macroSlider(
+  Widget _macroInput(
     BuildContext context,
     String label,
     double value,
     void Function(double) onChanged,
   ) {
-    return Row(
-      children: [
-        SizedBox(
-            width: 80,
-            child:
-                Text(label, style: const TextStyle(fontSize: 11))),
-        Expanded(
-          child: Slider(
-            value: value.clamp(0, 100),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(fontSize: 11, color: AkeliColors.onSurfaceVariant)),
+          const Spacer(),
+          _InlinePercentField(
+            value: value,
             min: 0,
             max: 100,
-            divisions: 100,
-            activeColor: AkeliColors.accentAmber,
+            color: AkeliColors.accentAmber,
             onChanged: onChanged,
           ),
-        ),
-        SizedBox(
-          width: 36,
-          child: Text('${value.toStringAsFixed(0)}%',
-              style: const TextStyle(fontSize: 11),
-              textAlign: TextAlign.right),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -422,6 +412,113 @@ class _SlotCard extends StatelessWidget {
           fontSize: 11,
           color: isValid ? AkeliColors.primary : AkeliColors.error,
         ),
+      ),
+    );
+  }
+}
+
+class _InlinePercentField extends StatefulWidget {
+  final double value;
+  final double min;
+  final double max;
+  final Color color;
+  final ValueChanged<double> onChanged;
+
+  const _InlinePercentField({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.color,
+    required this.onChanged,
+  });
+
+  @override
+  State<_InlinePercentField> createState() => _InlinePercentFieldState();
+}
+
+class _InlinePercentFieldState extends State<_InlinePercentField> {
+  late final TextEditingController _ctrl;
+  late final FocusNode _focus;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.value.toStringAsFixed(0));
+    _focus = FocusNode();
+    _focus.addListener(() {
+      if (!_focus.hasFocus) {
+        final entered = double.tryParse(_ctrl.text);
+        if (entered == null || entered < widget.min || entered > widget.max) {
+          _ctrl.text = widget.value.toStringAsFixed(0);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_InlinePercentField old) {
+    super.didUpdateWidget(old);
+    if (!_focus.hasFocus && widget.value.toStringAsFixed(0) != _ctrl.text) {
+      _ctrl.text = widget.value.toStringAsFixed(0);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 54,
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AkeliRadius.sm),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _ctrl,
+              focusNode: _focus,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: widget.color,
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 6),
+              ),
+              onChanged: (v) {
+                final entered = double.tryParse(v);
+                if (entered != null) {
+                  if (entered >= widget.min && entered <= widget.max) {
+                    widget.onChanged(entered);
+                  }
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Text(
+              '%',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: widget.color.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

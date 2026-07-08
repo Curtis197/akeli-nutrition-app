@@ -36,26 +36,19 @@ Trois niveaux. Trois langages différents. Zéro prosélytisme à aucun niveau �
 
 ---
 
-### Facteur important — La faible barrière d'entrée
+### Facteur important — Le ciblage Nano-Créateurs & Faible barrière d'entrée
 
-C'est ce qui rend le recrutement scalable sans budget massif.
+C'est ce qui rend le recrutement et l'acquisition hautement scalables sans budget publicitaire :
 
-TikTok a fondamentalement changé la logique de l'audience. Son algorithme ne distribue pas le contenu en fonction de la taille du compte — il le distribue en fonction de la pertinence et de l'engagement. Une vidéo d'un compte à 200 abonnés peut atteindre 500 000 vues si elle touche juste une niche réelle. C'est structurellement différent de YouTube ou Instagram où la taille du compte conditionne la portée.
+* **Le contournement des gros créateurs :** Les créateurs installés (>10 000 followers) protègent farouchement leur image, sont réticents à promouvoir un produit tiers en phase de lancement et exigent des contrats à frais fixes. 
+* **Le focus sur les Nano-Créateurs (< 500 abonnés) :** Nous ciblons des passionnés de cuisine sans audience établie mais motivés à l'idée de générer un complément de revenu régulier (*side money*). Ils construisent leur audience pour eux-mêmes, et Akeli leur offre l'infrastructure de monétisation.
+* **Le "Floor" TikTok de 1 000 vues :** TikTok garantit un volume de 1 000 à 2 500 vues pour un compte neuf. Ce reach de départ permet à un nano-créateur de toucher immédiatement sa niche sans avoir d'abonnés de départ.
 
-**La mathématique honnête et accessible :**
+**La mathématique d'acquisition par créateur :**
+* **Créateur Francophone (FR) :** Cible **200 clients actifs**. En convertissant 10% d'une petite audience TikTok engagée de 2 000 abonnés, il génère **200 € / mois** de revenu passif.
+* **Créateur Anglophone (EN) :** Cible **500 clients actifs**. Le marché anglophone (UK/US/Nigeria) étant 3x à 5x plus mature et dynamique, il vise une communauté de 5 000 abonnés et génère **500 € / mois** de revenu passif.
 
-2 000 abonnés engagés sur une niche spécifique.
-10% de conversion vers Akeli = 200 utilisateurs actifs.
-200 utilisateurs actifs = 200€/mois en revenu passif standard.
-Mode Fan activé = revenu garanti supplémentaire par abonné fidèle.
-
-200€/mois pour quelqu'un qui cuisine déjà, qui documente déjà, qui partage déjà — sans changer fondamentalement ce qu'il fait.
-
-**Ce que ça implique pour le recrutement :**
-
-Akeli ne cherche pas des influenceurs. Il cherche des personnes avec une niche réelle et une audience engagée — même petite. La soignante qui parle aux soignantes avec 1 500 abonnés est plus précieuse qu'un compte food généraliste à 30 000 abonnés avec une audience dispersée.
-
-La barrière d'entrée technique est également minimale. Akeli a été conçu pour que l'entrée de recettes soit rapide et intuitive. Un créateur peut construire ses 30 premières recettes — seuil d'éligibilité au Mode Fan — sans expertise technique particulière.
+Cette opportunité financière est une motivation extrême pour un cuisinier amateur qui n'avait aucun moyen de monétiser son savoir auparavant.
 
 ---
 

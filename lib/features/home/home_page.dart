@@ -640,7 +640,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                               imageUrl: recipe.thumbnailUrl,
                               hasImage: true,
                               creatorId: recipe.creatorId,
-                              priceTier: recipe.priceTier,
                               onTap: () {
                                 _logger.userAction('Recipe card tapped',
                                     screen: 'HomePage',

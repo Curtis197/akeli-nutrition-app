@@ -69,7 +69,6 @@ class SavedRecipesPage extends ConsumerWidget {
                 saves: recipe.saveCount,
                 imageUrl: recipe.thumbnailUrl,
                 creatorId: recipe.creatorId,
-                priceTier: recipe.priceTier,
                 onTap: () {
                   appLogger.userAction('Saved recipe tapped',
                       screen: 'SavedRecipesPage',

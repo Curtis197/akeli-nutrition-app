@@ -666,13 +666,12 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
           ),
           Expanded(
             child: Center(
-              child: Text(
-                '${pct.toStringAsFixed(0)}%',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
+              child: _InlinePercentField(
+                value: pct,
+                min: min,
+                max: max,
+                color: color,
+                onChanged: onChanged,
               ),
             ),
           ),
@@ -687,6 +686,113 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
               '${grams.toStringAsFixed(0)}g',
               style: const TextStyle(fontSize: 12),
               textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InlinePercentField extends StatefulWidget {
+  final double value;
+  final double min;
+  final double max;
+  final Color color;
+  final ValueChanged<double> onChanged;
+
+  const _InlinePercentField({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.color,
+    required this.onChanged,
+  });
+
+  @override
+  State<_InlinePercentField> createState() => _InlinePercentFieldState();
+}
+
+class _InlinePercentFieldState extends State<_InlinePercentField> {
+  late final TextEditingController _ctrl;
+  late final FocusNode _focus;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(text: widget.value.toStringAsFixed(0));
+    _focus = FocusNode();
+    _focus.addListener(() {
+      if (!_focus.hasFocus) {
+        final entered = double.tryParse(_ctrl.text);
+        if (entered == null || entered < widget.min || entered > widget.max) {
+          _ctrl.text = widget.value.toStringAsFixed(0);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(_InlinePercentField old) {
+    super.didUpdateWidget(old);
+    if (!_focus.hasFocus && widget.value.toStringAsFixed(0) != _ctrl.text) {
+      _ctrl.text = widget.value.toStringAsFixed(0);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 54,
+      decoration: BoxDecoration(
+        color: AkeliColors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(AkeliRadius.sm),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _ctrl,
+              focusNode: _focus,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: widget.color,
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 8),
+              ),
+              onChanged: (v) {
+                final entered = double.tryParse(v);
+                if (entered != null) {
+                  if (entered >= widget.min && entered <= widget.max) {
+                    widget.onChanged(entered);
+                  }
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Text(
+              '%',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: widget.color.withValues(alpha: 0.7),
+              ),
             ),
           ),
         ],

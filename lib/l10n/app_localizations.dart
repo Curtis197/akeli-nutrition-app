@@ -5259,6 +5259,18 @@ abstract class AppLocalizations {
   /// **'Warning: Target weight results in a BMI under 18.5'**
   String get onboardingWarningUnderweightTarget;
 
+  /// No description provided for @onboardingWarningTargetContradictsLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Your target is above your current weight — your plan will use maintenance calories unless you adjust it'**
+  String get onboardingWarningTargetContradictsLoss;
+
+  /// No description provided for @onboardingWarningTargetContradictsGain.
+  ///
+  /// In en, this message translates to:
+  /// **'Your target is below your current weight — your plan will use maintenance calories unless you adjust it'**
+  String get onboardingWarningTargetContradictsGain;
+
   /// No description provided for @onboardingValidationWeightMin.
   ///
   /// In en, this message translates to:

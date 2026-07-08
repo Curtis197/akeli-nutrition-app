@@ -2781,6 +2781,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Warning: Target weight results in a BMI under 18.5';
 
   @override
+  String get onboardingWarningTargetContradictsLoss =>
+      'Your target is above your current weight — your plan will use maintenance calories unless you adjust it';
+
+  @override
+  String get onboardingWarningTargetContradictsGain =>
+      'Your target is below your current weight — your plan will use maintenance calories unless you adjust it';
+
+  @override
   String get onboardingValidationWeightMin => 'Weight must be at least 35 kg';
 
   @override

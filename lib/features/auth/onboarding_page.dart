@@ -1386,6 +1386,21 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
         heightM != null &&
         (data.targetWeight! / (heightM * heightM)) < 18.5;
 
+    // Weight coherence (spec D3): non-blocking — the backend already falls
+    // back to maintenance calories on a crossed/contradictory target, but
+    // the UI never explained why. Catches a mistyped target before it
+    // becomes a silently-wrong first number.
+    final bool showContradictsLoss = targetWeightError == null &&
+        data.weightGoal == 'loss' &&
+        data.targetWeight != null &&
+        data.weight != null &&
+        data.targetWeight! >= data.weight!;
+    final bool showContradictsGain = targetWeightError == null &&
+        data.weightGoal == 'gain' &&
+        data.targetWeight != null &&
+        data.weight != null &&
+        data.targetWeight! <= data.weight!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AkeliSpacing.lg),
       child: Column(
@@ -1560,6 +1575,27 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                     ],
                   ),
                 ],
+                if (showContradictsLoss || showContradictsGain) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          showContradictsLoss
+                              ? l10n.onboardingWarningTargetContradictsLoss
+                              : l10n.onboardingWarningTargetContradictsGain,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.amber,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AkeliSpacing.xl),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1579,66 +1615,25 @@ class _StepGoalsState extends ConsumerState<_StepGoals> {
                   ],
                 ),
                 const SizedBox(height: AkeliSpacing.md),
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${data.timelineMonths} ',
-                          style: GoogleFonts.plusJakartaSans(
-                              fontSize: 56,
-                              fontWeight: FontWeight.w800,
-                              color: AkeliColors.primary,
-                              height: 1),
-                        ),
-                        TextSpan(
-                          text: l10n.onboardingGoalsMonthsUnit,
-                          style: GoogleFonts.inter(
-                              fontSize: 20,
-                              color: AkeliColors.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    activeTrackColor: AkeliColors.secondaryContainer,
-                    inactiveTrackColor: AkeliColors.surfaceContainerHighest,
-                    thumbColor: AkeliColors.surfaceContainerLowest,
-                    overlayColor:
-                        AkeliColors.primary.withValues(alpha: 0.1),
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 14),
-                    trackHeight: 10,
-                  ),
-                  child: Slider(
-                    value: data.timelineMonths.toDouble(),
-                    min: 1,
-                    max: 12,
-                    divisions: 11,
-                    onChanged: (v) {
-                      _logger.userAction('Timeline months changed',
-                          screen: 'OnboardingPage',
-                          metadata: {'months': v.round()});
-                      notifier.updateGoals(timelineMonths: v.round());
-                    },
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(l10n.onboardingGoalsMonthMin,
-                        style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: AkeliColors.onSurfaceVariant,
-                            letterSpacing: 0.1)),
-                    Text(l10n.onboardingGoalsMonthMax,
-                        style: GoogleFonts.inter(
-                            fontSize: 10,
-                            color: AkeliColors.onSurfaceVariant,
-                            letterSpacing: 0.1)),
-                  ],
+                _MetricField(
+                  value: data.timelineMonths > 0 ? data.timelineMonths.toString() : '',
+                  suffix: l10n.onboardingGoalsMonthsUnit,
+                  onChanged: (v) {
+                    final entered = int.tryParse(v);
+                    _logger.userAction('Timeline months typed',
+                        screen: 'OnboardingPage',
+                        metadata: {'months': entered});
+                    if (entered != null) {
+                      notifier.updateGoals(timelineMonths: entered);
+                    } else {
+                      notifier.updateGoals(timelineMonths: 0);
+                    }
+                  },
+                  errorText: (data.timelineMonths < 1 || data.timelineMonths > 12)
+                      ? (Localizations.localeOf(context).languageCode == 'fr'
+                          ? 'La durée doit être comprise entre 1 et 12 mois'
+                          : 'Duration must be between 1 and 12 months')
+                      : null,
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
                 Text(l10n.onboardingGoalsMotivationsLabel,

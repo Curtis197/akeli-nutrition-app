@@ -253,6 +253,12 @@ const DOCUMENTS = [
     title: 'Plan de Lancement Live V2',
     desc: 'Version mise à jour de la stratégie de lancement opérationnelle après retours d\'audits.',
     category: 'comm'
+  },
+  {
+    fileName: 'AKELI_LAUNCHING_PLAN_TIKTOK.md',
+    title: 'Plan de Lancement TikTok & Créateurs',
+    desc: 'Objectifs de reach organique, floor de 1 000 vues, et entonnoir de recrutement et de coaching des créateurs.',
+    category: 'comm'
   }
 ]
 
@@ -853,10 +859,141 @@ const SLIDES_LIVE_V2 = [
   }
 ];
 
+const SLIDES_LAUNCH_PLAN = [
+  {
+    category: 'AKELI CORP • PLAN DE LANCEMENT',
+    title: 'Plan de Lancement Organique TikTok & Créateurs',
+    type: 'title',
+    content: `
+      <div class="slide-title-layout">
+        <span class="slide-badge">LANCEMENT HORS PUBLICITÉ • JUILLET 2026</span>
+        <h1 class="slide-mega-title">Combattre la modernité par la modernité : Le tunnel d'acquisition TikTok</h1>
+        <p class="slide-author">Recrutement Nano-Créateurs & Modélisation Bilingual (FR/EN)</p>
+      </div>
+    `
+  },
+  {
+    category: 'LANCEMENT • ALGORITHME TIKTOK',
+    title: 'Le Floor Algorithmique de Départ',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">La Réalité de Reach</h4>
+          <ul class="slide-bullets">
+            <li><strong>Le floor de 1 000 à 2 500 vues :</strong> TikTok pousse chaque vidéo d'un compte neuf vers un pool test. Reach garanti dès la première publication.</li>
+            <li><strong>L'intérêt surpasse les followers :</strong> Pas besoin d'audience initiale pour être vu.</li>
+            <li><strong>Niche en traction :</strong> La cuisine africaine est ultra-populaire et non desservie par les apps classiques.</li>
+          </ul>
+        </div>
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Pourquoi c'est unique</h4>
+          <ul class="slide-bullets">
+            <li>Acquisition 100 % organique, coût de marketing direct = 0€.</li>
+            <li>Monétisation immédiate pour les cuisiniers amateurs.</li>
+            <li>L'utilisateur final s'abonne à Akeli pour suivre son créateur favori.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'LANCEMENT • RECRUTEMENT CRÉATEURS',
+    title: 'Bypasser les gros influenceurs, activer les nano-comptes',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col">
+          <h4 class="col-title color-platform">Les Gros Créateurs (>10k)</h4>
+          <ul class="slide-bullets">
+            <li>Exigent des paiements fixes à la signature (upfront).</li>
+            <li>Frileux d'associer leur marque à une application en V1.</li>
+            <li>Ne partagent pas la même urgence de monétisation.</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Les Nano-Créateurs (<500 abonnés)</h4>
+          <ul class="slide-bullets">
+            <li>Aucune option de monétisation traditionnelle (brand deals, creator fund).</li>
+            <li>Monétisation par le Mode Fan (1€/fan) extrêmement attractive.</li>
+            <li>Objectif : 200 clients FR (200€/m) / 500 clients EN (500€/m).</li>
+            <li>Ils construisent leur propre audience pour eux-mêmes.</li>
+          </ul>
+        </div>
+      </div>
+    `
+  },
+  {
+    category: 'LANCEMENT • ENTONNOIR OPÉRATIONNEL',
+    title: 'Le double tunnel d\'acquisition TikTok Lives & Zooms',
+    type: 'text',
+    content: `
+      <div class="slide-system-flow">
+        <div class="flow-step">
+          <span class="step-icon">📱</span>
+          <h6>20 Lives / mois</h6>
+          <p>TikTok FR & EN (accès 50 abonnés)</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">👥</span>
+          <h6>Ateliers Zoom</h6>
+          <p>Coaching niche, recettes, script vidéo</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">🍲</span>
+          <h6>Créateur Actif</h6>
+          <p>Publication de 30 recettes sur Akeli</p>
+        </div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step">
+          <span class="step-icon">🚀</span>
+          <h6>Acquisition Organic</h6>
+          <p>10% conversion audience -> 200-500 fans</p>
+        </div>
+      </div>
+      <div class="slide-flow-footer" style="margin-top: 20px;">
+        <p class="highlight-gold">&there4; Curtis coache et forme, les créateurs acquièrent, la plateforme scale sans publicité.</p>
+      </div>
+    `
+  },
+  {
+    category: 'LANCEMENT • PROJECTIONS FINANCIÈRES',
+    title: 'Projections de MRR Conservatrices (Curtis + 50 Créateurs)',
+    type: 'split',
+    content: `
+      <div class="slide-grid-2col">
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Propre Contenu (Curtis)</h4>
+          <ul class="slide-bullets">
+            <li><strong>Marché FR :</strong> 200 – 500 clients (600€ – 1500€ MRR)</li>
+            <li><strong>Marché EN :</strong> 800 – 2000 clients (2400€ – 6000€ MRR)</li>
+            <li>*Reach anglophone 4x supérieur par maturité wellness.*</li>
+            <li><strong>Autofinancement direct :</strong> 3 000€ – 7 500€ / mois</li>
+          </ul>
+        </div>
+        <div class="slide-col highlight-col">
+          <h4 class="col-title color-gold">Effet Levier 50 Créateurs</h4>
+          <ul class="slide-bullets">
+            <li>15 Créateurs FR (3 000 clients)</li>
+            <li>35 Créateurs EN (17 500 clients)</li>
+            <li><strong>Volume global :</strong> 20 500 clients actifs</li>
+            <li><strong>MRR Global :</strong> 61 500 € / mois</li>
+            <li>*Revenus redistribués créateurs (2€/client) : 41 000€/mois.*</li>
+            <li>*Revenus plateforme (1€/client) : 20 500€/mois.*</li>
+          </ul>
+        </div>
+      </div>
+    `
+  }
+];
+
 const SLIDE_DECKS = {
   phases: SLIDES_PHASES,
   live_v1: SLIDES_LIVE_V1,
-  live_v2: SLIDES_LIVE_V2
+  live_v2: SLIDES_LIVE_V2,
+  launch_plan: SLIDES_LAUNCH_PLAN
 };
 
 const AXES_DATA = {

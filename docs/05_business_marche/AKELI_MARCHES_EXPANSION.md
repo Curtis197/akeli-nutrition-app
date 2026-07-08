@@ -72,24 +72,21 @@ Utilisateur final. Créatrices locales comme ambassadrices — cuisinières reco
 
 ---
 
-## Marché 3 — Afrique anglophone continentale
+## Marché 3 — Le Bloc Anglophone Transnational
 
-**Géographie** : Nigeria (priorité), Ghana, Kenya, Afrique du Sud
+**Géographie** : Nigeria (moteur de volume), Royaume-Uni, États-Unis
 **Langue** : Anglais
-**Pricing** : 3€/mois
-**Statut** : Lancement V1 — entrée par les créateurs
+**Pricing** : 3€/mois (ou 3-4$ selon la zone)
+**Statut** : Lancement V1 — Priorité d'acquisition organique via les créateurs
 
-### Nigeria — marché prioritaire
-Lagos concentre une classe moyenne urbaine jeune, entrepreneuriale, early adopter. Culture business forte, habitude de tester des produits digitaux, disposition à monétiser tout savoir ou compétence. Les créateurs nigérians sont la cible principale — ils apportent leur audience naturellement.
-
-La culture culinaire est riche et identitaire — jollof rice, egusi, suya, egwusi — absente de toute app nutrition sérieuse. Le créateur nigérian qui rejoint Akeli comble un vide réel pour son audience.
+### Analyse du Marché
+Le marché anglophone regroupe naturellement les audiences du Nigeria, du UK et des US sur TikTok. Il est **3 à 5 fois plus mature et développé** que le marché francophone en termes de volume de vues, d'engagement et d'intérêt pour le *wellness* et les *side hustles*. Les créateurs anglophones bénéficient d'un effet de caisse de résonance transnationale immédiat.
 
 ### Stratégie d'entrée anglophone
-Créateurs d'abord. Le pitch est direct et compréhensible dans ces marchés :
+Entrée par les créateurs en priorité. Le message est axé sur la valorisation économique et la liberté financière :
+*"Build a recurring side income with your traditional recipes — independent of YouTube/TikTok ads."*
 
-*"Tu cuisines, tu as une audience, tu veux un revenu récurrent indépendant des algorithmes de TikTok et YouTube — Akeli est ta plateforme."*
-
-Les créateurs anglophones ont une portée transnationale supérieure — un créateur nigérian touche simultanément sa diaspora en UK, aux US, au Canada. La diffusion est structurellement plus large.
+Chaque créateur anglophone recruté via le funnel TikTok Live / Zoom vise un objectif de **500 clients actifs** (10% de conversion sur une niche de 5 000 abonnés TikTok).
 
 ---
 
@@ -98,17 +95,6 @@ Les créateurs anglophones ont une portée transnationale supérieure — un cr�
 **Géographie** : Maroc, Algérie, Tunisie, diaspora arabe en Europe
 **Langue** : Arabe
 **Pricing** : 3€/mois
-**Statut** : V1 — activation linguistique
-
-### Portrait du marché
-Marché massif, cuisine méditerranéenne et nord-africaine riche, forte identité culinaire. La diaspora arabe en Europe partage exactement la même problématique que la diaspora africaine — cuisine traditionnelle incompatible avec les apps nutrition occidentales.
-
-### Stratégie d'entrée
-Activation linguistique arabe dès V1. Recrutement créateurs Maghreb. Marché à développer progressivement — potentiel important mais nécessite une compréhension culturelle spécifique.
-
----
-
-## Marché 5 — Diaspora anglophone UK et Canada
 
 **Géographie** : Royaume-Uni, Canada anglophone
 **Langue** : Anglais

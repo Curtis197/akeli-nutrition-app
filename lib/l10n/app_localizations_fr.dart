@@ -2821,6 +2821,14 @@ class AppLocalizationsFr extends AppLocalizations {
       'Avertissement : Le poids cible conduit à un IMC inférieur à 18,5';
 
   @override
+  String get onboardingWarningTargetContradictsLoss =>
+      'Votre objectif est supérieur à votre poids actuel — votre plan utilisera des calories de maintien si vous ne l\'ajustez pas';
+
+  @override
+  String get onboardingWarningTargetContradictsGain =>
+      'Votre objectif est inférieur à votre poids actuel — votre plan utilisera des calories de maintien si vous ne l\'ajustez pas';
+
+  @override
   String get onboardingValidationWeightMin =>
       'Le poids doit être d\'au moins 35 kg';
 

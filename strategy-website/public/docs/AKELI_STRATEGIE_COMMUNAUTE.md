@@ -18,61 +18,33 @@ Cette vision existe. Cette conversation commence maintenant.
 
 ---
 
-## La force spécifique de TikTok
+## La force spécifique de TikTok & La Cible Nano-Créateurs
 
-TikTok est la plateforme la plus adaptée à la stratégie Akeli pour plusieurs raisons :
+TikTok est aujourd'hui la plateforme la plus accessible ("entry level") et la plus adaptée pour lancer la communauté Akeli, pour plusieurs raisons physiques :
 
-**La spontanéité prime sur la production.** Un live filmé depuis sa cuisine avec un téléphone portable peut surpasser une vidéo produite professionnellement si le contenu est authentique et engageant. Akeli n'a pas besoin d'une infrastructure de production.
+* **Le "Floor" algorithmique de départ :** Un compte fraîchement créé avec zéro abonné bénéficie d'une diffusion minimale garantie d'environ **1 000 à 2 500 vues** par vidéo. Cette distribution par intérêt (et non par graphe social) permet de toucher des utilisateurs sans aucune audience initiale.
+* **Une niche en forte traction :** L'alimentation et la nutrition africaines/diasporiques sont des sujets extrêmement tendances sur TikTok, portés par une communauté active en recherche de repères et de conseils.
+* **Absence de concurrence :** Aucune application de nutrition existante n'adresse la cuisine de la diaspora africaine de manière spécifique, laissant un espace totalement libre pour Akeli.
+* **Maturité du marché anglophone :** Le marché anglophone (Nigeria, UK, US) est beaucoup plus mature et développé, générant **3 à 5 fois plus de vues et d'engagement** que le marché français. Deux comptes distincts seront gérés : un en français et un en anglais.
 
-**Le live crée de la connexion réelle.** Un live TikTok sur l'alimentation des soignantes va générer des témoignages en temps réel — des gens qui disent "c'est exactement ma vie". Cette connexion ne s'achète pas. Elle se crée par la pertinence du sujet et l'authenticité du discours.
-
-**L'algorithme récompense l'engagement.** Un contenu qui génère des commentaires, des questions, des débats — même chez une petite audience — sera poussé vers de nouvelles audiences. Les sujets Akeli sont naturellement générateurs de débat.
-
-**La communauté se construit en public.** Chaque interaction visible — chaque commentaire, chaque réponse, chaque débat — construit la preuve sociale et attire de nouveaux membres.
-
----
-
-## La posture : porteur de vision, pas vendeur de produit
-
-Sur TikTok, Curtis n'est pas en train de présenter une application. Il est en train de partager une vision de l'alimentation africaine diasporique qui résonne avec des milliers de personnes.
-
-Akeli arrive naturellement dans cette conversation — comme une réponse concrète à des questions que les gens se posent déjà. Pas comme un pitch commercial.
-
-**Ce que cette posture implique concrètement :**
-
-Les slogans et les phrases types restent internes — ils nourrissent la compréhension, ils ne sont jamais récités. En live, tout est traduit en langage naturel, en anecdote, en question ouverte, en réaction aux commentaires.
-
-Les sujets de contenu sont des portes d'entrée vers des débats durables — pas des messages promotionnels. La soignante qui commente son expérience alimentaire enrichit le contenu. L'athlète amateur qui réagit étend l'audience. Le primo-arrivant qui partage sa recette génère du contenu organique.
-
-Akeli est mentionné quand c'est naturel — quand quelqu'un pose la question "mais concrètement comment on fait ça ?", la réponse est Akeli.
+### La cible : Nano et Micro-Créateurs (< 500 abonnés)
+Nous ne cherchons pas à recruter des influenceurs food installés (>10k abonnés). Ces profils sont réticents à promouvoir un nouveau projet ou à s'engager sans frais fixes importants. **Nous ciblons exclusivement les nano-créateurs avec peu ou pas d'audience (moins de 500 abonnés) qui souhaitent générer un revenu complémentaire (*side money*)**.
+Ils construisent leur propre audience pour eux-mêmes sur leurs réseaux, et Akeli leur offre l'infrastructure de monétisation.
 
 ---
 
-## Les axes de contenu comme portes d'entrée
+## La stratégie de recrutement : Le Funnel TikTok Live & Zoom Coaching
 
-Chaque axe de contenu développé dans AKELI_AXES_CONTENU.md est conçu pour générer une conversation différente avec une audience différente. Ensemble, ils couvrent l'ensemble du spectre de la communauté cible.
+Le recrutement ne passe pas par du cold-DM. Il utilise un entonnoir basé sur la valeur et la formation gratuite :
 
-**Les axes scientifiques** — adaptation biologique, sédentarité, stress — créent de la curiosité et de la réflexion. Ils positionnent le discours sur un terrain factuel et crédible.
-
-**Les axes historiques et culinaires** — le manioc, le fufu, l'ingrédient de demain — créent du débat et de la fierté. Ils réinventent le regard sur une cuisine connue mais mal comprise.
-
-**Les axes de niche** — la soignante, la jeune professionnelle, l'athlète — créent de la reconnaissance et de l'identification. Ils touchent des douleurs silencieuses et génèrent des témoignages spontanés.
-
-**Les axes économiques créateur** — l'audience diététique, le Mode Fan, la transparence des résultats — créent de l'aspiration et du recrutement organique. Ils s'adressent aux créateurs potentiels qui regardent sans encore avoir sauté le pas.
-
-**L'axe du mouvement culinaire** — créer les nouvelles modes plutôt que les subir — crée de l'ambition collective. Il positionne la communauté comme acteur, pas comme spectateur.
-
----
-
-## La stratégie de recrutement créateur via TikTok
-
-Le recrutement des 50 premiers créateurs ne passe pas principalement par des DM ou des emails froids. Il passe par la communauté elle-même.
-
-Un créateur potentiel qui regarde les lives Akeli pendant 3 semaines, qui voit la vision, qui comprend le modèle économique, qui s'identifie à la proposition — ce créateur se recrute lui-même. Il arrive avec une compréhension et une motivation qu'aucun script de recrutement ne peut générer.
-
-**L'objectif des lives n'est pas de vendre Akeli aux utilisateurs. C'est de montrer aux créateurs potentiels ce que devient leur savoir culinaire dans l'écosystème Akeli.**
-
-Quand un créateur dans l'audience voit que son savoir spécifique — sur la cuisine des soignantes, sur l'alimentation sportive africaine, sur les recettes d'étudiant économiques — a une valeur réelle et mesurable, la conversation de recrutement est déjà à moitié faite.
+1. **Top of Funnel — Lives TikTok (Accessibles dès 50 abonnés) :** 
+   Curtis anime 20 lives par mois (FR et EN). Les lives se concentrent sur la déconnexion culinaire et la valeur économique du savoir des passionnés de cuisine. Grâce au floor algorithmique, nous attirons 20-50 personnes en FR (et plus en EN) par live, et convertissons **1 à 2,5 créateurs actifs par session**.
+2. **Middle of Funnel — Les Ateliers Zoom collectifs :** 
+   Les créateurs intéressés s'inscrivent à un Zoom d'accompagnement gratuit animé par Curtis. C'est ici que l'activation se produit par le coaching :
+   * **Aide à la création de recettes :** Structuration des recettes de famille sous le format Akeli.
+   * **Démarrage sur les réseaux :** Apprendre à trouver son audience, sa niche de vécu (ex: soignantes de nuit) et ses premiers scripts TikTok.
+3. **Onboarding — Créateurs Actifs :**
+   Le créateur publie ses recettes et convertit son audience TikTok en clients Akeli (objectif de **200 clients pour les créateurs FR** et **500 pour les anglophones**).
 
 ---
 
