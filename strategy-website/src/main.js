@@ -1254,6 +1254,7 @@ const SECTION_NAMES = {
   philosophy: 'Philosophie & Concepts',
   business: 'Modèle Économique',
   marketing: 'Marketing & Cibles',
+  launch: 'Plan de Lancement',
   axes: 'Axes Éditoriaux',
   library: 'Bibliothèque Vault',
   presentation: 'Slides Stratégiques'
