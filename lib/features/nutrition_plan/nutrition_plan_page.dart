@@ -201,8 +201,26 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     });
 
     final client = ref.read(supabaseClientProvider);
-    final healthProfile = await ref.read(healthProfileProvider.future);
-    final remainingWeeks = remainingWeeksFromDate(healthProfile?.targetDate);
+
+    // Onboarding: target weight + timeline live only in the in-memory
+    // onboardingProvider until final submit — nothing is persisted to
+    // user_health_profile yet, so reading healthProfileProvider here would
+    // silently ignore whatever was just typed in the Goals step (and, on an
+    // account with a pre-existing profile, would use its stale saved values
+    // instead). Settings: the saved profile IS the source of truth.
+    double? targetWeightKg;
+    int? remainingWeeks;
+    if (widget.isOnboarding) {
+      final obData = ref.read(onboardingProvider);
+      targetWeightKg = obData.targetWeight;
+      remainingWeeks = obData.targetWeight != null
+          ? remainingWeeksFromMonths(obData.timelineMonths)
+          : null;
+    } else {
+      final healthProfile = await ref.read(healthProfileProvider.future);
+      targetWeightKg = healthProfile?.targetWeightKg;
+      remainingWeeks = remainingWeeksFromDate(healthProfile?.targetDate);
+    }
 
     try {
       final targets = await fetchNutritionTargets(
@@ -213,7 +231,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
         sex: _sex,
         activityLevel: _activityLevel,
         primaryGoal: _primaryGoal,
-        targetWeightKg: healthProfile?.targetWeightKg,
+        targetWeightKg: targetWeightKg,
         remainingWeeks: remainingWeeks,
       );
 
