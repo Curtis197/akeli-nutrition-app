@@ -154,7 +154,11 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       _syncHealthParamCtrls();
     }
 
-    if (activePlan != null && activePlan.distributions != null && activePlan.distributions!.isNotEmpty) {
+    // Onboarding must always compute a fresh plan from what was just
+    // entered (Profile/Goals steps) — never silently reuse a leftover
+    // active plan from a previous session on this account. Reusing an
+    // existing plan is only correct for the Settings entry point.
+    if (!widget.isOnboarding && activePlan != null && activePlan.distributions != null && activePlan.distributions!.isNotEmpty) {
       _logger.provider('NutritionPlanPage → loaded existing plan | calorieGoal: ${activePlan.calorieGoal}');
       final totalGramsCal =
           (activePlan.proteinGoalG * 4) + (activePlan.carbGoalG * 4) + (activePlan.fatGoalG * 9);
