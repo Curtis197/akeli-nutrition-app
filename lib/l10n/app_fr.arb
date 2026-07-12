@@ -184,6 +184,8 @@
   "settingsAvatarError": "Erreur : {error}",
 
   "mealPlannerTitle": "Vos repas",
+  "plannerViewToggleWeek": "Semaine",
+  "plannerViewToggleDay": "Jour",
   "mealPlannerWeekTitle": "Vos repas de la semaine",
   "mealPlannerDaysTitle": "Vos repas des prochains jours",
   "mealPlannerViewDietPlan": "Voir mon plan diététique",

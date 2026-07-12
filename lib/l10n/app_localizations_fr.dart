@@ -555,6 +555,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mealPlannerTitle => 'Vos repas';
 
   @override
+  String get plannerViewToggleWeek => 'Semaine';
+
+  @override
+  String get plannerViewToggleDay => 'Jour';
+
+  @override
   String get mealPlannerWeekTitle => 'Vos repas de la semaine';
 
   @override

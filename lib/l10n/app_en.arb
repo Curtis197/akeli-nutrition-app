@@ -535,6 +535,12 @@
   "mealPlannerTitle": "Your Meals",
   "@mealPlannerTitle": {},
 
+  "plannerViewToggleWeek": "Week",
+  "@plannerViewToggleWeek": {},
+
+  "plannerViewToggleDay": "Day",
+  "@plannerViewToggleDay": {},
+
   "mealPlannerWeekTitle": "Your meals this week",
   "@mealPlannerWeekTitle": {},
 

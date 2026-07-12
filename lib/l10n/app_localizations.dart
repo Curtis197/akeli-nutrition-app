@@ -1142,6 +1142,18 @@ abstract class AppLocalizations {
   /// **'Your Meals'**
   String get mealPlannerTitle;
 
+  /// No description provided for @plannerViewToggleWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get plannerViewToggleWeek;
+
+  /// No description provided for @plannerViewToggleDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get plannerViewToggleDay;
+
   /// No description provided for @mealPlannerWeekTitle.
   ///
   /// In en, this message translates to:
