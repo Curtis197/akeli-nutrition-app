@@ -29,17 +29,21 @@ final badgeSyncProvider = Provider.autoDispose<void>((ref) {
   final controller = ref.watch(badgeControllerProvider);
 
   ref.listen<AsyncValue<int>>(unreadNotificationCountProvider, (previous, next) {
-    next.whenData((count) async {
-      try {
-        if (count == 0) {
-          await controller.removeBadge();
-        } else {
-          await controller.updateBadgeCount(count);
+    next.when(
+      data: (count) async {
+        try {
+          if (count == 0) {
+            await controller.removeBadge();
+          } else {
+            await controller.updateBadgeCount(count);
+          }
+          _logger.provider('badgeSyncProvider → synced | count: $count');
+        } catch (e, st) {
+          _logger.provider('badgeSyncProvider → ERROR | $e', error: e, stackTrace: st);
         }
-        _logger.provider('badgeSyncProvider → synced | count: $count');
-      } catch (e, st) {
-        _logger.provider('badgeSyncProvider → ERROR | $e', error: e, stackTrace: st);
-      }
-    });
+      },
+      loading: () {},
+      error: (e, st) => _logger.provider('badgeSyncProvider → error from unreadNotificationCountProvider | $e', error: e, stackTrace: st),
+    );
   }, fireImmediately: true);
 });

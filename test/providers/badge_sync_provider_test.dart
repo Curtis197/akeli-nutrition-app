@@ -66,4 +66,19 @@ void main() {
 
     verify(() => mockController.updateBadgeCount(5)).called(1);
   });
+
+  test('badgeSyncProvider handles error from unreadNotificationCountProvider', () async {
+    container = ProviderContainer(
+      overrides: [
+        badgeControllerProvider.overrideWithValue(mockController),
+        unreadNotificationCountProvider.overrideWith((ref) => Future<int>.error(Exception('boom'))),
+      ],
+    );
+
+    container!.read(badgeSyncProvider);
+    await Future.delayed(Duration.zero);
+
+    verifyNever(() => mockController.updateBadgeCount(any()));
+    verifyNever(() => mockController.removeBadge());
+  });
 }
