@@ -11,9 +11,11 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
+import 'meal_planner_actions.dart';
 import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';
-import 'widgets/snack_picker_sheet.dart';
+import 'widgets/meal_planner_day_tab_view.dart';
+import 'widgets/meal_planner_view_toggle.dart';
 
 class MealPlannerPage extends ConsumerWidget {
   const MealPlannerPage({super.key});
@@ -56,10 +58,11 @@ class MealPlannerPage extends ConsumerWidget {
           if (plan == null) {
             return _buildEmptyState(context, ref);
           }
+          final viewMode = ref.watch(plannerViewModeProvider);
           final entriesByDay = plan.entriesByDay;
           final dayKeys = entriesByDay.keys.toList()..sort();
 
-          appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length}');
+          appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length} | viewMode: ${viewMode.name}');
 
           return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
@@ -67,24 +70,37 @@ class MealPlannerPage extends ConsumerWidget {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             sliver: SliverToBoxAdapter(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    dayKeys.length > 3 ? l10n.mealPlannerWeekTitle : l10n.mealPlannerDaysTitle,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      height: 1.1,
-                      letterSpacing: -1.0,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.mealPlannerTitle,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                          letterSpacing: -1.0,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.tune_rounded),
+                        tooltip: l10n.mealScheduleCustomizeButton,
+                        color: AkeliColors.primary,
+                        onPressed: () {
+                          appLogger.userAction('Customize meal structure tapped', screen: 'MealPlannerPage');
+                          _showCustomizeSheet(context, ref);
+                        },
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.tune_rounded),
-                    tooltip: l10n.mealScheduleCustomizeButton,
-                    color: AkeliColors.primary,
-                    onPressed: () {
-                      appLogger.userAction('Customize meal structure tapped', screen: 'MealPlannerPage');
-                      _showCustomizeSheet(context, ref);
+                  const SizedBox(height: 12),
+                  MealPlannerViewToggle(
+                    value: viewMode,
+                    onChanged: (mode) {
+                      appLogger.provider('plannerViewModeProvider → ${mode.name}');
+                      ref.read(plannerViewModeProvider.notifier).state = mode;
                     },
                   ),
                 ],
@@ -160,49 +176,54 @@ class MealPlannerPage extends ConsumerWidget {
                 );
               }),
               const SliverToBoxAdapter(child: SizedBox(height: 24)),
-              // ── DAILY MEAL LIST ─────────────────────────────────────────
-              SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final date = dayKeys[index];
-                    final entries = entriesByDay[date]!;
-                    
-                    return MealPlannerDayRow(
-                      date: date,
-                      entries: entries,
-                      onRecipeTap: (entryId) {
-                        appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
-                        context.push(AkeliRoutes.mealDetailPath(entryId));
-                      },
-                      onConsumedToggle: (entryId) async {
-                        appLogger.userAction('Meal consumed toggle', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
-                        final plan = ref.read(activeMealPlanProvider).valueOrNull;
-                        final dbIsConsumed = plan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
-                        final overrides = ref.read(optimisticConsumptionProvider);
-                        final effectiveIsConsumed = overrides[entryId] ?? dbIsConsumed;
-                        try {
-                          await ref.read(mealConsumptionProvider.notifier).toggleConsumption(
-                            entryId,
-                            isCurrentlyConsumed: effectiveIsConsumed,
-                          );
-                        } catch (e) {
-                          appLogger.userAction('toggleConsumption ERROR | $e',
-                              screen: 'MealPlannerPage', metadata: {'error': e.toString()});
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).mealPlannerConsumptionError),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      onAddSnack: () => _addSnack(context, ref, plan.id, date),
-                    );
-                  },
-                  childCount: dayKeys.length,
+              if (viewMode == PlannerViewMode.day) ...[
+                // ── DAY TAB VIEW ─────────────────────────────────────────
+                SliverToBoxAdapter(
+                  child: MealPlannerDayTabView(
+                    plan: plan,
+                    onRecipeTap: (entryId) {
+                      appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
+                      context.push(AkeliRoutes.mealDetailPath(entryId));
+                    },
+                  ),
                 ),
-              ),
+              ] else ...[
+                // ── DAILY MEAL LIST (week view) ──────────────────────────
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final date = dayKeys[index];
+                      final entries = entriesByDay[date]!;
+
+                      return MealPlannerDayRow(
+                        date: date,
+                        entries: entries,
+                        onRecipeTap: (entryId) {
+                          appLogger.userAction('Meal plan entry tapped', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
+                          context.push(AkeliRoutes.mealDetailPath(entryId));
+                        },
+                        onConsumedToggle: (entryId) async {
+                          appLogger.userAction('Meal consumed toggle', screen: 'MealPlannerPage', metadata: {'entryId': entryId});
+                          final currentPlan = ref.read(activeMealPlanProvider).valueOrNull;
+                          final dbIsConsumed = currentPlan?.entries.where((e) => e.id == entryId).firstOrNull?.isConsumed ?? false;
+                          final overrides = ref.read(optimisticConsumptionProvider);
+                          final effectiveIsConsumed = overrides[entryId] ?? dbIsConsumed;
+                          await toggleMealConsumption(
+                            context,
+                            ref,
+                            entryId: entryId,
+                            isCurrentlyConsumed: effectiveIsConsumed,
+                            screen: 'MealPlannerPage',
+                          );
+                        },
+                        onAddSnack: () =>
+                            addSnackToDay(context, ref, plan.id, date, screen: 'MealPlannerPage'),
+                      );
+                    },
+                    childCount: dayKeys.length,
+                  ),
+                ),
+              ],
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 48),
@@ -230,61 +251,6 @@ class MealPlannerPage extends ConsumerWidget {
         },
       ),
     );
-  }
-
-  Future<void> _addSnack(BuildContext context, WidgetRef ref, String mealPlanId, DateTime date) async {
-    appLogger.userAction('Add snack tapped', screen: 'MealPlannerPage',
-        metadata: {'date': date.toIso8601String()});
-    final l10n = AppLocalizations.of(context);
-
-    final selection = await showModalBottomSheet<SnackSelection>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const SnackPickerSheet(),
-    );
-    if (selection == null || !context.mounted) return;
-
-    try {
-      switch (selection) {
-        case RecipeSnackSelection(:final recipeId, :final weightG):
-          await ref.read(snackEntryProvider.notifier).addSnack(
-            mealPlanId: mealPlanId,
-            recipeId: recipeId,
-            scheduledDate: date,
-            weightG: weightG,
-          );
-        case CustomSnackSelection(:final name, :final calories,
-            :final proteinG, :final carbsG, :final fatG):
-          await ref.read(snackEntryProvider.notifier).addCustomSnack(
-            mealPlanId: mealPlanId,
-            scheduledDate: date,
-            name: name,
-            calories: calories,
-            proteinG: proteinG,
-            carbsG: carbsG,
-            fatG: fatG,
-          );
-      }
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.feedAddedToMealPlan),
-            backgroundColor: AkeliColors.primary,
-          ),
-        );
-      }
-    } catch (e) {
-      appLogger.edge('add-snack', 'ERROR | $e', error: e);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.mealPlannerError(e.toString())),
-            backgroundColor: AkeliColors.error,
-          ),
-        );
-      }
-    }
   }
 
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {

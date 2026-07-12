@@ -561,12 +561,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get plannerViewToggleDay => 'Jour';
 
   @override
-  String get mealPlannerWeekTitle => 'Vos repas de la semaine';
-
-  @override
-  String get mealPlannerDaysTitle => 'Vos repas des prochains jours';
-
-  @override
   String get mealPlannerViewDietPlan => 'Voir mon plan diététique';
 
   @override
