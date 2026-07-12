@@ -88,6 +88,15 @@ final activeMealPlanProvider =
 });
 
 // ---------------------------------------------------------------------------
+// Planner view mode — Semaine (week) vs Jour (day) toggle on MealPlannerPage
+// ---------------------------------------------------------------------------
+
+enum PlannerViewMode { week, day }
+
+final plannerViewModeProvider =
+    StateProvider.autoDispose<PlannerViewMode>((ref) => PlannerViewMode.week);
+
+// ---------------------------------------------------------------------------
 // Generate meal plan — Edge Function
 // ---------------------------------------------------------------------------
 
