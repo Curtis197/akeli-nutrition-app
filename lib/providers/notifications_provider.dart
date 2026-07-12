@@ -64,7 +64,10 @@ final notificationsProvider =
 
 // ---------------------------------------------------------------------------
 // unreadNotificationCountProvider
-// Returns the count of unread notifications. Used for the bell badge.
+// Returns the count of unread notifications. Used for the bell badge and,
+// via badgeSyncProvider, the OS app-icon badge. Same is_read = false
+// definition as the STEP 4b query in supabase/functions/send-push-notification
+// — keep both in sync if either changes.
 // ---------------------------------------------------------------------------
 
 final unreadNotificationCountProvider =

@@ -66,6 +66,8 @@ serve(async (req) => {
     const notificationInserted = !notifInsertError;
     logQueryResult(logger, "notification", "INSERT", notificationInserted ? 1 : 0, notifInsertError ?? undefined);
 
+    // Same is_read = false definition as unreadNotificationCountProvider in
+    // lib/providers/notifications_provider.dart — keep both in sync if either changes.
     logger.debug("[STEP 4b] Fetch unread count for badge");
     logRLSCheck(logger, "notification", "SELECT", user_id);
     const { count: unreadCount, error: unreadCountError } = await admin
