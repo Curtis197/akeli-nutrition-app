@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/push_token_provider.dart';
+import '../../providers/badge_sync_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/notifications_provider.dart';
 import '../../shared/widgets/avatar.dart';
@@ -32,6 +33,7 @@ class MainShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(pushTokenProvider);
+    ref.watch(badgeSyncProvider);
     final activeIndex = _activeIndex(context);
     final profileAsync = ref.watch(userProfileProvider);
     final l10n = AppLocalizations.of(context);
