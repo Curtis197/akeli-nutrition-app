@@ -9,6 +9,7 @@ import 'package:akeli/providers/meal_plan_provider.dart';
 import 'package:akeli/providers/nutrition_plan_provider.dart';
 import 'package:akeli/shared/models/meal_plan.dart';
 import 'package:akeli/shared/models/nutrition_plan.dart';
+import 'package:akeli/shared/widgets/meal_card.dart';
 
 MealPlanEntry _entry({
   required String id,
@@ -149,6 +150,32 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SnackPickerSheet), findsOneWidget);
+    });
+
+    testWidgets('handles empty entries gracefully without crashing', (tester) async {
+      // Create a MealPlan with an empty entries list. This can happen when
+      // activeMealPlanProvider returns a non-null plan but the query doesn't
+      // use !inner join on meal_plan_entry, defaulting entries to [].
+      final emptyPlan = MealPlan(
+        id: 'plan-1',
+        userId: 'u-1',
+        startDate: day1,
+        endDate: day2,
+        isActive: true,
+        entries: const [],
+      );
+
+      await tester.pumpWidget(_wrap(
+        MealPlannerDayTabView(plan: emptyPlan),
+        overrides: baseOverrides(),
+      ));
+      await tester.pump();
+
+      // The widget should render without throwing StateError: No element.
+      // Assert that MealPlannerDayTabView itself still exists in the tree
+      // (i.e. it didn't crash), and verify no meal cards are rendered.
+      expect(find.byType(MealPlannerDayTabView), findsOneWidget);
+      expect(find.byType(AkeliMealCard), findsNothing);
     });
   });
 }

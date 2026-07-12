@@ -36,6 +36,13 @@ class _MealPlannerDayTabViewState extends ConsumerState<MealPlannerDayTabView> {
   @override
   Widget build(BuildContext context) {
     final dayKeys = _dayKeys;
+
+    // Guard against empty plan entries: gracefully degrade to nothing.
+    if (dayKeys.isEmpty) {
+      _logger.provider('MealPlannerDayTabView build() | dayKeys is empty, rendering SizedBox.shrink()');
+      return const SizedBox.shrink();
+    }
+
     final selected = (_selectedDate != null && dayKeys.contains(_selectedDate))
         ? _selectedDate!
         : dayKeys.first;
