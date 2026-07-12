@@ -66,19 +66,30 @@ serve(async (req) => {
     const notificationInserted = !notifInsertError;
     logQueryResult(logger, "notification", "INSERT", notificationInserted ? 1 : 0, notifInsertError ?? undefined);
 
+    logger.debug("[STEP 4b] Fetch unread count for badge");
+    logRLSCheck(logger, "notification", "SELECT", user_id);
+    const { count: unreadCount, error: unreadCountError } = await admin
+      .from("notification")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user_id)
+      .eq("is_read", false);
+    logQueryResult(logger, "notification", "SELECT", unreadCount ?? 0, unreadCountError ?? undefined);
+    const badgeCount = unreadCount ?? 1;
+
     if (!pushEnabled) {
       logger.info("✅ EXIT | FCM skipped (user opted out) | duration: " + (Date.now() - start) + "ms");
       return ok({ sent: false, notification_inserted: notificationInserted, reason: "user_opted_out" });
     }
 
     if (pushToken?.token) {
-      logger.debug("[STEP 5] Sending FCM v1 push | platform: " + (pushToken.platform ?? "unknown"));
+      logger.debug("[STEP 5] Sending FCM v1 push | platform: " + (pushToken.platform ?? "unknown") + " | badge: " + badgeCount);
 
       const fcmResult = await sendFcmV1(
         pushToken.token,
         title,
         notifBody ?? "",
         Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
+        badgeCount,
       );
 
       if (!fcmResult.ok) {

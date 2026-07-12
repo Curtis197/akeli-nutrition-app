@@ -91,6 +91,7 @@ export async function sendFcmV1(
   title: string,
   body: string,
   data: Record<string, string> = {},
+  badge: number,
 ): Promise<FcmSendResult> {
   const raw = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
   if (!raw) throw new Error("FIREBASE_SERVICE_ACCOUNT env var is not set");
@@ -109,7 +110,7 @@ export async function sendFcmV1(
       notification: { title, body },
       data,
       android: { priority: "high" },
-      apns: { payload: { aps: { sound: "default", badge: 1 } } },
+      apns: { payload: { aps: { sound: "default", badge } } },
     },
   };
 
