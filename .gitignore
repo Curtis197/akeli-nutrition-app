@@ -79,3 +79,6 @@ afro-health-*.json
 # Google OAuth client secrets — never commit
 client_secret_*.json
 client_*.apps.googleusercontent.com.plist
+
+# Subagent-driven-development scratch progress ledger
+.superpowers/
