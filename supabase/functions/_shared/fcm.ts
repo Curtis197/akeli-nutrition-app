@@ -1,4 +1,6 @@
 // FCM v1 — OAuth2-signed push via service account (no external deps, uses Web Crypto)
+import { EdgeLogger } from "./logger.ts";
+
 const PROJECT_ID = "afro-health-oyks8y";
 const FCM_ENDPOINT = `https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`;
 const TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token";
@@ -55,8 +57,9 @@ async function buildJwt(sa: ServiceAccount): Promise<string> {
   return `${signingInput}.${base64urlBuffer(signature)}`;
 }
 
-async function getAccessToken(sa: ServiceAccount): Promise<string> {
+async function getAccessToken(sa: ServiceAccount, logger: EdgeLogger): Promise<string> {
   const jwt = await buildJwt(sa);
+  logger.debug("[fcm] BEFORE OAuth token exchange");
   const res = await fetch(TOKEN_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -67,12 +70,15 @@ async function getAccessToken(sa: ServiceAccount): Promise<string> {
   });
   if (!res.ok) {
     const text = await res.text();
+    logger.error("[fcm] ERROR OAuth token exchange failed", { status: res.status, body: text });
     throw new Error(`OAuth2 token exchange failed (${res.status}): ${text}`);
   }
   const json = await res.json() as { access_token?: string };
   if (!json.access_token) {
+    logger.error("[fcm] ERROR OAuth response missing access_token", { response: json });
     throw new Error(`OAuth2 response missing access_token: ${JSON.stringify(json)}`);
   }
+  logger.debug("[fcm] AFTER OAuth token exchange | success");
   return json.access_token;
 }
 
@@ -92,17 +98,24 @@ export async function sendFcmV1(
   body: string,
   data: Record<string, string> = {},
   badge: number,
+  logger: EdgeLogger,
 ): Promise<FcmSendResult> {
   const raw = Deno.env.get("FIREBASE_SERVICE_ACCOUNT");
-  if (!raw) throw new Error("FIREBASE_SERVICE_ACCOUNT env var is not set");
+  if (!raw) {
+    logger.error("[fcm] ERROR FIREBASE_SERVICE_ACCOUNT env var is not set");
+    throw new Error("FIREBASE_SERVICE_ACCOUNT env var is not set");
+  }
 
   let sa: ServiceAccount;
   try {
     sa = JSON.parse(raw);
   } catch (e) {
+    logger.error("[fcm] ERROR FIREBASE_SERVICE_ACCOUNT is not valid JSON", { message: (e as Error).message });
     throw new Error(`FIREBASE_SERVICE_ACCOUNT is not valid JSON: ${(e as Error).message}`);
   }
-  const accessToken = await getAccessToken(sa);
+
+  logger.debug("[fcm] BEFORE getAccessToken");
+  const accessToken = await getAccessToken(sa, logger);
 
   const payload = {
     message: {
@@ -114,6 +127,10 @@ export async function sendFcmV1(
     },
   };
 
+  logger.debug(
+    "[fcm] BEFORE FCM send | title: " + title + " | badge: " + badge +
+      " | fcmToken: " + fcmToken.slice(0, 10) + "...",
+  );
   const res = await fetch(FCM_ENDPOINT, {
     method: "POST",
     headers: {
@@ -122,6 +139,7 @@ export async function sendFcmV1(
     },
     body: JSON.stringify(payload),
   });
+  logger.debug("[fcm] AFTER FCM send | ok: " + res.ok + " | status: " + res.status);
 
   return { ok: res.ok, status: res.status };
 }

@@ -90,6 +90,7 @@ serve(async (req) => {
         notifBody ?? "",
         Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
         badgeCount,
+        logger,
       );
 
       if (!fcmResult.ok) {
