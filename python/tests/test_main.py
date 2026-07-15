@@ -76,22 +76,83 @@ def test_nightly_batch_success(mock_run_batch):
     # Fastapi TestClient processes background tasks before returning
     mock_run_batch.assert_called_once()
 
+@patch("main.finish_batch_run")
+@patch("main.start_batch_run")
+@patch("main.upsert_recipe_weight_impact")
+@patch("main.compute_recipe_weight_impact")
+@patch("main.get_users_with_weight_history")
+@patch("main.upsert_creator_vector")
+@patch("main.get_creator_recipe_vectors")
+@patch("main.compute_creator_vector")
+@patch("main.get_all_creators")
 @patch("main.upsert_recipe_vector")
 @patch("main.compute_recipe_vector")
 @patch("main.get_pending_recipes")
 @patch("main.upsert_user_vector")
 @patch("main.compute_user_vector")
 @patch("main.get_active_users")
-def test_run_nightly_batch(mock_get_users, mock_comp_user, mock_up_user, mock_get_recipes, mock_comp_recipe, mock_up_recipe):
+def test_run_nightly_batch(
+    mock_get_users, mock_comp_user, mock_up_user,
+    mock_get_recipes, mock_comp_recipe, mock_up_recipe,
+    mock_get_creators, mock_comp_creator, mock_get_creator_recipes, mock_up_creator,
+    mock_get_weight_users, mock_comp_weight, mock_up_weight,
+    mock_start_run, mock_finish_run,
+):
+    mock_start_run.return_value = "run-123"
     mock_get_users.return_value = ["user1", "user2"]
     mock_comp_user.side_effect = [np.zeros(VECTOR_DIM), None] # Second user fails to generate vector
     
     mock_get_recipes.return_value = ["recipe1"]
     mock_comp_recipe.return_value = np.zeros(VECTOR_DIM)
     
-    # We call the function directly as it runs synchronously
+    mock_get_creators.return_value = []
+    mock_get_weight_users.return_value = []
+    
     from main import run_nightly_batch
     run_nightly_batch()
     
     assert mock_up_user.call_count == 1 # Only one successful vector
     assert mock_up_recipe.call_count == 1 # One successful vector
+    mock_start_run.assert_called_once()
+    mock_finish_run.assert_called_once_with("run-123", "completed", {
+        "user_vectors_updated": 1, "user_vectors_attempted": 2,
+        "recipe_vectors_updated": 1, "recipe_vectors_attempted": 1,
+        "creator_vectors_updated": 0, "creator_vectors_attempted": 0,
+        "weight_impact_updated": 0, "weight_impact_attempted": 0,
+    })
+
+
+@patch("main.finish_batch_run")
+@patch("main.start_batch_run")
+@patch("main.log_batch_failure")
+@patch("main.upsert_recipe_weight_impact")
+@patch("main.compute_recipe_weight_impact")
+@patch("main.get_users_with_weight_history")
+@patch("main.upsert_creator_vector")
+@patch("main.get_creator_recipe_vectors")
+@patch("main.compute_creator_vector")
+@patch("main.get_all_creators")
+@patch("main.upsert_recipe_vector")
+@patch("main.compute_recipe_vector")
+@patch("main.get_pending_recipes")
+@patch("main.upsert_user_vector")
+@patch("main.compute_user_vector")
+@patch("main.get_active_users")
+def test_run_nightly_batch_logs_failure_on_exception(
+    mock_get_users, mock_comp_user, mock_up_user,
+    mock_get_recipes, mock_comp_recipe, mock_up_recipe,
+    mock_get_creators, mock_comp_creator, mock_get_creator_recipes, mock_up_creator,
+    mock_get_weight_users, mock_comp_weight, mock_up_weight,
+    mock_log_failure, mock_start_run, mock_finish_run,
+):
+    mock_start_run.return_value = "run-456"
+    mock_get_users.return_value = ["user1"]
+    mock_comp_user.side_effect = Exception("boom")
+    mock_get_recipes.return_value = []
+    mock_get_creators.return_value = []
+    mock_get_weight_users.return_value = []
+    
+    from main import run_nightly_batch
+    run_nightly_batch()
+    
+    mock_log_failure.assert_called_once_with("run-456", "user_vector", "user1", "boom")

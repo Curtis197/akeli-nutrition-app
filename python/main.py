@@ -21,6 +21,9 @@ from engine.database import (
     upsert_creator_vector,
     upsert_recipe_weight_impact,
     get_users_with_weight_history,
+    start_batch_run,
+    log_batch_failure,
+    finish_batch_run,
 )
 
 app = FastAPI(
@@ -164,71 +167,90 @@ def run_nightly_batch():
     import logging
     logger = logging.getLogger("nightly_batch")
 
-    # --- 1. User vectors ---
-    active_users = get_active_users(days=7)
-    logger.info(f"[nightly-batch] Processing {len(active_users)} active users")
+    run_id = start_batch_run()
+    counts = {
+        "user_vectors_updated": 0, "user_vectors_attempted": 0,
+        "recipe_vectors_updated": 0, "recipe_vectors_attempted": 0,
+        "creator_vectors_updated": 0, "creator_vectors_attempted": 0,
+        "weight_impact_updated": 0, "weight_impact_attempted": 0,
+    }
 
-    user_success = 0
-    for user_id in active_users:
-        try:
-            vector = compute_user_vector(user_id)
-            if vector is not None:
-                upsert_user_vector(user_id, vector)
-                user_success += 1
-        except Exception as e:
-            logger.error(f"[nightly-batch] User {user_id} failed: {e}")
+    try:
+        # --- 1. User vectors ---
+        active_users = get_active_users(days=7)
+        logger.info(f"[nightly-batch] Processing {len(active_users)} active users")
+        counts["user_vectors_attempted"] = len(active_users)
 
-    logger.info(f"[nightly-batch] User vectors: {user_success}/{len(active_users)} updated")
+        for user_id in active_users:
+            try:
+                vector = compute_user_vector(user_id)
+                if vector is not None:
+                    upsert_user_vector(user_id, vector)
+                    counts["user_vectors_updated"] += 1
+            except Exception as e:
+                logger.error(f"[nightly-batch] User {user_id} failed: {e}")
+                log_batch_failure(run_id, "user_vector", user_id, str(e))
 
-    # --- 2. Recipe vectors ---
-    pending_recipes = get_pending_recipes()
-    logger.info(f"[nightly-batch] Processing {len(pending_recipes)} pending recipes")
+        logger.info(f"[nightly-batch] User vectors: {counts['user_vectors_updated']}/{len(active_users)} updated")
 
-    recipe_success = 0
-    for recipe_id in pending_recipes:
-        try:
-            vector = compute_recipe_vector(recipe_id)
-            if vector is not None:
-                upsert_recipe_vector(recipe_id, vector)
-                recipe_success += 1
-        except Exception as e:
-            logger.error(f"[nightly-batch] Recipe {recipe_id} failed: {e}")
+        # --- 2. Recipe vectors ---
+        pending_recipes = get_pending_recipes()
+        logger.info(f"[nightly-batch] Processing {len(pending_recipes)} pending recipes")
+        counts["recipe_vectors_attempted"] = len(pending_recipes)
 
-    logger.info(f"[nightly-batch] Recipe vectors: {recipe_success}/{len(pending_recipes)} updated")
+        for recipe_id in pending_recipes:
+            try:
+                vector = compute_recipe_vector(recipe_id)
+                if vector is not None:
+                    upsert_recipe_vector(recipe_id, vector)
+                    counts["recipe_vectors_updated"] += 1
+            except Exception as e:
+                logger.error(f"[nightly-batch] Recipe {recipe_id} failed: {e}")
+                log_batch_failure(run_id, "recipe_vector", recipe_id, str(e))
 
-    # --- 3. Creator vectors ---
-    # Must run AFTER recipe vectors — creator vectors are derived from them.
-    all_creators = get_all_creators()
-    logger.info(f"[nightly-batch] Processing {len(all_creators)} creators")
+        logger.info(f"[nightly-batch] Recipe vectors: {counts['recipe_vectors_updated']}/{len(pending_recipes)} updated")
 
-    creator_success = 0
-    for creator_id in all_creators:
-        try:
-            vector = compute_creator_vector(creator_id)
-            if vector is not None:
-                recipe_count = len(get_creator_recipe_vectors(creator_id))
-                upsert_creator_vector(creator_id, vector, recipe_count)
-                creator_success += 1
-        except Exception as e:
-            logger.error(f"[nightly-batch] Creator {creator_id} failed: {e}")
+        # --- 3. Creator vectors ---
+        # Must run AFTER recipe vectors — creator vectors are derived from them.
+        all_creators = get_all_creators()
+        logger.info(f"[nightly-batch] Processing {len(all_creators)} creators")
+        counts["creator_vectors_attempted"] = len(all_creators)
 
-    logger.info(f"[nightly-batch] Creator vectors: {creator_success}/{len(all_creators)} updated")
+        for creator_id in all_creators:
+            try:
+                vector = compute_creator_vector(creator_id)
+                if vector is not None:
+                    recipe_count = len(get_creator_recipe_vectors(creator_id))
+                    upsert_creator_vector(creator_id, vector, recipe_count)
+                    counts["creator_vectors_updated"] += 1
+            except Exception as e:
+                logger.error(f"[nightly-batch] Creator {creator_id} failed: {e}")
+                log_batch_failure(run_id, "creator_vector", creator_id, str(e))
 
-    # --- 4. Recipe weight impact ---
-    # Requires at least 2 weight log entries to form one period.
-    users_with_weights = get_users_with_weight_history(min_entries=2)
-    logger.info(f"[nightly-batch] Processing weight impact for {len(users_with_weights)} users")
+        logger.info(f"[nightly-batch] Creator vectors: {counts['creator_vectors_updated']}/{len(all_creators)} updated")
 
-    impact_success = 0
-    for user_id in users_with_weights:
-        try:
-            results = compute_recipe_weight_impact(user_id, min_samples=3)
-            upsert_recipe_weight_impact(user_id, results)
-            impact_success += 1
-        except Exception as e:
-            logger.error(f"[nightly-batch] Weight impact {user_id} failed: {e}")
+        # --- 4. Recipe weight impact ---
+        # Requires at least 2 weight log entries to form one period.
+        users_with_weights = get_users_with_weight_history(min_entries=2)
+        logger.info(f"[nightly-batch] Processing weight impact for {len(users_with_weights)} users")
+        counts["weight_impact_attempted"] = len(users_with_weights)
 
-    logger.info(f"[nightly-batch] Weight impact: {impact_success}/{len(users_with_weights)} updated")
+        for user_id in users_with_weights:
+            try:
+                results = compute_recipe_weight_impact(user_id, min_samples=3)
+                upsert_recipe_weight_impact(user_id, results)
+                counts["weight_impact_updated"] += 1
+            except Exception as e:
+                logger.error(f"[nightly-batch] Weight impact {user_id} failed: {e}")
+                log_batch_failure(run_id, "weight_impact", user_id, str(e))
+
+        logger.info(f"[nightly-batch] Weight impact: {counts['weight_impact_updated']}/{len(users_with_weights)} updated")
+
+        finish_batch_run(run_id, "completed", counts)
+
+    except Exception as e:
+        logger.error(f"[nightly-batch] Batch run {run_id} failed catastrophically: {e}")
+        finish_batch_run(run_id, "failed", counts)
 
 
 # ---------------------------------------------------------------------------
