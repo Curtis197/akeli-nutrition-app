@@ -320,3 +320,56 @@ def upsert_creator_vector(creator_id: str, vector: np.ndarray, recipe_count_samp
                     recipe_count_sampled = EXCLUDED.recipe_count_sampled
             """, (creator_id, str(vector_list), recipe_count_sampled))
         conn.commit()
+
+
+def start_batch_run() -> str:
+    """Crée une nouvelle ligne batch_run_log et retourne son id."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO batch_run_log (started_at, status)
+                VALUES (NOW(), 'running')
+                RETURNING id
+            """)
+            run_id = cur.fetchone()[0]
+        conn.commit()
+    return str(run_id)
+
+
+def log_batch_failure(run_id: str, phase: str, entity_id: str, error_message: str):
+    """Enregistre un échec individuel pendant le batch."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO batch_run_failure (batch_run_id, phase, entity_id, error_message)
+                VALUES (%s, %s, %s, %s)
+            """, (run_id, phase, entity_id, error_message))
+        conn.commit()
+
+
+def finish_batch_run(run_id: str, status: str, counts: dict):
+    """Met à jour la ligne batch_run_log avec les résultats finaux."""
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE batch_run_log SET
+                    finished_at = NOW(),
+                    status = %s,
+                    user_vectors_updated = %s,
+                    user_vectors_attempted = %s,
+                    recipe_vectors_updated = %s,
+                    recipe_vectors_attempted = %s,
+                    creator_vectors_updated = %s,
+                    creator_vectors_attempted = %s,
+                    weight_impact_updated = %s,
+                    weight_impact_attempted = %s
+                WHERE id = %s
+            """, (
+                status,
+                counts["user_vectors_updated"], counts["user_vectors_attempted"],
+                counts["recipe_vectors_updated"], counts["recipe_vectors_attempted"],
+                counts["creator_vectors_updated"], counts["creator_vectors_attempted"],
+                counts["weight_impact_updated"], counts["weight_impact_attempted"],
+                run_id,
+            ))
+        conn.commit()
