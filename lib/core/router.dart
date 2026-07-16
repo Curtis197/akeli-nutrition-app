@@ -113,6 +113,20 @@ class _RouterNotifier extends ChangeNotifier {
     ref.listen(userProfileProvider, (_, next) {
       if (!next.isLoading) notifyListeners();
     });
+    // isAuthenticatedProvider only flips when auth transitions false→true, so
+    // a passwordRecovery event that arrives while a session already exists
+    // (the normal case for the recovery deep link) would never trigger a
+    // router refresh without this — the redirect callback below reads
+    // authStreamProvider directly, but nothing was invalidating it. Also
+    // refresh on userUpdated so the reset-password redirect clears once the
+    // user has actually changed their password.
+    ref.listen(authStreamProvider, (_, next) {
+      final event = next.valueOrNull?.event;
+      if (event == AuthChangeEvent.passwordRecovery || event == AuthChangeEvent.userUpdated) {
+        appLogger.navigation('', '', reason: 'authStreamProvider event: $event → router refresh');
+        notifyListeners();
+      }
+    });
   }
 }
 

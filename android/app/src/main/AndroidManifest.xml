@@ -22,6 +22,12 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- app_links/supabase_flutter must be the sole consumer of incoming
+                 links; Flutter's built-in deep-linking would otherwise also feed
+                 akeli://reset-password to go_router as a route. -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

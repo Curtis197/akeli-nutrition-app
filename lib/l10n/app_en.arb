@@ -134,7 +134,7 @@
   "authErrorEmailInUse": "This email is already in use.",
   "@authErrorEmailInUse": {},
 
-  "authErrorPasswordShort": "Password must be at least 6 characters.",
+  "authErrorPasswordShort": "Password must be at least 8 characters.",
   "@authErrorPasswordShort": {},
 
   "authErrorEmailNotConfirmed": "Please confirm your email address before signing in.",

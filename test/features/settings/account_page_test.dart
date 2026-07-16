@@ -17,6 +17,15 @@ User _user({required List<String> providers}) => User(
       createdAt: '2026-01-01T00:00:00Z',
     );
 
+User _userWithoutProvidersMetadata() => const User(
+      id: 'test-user-id',
+      appMetadata: {},
+      userMetadata: {},
+      aud: 'authenticated',
+      email: 'test@example.com',
+      createdAt: '2026-01-01T00:00:00Z',
+    );
+
 Widget _testApp(Widget child, {required User? user}) => ProviderScope(
       overrides: [currentUserProvider.overrideWithValue(user)],
       child: MaterialApp(
@@ -54,6 +63,14 @@ void main() {
     testWidgets('shows password section for email+google users', (tester) async {
       await tester.pumpWidget(
         _testApp(const AccountPage(), user: _user(providers: ['email', 'google'])),
+      );
+      await tester.pump();
+      expect(find.text('PASSWORD'), findsOneWidget);
+    });
+
+    testWidgets('shows password section when providers metadata is absent', (tester) async {
+      await tester.pumpWidget(
+        _testApp(const AccountPage(), user: _userWithoutProvidersMetadata()),
       );
       await tester.pump();
       expect(find.text('PASSWORD'), findsOneWidget);

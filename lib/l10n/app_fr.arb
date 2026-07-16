@@ -49,7 +49,7 @@
   "authSignIn": "Se connecter",
   "authErrorInvalidCredentials": "Email ou mot de passe incorrect.",
   "authErrorEmailInUse": "Cet email est déjà utilisé.",
-  "authErrorPasswordShort": "Le mot de passe doit contenir au moins 6 caractères.",
+  "authErrorPasswordShort": "Le mot de passe doit contenir au moins 8 caractères.",
   "authErrorEmailNotConfirmed": "Veuillez confirmer votre adresse email avant de vous connecter.",
   "authErrorGeneric": "Une erreur est survenue. Réessayez.",
 

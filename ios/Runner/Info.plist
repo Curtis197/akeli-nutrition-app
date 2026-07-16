@@ -4,6 +4,11 @@
 	<dict>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
+		<!-- app_links/supabase_flutter must be the sole consumer of incoming
+		     links; Flutter's built-in deep-linking would otherwise also feed
+		     akeli://reset-password to go_router as a route. -->
+		<key>FlutterDeepLinkingEnabled</key>
+		<false/>
 		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
 		<key>CFBundleDevelopmentRegion</key>

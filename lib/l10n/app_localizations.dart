@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @authErrorPasswordShort.
   ///
   /// In en, this message translates to:
-  /// **'Password must be at least 6 characters.'**
+  /// **'Password must be at least 8 characters.'**
   String get authErrorPasswordShort;
 
   /// No description provided for @authErrorEmailNotConfirmed.
