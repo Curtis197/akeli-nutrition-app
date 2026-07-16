@@ -1,7 +1,7 @@
 name: akeli
 description: "Akeli V1 — Application de nutrition et recettes africaines"
 publish_to: 'none'
-version: 1.0.1+110
+version: 1.0.1+111
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
