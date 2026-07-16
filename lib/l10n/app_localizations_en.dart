@@ -99,6 +99,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authForgotPassword => 'Forgot password?';
 
   @override
+  String get resetPasswordTitle => 'Reset your password';
+
+  @override
+  String get resetPasswordNewHint => 'New Password';
+
+  @override
+  String get resetPasswordConfirmHint => 'Confirm Password';
+
+  @override
+  String get resetPasswordRequired => 'Password is required';
+
+  @override
+  String get resetPasswordTooShort => 'Password must be at least 8 characters';
+
+  @override
+  String get resetPasswordConfirmRequired => 'Please confirm your password';
+
+  @override
+  String get resetPasswordMismatch => 'Passwords do not match';
+
+  @override
+  String get resetPasswordSubmit => 'Update Password';
+
+  @override
+  String get resetPasswordSuccess => 'Password updated successfully!';
+
+  @override
+  String get authForgotDialogTitle => 'Reset Password';
+
+  @override
+  String get authForgotDialogBody =>
+      'Enter your email address to receive a password reset link.';
+
+  @override
+  String get authForgotSend => 'Send';
+
+  @override
+  String authForgotSentTo(String email) {
+    return 'A password reset link has been sent to $email';
+  }
+
+  @override
   String get authSignIn => 'Sign In';
 
   @override

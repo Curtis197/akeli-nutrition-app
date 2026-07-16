@@ -278,6 +278,84 @@ abstract class AppLocalizations {
   /// **'Forgot password?'**
   String get authForgotPassword;
 
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get resetPasswordNewHint;
+
+  /// No description provided for @resetPasswordConfirmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get resetPasswordConfirmHint;
+
+  /// No description provided for @resetPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get resetPasswordRequired;
+
+  /// No description provided for @resetPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get resetPasswordTooShort;
+
+  /// No description provided for @resetPasswordConfirmRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get resetPasswordConfirmRequired;
+
+  /// No description provided for @resetPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get resetPasswordMismatch;
+
+  /// No description provided for @resetPasswordSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get resetPasswordSubmit;
+
+  /// No description provided for @resetPasswordSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully!'**
+  String get resetPasswordSuccess;
+
+  /// No description provided for @authForgotDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get authForgotDialogTitle;
+
+  /// No description provided for @authForgotDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address to receive a password reset link.'**
+  String get authForgotDialogBody;
+
+  /// No description provided for @authForgotSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get authForgotSend;
+
+  /// No description provided for @authForgotSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'A password reset link has been sent to {email}'**
+  String authForgotSentTo(String email);
+
   /// No description provided for @authSignIn.
   ///
   /// In en, this message translates to:

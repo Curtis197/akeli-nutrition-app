@@ -91,6 +91,40 @@
   "authForgotPassword": "Forgot password?",
   "@authForgotPassword": {},
 
+  "resetPasswordTitle": "Reset your password",
+  "@resetPasswordTitle": {},
+  "resetPasswordNewHint": "New Password",
+  "@resetPasswordNewHint": {},
+  "resetPasswordConfirmHint": "Confirm Password",
+  "@resetPasswordConfirmHint": {},
+  "resetPasswordRequired": "Password is required",
+  "@resetPasswordRequired": {},
+  "resetPasswordTooShort": "Password must be at least 8 characters",
+  "@resetPasswordTooShort": {},
+  "resetPasswordConfirmRequired": "Please confirm your password",
+  "@resetPasswordConfirmRequired": {},
+  "resetPasswordMismatch": "Passwords do not match",
+  "@resetPasswordMismatch": {},
+  "resetPasswordSubmit": "Update Password",
+  "@resetPasswordSubmit": {},
+  "resetPasswordSuccess": "Password updated successfully!",
+  "@resetPasswordSuccess": {},
+
+  "authForgotDialogTitle": "Reset Password",
+  "@authForgotDialogTitle": {},
+  "authForgotDialogBody": "Enter your email address to receive a password reset link.",
+  "@authForgotDialogBody": {},
+  "authForgotSend": "Send",
+  "@authForgotSend": {},
+  "authForgotSentTo": "A password reset link has been sent to {email}",
+  "@authForgotSentTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+
   "authSignIn": "Sign In",
   "@authSignIn": {},
 

@@ -64,5 +64,31 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Continuer avec Google'), findsOneWidget);
     });
+
+    testWidgets('forgot-password dialog shows localized copy and validates empty email',
+        (tester) async {
+      await tester.pumpWidget(_testApp(const AuthPage()));
+      await tester.pumpAndSettle();
+      // Switch to the login tab (first 'Se connecter' is the pill tab).
+      await tester.tap(find.text('Se connecter').first);
+      await tester.pumpAndSettle();
+      final forgotLink = find.text('Mot de passe oublié ?');
+      await tester.ensureVisible(forgotLink);
+      await tester.tap(forgotLink);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Entrez votre adresse email pour recevoir un lien de réinitialisation.'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text('Envoyer'));
+      await tester.pumpAndSettle();
+      expect(find.text('Email requis'), findsOneWidget);
+
+      await tester.tap(find.text('Annuler'));
+      await tester.pumpAndSettle();
+      expect(find.text('Envoyer'), findsNothing);
+    });
   });
 }

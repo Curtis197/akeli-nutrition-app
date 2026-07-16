@@ -49,9 +49,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.localeName == 'en'
-                ? 'Password updated successfully!'
-                : 'Mot de passe mis à jour avec succès !'),
+            content: Text(l10n.resetPasswordSuccess),
             backgroundColor: AkeliColors.primary,
           ),
         );
@@ -88,9 +86,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  l10n.localeName == 'en'
-                      ? 'Reset your password'
-                      : 'Réinitialiser votre mot de passe',
+                  l10n.resetPasswordTitle,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: AkeliSpacing.xl),
@@ -136,9 +132,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           style: GoogleFonts.inter(
                               fontSize: 15, color: AkeliColors.onSurface),
                           decoration: InputDecoration(
-                            hintText: l10n.localeName == 'en'
-                                ? 'New Password'
-                                : 'Nouveau mot de passe',
+                            hintText: l10n.resetPasswordNewHint,
                             prefixIcon: const Icon(Icons.lock_outline_rounded,
                                 color: AkeliColors.outline, size: 20),
                             suffixIcon: IconButton(
@@ -161,14 +155,10 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return l10n.localeName == 'en'
-                                  ? 'Password is required'
-                                  : 'Le mot de passe est requis';
+                              return l10n.resetPasswordRequired;
                             }
-                            if (v.length < 6) {
-                              return l10n.localeName == 'en'
-                                  ? 'Password must be at least 6 characters'
-                                  : 'Le mot de passe doit faire au moins 6 caractères';
+                            if (v.length < 8) {
+                              return l10n.resetPasswordTooShort;
                             }
                             return null;
                           },
@@ -180,9 +170,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           style: GoogleFonts.inter(
                               fontSize: 15, color: AkeliColors.onSurface),
                           decoration: InputDecoration(
-                            hintText: l10n.localeName == 'en'
-                                ? 'Confirm Password'
-                                : 'Confirmer le mot de passe',
+                            hintText: l10n.resetPasswordConfirmHint,
                             prefixIcon: const Icon(Icons.lock_outline_rounded,
                                 color: AkeliColors.outline, size: 20),
                             suffixIcon: IconButton(
@@ -205,23 +193,17 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty) {
-                              return l10n.localeName == 'en'
-                                  ? 'Please confirm your password'
-                                  : 'Veuillez confirmer votre mot de passe';
+                              return l10n.resetPasswordConfirmRequired;
                             }
                             if (v != _passwordCtrl.text) {
-                              return l10n.localeName == 'en'
-                                  ? 'Passwords do not match'
-                                  : 'Les mots de passe ne correspondent pas';
+                              return l10n.resetPasswordMismatch;
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: AkeliSpacing.lg),
                         AkeliGradientButton(
-                          label: l10n.localeName == 'en'
-                              ? 'Update Password'
-                              : 'Mettre à jour le mot de passe',
+                          label: l10n.resetPasswordSubmit,
                           onPressed: _onSubmit,
                           isLoading: isLoading,
                         ),

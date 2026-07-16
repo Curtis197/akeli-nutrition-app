@@ -142,7 +142,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
           backgroundColor: AkeliColors.surfaceContainerLowest,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
-            l10n.localeName == 'en' ? 'Reset Password' : 'Mot de passe oublié',
+            l10n.authForgotDialogTitle,
             style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
           ),
           content: Form(
@@ -152,9 +152,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  l10n.localeName == 'en'
-                      ? 'Enter your email address to receive a password reset link.'
-                      : 'Entrez votre adresse email pour recevoir un lien de réinitialisation.',
+                  l10n.authForgotDialogBody,
                   style: GoogleFonts.inter(fontSize: 14, color: AkeliColors.onSurfaceVariant),
                 ),
                 const SizedBox(height: 16),
@@ -163,7 +161,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   keyboardType: TextInputType.emailAddress,
                   style: GoogleFonts.inter(fontSize: 15, color: AkeliColors.onSurface),
                   decoration: InputDecoration(
-                    hintText: 'Email',
+                    hintText: l10n.authEmailField,
                     prefixIcon: const Icon(Icons.email_outlined, color: AkeliColors.outline, size: 20),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -174,10 +172,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                   ),
                   validator: (v) {
                     if (v == null || v.isEmpty) {
-                      return l10n.localeName == 'en' ? 'Email is required' : 'L\'email est requis';
+                      return l10n.authEmailRequired;
                     }
                     if (!v.contains('@')) {
-                      return l10n.localeName == 'en' ? 'Invalid email format' : 'Email invalide';
+                      return l10n.authEmailInvalid;
                     }
                     return null;
                   },
@@ -189,7 +187,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(
-                l10n.localeName == 'en' ? 'Cancel' : 'Annuler',
+                l10n.commonCancel,
                 style: GoogleFonts.inter(color: AkeliColors.outline, fontWeight: FontWeight.w600),
               ),
             ),
@@ -205,7 +203,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
-                l10n.localeName == 'en' ? 'Send' : 'Envoyer',
+                l10n.authForgotSend,
                 style: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),
             ),
@@ -226,9 +224,7 @@ class _AuthPageState extends ConsumerState<AuthPage> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n.localeName == 'en'
-                  ? 'A password reset link has been sent to $result'
-                  : 'Un lien de réinitialisation a été envoyé à $result'),
+              content: Text(l10n.authForgotSentTo(result)),
               backgroundColor: AkeliColors.primary,
             ),
           );

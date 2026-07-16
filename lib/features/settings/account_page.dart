@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -49,9 +48,15 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final user = Supabase.instance.client.auth.currentUser;
+    final user = ref.watch(currentUserProvider);
     final email = user?.email ?? '';
-    _logger.provider('AccountPage build() | email: ${LogHelper.maskEmail(email)}');
+    final providers =
+        (user?.appMetadata['providers'] as List?)?.cast<String>() ?? const <String>[];
+    // No providers info → assume email auth (fail open so the section stays usable).
+    final canChangePassword = providers.isEmpty || providers.contains('email');
+    _logger.provider(
+      'AccountPage build() | email: ${LogHelper.maskEmail(email)} | canChangePassword: $canChangePassword',
+    );
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
@@ -125,61 +130,63 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            if (canChangePassword) ...[
+              const SizedBox(height: 24),
 
-            _SectionCard(
-              title: l10n.accountPasswordSection,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _PasswordField(
-                    controller: _currentPasswordCtrl,
-                    label: l10n.accountCurrentPassword,
-                    obscure: _obscureCurrent,
-                    onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
-                  ),
-                  const SizedBox(height: 12),
-                  _PasswordField(
-                    controller: _newPasswordCtrl,
-                    label: l10n.accountNewPassword,
-                    obscure: _obscureNew,
-                    onToggle: () => setState(() => _obscureNew = !_obscureNew),
-                  ),
-                  const SizedBox(height: 12),
-                  _PasswordField(
-                    controller: _confirmPasswordCtrl,
-                    label: l10n.accountConfirmPassword,
-                    obscure: _obscureConfirm,
-                    onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
-                  ),
-                  if (_passwordError != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      _passwordError!,
-                      style: const TextStyle(color: AkeliColors.error, fontSize: 13),
+              _SectionCard(
+                title: l10n.accountPasswordSection,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _PasswordField(
+                      controller: _currentPasswordCtrl,
+                      label: l10n.accountCurrentPassword,
+                      obscure: _obscureCurrent,
+                      onToggle: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                    ),
+                    const SizedBox(height: 12),
+                    _PasswordField(
+                      controller: _newPasswordCtrl,
+                      label: l10n.accountNewPassword,
+                      obscure: _obscureNew,
+                      onToggle: () => setState(() => _obscureNew = !_obscureNew),
+                    ),
+                    const SizedBox(height: 12),
+                    _PasswordField(
+                      controller: _confirmPasswordCtrl,
+                      label: l10n.accountConfirmPassword,
+                      obscure: _obscureConfirm,
+                      onToggle: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                    ),
+                    if (_passwordError != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _passwordError!,
+                        style: const TextStyle(color: AkeliColors.error, fontSize: 13),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: _savingPassword ? null : _updatePassword,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AkeliColors.primary,
+                        foregroundColor: AkeliColors.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: _savingPassword
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : Text(l10n.accountUpdatePassword,
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: _savingPassword ? null : _updatePassword,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AkeliColors.primary,
-                      foregroundColor: AkeliColors.onPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: _savingPassword
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(l10n.accountUpdatePassword,
-                            style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
+                ),
               ),
-            ),
+            ],
 
             const SizedBox(height: 24),
 

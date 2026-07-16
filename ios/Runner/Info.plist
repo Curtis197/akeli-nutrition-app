@@ -89,6 +89,14 @@
 					<string>com.googleusercontent.apps.1080340252277-bk0ihbgua0a2avus25ri7os1lq0e8kti</string>
 				</array>
 			</dict>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>akeli</string>
+				</array>
+			</dict>
 		</array>
 		<key>LSApplicationQueriesSchemes</key>
 		<array>

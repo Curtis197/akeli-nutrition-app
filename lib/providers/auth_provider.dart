@@ -7,6 +7,11 @@ import '../core/supabase_client.dart';
 import '../core/google_sign_in_client.dart';
 import '../core/logger.dart';
 
+/// Where the password-recovery email deep-links back into the app.
+/// Must be listed in Supabase Dashboard → Authentication → URL Configuration
+/// → Redirect URLs, or Supabase silently falls back to the Site URL.
+const _passwordResetRedirectUri = 'akeli://reset-password';
+
 // ---------------------------------------------------------------------------
 // Auth stream — single source of truth
 // ---------------------------------------------------------------------------
@@ -170,8 +175,11 @@ class AuthNotifier extends AsyncNotifier<void> {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
       try {
-        _logger.db('BEFORE | op: resetPasswordForEmail | supabase.auth');
-        await client.auth.resetPasswordForEmail(email);
+        _logger.db('BEFORE | op: resetPasswordForEmail | redirectTo: $_passwordResetRedirectUri');
+        await client.auth.resetPasswordForEmail(
+          email,
+          redirectTo: _passwordResetRedirectUri,
+        );
         _logger.auth('resetPassword SUCCESS | email: ${LogHelper.maskEmail(email)}');
         _logger.provider('AuthNotifier → data (resetPassword success)');
       } on AuthException catch (e, st) {

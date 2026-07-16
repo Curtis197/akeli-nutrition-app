@@ -100,6 +100,50 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authForgotPassword => 'Mot de passe oublié ?';
 
   @override
+  String get resetPasswordTitle => 'Réinitialiser votre mot de passe';
+
+  @override
+  String get resetPasswordNewHint => 'Nouveau mot de passe';
+
+  @override
+  String get resetPasswordConfirmHint => 'Confirmer le mot de passe';
+
+  @override
+  String get resetPasswordRequired => 'Le mot de passe est requis';
+
+  @override
+  String get resetPasswordTooShort =>
+      'Le mot de passe doit faire au moins 8 caractères';
+
+  @override
+  String get resetPasswordConfirmRequired =>
+      'Veuillez confirmer votre mot de passe';
+
+  @override
+  String get resetPasswordMismatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get resetPasswordSubmit => 'Mettre à jour le mot de passe';
+
+  @override
+  String get resetPasswordSuccess => 'Mot de passe mis à jour avec succès !';
+
+  @override
+  String get authForgotDialogTitle => 'Mot de passe oublié';
+
+  @override
+  String get authForgotDialogBody =>
+      'Entrez votre adresse email pour recevoir un lien de réinitialisation.';
+
+  @override
+  String get authForgotSend => 'Envoyer';
+
+  @override
+  String authForgotSentTo(String email) {
+    return 'Un lien de réinitialisation a été envoyé à $email';
+  }
+
+  @override
   String get authSignIn => 'Se connecter';
 
   @override
