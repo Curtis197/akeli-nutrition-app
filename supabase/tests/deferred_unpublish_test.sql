@@ -1,6 +1,6 @@
 -- supabase/tests/deferred_unpublish_test.sql
 BEGIN;
-SELECT plan(10);
+SELECT plan(12);
 
 SELECT has_column('public', 'recipe', 'unpublish_requested_at', 'recipe.unpublish_requested_at exists');
 SELECT has_function('public', 'finalize_pending_unpublish', 'finalize_pending_unpublish() exists');
@@ -59,6 +59,18 @@ SELECT is(
      '00000000-0000-0000-0000-000000000001'::uuid, 500, '{}'::uuid[])
    WHERE recipe_id IN (SELECT id FROM recipe WHERE unpublish_requested_at IS NOT NULL)),
   0, 'feed never returns a pending-unpublish recipe');
+
+-- replace_recipe_steps v2 carries image_url and ingredient_ids
+SELECT is(
+  (SELECT public.replace_recipe_steps(
+     (SELECT id FROM recipe LIMIT 1),
+     '[{"step_number":1,"sort_order":1,"content":"Test étape","image_url":"https://x/img.jpg","ingredient_ids":[],"is_section_header":false}]'::jsonb)),
+  1, 'replace_recipe_steps inserts one step');
+
+SELECT is(
+  (SELECT image_url FROM recipe_step
+   WHERE recipe_id = (SELECT id FROM recipe LIMIT 1) AND content = 'Test étape'),
+  'https://x/img.jpg', 'image_url is persisted');
 
 SELECT * FROM finish();
 ROLLBACK;
