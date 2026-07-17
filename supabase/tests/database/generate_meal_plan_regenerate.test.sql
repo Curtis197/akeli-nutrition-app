@@ -27,10 +27,23 @@ INSERT INTO public.recipe (id, title, is_published, servings, meal_types, allerg
 VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 'Anytime Recipe', true, 1,
         ARRAY['breakfast', 'lunch', 'dinner'], ARRAY[]::text[]);
 
--- total_weight_g required so the GENERATED kcal_per_100g column is > 0
--- (generator filters rm.kcal_per_100g > 0)
+-- total_weight_g required so calories_per_100g (backfilled below) is > 0
+-- (generator filters rm.calories_per_100g > 0). trg_recipe_create_macro
+-- auto-creates an empty recipe_macro row on recipe INSERT above, so this
+-- must be an upsert, not a plain INSERT.
 INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
-VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 500, 20, 60, 15, 300);
+VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid, 500, 20, 60, 15, 300)
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
+
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0 AND (calories_per_100g IS NULL OR calories_per_100g = 0);
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES ('aaaaaaaa-0000-0000-0000-000000000010'::uuid,

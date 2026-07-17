@@ -13,8 +13,8 @@ BEGIN
   VALUES ('00000000-0000-0000-0000-000000000001', 'test@akeli.test', 'authenticated', now(), now())
   ON CONFLICT (id) DO NOTHING;
 
-  INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, role, locale)
-  VALUES ('00000000-0000-0000-0000-000000000001', true, false, now(), 'user', 'fr')
+  INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale)
+  VALUES ('00000000-0000-0000-0000-000000000001', true, false, now(), 'fr')
   ON CONFLICT (id) DO NOTHING;
 
   -- Test calorie goal

@@ -25,8 +25,8 @@ BEGIN
   VALUES (p_user_id, p_user_id::text || '@akeli.test', 'authenticated', now(), now())
   ON CONFLICT (id) DO NOTHING;
 
-  INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, role, locale)
-  VALUES (p_user_id, true, false, now(), 'user', 'fr')
+  INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale)
+  VALUES (p_user_id, true, false, now(), 'fr')
   ON CONFLICT (id) DO NOTHING;
 
   INSERT INTO user_health_profile (user_id, sex, birth_date, height_cm, activity_level, target_weight_kg, target_date, muscle_goal)
