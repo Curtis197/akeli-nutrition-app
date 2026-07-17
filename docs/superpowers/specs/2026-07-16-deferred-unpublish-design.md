@@ -125,6 +125,10 @@ regenerating the step translations that were cascade-deleted when steps were wip
 Bawoin — Riz Blanc and Sauce Graine — Foutou stay unpublished: they have no steps
 in `recipe_step` or `draft_data` and are genuinely unfinished.
 
+**Remediation executed 2026-07-17** — all 11 recipes republished (Akara was already
+republished independently before this ran). Post-check confirmed zero rows in
+`meal_plan_entry_component` joined to an unpublished recipe.
+
 ## Rollout order
 
 1. Deploy wizard changes (akeli_landing_page).
