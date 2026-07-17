@@ -38,16 +38,35 @@ VALUES
   ('f1414791-8f57-4bf4-a730-42f3c89dad95', 'f1414791-8f57-4bf4-a730-42f3c89dad95', 'f1414791-8f57-4bf4-a730-42f3c89dad95', format('{"sub":"%s","email":"%s"}', 'f1414791-8f57-4bf4-a730-42f3c89dad95', 'kitchen@akeli.local')::jsonb, 'email', now(), now(), now())
 ON CONFLICT DO NOTHING;
 
+-- creator.user_id (FK to the account that owns each creator profile) matches
+-- prod exactly (verified via execute_sql 2026-07-17) — needed so trg_creator_
+-- support_conversation (AFTER INSERT ON creator, reads NEW.user_id) doesn't
+-- insert a NULL into conversation_participant.user_id, which is NOT NULL via
+-- its own primary key.
+INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, email_change, email_change_token_new, recovery_token)
+VALUES
+  ('00000000-0000-0000-0000-000000000000', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'authenticated', 'authenticated', 'curtis.seed@akeli.internal', crypt('password', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', 'bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'authenticated', 'authenticated', 'akeli.kitchen.seed@akeli.internal', crypt('password', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', '')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+VALUES
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', format('{"sub":"%s","email":"%s"}', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'curtis.seed@akeli.internal')::jsonb, 'email', now(), now(), now()),
+  ('bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'bfe5ab74-0896-4dec-9c00-36bd72b405e3', format('{"sub":"%s","email":"%s"}', 'bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'akeli.kitchen.seed@akeli.internal')::jsonb, 'email', now(), now(), now())
+ON CONFLICT DO NOTHING;
+
 INSERT INTO public.user_profile (id, username, first_name, updated_at)
 VALUES
   ('1a1b225a-1328-4d58-976f-253574410c6f', 'curtis', 'Curtis', now()),
-  ('f1414791-8f57-4bf4-a730-42f3c89dad95', 'akeli_kitchen', 'Akeli', now())
+  ('f1414791-8f57-4bf4-a730-42f3c89dad95', 'akeli_kitchen', 'Akeli', now()),
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'curtis_account', 'Curtis', now()),
+  ('bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'akeli_kitchen_account', 'Akeli', now())
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.creator (id, display_name, recipe_count)
+INSERT INTO public.creator (id, user_id, display_name, recipe_count)
 VALUES
-  ('1a1b225a-1328-4d58-976f-253574410c6f', 'Curtis — Fondateur Akeli', 0),
-  ('f1414791-8f57-4bf4-a730-42f3c89dad95', 'Akeli Kitchen', 0)
+  ('1a1b225a-1328-4d58-976f-253574410c6f', 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Curtis — Fondateur Akeli', 0),
+  ('f1414791-8f57-4bf4-a730-42f3c89dad95', 'bfe5ab74-0896-4dec-9c00-36bd72b405e3', 'Akeli Kitchen', 0)
 ON CONFLICT (id) DO NOTHING;
 
 -- ─── TEST USERS ───────────────────────────────────────────────────────────────
@@ -430,6 +449,11 @@ INSERT INTO public.recipe (id, title, is_published, servings, meal_types, allerg
 ON CONFLICT (id) DO NOTHING;
 
 -- ─── RECIPE MACROS ───────────────────────────────────────────────────────────
+-- trg_recipe_create_macro (AFTER INSERT ON recipe) auto-creates an EMPTY
+-- recipe_macro row for every recipe above -- real prod behavior, matching how
+-- the app always UPDATEs (never INSERTs) into recipe_macro. So this must be
+-- an upsert (DO UPDATE), not DO NOTHING, or every value below is silently
+-- discarded in favor of the trigger's empty placeholder row.
 INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g) VALUES
   ('03b76f43-3d23-469f-bd2c-07974586cb1e', 393.6, 6.8, 56.1, 16.1, 1005.00),
   ('049b5d64-73fc-481b-8b26-91f7318642a7', 529.4, 22.7, 89.8, 10.6, 956.00),
@@ -534,7 +558,28 @@ INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g,
   ('f5c2e683-7105-4577-85b7-998662e7257c', 675.6, 36.7, 33.7, 46.8, 1425.50),
   ('f82a4da6-5e04-4abe-a8d9-f89f24798a15', 597.4, 21.1, 69.9, 26.0, 681.00),
   ('f95e82f8-25ff-48cb-8e95-9b6206d628dc', 4329.2, 154.3, 405.1, 249.0, 5803.00)
-ON CONFLICT (recipe_id) DO NOTHING;
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories       = EXCLUDED.calories,
+  protein_g      = EXCLUDED.protein_g,
+  carbs_g        = EXCLUDED.carbs_g,
+  fat_g          = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
+
+-- calories_per_100g/protein_per_100g/carbs_per_100g/fat_per_100g are plain
+-- (non-generated) columns on prod, populated by application code
+-- (RecipeWizard's updateMacros — see akeli_landing_page repo), not a DB
+-- trigger. Seed data bypasses the app, so backfill the same formula here:
+-- value_per_100g = value * 100 / total_weight_g. Without this, every
+-- recipe's calories_per_100g stays at its column default and
+-- generate_meal_plan's "rm.calories_per_100g > 0" filter excludes all
+-- recipes, making meal-plan generation fail locally with "insufficient_recipes".
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories  * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g   * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g     * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0
+  AND (calories_per_100g IS NULL OR calories_per_100g = 0);
 
 --
 -- RECIPE INGREDIENTS
@@ -1462,3 +1507,10 @@ INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, 
   ('f95e82f8-25ff-48cb-8e95-9b6206d628dc', 'a2707fda-62de-4ba3-a790-83e2a3c4d779', '1.00', 'can', false)
 ON CONFLICT DO NOTHING;
 
+-- Recalculate recipe_macro values to overwrite the 0s computed by trigger
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories  * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g   * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g     * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0;

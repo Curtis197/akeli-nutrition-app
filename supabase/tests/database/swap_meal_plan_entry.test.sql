@@ -25,12 +25,17 @@ VALUES
 INSERT INTO public.recipe (id, title, is_published, servings, meal_types)
 VALUES ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'Old Recipe', true, 1, ARRAY['dinner']);
 
-INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g)
-VALUES ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 500, 20, 60, 15);
-
+-- trg_recipe_create_macro auto-creates an empty recipe_macro row on recipe
+-- INSERT above, so this must be an upsert, not a plain INSERT.
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES ('aaaaaaaa-0000-0000-0000-000000000001'::uuid,
         '00000000-0000-0000-0000-000000000001'::uuid, 300, 'ml', false);
+
+INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g)
+VALUES ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 500, 20, 60, 15)
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g;
 
 -- New recipe
 INSERT INTO public.recipe (id, title, is_published, servings, meal_types)
@@ -38,12 +43,23 @@ VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 'New Recipe', true, 1, ARR
 
 -- total_weight_g = 300 so kcal_per_100g = ROUND(800/300*100,2) = 266.67
 -- With v_grams = 300 (default, no calorie goal): calories_computed = ROUND(266.67*300/100,1) = 800.0
-INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
-VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 800, 40, 90, 25, 300);
-
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid,
         '00000000-0000-0000-0000-000000000002'::uuid, 200, 'g', false);
+
+INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
+VALUES ('bbbbbbbb-0000-0000-0000-000000000001'::uuid, 800, 40, 90, 25, 300)
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
+
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0;
 
 -- User (auth.users required before user_profile FK)
 INSERT INTO auth.users (id, email, role, created_at, updated_at)

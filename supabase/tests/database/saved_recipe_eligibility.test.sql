@@ -36,11 +36,17 @@ VALUES
   ('b1111111-0000-4000-8000-000000000003'::uuid, 'Small Pool Recipe 3', true,
    ARRAY['breakfast','lunch','dinner'], 'any', ARRAY[]::text[]);
 
+-- trg_recipe_create_macro auto-creates an empty recipe_macro row on recipe
+-- INSERT above, so this must be an upsert, not a plain INSERT.
 INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
 VALUES
   ('b1111111-0000-4000-8000-000000000001'::uuid, 400, 20, 50, 10, 300),
   ('b1111111-0000-4000-8000-000000000002'::uuid, 500, 25, 55, 12, 350),
-  ('b1111111-0000-4000-8000-000000000003'::uuid, 600, 30, 60, 15, 400);
+  ('b1111111-0000-4000-8000-000000000003'::uuid, 600, 30, 60, 15, 400)
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 VALUES
@@ -71,10 +77,16 @@ SELECT ('b2222222-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
        ARRAY['breakfast','lunch','dinner'], 'any', ARRAY[]::text[]
 FROM generate_series(1, 7) i;
 
+-- trg_recipe_create_macro auto-creates an empty recipe_macro row on recipe
+-- INSERT above, so this must be an upsert, not a plain INSERT.
 INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
 SELECT ('b2222222-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
        400 + (i * 10), 20, 50, 10, 300
-FROM generate_series(1, 7) i;
+FROM generate_series(1, 7) i
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 SELECT ('b2222222-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid,
@@ -85,6 +97,13 @@ INSERT INTO public.recipe_save (user_id, recipe_id)
 SELECT 'a1111111-0000-4000-8000-000000000002'::uuid,
        ('b2222222-0000-4000-8000-' || lpad(i::text, 12, '0'))::uuid
 FROM generate_series(1, 7) i;
+
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0;
 
 -- ─── Test 1 & 2: small pool (3 < variety_days=7) never raises insufficient_saved_recipes ──
 
@@ -173,12 +192,25 @@ VALUES
   ('b3333333-0000-4000-8000-000000000004'::uuid, 'Partial Pool D (any)',       true, ARRAY['breakfast','lunch','dinner'], 'any',       ARRAY[]::text[]),
   ('b3333333-0000-4000-8000-000000000005'::uuid, 'Partial Pool E (any)',       true, ARRAY['breakfast','lunch','dinner'], 'any',       ARRAY[]::text[]);
 
+-- trg_recipe_create_macro auto-creates an empty recipe_macro row on recipe
+-- INSERT above, so this must be an upsert, not a plain INSERT.
 INSERT INTO public.recipe_macro (recipe_id, calories, protein_g, carbs_g, fat_g, total_weight_g)
 SELECT id, 400, 20, 50, 10, 300 FROM public.recipe WHERE id IN (
   'b3333333-0000-4000-8000-000000000001'::uuid, 'b3333333-0000-4000-8000-000000000002'::uuid,
   'b3333333-0000-4000-8000-000000000003'::uuid, 'b3333333-0000-4000-8000-000000000004'::uuid,
   'b3333333-0000-4000-8000-000000000005'::uuid
-);
+)
+ON CONFLICT (recipe_id) DO UPDATE SET
+  calories = EXCLUDED.calories, protein_g = EXCLUDED.protein_g,
+  carbs_g = EXCLUDED.carbs_g, fat_g = EXCLUDED.fat_g,
+  total_weight_g = EXCLUDED.total_weight_g;
+
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0 AND (calories_per_100g IS NULL OR calories_per_100g = 0);
 
 INSERT INTO public.recipe_ingredient (recipe_id, ingredient_id, quantity, unit, is_optional)
 SELECT id, '00000000-0000-0000-0000-000000000098'::uuid, 100, 'g', false FROM public.recipe WHERE id IN (
@@ -193,6 +225,13 @@ SELECT 'a1111111-0000-4000-8000-000000000004'::uuid, id FROM public.recipe WHERE
   'b3333333-0000-4000-8000-000000000003'::uuid, 'b3333333-0000-4000-8000-000000000004'::uuid,
   'b3333333-0000-4000-8000-000000000005'::uuid
 );
+
+UPDATE public.recipe_macro
+SET calories_per_100g = ROUND(calories * 100 / NULLIF(total_weight_g, 0), 2),
+    protein_per_100g  = ROUND(protein_g * 100 / NULLIF(total_weight_g, 0), 2),
+    carbs_per_100g    = ROUND(carbs_g * 100 / NULLIF(total_weight_g, 0), 2),
+    fat_per_100g      = ROUND(fat_g * 100 / NULLIF(total_weight_g, 0), 2)
+WHERE total_weight_g > 0;
 
 SET LOCAL request.jwt.claims = '{"sub":"a1111111-0000-4000-8000-000000000004"}';
 
