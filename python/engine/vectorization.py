@@ -308,17 +308,29 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
         tags = set(recipe.get("tags") or []).union(virtues)
 
         if "growth" in tags or "growth_retention" in tags or "anti_breakage" in tags:
-            vector[DIM_HAIR_GROWTH] = 1.0
+            vector[DIM_HAIR_GROWTH] = max(vector[DIM_HAIR_GROWTH], 1.0)
         if "glow" in tags or "glow_brightening" in tags or "anti_dark_spots" in tags:
-            vector[DIM_SKIN_GLOW] = 1.0
+            vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], 1.0)
         if "protective_style" in tags or "protective_care" in tags:
-            vector[DIM_PROTECTIVE_STYLE] = 1.0
+            vector[DIM_PROTECTIVE_STYLE] = max(vector[DIM_PROTECTIVE_STYLE], 1.0)
         if "scalp_soothing" in virtues:
-            vector[DIM_SENSITIVE_SCALP] = 1.0
+            vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], 1.0)
         if "sebum_balance" in virtues:
-            vector[DIM_OILY_ACNE_SKIN] = 1.0
+            vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], 1.0)
         if "intense_hydration" in virtues:
             vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], 0.8)
+
+        # Accumulate continuous virtue weight vectors from ingredients
+        ingredient_details = recipe.get("ingredient_details") or []
+        for detail in ingredient_details:
+            weights = detail.get("virtue_weights") or {}
+            if weights:
+                vector[DIM_HAIR_GROWTH] = max(vector[DIM_HAIR_GROWTH], float(weights.get("growth_retention", 0.0)), float(weights.get("anti_breakage", 0.0)))
+                vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], float(weights.get("glow_brightening", 0.0)))
+                vector[DIM_PROTECTIVE_STYLE] = max(vector[DIM_PROTECTIVE_STYLE], float(weights.get("protective_care", 0.0)))
+                vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], float(weights.get("scalp_soothing", 0.0)))
+                vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], float(weights.get("sebum_balance", 0.0)))
+                vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], float(weights.get("moisture", 0.0)))
 
         ingredients = recipe.get("ingredients") or []
         for ing in ingredients:

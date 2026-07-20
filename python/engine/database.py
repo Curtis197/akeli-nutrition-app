@@ -117,7 +117,16 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                         DISTINCT COALESCE(i.active_key, i.name)
                       ) FILTER (WHERE i.name IS NOT NULL),
                       '{}'
-                    ) AS ingredients
+                    ) AS ingredients,
+                    COALESCE(
+                      JSONB_AGG(
+                        DISTINCT JSONB_BUILD_OBJECT(
+                          'active_key', COALESCE(i.active_key, i.name),
+                          'virtue_weights', COALESCE(i.virtue_weights, '{}'::jsonb)
+                        )
+                      ) FILTER (WHERE i.name IS NOT NULL),
+                      '[]'::jsonb
+                    ) AS ingredient_details
                 FROM recipe r
                 LEFT JOIN recipe_macro rm ON rm.recipe_id = r.id
                 LEFT JOIN creator c ON c.id = r.creator_id
