@@ -18,6 +18,8 @@ import '../../providers/nutrition_provider.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
 import '../../providers/user_profile_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import 'widgets/journey/journey_tab.dart';
 
 class NutritionPage extends ConsumerStatefulWidget {
@@ -50,6 +52,11 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   Widget build(BuildContext context) {
     _logger.provider('NutritionPage build()');
     final l10n = AppLocalizations.of(context);
+    final mode = ref.watch(currentModeProvider);
+    final isBeauty = mode == AppMode.beauty;
+    final accentColor = getAppModeColor(mode);
+    final title = isBeauty ? 'Mon Suivi Beauté & Soins' : l10n.nutritionTitle;
+
     return Scaffold(
       backgroundColor: AkeliColors.surface,
       appBar: AppBar(
@@ -58,7 +65,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
         elevation: 0,
         centerTitle: true,
         title: Text(
-          l10n.nutritionTitle,
+          title,
           style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,
@@ -68,7 +75,7 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: const Icon(PhosphorIconsRegular.arrowLeft, color: AkeliColors.primary),
+            icon: Icon(PhosphorIconsRegular.arrowLeft, color: accentColor),
             onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -93,10 +100,10 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
                 controller: _tabController,
                 indicator: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: AkeliColors.primaryContainer,
+                  color: accentColor,
                   boxShadow: [
                     BoxShadow(
-                      color: AkeliColors.primaryContainer.withValues(alpha: 0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

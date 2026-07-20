@@ -18,6 +18,7 @@ import '../../providers/nutrition_plan_provider.dart';
 import '../../providers/nutrition_targets_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/models/nutrition_plan.dart';
+import '../../providers/mode_provider.dart';
 import '../auth/onboarding_data.dart';
 
 
@@ -366,6 +367,9 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final title = isBeauty ? 'Mon Programme de Soins & Routines' : l10n.nutritionPlanTitle;
     final isUs = ref.watch(localeProvider).isUsLocale;
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;
@@ -379,7 +383,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
       appBar: widget.isOnboarding
           ? null
           : AppBar(
-              title: Text(l10n.nutritionPlanTitle),
+              title: Text(title),
               backgroundColor: AkeliColors.background,
             ),
       body: SingleChildScrollView(
