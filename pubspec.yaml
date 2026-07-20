@@ -22,6 +22,10 @@ dependencies:
   # Supabase — local dev instance
   supabase_flutter: ^2.12.0
 
+  # Storage & Offline Caching
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
   # Fonts — Nunito
   google_fonts: ^6.2.1
 
