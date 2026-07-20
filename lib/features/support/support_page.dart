@@ -9,6 +9,8 @@ import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../l10n/app_localizations.dart';
 
 class SupportPage extends ConsumerStatefulWidget {
@@ -179,7 +181,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          l10n.supportTitle,
+          ref.watch(currentModeProvider) == AppMode.beauty ? 'Support Beauté & Soins' : l10n.supportTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -198,8 +200,11 @@ class _SupportPageState extends ConsumerState<SupportPage> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                  gradient: LinearGradient(
+                    colors: [
+                      getAppModeColor(ref.watch(currentModeProvider)),
+                      getAppModeColor(ref.watch(currentModeProvider)).withValues(alpha: 0.8),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),

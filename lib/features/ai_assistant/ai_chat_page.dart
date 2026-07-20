@@ -5,6 +5,8 @@ import '../../core/logger.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 
 // ---------------------------------------------------------------------------
 // Model
@@ -197,7 +199,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                       color: AkeliColors.surfaceContainerHighest,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.auto_awesome_rounded, color: AkeliColors.primary),
+                    child: Icon(Icons.auto_awesome_rounded, color: getAppModeColor(ref.watch(currentModeProvider))),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -206,12 +208,12 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          l10n.aiAssistantTitle,
+                          ref.watch(currentModeProvider) == AppMode.beauty ? 'Assistant Beauté & Soins IA' : l10n.aiAssistantTitle,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5),
                         ),
                         Text(
                           l10n.aiAssistantOnline,
-                          style: const TextStyle(fontSize: 12, color: AkeliColors.primary, letterSpacing: 0.5),
+                          style: TextStyle(fontSize: 12, color: getAppModeColor(ref.watch(currentModeProvider)), letterSpacing: 0.5),
                         ),
                       ],
                     ),
@@ -243,12 +245,19 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                     _inputCtrl.text = s;
                     _sendMessage();
                   },
-                  suggestions: [
-                    l10n.aiAssistantSuggestion1,
-                    l10n.aiAssistantSuggestion2,
-                    l10n.aiAssistantSuggestion3,
-                    l10n.aiAssistantSuggestion4,
-                  ],
+                  suggestions: ref.watch(currentModeProvider) == AppMode.beauty
+                      ? [
+                          'Quelle est la meilleure routine hydratante pour cheveux 4C ?',
+                          'Comment utiliser le beurre de karité brut contre l\'acné et les taches ?',
+                          'Quels actifs naturels favorisent la pousse et stoppent la casse ?',
+                          'Propose-moi un masque fait maison apaisant pour cuir chevelu.',
+                        ]
+                      : [
+                          l10n.aiAssistantSuggestion1,
+                          l10n.aiAssistantSuggestion2,
+                          l10n.aiAssistantSuggestion3,
+                          l10n.aiAssistantSuggestion4,
+                        ],
                 )
               : ListView.builder(
                   controller: _scrollCtrl,
