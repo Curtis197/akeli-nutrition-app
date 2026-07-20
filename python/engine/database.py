@@ -111,11 +111,22 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                     rm.carbs_g   / GREATEST(r.servings, 1) AS carbs_g,
                     rm.fat_g     / GREATEST(r.servings, 1) AS fat_g,
                     rm.fiber_g   / GREATEST(r.servings, 1) AS fiber_g,
-                    c.recipe_count AS creator_recipe_count
+                    c.recipe_count AS creator_recipe_count,
+                    COALESCE(
+                      ARRAY_AGG(
+                        DISTINCT COALESCE(i.active_key, i.name)
+                      ) FILTER (WHERE i.name IS NOT NULL),
+                      '{}'
+                    ) AS ingredients
                 FROM recipe r
                 LEFT JOIN recipe_macro rm ON rm.recipe_id = r.id
                 LEFT JOIN creator c ON c.id = r.creator_id
+                LEFT JOIN recipe_ingredient ri ON ri.recipe_id = r.id
+                LEFT JOIN ingredient i ON i.id = ri.ingredient_id
                 WHERE r.id = %s AND r.is_published = true
+                GROUP BY r.id, r.mode, r.difficulty, r.prep_time_min, r.cook_time_min,
+                         r.region, r.created_at, r.creator_id, r.virtues, r.usage_instructions,
+                         rm.calories, rm.protein_g, rm.carbs_g, rm.fat_g, rm.fiber_g, c.recipe_count
             """, (recipe_id,))
             row = cur.fetchone()
             return dict(row) if row else None

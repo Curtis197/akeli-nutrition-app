@@ -98,6 +98,29 @@ def test_compute_recipe_vector_success(mock_get_data, mock_get_stats):
     assert np.isclose(np.linalg.norm(vector), 1.0)
     assert np.any(vector > 0.0)
 
+@patch("engine.vectorization.get_recipe_consumption_stats")
+@patch("engine.vectorization.get_recipe_data")
+def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
+    mock_get_data.return_value = {
+        "mode": "beauty",
+        "virtues": ["growth_retention", "anti_breakage"],
+        "ingredients": ["shea_butter", "chebe"],
+        "suitable_hair_type": "4",
+        "formulation": "heavy_butter"
+    }
+    mock_get_stats.return_value = {}
+
+    vector = compute_recipe_vector("creator_beauty_remedy_id", mode="beauty")
+
+    assert vector is not None
+    assert len(vector) == VECTOR_DIM
+    assert np.isclose(np.linalg.norm(vector), 1.0)
+    assert vector[27] > 0.0  # TYPE4_HAIR
+    assert vector[28] > 0.0  # HIGH_POROSITY (heavy_butter)
+    assert vector[33] > 0.0  # HAIR_GROWTH / GROWTH_RETENTION
+    assert vector[36] > 0.0  # shea_butter active
+    assert vector[38] > 0.0  # chebe active
+
 @patch("engine.vectorization.get_recipe_data")
 def test_compute_recipe_vector_not_found(mock_get_data):
     # Setup mock to simulate missing or unpublished recipe
