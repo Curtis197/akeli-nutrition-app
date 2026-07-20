@@ -13,6 +13,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/meal_plan_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/avatar.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -312,6 +314,35 @@ class SettingsPage extends ConsumerWidget {
                     _Section(
                       title: l10n.settingsSectionApp,
                       items: [
+                        _MenuItem(
+                          icon: getAppModeIcon(ref.watch(currentModeProvider)),
+                          label: 'Mode d\'application (SDUI)',
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: getAppModeColor(ref.watch(currentModeProvider)).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  ref.watch(currentModeProvider).displayName,
+                                  style: TextStyle(
+                                    color: getAppModeColor(ref.watch(currentModeProvider)),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Icon(Icons.unfold_more_rounded, size: 16, color: getAppModeColor(ref.watch(currentModeProvider))),
+                              ],
+                            ),
+                          ),
+                          onTap: () {
+                            showModeSelectorDialog(context, ref);
+                          },
+                        ),
                         _MenuItem(
                           icon: Icons.notifications_outlined,
                           label: l10n.settingsNotifications,

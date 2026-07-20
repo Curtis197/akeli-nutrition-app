@@ -125,21 +125,32 @@ class ModeNotifier extends Notifier<AppMode> {
     _logger.provider('ModeNotifier build()');
     ref.onDispose(() => _logger.provider('ModeNotifier disposed'));
 
-    final box = Hive.box(_boxName);
-    final saved = box.get(_modeKey, defaultValue: 'nutrition') as String;
-    final mode = AppMode.values.firstWhere(
-      (m) => m.name == saved,
-      orElse: () => AppMode.nutrition,
-    );
-    _logger.provider('ModeNotifier → initial: ${mode.name} (loaded from cache)');
-    return mode;
+    try {
+      if (Hive.isBoxOpen(_boxName)) {
+        final box = Hive.box(_boxName);
+        final saved = box.get(_modeKey, defaultValue: 'nutrition') as String?;
+        final mode = AppMode.values.firstWhere(
+          (m) => m.name == saved,
+          orElse: () => AppMode.nutrition,
+        );
+        _logger.provider('ModeNotifier → initial: ${mode.name} (loaded from cache)');
+        return mode;
+      }
+    } catch (e) {
+      _logger.provider('ModeNotifier → box read error: $e');
+    }
+    return AppMode.nutrition;
   }
 
   Future<void> switchMode(AppMode newMode) async {
     if (state == newMode) return;
     _logger.provider('ModeNotifier → switching: ${state.name} → ${newMode.name}');
-    final box = Hive.box(_boxName);
-    await box.put(_modeKey, newMode.name);
+    try {
+      final box = Hive.isBoxOpen(_boxName) ? Hive.box(_boxName) : await Hive.openBox(_boxName);
+      await box.put(_modeKey, newMode.name);
+    } catch (e) {
+      _logger.provider('ModeNotifier switchMode error: $e');
+    }
     state = newMode;
     _logger.provider('ModeNotifier → ${newMode.name}');
   }

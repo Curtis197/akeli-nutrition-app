@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'firebase_options.dart';
 import 'core/locale_provider.dart';
 import 'core/router.dart';
@@ -17,7 +18,16 @@ import 'l10n/app_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  appLogger.i('🚀 Akeli app starting | initializing Supabase & Firebase');
+  appLogger.i('🚀 Akeli app starting | initializing Hive, Supabase & Firebase');
+
+  try {
+    await Hive.initFlutter();
+    await Hive.openBox('layout_cache');
+    await Hive.openBox('mode_state');
+    appLogger.i('✅ Hive initialized');
+  } catch (e) {
+    appLogger.e('⚠️ Hive init failed: $e');
+  }
 
   await initializeDateFormatting('fr_FR', null);
   await initializeDateFormatting('en_US', null);
