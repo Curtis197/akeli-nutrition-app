@@ -41,7 +41,9 @@ class Recipe {
   final double? carbs100g;
   final double? fat100g;
   final double? estimatedCostPer100g;
-  final String? costCurrency;
+  final String? mode;
+  final String? beautyType;
+  final String? beautySubType;
   final DateTime createdAt;
 
   const Recipe({
@@ -83,6 +85,9 @@ class Recipe {
     this.fat100g,
     this.estimatedCostPer100g,
     this.costCurrency,
+    this.mode,
+    this.beautyType,
+    this.beautySubType,
     required this.createdAt,
   });
 
@@ -233,13 +238,17 @@ class Recipe {
         fat100g:      (macro?['fat_per_100g']      as num?)?.toDouble(),
         estimatedCostPer100g: (cost?['cost_per_100g'] as num?)?.toDouble() ?? (cost?['estimated_cost_per_100g'] as num?)?.toDouble(),
         costCurrency: (cost?['currency'] as String?) ?? (cost?['country_code'] != null ? switch (cost?['country_code'] as String) {
-          'FR' => 'EUR',
+          'FR' || 'SN' || 'CI' || 'CM' || 'GA' => 'EUR',
           'GB' => 'GBP',
-          'US' => 'USD',
           'CA' => 'CAD',
-          _ => 'EUR',
-        } : null),
-        createdAt: DateTime.parse(json['created_at'] as String),
+          _ => 'USD',
+        } : 'EUR'),
+        mode: json['mode'] as String?,
+        beautyType: json['beauty_type'] as String?,
+        beautySubType: json['beauty_sub_type'] as String?,
+        createdAt: json['created_at'] != null
+            ? DateTime.parse(json['created_at'] as String)
+            : DateTime.now(),
       );
   }
 }
