@@ -10,6 +10,7 @@ import '../../core/supabase_client.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
+import '../../providers/mode_provider.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../shared/widgets/empty_state.dart';
 
@@ -99,11 +100,14 @@ class _CommunityPageState extends ConsumerState<CommunityPage>
     final l10n = AppLocalizations.of(context);
     final pendingAsync = ref.watch(pendingDmRequestsProvider);
     final pendingCount = pendingAsync.valueOrNull?.length ?? 0;
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final title = isBeauty ? 'Communauté Beauté' : l10n.communityTitle;
 
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
-        title: Text(l10n.communityTitle),
+        title: Text(title),
         backgroundColor: AkeliColors.background,
         elevation: 0,
         scrolledUnderElevation: 0,

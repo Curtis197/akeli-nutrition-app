@@ -11,6 +11,8 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import 'meal_planner_actions.dart';
 import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';
@@ -64,6 +66,11 @@ class MealPlannerPage extends ConsumerWidget {
 
           appLogger.provider('MealPlannerPage build() | days: ${dayKeys.length} | viewMode: ${viewMode.name}');
 
+          final appMode = ref.watch(currentModeProvider);
+          final isBeauty = appMode == AppMode.beauty;
+          final accentColor = getAppModeColor(appMode);
+          final title = isBeauty ? 'Mon Plan de Routines' : l10n.mealPlannerTitle;
+
           return NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── HEADER ────────────────────────────────────────
@@ -77,7 +84,7 @@ class MealPlannerPage extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        l10n.mealPlannerTitle,
+                        title,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                           height: 1.1,
@@ -86,10 +93,10 @@ class MealPlannerPage extends ConsumerWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.tune_rounded),
-                        tooltip: l10n.mealScheduleCustomizeButton,
-                        color: AkeliColors.primary,
+                        tooltip: isBeauty ? 'Personnaliser la structure des soins' : l10n.mealScheduleCustomizeButton,
+                        color: accentColor,
                         onPressed: () {
-                          appLogger.userAction('Customize meal structure tapped', screen: 'MealPlannerPage');
+                          appLogger.userAction('Customize structure tapped', screen: 'MealPlannerPage');
                           _showCustomizeSheet(context, ref);
                         },
                       ),

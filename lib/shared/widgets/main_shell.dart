@@ -39,7 +39,22 @@ class MainShell extends ConsumerWidget {
     final activeIndex = _activeIndex(context);
     final profileAsync = ref.watch(userProfileProvider);
     final l10n = AppLocalizations.of(context);
-    final tabLabels = [l10n.navHome, l10n.navMeals, l10n.navRecipes, l10n.navCommunity];
+    final mode = ref.watch(currentModeProvider);
+    final isBeauty = mode == AppMode.beauty;
+    final modeColor = getAppModeColor(mode);
+
+    final tabLabels = isBeauty
+        ? [l10n.navHome, 'Routines', 'Remèdes', l10n.navCommunity]
+        : [l10n.navHome, l10n.navMeals, l10n.navRecipes, l10n.navCommunity];
+
+    final currentTabs = isBeauty
+        ? const [
+            _TabItem(route: AkeliRoutes.home, icon: Icons.home_outlined, activeIcon: Icons.home),
+            _TabItem(route: AkeliRoutes.mealPlanner, icon: Icons.spa_outlined, activeIcon: Icons.spa),
+            _TabItem(route: AkeliRoutes.recipes, icon: Icons.eco_outlined, activeIcon: Icons.eco),
+            _TabItem(route: AkeliRoutes.community, icon: Icons.people_outlined, activeIcon: Icons.people),
+          ]
+        : _tabs;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,13 +137,13 @@ class MainShell extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: activeIndex,
         onDestinationSelected: (index) {
-          context.go(_tabs[index].route);
+          context.go(currentTabs[index].route);
         },
         backgroundColor: AkeliColors.surface,
-        indicatorColor: AkeliColors.primary.withValues(alpha: 0.12),
-        destinations: List.generate(_tabs.length, (i) => NavigationDestination(
-          icon: Icon(_tabs[i].icon),
-          selectedIcon: Icon(_tabs[i].activeIcon, color: AkeliColors.primary),
+        indicatorColor: modeColor.withValues(alpha: 0.12),
+        destinations: List.generate(currentTabs.length, (i) => NavigationDestination(
+          icon: Icon(currentTabs[i].icon),
+          selectedIcon: Icon(currentTabs[i].activeIcon, color: modeColor),
           label: tabLabels[i],
         )),
       ),

@@ -11,6 +11,7 @@ import '../../providers/creator_provider.dart';
 import '../../providers/food_region_provider.dart';
 import '../../providers/recipe_provider.dart';
 import '../../providers/ingredient_provider.dart';
+import '../../providers/mode_provider.dart';
 import '../../shared/models/ingredient_detail.dart';
 
 import '../../providers/meal_plan_provider.dart';
@@ -740,6 +741,18 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final feedTabs = isBeauty
+        ? ['Remèdes', 'Par Actifs', 'Créateurs Beauté']
+        : [l10n.feedTabRecipes, l10n.feedTabByIngredients, l10n.feedTabCreators];
+    final searchHint = isBeauty
+        ? 'Rechercher un remède, masque ou actif (Karité, Aloé...)'
+        : l10n.feedSearchHint;
+    final pageTitle = isBeauty
+        ? (widget.swapEntryId != null ? 'Sélectionner un soin' : 'Remèdes & Soins')
+        : (widget.swapEntryId != null ? 'Sélectionner une recette' : l10n.feedTabRecipes);
+
     final isSearching = _searchQuery.length >= 2;
     final feedAsync = isSearching
         ? ref.watch(searchRecipesProvider(SearchParams(
@@ -793,16 +806,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                   onPressed: () => context.pop(),
                 )
               : null,
-          title: widget.swapEntryId != null
-              ? const Text('Sélectionner une recette', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
-              : Text(
-                  l10n.feedTabRecipes,
-                  style: GoogleFonts.plusJakartaSans(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: AkeliColors.onSurface,
-                  ),
-                ),
+          title: Text(
+            pageTitle,
+            style: GoogleFonts.plusJakartaSans(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: AkeliColors.onSurface,
+            ),
+          ),
           actions: const [],
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(_tabIndex == 0 ? 164 : 44),
@@ -812,11 +823,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AkeliSpacing.md),
                   child: AkeliTabBar(
-                    tabs: [
-                      l10n.feedTabRecipes,
-                      l10n.feedTabByIngredients,
-                      l10n.feedTabCreators
-                    ],
+                    tabs: feedTabs,
                     selectedIndex: _tabIndex,
                     onTabSelected: (i) {
                       _logger.userAction('Feed tab selected', screen: 'FeedPage',
@@ -846,7 +853,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                             ),
                             child: SearchBar(
                               controller: _searchCtrl,
-                              hintText: l10n.feedSearchHint,
+                              hintText: searchHint,
                               leading: const Icon(Icons.search_rounded),
                               trailing: _searchQuery.isNotEmpty
                                   ? [
