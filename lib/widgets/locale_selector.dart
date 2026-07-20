@@ -82,24 +82,17 @@ class LocaleListTile extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: AppLocale.supportedLocales.map((locale) {
               final isSelected = locale == current;
-              return RadioListTile<AppLocale>(
-                title: Row(
-                  children: [
-                    Text(locale.flag, style: const TextStyle(fontSize: 24)),
-                    const SizedBox(width: 12),
-                    Text(locale.name),
-                  ],
-                ),
-                value: locale,
-                groupValue: current,
-                onChanged: (value) {
-                  if (value != null) {
-                    _logger.userAction('Language selected: ${value.code}', screen: 'LocaleListTile');
-                    ref.read(localeProvider.notifier).setLocale(value);
-                    context.pop();
-                  }
+              return ListTile(
+                leading: Text(locale.flag, style: const TextStyle(fontSize: 24)),
+                title: Text(locale.name),
+                trailing: isSelected
+                    ? Icon(Icons.check_circle, color: Theme.of(context).primaryColor)
+                    : const Icon(Icons.circle_outlined),
+                onTap: () {
+                  _logger.userAction('Language selected: ${locale.code}', screen: 'LocaleListTile');
+                  ref.read(localeProvider.notifier).setLocale(locale);
+                  context.pop();
                 },
-                selected: isSelected,
               );
             }).toList(),
           ),

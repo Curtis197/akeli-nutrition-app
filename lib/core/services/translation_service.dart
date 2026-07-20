@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/logger.dart';
-import 'app_locale.dart';
+import '../localization/app_locale.dart';
 
 final translationServiceProvider = Provider<TranslationService>((ref) {
   return TranslationService();

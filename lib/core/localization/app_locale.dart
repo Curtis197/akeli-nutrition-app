@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// Supported languages for Akeli app
 enum AppLocale {
   french('fr', 'Français', '🇫🇷'),
