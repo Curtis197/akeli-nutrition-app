@@ -26,7 +26,7 @@ def test_compute_user_vector_endpoint_success(mock_compute, mock_upsert):
     assert response.json()["user_id"] == "user123"
     assert response.json()["vector_computed"] is True
     # Ensure our mocks were called
-    mock_compute.assert_called_once_with("user123")
+    mock_compute.assert_called_once_with("user123", mode="nutrition")
     mock_upsert.assert_called_once()
 
 @patch("main.compute_user_vector")
@@ -47,7 +47,7 @@ def test_compute_recipe_vector_endpoint_success(mock_compute, mock_upsert):
     
     assert response.status_code == 200
     assert response.json()["recipe_id"] == "recipe123"
-    mock_compute.assert_called_once_with("recipe123")
+    mock_compute.assert_called_once_with("recipe123", mode="nutrition")
     mock_upsert.assert_called_once()
 
 @patch("main.compute_recipe_vector")

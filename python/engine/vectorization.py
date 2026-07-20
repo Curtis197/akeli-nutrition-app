@@ -74,7 +74,7 @@ REGION_MAP = {
 
 DIFFICULTY_MAP = {"easy": 0.25, "medium": 0.6, "hard": 1.0}
 
-# Dim offsets
+# Dim offsets — Nutrition (0-26)
 DIM_PROTEIN      = 0
 DIM_LOW_CAL      = 1
 DIM_FIBER        = 2
@@ -90,6 +90,30 @@ DIM_VEGETARIAN   = 23
 DIM_HALAL        = 24
 DIM_CREATOR_Q    = 25
 DIM_FAN_ELIGIBLE = 26
+
+# Dim offsets — Beauty & Care (27-49)
+DIM_TYPE4_HAIR       = 27
+DIM_HIGH_POROSITY    = 28
+DIM_LOW_POROSITY     = 29
+DIM_OILY_ACNE_SKIN   = 30
+DIM_DRY_SKIN         = 31
+DIM_SENSITIVE_SCALP  = 32
+DIM_HAIR_GROWTH      = 33
+DIM_SKIN_GLOW        = 34
+DIM_PROTECTIVE_STYLE = 35
+DIM_BEAUTY_ACTIVES   = 36   # 36..44 (9 dims)
+
+BEAUTY_ACTIVES_MAP = {
+    "shea_butter": 0,  # Karité
+    "aloe_vera":   1,  # Aloé Véra
+    "chebe":       2,  # Chébé
+    "black_seed":  3,  # Nigelle
+    "argan":       4,  # Argan
+    "ricin":       5,  # Castor / Ricin
+    "hibiscus":    6,  # Hibiscus / Karkadé
+    "clay":        7,  # Argile
+    "jojoba":      8,  # Jojoba
+}
 
 
 def _normalize_l2(v: np.ndarray) -> np.ndarray:
@@ -134,12 +158,53 @@ def _infer_goals_from_profile(profile: dict) -> set:
     return goals
 
 
-def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
+def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.ndarray]:
     profile = get_user_health_profile(user_id)
     if not profile:
         return None
 
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
+
+    if mode == "beauty":
+        # ---- Beauty Dimensions (27-44) ----
+        hair_type = profile.get("hair_type") or "4C"
+        if "4" in str(hair_type):
+            vector[DIM_TYPE4_HAIR] = 1.0
+
+        porosity = profile.get("porosity")
+        if porosity == "high":
+            vector[DIM_HIGH_POROSITY] = 1.0
+        elif porosity == "low":
+            vector[DIM_LOW_POROSITY] = 1.0
+
+        skin_type = profile.get("skin_type")
+        if skin_type in ("oily", "acne"):
+            vector[DIM_OILY_ACNE_SKIN] = 1.0
+        elif skin_type == "dry":
+            vector[DIM_DRY_SKIN] = 1.0
+
+        if profile.get("sensitive_scalp"):
+            vector[DIM_SENSITIVE_SCALP] = 1.0
+
+        beauty_goals = set(profile.get("beauty_goals") or [])
+        if "growth" in beauty_goals or "anti_breakage" in beauty_goals:
+            vector[DIM_HAIR_GROWTH] = 1.0
+        if "glow" in beauty_goals or "anti_dark_spots" in beauty_goals:
+            vector[DIM_SKIN_GLOW] = 1.0
+        if "protective_style" in beauty_goals:
+            vector[DIM_PROTECTIVE_STYLE] = 1.0
+
+        preferred_actives = profile.get("preferred_actives") or []
+        for active in preferred_actives:
+            idx = BEAUTY_ACTIVES_MAP.get(active)
+            if idx is not None:
+                vector[DIM_BEAUTY_ACTIVES + idx] = 1.0
+
+        for dim in (DIM_TYPE4_HAIR, DIM_HIGH_POROSITY, DIM_LOW_POROSITY,
+                    DIM_OILY_ACNE_SKIN, DIM_DRY_SKIN, DIM_HAIR_GROWTH, DIM_SKIN_GLOW):
+            vector[dim] *= 2.0
+
+        return _normalize_l2(vector)
 
     explicit_goals = set(g for g in (profile.get("goals") or []) if g)
     goals = explicit_goals if explicit_goals else _infer_goals_from_profile(profile)
@@ -213,13 +278,48 @@ def compute_user_vector(user_id: str) -> Optional[np.ndarray]:
 # RECIPE VECTOR
 # ---------------------------------------------------------------------------
 
-def compute_recipe_vector(recipe_id: str) -> Optional[np.ndarray]:
+def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[np.ndarray]:
     recipe = get_recipe_data(recipe_id)
     if not recipe:
         return None
 
     stats = get_recipe_consumption_stats(recipe_id, days=30)
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
+
+    if mode == "beauty" or recipe.get("mode") == "beauty":
+        # ---- Beauty Recipe Dimensions (27-44) ----
+        if recipe.get("suitable_hair_type") == "4" or "4" in str(recipe.get("tags") or []):
+            vector[DIM_TYPE4_HAIR] = 1.0
+
+        if recipe.get("formulation") == "heavy_butter":
+            vector[DIM_HIGH_POROSITY] = 1.0
+        elif recipe.get("formulation") == "light_oil":
+            vector[DIM_LOW_POROSITY] = 1.0
+
+        if recipe.get("skin_target") in ("oily", "acne"):
+            vector[DIM_OILY_ACNE_SKIN] = 1.0
+        elif recipe.get("skin_target") == "dry":
+            vector[DIM_DRY_SKIN] = 1.0
+
+        if recipe.get("scalp_soothing"):
+            vector[DIM_SENSITIVE_SCALP] = 1.0
+
+        tags = set(recipe.get("tags") or [])
+        if "growth" in tags or "anti_breakage" in tags:
+            vector[DIM_HAIR_GROWTH] = 1.0
+        if "glow" in tags or "anti_dark_spots" in tags:
+            vector[DIM_SKIN_GLOW] = 1.0
+        if "protective_style" in tags:
+            vector[DIM_PROTECTIVE_STYLE] = 1.0
+
+        ingredients = recipe.get("ingredients") or []
+        for ing in ingredients:
+            ing_code = str(ing).lower()
+            for active_key, idx in BEAUTY_ACTIVES_MAP.items():
+                if active_key in ing_code:
+                    vector[DIM_BEAUTY_ACTIVES + idx] = 1.0
+
+        return _normalize_l2(vector)
 
     # All values are already per-serving (divided in get_recipe_data query)
     cal   = float(recipe.get("calories")  or 0)

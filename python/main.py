@@ -48,10 +48,12 @@ def health():
 
 class UserVectorRequest(BaseModel):
     user_id: str
+    mode: str = "nutrition"
 
 
 class RecipeVectorRequest(BaseModel):
     recipe_id: str
+    mode: str = "nutrition"
 
 
 class CreatorVectorRequest(BaseModel):
@@ -75,11 +77,11 @@ async def api_compute_user_vector(request: UserVectorRequest):
     Exception runtime ADR-001 — appelé uniquement à l'onboarding.
     """
     try:
-        vector = compute_user_vector(request.user_id)
+        vector = compute_user_vector(request.user_id, mode=request.mode)
         if vector is None:
             raise HTTPException(status_code=404, detail="User not found or insufficient data")
         upsert_user_vector(request.user_id, vector)
-        return {"user_id": request.user_id, "vector_computed": True, "dimensions": len(vector)}
+        return {"user_id": request.user_id, "mode": request.mode, "vector_computed": True, "dimensions": len(vector)}
     except HTTPException:
         raise
     except Exception as e:
@@ -97,11 +99,11 @@ async def api_compute_recipe_vector(request: RecipeVectorRequest):
     Calcule et stocke le recipe_vector pour une recette publiée.
     """
     try:
-        vector = compute_recipe_vector(request.recipe_id)
+        vector = compute_recipe_vector(request.recipe_id, mode=request.mode)
         if vector is None:
             raise HTTPException(status_code=404, detail="Recipe not found or not published")
         upsert_recipe_vector(request.recipe_id, vector)
-        return {"recipe_id": request.recipe_id, "vector_computed": True, "dimensions": len(vector)}
+        return {"recipe_id": request.recipe_id, "mode": request.mode, "vector_computed": True, "dimensions": len(vector)}
     except HTTPException:
         raise
     except Exception as e:

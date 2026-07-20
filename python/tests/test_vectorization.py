@@ -4,9 +4,8 @@ import numpy as np
 
 from engine.vectorization import compute_user_vector, compute_recipe_vector, compute_creator_vector, VECTOR_DIM
 
-@patch("engine.vectorization.get_user_behavior")
 @patch("engine.vectorization.get_user_health_profile")
-def test_compute_user_vector_success(mock_get_profile, mock_get_behavior):
+def test_compute_user_vector_success(mock_get_profile):
     # Setup mock data for a valid user
     mock_get_profile.return_value = {
         "goals": ["weight_loss", "health"],
@@ -15,12 +14,6 @@ def test_compute_user_vector_success(mock_get_profile, mock_get_behavior):
         "target_weight_kg": 70.0,
         "cuisine_regions": ["mediterranean", "france"],
         "restrictions": ["vegetarian"]
-    }
-    mock_get_behavior.return_value = {
-        "total_consumptions": 40,
-        "active_days": 20,
-        "avg_servings": 1.5,
-        "current_weight_kg": 78.0
     }
 
     # Execute
@@ -37,6 +30,27 @@ def test_compute_user_vector_success(mock_get_profile, mock_get_behavior):
     # Note: We won't test exact values of every dimension to keep tests robust,
     # but we can check if it at least produces a non-zero vector.
     assert np.any(vector > 0.0)
+
+@patch("engine.vectorization.get_user_health_profile")
+def test_compute_beauty_user_vector(mock_get_profile):
+    mock_get_profile.return_value = {
+        "hair_type": "4C",
+        "porosity": "high",
+        "skin_type": "dry",
+        "beauty_goals": ["growth", "glow"],
+        "preferred_actives": ["shea_butter", "aloe_vera"]
+    }
+
+    vector = compute_user_vector("beauty_user_id", mode="beauty")
+
+    assert vector is not None
+    assert isinstance(vector, np.ndarray)
+    assert len(vector) == VECTOR_DIM
+    assert np.isclose(np.linalg.norm(vector), 1.0)
+    assert vector[27] > 0.0  # TYPE4_HAIR
+    assert vector[28] > 0.0  # HIGH_POROSITY
+    assert vector[31] > 0.0  # DRY_SKIN
+    assert vector[33] > 0.0  # HAIR_GROWTH
 
 @patch("engine.vectorization.get_user_health_profile")
 def test_compute_user_vector_not_found(mock_get_profile):
