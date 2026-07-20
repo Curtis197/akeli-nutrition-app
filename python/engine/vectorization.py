@@ -320,7 +320,7 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
         if "intense_hydration" in virtues:
             vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], 0.8)
 
-        # Accumulate continuous virtue weight vectors from ingredients
+        # Accumulate continuous virtue weight vectors from ingredients (hair + skincare)
         ingredient_details = recipe.get("ingredient_details") or []
         for detail in ingredient_details:
             weights = detail.get("virtue_weights") or {}
@@ -331,6 +331,13 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
                 vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], float(weights.get("scalp_soothing", 0.0)))
                 vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], float(weights.get("sebum_balance", 0.0)))
                 vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], float(weights.get("moisture", 0.0)))
+
+            skin_weights = detail.get("skin_virtue_weights") or {}
+            if skin_weights:
+                vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], float(skin_weights.get("oily_acne_sebum", 0.0)))
+                vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], float(skin_weights.get("dry_skin_moisture", 0.0)), float(skin_weights.get("barrier_repair", 0.0)))
+                vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], float(skin_weights.get("brightening_anti_spots", 0.0)), float(skin_weights.get("anti_aging_elasticity", 0.0)))
+                vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], float(skin_weights.get("sensitive_skin_soothing", 0.0)))
 
         ingredients = recipe.get("ingredients") or []
         for ing in ingredients:

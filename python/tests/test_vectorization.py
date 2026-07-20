@@ -108,7 +108,8 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
         "ingredient_details": [
             {
                 "active_key": "shea_butter",
-                "virtue_weights": {"moisture": 0.90, "anti_breakage": 0.85}
+                "virtue_weights": {"moisture": 0.90, "anti_breakage": 0.85},
+                "skin_virtue_weights": {"dry_skin_moisture": 0.90, "barrier_repair": 0.95}
             },
             {
                 "active_key": "chebe",
@@ -127,7 +128,7 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
     assert np.isclose(np.linalg.norm(vector), 1.0)
     assert vector[27] > 0.0  # TYPE4_HAIR
     assert vector[28] > 0.0  # HIGH_POROSITY (heavy_butter)
-    assert vector[31] > 0.0  # DRY_SKIN / MOISTURE (0.90 from shea_butter)
+    assert vector[31] > 0.0  # DRY_SKIN / MOISTURE (0.90 from dry_skin_moisture / barrier_repair)
     assert vector[33] > 0.0  # HAIR_GROWTH / GROWTH_RETENTION (0.95 from chebe)
     assert vector[36] > 0.0  # shea_butter active
     assert vector[38] > 0.0  # chebe active

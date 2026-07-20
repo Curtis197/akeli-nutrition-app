@@ -122,7 +122,8 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                       JSONB_AGG(
                         DISTINCT JSONB_BUILD_OBJECT(
                           'active_key', COALESCE(i.active_key, i.name),
-                          'virtue_weights', COALESCE(i.virtue_weights, '{}'::jsonb)
+                          'virtue_weights', COALESCE(i.virtue_weights, '{}'::jsonb),
+                          'skin_virtue_weights', COALESCE(i.skin_virtue_weights, '{}'::jsonb)
                         )
                       ) FILTER (WHERE i.name IS NOT NULL),
                       '[]'::jsonb
