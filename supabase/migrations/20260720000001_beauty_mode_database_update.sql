@@ -59,7 +59,7 @@ BEGIN
     r.cook_time_min,
     r.difficulty,
     r.region,
-    r.mode,
+    r.mode::text,
     r.creator_id,
     c.display_name AS creator_name,
     COALESCE(r.like_count, 0) AS like_count,
