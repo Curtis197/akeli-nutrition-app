@@ -30,6 +30,8 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                     uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
                     uhp.target_weight_kg, uhp.activity_level,
                     uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time,
+                    uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp,
+                    uhp.beauty_goals, uhp.preferred_actives,
                     ARRAY_AGG(DISTINCT ug.goal_type) FILTER (WHERE ug.goal_type IS NOT NULL) AS goals,
                     ARRAY_AGG(DISTINCT udr.restriction) FILTER (WHERE udr.restriction IS NOT NULL) AS restrictions,
                     ARRAY_AGG(DISTINCT ucp.region) FILTER (WHERE ucp.region IS NOT NULL) AS cuisine_regions
@@ -40,7 +42,9 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                 WHERE uhp.user_id = %s
                 GROUP BY uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
                          uhp.target_weight_kg, uhp.activity_level,
-                         uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time
+                         uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time,
+                         uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp,
+                         uhp.beauty_goals, uhp.preferred_actives
             """, (user_id,))
             row = cur.fetchone()
             return dict(row) if row else None

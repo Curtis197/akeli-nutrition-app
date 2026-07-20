@@ -28,6 +28,14 @@ class OnboardingData {
   final bool batchCookingEnabled;
   final int batchMaxPortions;
 
+  // Beauty Diagnostic
+  final String hairType;
+  final String porosity;
+  final String skinType;
+  final bool sensitiveScalp;
+  final List<String> beautyGoals;
+  final List<String> preferredActives;
+
   const OnboardingData({
     this.language = 'fr',
     this.consentPrivacy = false,
@@ -52,6 +60,12 @@ class OnboardingData {
     this.cookingTime,
     this.batchCookingEnabled = false,
     this.batchMaxPortions = 4,
+    this.hairType = '4C',
+    this.porosity = 'medium',
+    this.skinType = 'combination',
+    this.sensitiveScalp = false,
+    this.beautyGoals = const [],
+    this.preferredActives = const [],
   });
 
   OnboardingData copyWith({

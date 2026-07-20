@@ -49,6 +49,12 @@ serve(async (req) => {
       selectedAllergenIds,
       consent_privacy_at,
       consent_cgu_at,
+      hair_type,
+      porosity,
+      skin_type,
+      sensitive_scalp,
+      beauty_goals,
+      preferred_actives,
     } = body;
 
     logger.debug("[STEP 2] Validating params", {
@@ -89,6 +95,12 @@ serve(async (req) => {
         ...(weight_goal !== undefined && { weight_goal }),
         ...(muscle_goal !== undefined && { muscle_goal }),
         ...(cooking_time !== undefined && { cooking_time }),
+        ...(hair_type !== undefined && { hair_type }),
+        ...(porosity !== undefined && { porosity }),
+        ...(skin_type !== undefined && { skin_type }),
+        ...(sensitive_scalp !== undefined && { sensitive_scalp }),
+        ...(beauty_goals !== undefined && { beauty_goals }),
+        ...(preferred_actives !== undefined && { preferred_actives }),
       }, { onConflict: "user_id" });
     logQueryResult(logger, "user_health_profile", "UPSERT", healthError ? 0 : 1, healthError ?? undefined);
     if (healthError) throw healthError;

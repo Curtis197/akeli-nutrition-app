@@ -148,6 +148,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       'cuisine_preferences': d.cuisinePreferences,
       if (d.consentPrivacy) 'consent_privacy_at': now,
       if (d.consentCgu) 'consent_cgu_at': now,
+      'hair_type': d.hairType,
+      'porosity': d.porosity,
+      'skin_type': d.skinType,
+      'sensitive_scalp': d.sensitiveScalp,
+      'beauty_goals': d.beautyGoals,
+      'preferred_actives': d.preferredActives,
     };
 
     try {
