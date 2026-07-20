@@ -23,6 +23,8 @@ import '../../shared/widgets/meal_card.dart';
 import '../../shared/widgets/progress_circle.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/shopping_row.dart';
+import '../../core/sdui/widgets/dynamic_layout_page.dart';
+import '../../providers/mode_provider.dart';
 import 'home_creator_chip.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -67,6 +69,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final currentMode = ref.watch(currentModeProvider);
+    if (currentMode != AppMode.nutrition) {
+      return DynamicLayoutPage(mode: currentMode.name);
+    }
+
     final l10n = AppLocalizations.of(context);
     final localeState = ref.watch(localeProvider);
     final profileAsync = ref.watch(userProfileProvider);

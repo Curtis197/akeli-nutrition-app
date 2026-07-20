@@ -7,6 +7,8 @@ import '../../providers/push_token_provider.dart';
 import '../../providers/badge_sync_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/notifications_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/avatar.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -69,6 +71,41 @@ class MainShell extends ConsumerWidget {
           ),
         ),
         actions: [
+          Consumer(
+            builder: (context, ref, _) {
+              final mode = ref.watch(currentModeProvider);
+              final color = getAppModeColor(mode);
+              final icon = getAppModeIcon(mode);
+
+              return GestureDetector(
+                onTap: () => showModeSelectorDialog(context, ref),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: color.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 16, color: color),
+                      const SizedBox(width: 4),
+                      Text(
+                        mode.displayName,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
           const _NotificationBell(),
           Padding(
             padding: const EdgeInsets.only(right: 8),
