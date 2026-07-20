@@ -3,27 +3,36 @@ import '../../core/logger.dart';
 import '../localization/app_locale.dart';
 import '../services/translation_service.dart';
 
-final localeProvider = AsyncNotifierProvider<LocaleNotifier, AppLocale>(LocaleNotifier.new);
+/// Provider for list of active supported languages (Global, African, Asian, etc.)
+final supportedLanguagesProvider = FutureProvider<List<AppLanguage>>((ref) async {
+  final service = ref.watch(translationServiceProvider);
+  return await service.fetchSupportedLanguages();
+});
 
-class LocaleNotifier extends AsyncNotifier<AppLocale> {
+/// Provider for current active AppLanguage
+final localeProvider = AsyncNotifierProvider<LocaleNotifier, AppLanguage>(LocaleNotifier.new);
+
+class LocaleNotifier extends AsyncNotifier<AppLanguage> {
   final _logger = appLogger;
 
   @override
-  Future<AppLocale> build() async {
-    _logger.provider('LocaleNotifier build()');
+  Future<AppLanguage> build() async {
+    _logger.provider('LocaleNotifier build() starting');
     ref.onDispose(() => _logger.provider('LocaleNotifier disposed'));
-    final locale = await ref.read(translationServiceProvider).loadUserPreferredLanguage();
-    _logger.provider('LocaleNotifier → initial locale: ${locale.code}');
-    return locale;
+    final service = ref.read(translationServiceProvider);
+    final initialLang = await service.init();
+    _logger.provider('LocaleNotifier → active locale: ${initialLang.code}');
+    return initialLang;
   }
 
-  Future<void> setLocale(AppLocale newLocale) async {
-    _logger.provider('LocaleNotifier → setLocale: ${newLocale.code}');
+  Future<void> setLocale(AppLanguage newLanguage) async {
+    _logger.provider('LocaleNotifier → setLocale: ${newLanguage.code}');
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(translationServiceProvider).loadTranslations(newLocale);
-      _logger.provider('LocaleNotifier → ${newLocale.code} loaded');
-      return newLocale;
+      final service = ref.read(translationServiceProvider);
+      await service.loadTranslations(newLanguage);
+      _logger.provider('LocaleNotifier → ${newLanguage.code} loaded successfully');
+      return newLanguage;
     });
   }
 }
