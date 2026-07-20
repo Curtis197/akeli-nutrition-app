@@ -102,8 +102,8 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("""
                 SELECT
-                    r.id, r.difficulty, r.prep_time_min, r.cook_time_min,
-                    r.region, r.created_at, r.creator_id,
+                    r.id, r.mode, r.difficulty, r.prep_time_min, r.cook_time_min,
+                    r.region, r.created_at, r.creator_id, r.virtues, r.usage_instructions,
                     GREATEST(r.servings, 1) AS servings,
                     -- Per-serving macros: divide totals by servings
                     rm.calories  / GREATEST(r.servings, 1) AS calories,

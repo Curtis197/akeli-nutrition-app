@@ -304,13 +304,21 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
         if recipe.get("scalp_soothing"):
             vector[DIM_SENSITIVE_SCALP] = 1.0
 
-        tags = set(recipe.get("tags") or [])
-        if "growth" in tags or "anti_breakage" in tags:
+        virtues = set(recipe.get("virtues") or [])
+        tags = set(recipe.get("tags") or []).union(virtues)
+
+        if "growth" in tags or "growth_retention" in tags or "anti_breakage" in tags:
             vector[DIM_HAIR_GROWTH] = 1.0
-        if "glow" in tags or "anti_dark_spots" in tags:
+        if "glow" in tags or "glow_brightening" in tags or "anti_dark_spots" in tags:
             vector[DIM_SKIN_GLOW] = 1.0
-        if "protective_style" in tags:
+        if "protective_style" in tags or "protective_care" in tags:
             vector[DIM_PROTECTIVE_STYLE] = 1.0
+        if "scalp_soothing" in virtues:
+            vector[DIM_SENSITIVE_SCALP] = 1.0
+        if "sebum_balance" in virtues:
+            vector[DIM_OILY_ACNE_SKIN] = 1.0
+        if "intense_hydration" in virtues:
+            vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], 0.8)
 
         ingredients = recipe.get("ingredients") or []
         for ing in ingredients:
