@@ -14,6 +14,8 @@ import '../../core/unit_converter.dart';
 import '../../core/nutrition_input_bounds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromDate;
 import 'models/health_profile_model.dart';
 import 'widgets/intensity_badge.dart';
@@ -211,12 +213,12 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                         ),
                       ),
                       Text(
-                        l10n.healthProfileTitle,
-                        style: const TextStyle(
+                        ref.watch(currentModeProvider) == AppMode.beauty ? 'Diagnostic Peau & Cuir Chevelu' : l10n.healthProfileTitle,
+                        style: TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AkeliColors.primary,
+                          color: getAppModeColor(ref.watch(currentModeProvider)),
                           letterSpacing: -0.5,
                         ),
                       ),

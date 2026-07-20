@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/user_preferences_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../shared/models/user_preferences.dart';
 import 'widgets/allergen_picker_widget.dart';
 import 'widgets/settings_widgets.dart';
@@ -93,12 +95,12 @@ class _PreferencesPageState extends ConsumerState<PreferencesPage> {
                         ),
                       ),
                       Text(
-                        l10n.preferencesTitle,
-                        style: const TextStyle(
+                        ref.watch(currentModeProvider) == AppMode.beauty ? 'Préférences Cosmétiques & Soins' : l10n.preferencesTitle,
+                        style: TextStyle(
                           fontFamily: 'Plus Jakarta Sans',
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AkeliColors.primary,
+                          color: getAppModeColor(ref.watch(currentModeProvider)),
                           letterSpacing: -0.5,
                         ),
                       ),

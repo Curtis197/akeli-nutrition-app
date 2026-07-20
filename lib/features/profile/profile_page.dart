@@ -12,6 +12,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/dm_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/profile_tabs_provider.dart';
+import '../../providers/mode_provider.dart';
 import '../../shared/widgets/avatar.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -468,9 +469,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                         padding: EdgeInsets.zero,
                         labelPadding: const EdgeInsets.symmetric(horizontal: 24),
                         tabs: [
-                          Tab(text: l10n.profileTabRecipes),
+                          Tab(text: ref.watch(currentModeProvider) == AppMode.beauty ? 'Soins & Remèdes' : l10n.profileTabRecipes),
                           Tab(text: l10n.profileTabComments),
-                          Tab(text: l10n.profileTabGroups),
+                          Tab(text: ref.watch(currentModeProvider) == AppMode.beauty ? 'Groupes Beauté' : l10n.profileTabGroups),
                         ],
                       ),
                       const SizedBox(height: 24),
