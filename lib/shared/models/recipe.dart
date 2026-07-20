@@ -41,6 +41,7 @@ class Recipe {
   final double? carbs100g;
   final double? fat100g;
   final double? estimatedCostPer100g;
+  final String? costCurrency;
   final String? mode;
   final String? beautyType;
   final String? beautySubType;
