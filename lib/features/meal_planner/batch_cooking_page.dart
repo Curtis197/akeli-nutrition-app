@@ -7,6 +7,8 @@ import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../shared/models/meal_plan.dart';
 
 class BatchCookingPage extends ConsumerWidget {
@@ -15,6 +17,11 @@ class BatchCookingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final accentColor = getAppModeColor(appMode);
+    final title = isBeauty ? 'Prep Soins Hebdomadaire' : l10n.batchCookingTitle;
+
     final sessionsAsync = ref.watch(cookingSessionsProvider);
 
     appLogger.provider('BatchCookingPage build() | sessionsAsync.isLoading: ${sessionsAsync.isLoading}');
@@ -29,7 +36,7 @@ class BatchCookingPage extends ConsumerWidget {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
+            icon: Icon(Icons.arrow_back, color: accentColor),
             onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -43,7 +50,7 @@ class BatchCookingPage extends ConsumerWidget {
           ),
         ),
         title: Text(
-          l10n.batchCookingTitle,
+          title,
           style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,

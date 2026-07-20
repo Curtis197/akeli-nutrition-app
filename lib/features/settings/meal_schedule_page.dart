@@ -11,6 +11,7 @@ import 'package:akeli/shared/models/nutrition_plan.dart';
 import 'package:akeli/core/saved_recipe_eligibility.dart';
 import 'package:akeli/providers/saved_recipe_progress_provider.dart';
 import 'package:akeli/providers/user_preferences_provider.dart';
+import 'package:akeli/providers/mode_provider.dart';
 
 class MealSchedulePage extends ConsumerStatefulWidget {
   const MealSchedulePage({super.key});
@@ -34,6 +35,9 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final title = isBeauty ? 'Horaires des Routines & Soins' : l10n.mealScheduleTitle;
     _logger.provider('MealSchedulePage build()');
 
     final planAsync = ref.watch(activeNutritionPlanProvider);
@@ -45,7 +49,7 @@ class _MealSchedulePageState extends ConsumerState<MealSchedulePage> {
     return Scaffold(
       backgroundColor: AkeliColors.background,
       appBar: AppBar(
-        title: Text(l10n.mealScheduleTitle),
+        title: Text(title),
         backgroundColor: AkeliColors.background,
         actions: [
           TextButton(

@@ -7,7 +7,8 @@ import '../../core/theme.dart';
 import '../../core/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
-
+import '../../providers/mode_provider.dart';
+import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/shopping_row.dart';
 
@@ -27,6 +28,14 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+    final isBeauty = appMode == AppMode.beauty;
+    final accentColor = getAppModeColor(appMode);
+    final title = isBeauty ? 'Liste d\'Achat Produits & Actifs' : l10n.shoppingListTitle;
+    final emptySubtitle = isBeauty
+        ? 'Aucun actif ni produit dans votre liste. Ajoutez des soins depuis vos remèdes.'
+        : l10n.shoppingListEmpty;
+
     final listAsync = ref.watch(shoppingListProvider);
     final localeState = ref.watch(localeProvider);
     final isUsLocale = localeState.isUsLocale;
@@ -44,7 +53,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AkeliColors.primary),
+            icon: Icon(Icons.arrow_back, color: accentColor),
             onPressed: () {
                 if (Navigator.of(context).canPop()) {
                   Navigator.of(context).pop();
@@ -58,7 +67,7 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
           ),
         ),
         title: Text(
-          l10n.shoppingListTitle,
+          title,
           style: const TextStyle(
             color: AkeliColors.onSurface,
             fontWeight: FontWeight.w700,
@@ -74,9 +83,9 @@ class _ShoppingListPageState extends ConsumerState<ShoppingListPage> {
         data: (items) {
           if (items.isEmpty) {
             return EmptyState(
-              icon: Icons.shopping_cart_outlined,
-              title: l10n.shoppingListTitle,
-              subtitle: l10n.shoppingListEmpty,
+              icon: isBeauty ? Icons.spa_outlined : Icons.shopping_cart_outlined,
+              title: title,
+              subtitle: emptySubtitle,
             );
           }
 
