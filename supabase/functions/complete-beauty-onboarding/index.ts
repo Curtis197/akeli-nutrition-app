@@ -4,6 +4,8 @@ import { ok, err, unauthorized, serverError } from "../_shared/response.ts";
 import { getAuthUser, serviceClient } from "../_shared/supabase.ts";
 import { createLogger } from "../_shared/logger.ts";
 
+const PYTHON_SERVICE_URL = Deno.env.get("PYTHON_SERVICE_URL");
+
 serve(async (req) => {
   const corsResponse = handleCors(req);
   if (corsResponse) return corsResponse;
@@ -48,7 +50,7 @@ serve(async (req) => {
 
     const admin = serviceClient();
 
-    // Execute complete_beauty_onboarding RPC via Edge Function wrapper
+    // 1. Execute complete_beauty_onboarding RPC
     logger.debug("[STEP 1] Executing complete_beauty_onboarding RPC");
     const { error: rpcError } = await admin.rpc("complete_beauty_onboarding", {
       p_user_id: user.id,
@@ -72,8 +74,18 @@ serve(async (req) => {
       throw rpcError;
     }
 
+    // 2. Trigger Beauty User Vectorization via Python recommendation engine (non-blocking)
+    if (PYTHON_SERVICE_URL) {
+      logger.debug("[STEP 2] FIRE compute-user-vector (mode: beauty, non-blocking)");
+      fetch(`${PYTHON_SERVICE_URL}/compute-user-vector`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: user.id, mode: "beauty" }),
+      }).catch((e) => logger.warn("[STEP 2] Python beauty vectorization trigger error: " + e.message));
+    }
+
     logger.info("✅ EXIT | status: 200 | duration: " + (Date.now() - start) + "ms");
-    return ok({ message: "Beauty onboarding completed successfully", user_id: user.id });
+    return ok({ message: "Beauty onboarding completed successfully with vectorization trigger", user_id: user.id });
   } catch (e) {
     logger.error("💥 Unhandled error", { message: (e as Error).message });
     return serverError(e);

@@ -123,7 +123,9 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:35 UTC)**
+### **Changelog Entry — July 21, 2026 (14:38 UTC)**
+- **Python Beauty User Vectorization Trigger**: Updated `complete-beauty-onboarding` Edge Function (`index.ts`) to fire an asynchronous, non-blocking HTTP POST request to `${PYTHON_SERVICE_URL}/compute-user-vector` with `{ user_id, mode: "beauty" }`. This immediately builds the initial 50D Beauty User Vector (covering dims 27-49: hair texture spectrum, porosity, scalp condition, skin typology, and virtue preferences) upon onboarding completion.
+- **Verification**: Tested live, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Dedicated Beauty Onboarding Edge Function**: Created `supabase/functions/complete-beauty-onboarding/index.ts` to achieve architectural parity with Nutrition Mode (`complete-onboarding`). Features Bearer JWT verification (`getAuthUser`), structured Deno logging (`createLogger`), service role execution, and RPC fallback.
 - **Provider Parity (`user_profile_provider.dart`)**: Updated `completeBeautyOnboarding` in `UserProfileNotifier` to invoke `client.functions.invoke('complete-beauty-onboarding', body: ...)` with RPC fallback so both Edge Function and database execution are supported seamlessly.
 - **Verification**: Tested live, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
