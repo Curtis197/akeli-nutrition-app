@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('BeautyOnboardingPage renders 3-step wizard correctly with Rosewood theme and extensive hair dropdown', (WidgetTester tester) async {
+  testWidgets('BeautyOnboardingPage renders 3-step wizard correctly with Rosewood theme, hair dropdown, and deep skin profile', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
@@ -24,8 +24,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify Step 2 elements
-    expect(find.textContaining('Diagnostic de Peau'), findsOneWidget);
-    expect(find.text('Mixte (Zone T brillante)'), findsOneWidget);
+    expect(find.textContaining('Diagnostic Cutané Profond'), findsOneWidget);
+    expect(find.textContaining('Peau Mixte'), findsOneWidget);
 
     // Tap Next to navigate to Step 3
     await tester.tap(find.text('Étape Suivante ➔'));

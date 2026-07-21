@@ -237,6 +237,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     required String skinType,
     required String scalpType,
     required List<String> beautyGoals,
+    List<String> skinConcerns = const [],
   }) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
@@ -247,6 +248,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
       'skinType': skinType,
       'scalpType': scalpType,
       'goals': beautyGoals,
+      'skinConcerns': skinConcerns,
     });
 
     final client = ref.read(supabaseClientProvider);
@@ -259,6 +261,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         'p_skin_type': skinType,
         'p_scalp_type': scalpType,
         'p_beauty_goals': beautyGoals,
+        'p_skin_concerns': skinConcerns,
       });
 
       ref.invalidate(userProfileProvider);

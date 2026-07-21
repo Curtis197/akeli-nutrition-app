@@ -29,8 +29,10 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   String _porosity = 'medium';
   String _scalpType = 'normal';
 
-  // Step 2: Skin
-  String _skinType = 'combination';
+  // Step 2: Deep Skin Profile
+  String _skinType = 'mixte_t';
+  final Set<String> _skinConcerns = {'hyperpigmentation', 'dehydration'};
+  String _bodySkinProfile = 'normal';
 
   // Step 3: Goals
   final Set<String> _beautyGoals = {'hair_growth', 'moisture'};
@@ -222,7 +224,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           children: [
             _buildSelectableChip('Faible (Écailles fermées)', 'low', _porosity, (val) => setState(() => _porosity = val)),
             _buildSelectableChip('Moyenne (Équilibre parfait)', 'medium', _porosity, (val) => setState(() => _porosity = val)),
-            _buildSelectableChip('Fortement Porrice (Écailles ouvertes)', 'high', _porosity, (val) => setState(() => _porosity = val)),
+            _buildSelectableChip('Fortement Poreuse (Écailles ouvertes)', 'high', _porosity, (val) => setState(() => _porosity = val)),
           ],
         ),
         const SizedBox(height: 28),
@@ -250,7 +252,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '✨ Diagnostic de Peau',
+          '✨ Diagnostic Cutané Profond',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -258,12 +260,63 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sélectionnez votre type de peau pour personnaliser les masques botaniques et sérums huiles.',
+          'Analysez la typologie globale et les défis spécifiques de votre peau (visage & corps).',
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
         const Text(
-          'Type de Peau Visage & Corps',
+          'Composition & Typologie Cutanée',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        ),
+        const SizedBox(height: 12),
+        // Extensive Skin Type Dropdown
+        DropdownButtonFormField<String>(
+          value: _skinType,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: BeautyOnboardingPage.beautySurfaceHigh,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: BeautyOnboardingPage.beautyPrimary, width: 2),
+            ),
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down, color: BeautyOnboardingPage.beautyPrimary),
+          dropdownColor: Colors.white,
+          isExpanded: true,
+          items: const [
+            DropdownMenuItem(value: 'mixte_t', child: Text('Peau Mixte (Zone T brillante, joues normales/sèches)')),
+            DropdownMenuItem(value: 'seche_deshydratee', child: Text('Peau Sèche & Déshydratée (Tiraillements & desquamation)')),
+            DropdownMenuItem(value: 'grasse_acneique', child: Text('Peau Grasse & Acneique (Excès de sébum, pores dilatés)')),
+            DropdownMenuItem(value: 'sensible_reactive', child: Text('Peau Sensible & Réactive (Rougeurs, rosacée)')),
+            DropdownMenuItem(value: 'hypermentee', child: Text('Peau Sujette à l\'Hyperpigmentation (Taches sombres, mélasma)')),
+            DropdownMenuItem(value: 'mature', child: Text('Peau Mature (Perte de fermeté & rides d\'expression)')),
+            DropdownMenuItem(value: 'normale', child: Text('Peau Normale / Équilibrée')),
+          ],
+          onChanged: (val) {
+            if (val != null) setState(() => _skinType = val);
+          },
+        ),
+        const SizedBox(height: 28),
+        const Text(
+          'Préoccupations & Défis Cutanés (Visage & Décolleté)',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        ),
+        const SizedBox(height: 12),
+        _buildSkinConcernCheckbox('🌖 Taches Sombres & Teint Irrégulier (Hyperpigmentation)', 'hyperpigmentation'),
+        _buildSkinConcernCheckbox('🌋 Boutons, Points Noirs & Imperfections', 'acne_imperfections'),
+        _buildSkinConcernCheckbox('💧 Déshydratation Profonde & Perte d\'Éclat', 'dehydration'),
+        _buildSkinConcernCheckbox('🛡️ Barrière Cutanée Fragilisée & Sensibilité', 'barrier_damage'),
+        _buildSkinConcernCheckbox('✨ Brillance Excessive & Pores Dilatés', 'excess_sebum'),
+        _buildSkinConcernCheckbox('🌿 Perte d\'Élasticité & Relâchement', 'aging_elasticity'),
+
+        const SizedBox(height: 28),
+        const Text(
+          'Particularités du Corps',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
@@ -271,10 +324,11 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           spacing: 10,
           runSpacing: 10,
           children: [
-            _buildSelectableChip('Mixte (Zone T brillante)', 'combination', _skinType, (val) => setState(() => _skinType = val)),
-            _buildSelectableChip('Sèche & Tiraillements', 'dry', _skinType, (val) => setState(() => _skinType = val)),
-            _buildSelectableChip('Grasse & Imperfections', 'oily', _skinType, (val) => setState(() => _skinType = val)),
-            _buildSelectableChip('Normale', 'normal', _skinType, (val) => setState(() => _skinType = val)),
+            _buildSelectableChip('Normal / Sans Problème', 'normal', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip('Kératose Pilaire (Peau de poule)', 'keratose', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip('Eczéma / Sujet aux Poussées', 'eczema', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip('Prévention Vergetures', 'vergetures', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip('Peau du Corps Très Sèche (Crocodile)', 'corps_sec', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
           ],
         ),
       ],
@@ -322,6 +376,25 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     );
   }
 
+  Widget _buildSkinConcernCheckbox(String title, String key) {
+    final isSelected = _skinConcerns.contains(key);
+    return CheckboxListTile(
+      value: isSelected,
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      activeColor: BeautyOnboardingPage.beautyPrimary,
+      contentPadding: EdgeInsets.zero,
+      onChanged: (val) {
+        setState(() {
+          if (val == true) {
+            _skinConcerns.add(key);
+          } else {
+            _skinConcerns.remove(key);
+          }
+        });
+      },
+    );
+  }
+
   Widget _buildGoalCheckbox(String title, String key) {
     final isSelected = _beautyGoals.contains(key);
     return CheckboxListTile(
@@ -357,6 +430,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
             skinType: _skinType,
             scalpType: _scalpType,
             beautyGoals: _beautyGoals.toList(),
+            skinConcerns: _skinConcerns.toList(),
           );
       if (mounted) {
         context.go(AkeliRoutes.home);

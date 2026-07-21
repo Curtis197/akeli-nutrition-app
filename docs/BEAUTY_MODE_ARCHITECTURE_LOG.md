@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (13:28 UTC)**
+### **Changelog Entry — July 21, 2026 (13:42 UTC)**
+- **Deep Skin Profile Migration**: Added `skin_concerns TEXT[] DEFAULT '{}'` to `user_health_profile` table and updated `complete_beauty_onboarding(...)` RPC in migration `20260721000017_deep_skin_profile.sql`.
+- **Comprehensive Skin Typology & Dermatology Concerns**: Upgraded Step 2 of `BeautyOnboardingPage` with an extensive Skin Typology Dropdown (Peau Mixte, Sèche & Déshydratée, Grasse & Acneique, Sensible & Réactive, Hyperpigmentée, Mature, Normale), 6 Dermatological Concern Checkboxes (Hyperpigmentation, Acné, Déshydratation, Barrière Fragilisée, Sébum, Perte d'Élasticité), and Body Skin Particularities.
+- **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Rosewood & Gold Editorial Color Palette**: Replaced default green `AkeliColors.primary` in `BeautyOnboardingPage` with Beauty Mode's editorial Rosewood palette (`Color(0xFF8A3B58)` & `Color(0xFFD4AF37)` matching `ColorSetModal`).
 - **Extensive Hair Composition Dropdown**: Upgraded hair texture selection to a comprehensive `DropdownButtonFormField` covering all 15 hair compositions (Types 1A–1C, 2A–2C, 3A–3C, 4A–4C, Locks/Dreadlocks, Cheveux en Transition, and Soin Sous Tresses/Perruque).
 - **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
