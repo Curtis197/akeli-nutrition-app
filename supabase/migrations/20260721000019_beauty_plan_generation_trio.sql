@@ -1,5 +1,5 @@
 -- Migration: 20260721000019_beauty_plan_generation_trio.sql
--- Description: Create the trio of Beauty Plan Generation RPCs (standard, initial, and from_saved) to mirror Nutrition mode
+-- Description: Create the trio of Beauty Plan Generation RPCs (standard, initial onboarding monthly remainder, and from_saved)
 
 -- 1. Standard generate_beauty_plan (supports configurable start_date and duration days)
 CREATE OR REPLACE FUNCTION generate_beauty_plan(
@@ -157,7 +157,7 @@ END;
 $$;
 
 
--- 2. generate_initial_beauty_plan (Partial initial plan from current day until upcoming Sunday)
+-- 2. generate_initial_beauty_plan (Monthly remainder: starts on onboarding date and runs until end of current month)
 CREATE OR REPLACE FUNCTION generate_initial_beauty_plan(
   p_user_id UUID
 )
@@ -166,10 +166,11 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-  v_days_until_sunday INT;
+  v_start_date DATE := CURRENT_DATE;
+  v_end_of_month DATE := (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month - 1 day')::DATE;
+  v_days INT := (v_end_of_month - v_start_date + 1)::INT;
 BEGIN
-  v_days_until_sunday := (7 - EXTRACT(dow FROM CURRENT_DATE)::integer) % 7 + 1;
-  RETURN generate_beauty_plan(p_user_id, CURRENT_DATE, v_days_until_sunday);
+  RETURN generate_beauty_plan(p_user_id, v_start_date, v_days);
 END;
 $$;
 

@@ -123,7 +123,9 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:43 UTC)**
+### **Changelog Entry — July 21, 2026 (14:47 UTC)**
+- **Monthly Remainder Onboarding Beauty Plan**: Updated `generate_initial_beauty_plan(p_user_id)` in migration `20260721000019_beauty_plan_generation_trio.sql` to calculate the exact remaining days from the user's onboarding date to the end of the current calendar month (`(end_of_month - start_date + 1)`). This ensures Beauty Mode onboarding generates a monthly routine plan aligned to the remainder of the current month rather than truncating at Sunday.
+- **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Beauty Plan Generation Parity Trio**: Created migration `20260721000019_beauty_plan_generation_trio.sql` introducing the full trio of plan generation RPCs to mirror Nutrition Mode:
   1. `generate_beauty_plan(p_user_id, p_start_date, p_days)` — Full $N$-day routine plan generator.
   2. `generate_initial_beauty_plan(p_user_id)` — Partial initial onboarding plan from current day until upcoming Sunday.
