@@ -133,6 +133,28 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
     assert vector[32] > 0.0  # GOAL_HAIR_ANTI_BREAKAGE (0.90 from chebe & shea)
     assert vector[41] > 0.0  # GOAL_SKIN_BARRIER (0.95 from dry_skin_moisture / barrier_repair)
 
+@patch("engine.vectorization.get_recipe_consumption_stats")
+@patch("engine.vectorization.get_recipe_data")
+def test_premade_product_vs_diy_recipe_vectorization(mock_get_recipe, mock_get_stats):
+    """Verify premade commercial product uses explicit creator virtues directly without ingredient accumulation."""
+    mock_get_recipe.return_value = {
+        "mode": "beauty",
+        "is_premade_product": True,
+        "product_type": "artisanal",
+        "virtue_weights": {"growth_retention": 0.95, "shine_softness": 0.85},
+        "ingredient_details": [
+            # Ingredient has anti_breakage=0.99, but premade product overrides with explicit creator weights
+            {"active_key": "chebe", "virtue_weights": {"anti_breakage": 0.99}}
+        ]
+    }
+    mock_get_stats.return_value = {}
+
+    vector = compute_recipe_vector("premade_product_id", mode="beauty")
+    assert vector is not None
+    assert vector[31] > 0.0  # GOAL_HAIR_GROWTH (0.95 explicit)
+    assert vector[38] > 0.0  # GOAL_HAIR_SHINE (0.85 explicit)
+    assert vector[32] == 0.0  # GOAL_HAIR_ANTI_BREAKAGE is 0 because premade product uses explicit creator vector
+
 @patch("engine.vectorization.get_user_health_profile")
 @patch("engine.vectorization.get_recipe_consumption_stats")
 @patch("engine.vectorization.get_recipe_data")

@@ -49,6 +49,8 @@ class Recipe {
   final String? suitableHairType;
   final String? skinTarget;
   final String? formulation;
+  final bool isPremadeProduct;
+  final String? productType;
   final Map<String, double>? virtueWeights;
   final DateTime createdAt;
 
@@ -98,6 +100,8 @@ class Recipe {
     this.suitableHairType,
     this.skinTarget,
     this.formulation,
+    this.isPremadeProduct = false,
+    this.productType = 'diy',
     this.virtueWeights,
     required this.createdAt,
   });
@@ -261,6 +265,8 @@ class Recipe {
         suitableHairType: json['suitable_hair_type'] as String?,
         skinTarget: json['skin_target'] as String?,
         formulation: json['formulation'] as String?,
+        isPremadeProduct: (json['is_premade_product'] as bool?) ?? false,
+        productType: (json['product_type'] as String?) ?? 'diy',
         virtueWeights: json['virtue_weights'] is Map<String, dynamic>
             ? (json['virtue_weights'] as Map<String, dynamic>).map(
                 (k, v) => MapEntry(k, (v as num).toDouble()),
