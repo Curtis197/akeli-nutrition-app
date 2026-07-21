@@ -264,22 +264,45 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     final client = ref.read(supabaseClientProvider);
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await client.rpc('complete_beauty_onboarding', params: {
-        'p_user_id': user.id,
-        'p_hair_type': hairType,
-        'p_porosity': porosity,
-        'p_skin_type': skinType,
-        'p_scalp_type': scalpType,
-        'p_beauty_goals': beautyGoals,
-        'p_skin_concerns': skinConcerns,
-        'p_hair_length_cm': hairLengthCm,
-        'p_hair_strength_score': hairStrengthScore,
-        'p_hair_thickness_score': hairThicknessScore,
-        'p_hair_shedding_rate': hairSheddingRate,
-        'p_skin_hydration_level': skinHydrationLevel,
-        'p_skin_clarity_score': skinClarityScore,
-        'p_checkin_notes': checkinNotes,
-      });
+      try {
+        _logger.edge('complete-beauty-onboarding', 'Invoking Edge Function');
+        final res = await client.functions.invoke('complete-beauty-onboarding', body: {
+          'hair_type': hairType,
+          'porosity': porosity,
+          'skin_type': skinType,
+          'scalp_type': scalpType,
+          'beauty_goals': beautyGoals,
+          'skin_concerns': skinConcerns,
+          'hair_length_cm': hairLengthCm,
+          'hair_strength_score': hairStrengthScore,
+          'hair_thickness_score': hairThicknessScore,
+          'hair_shedding_rate': hairSheddingRate,
+          'skin_hydration_level': skinHydrationLevel,
+          'skin_clarity_score': skinClarityScore,
+          'checkin_notes': checkinNotes,
+        });
+        if (res.status != 200) {
+          throw Exception('Edge function return status ${res.status}');
+        }
+      } catch (e) {
+        _logger.db('Edge function error, falling back to RPC complete_beauty_onboarding: $e');
+        await client.rpc('complete_beauty_onboarding', params: {
+          'p_user_id': user.id,
+          'p_hair_type': hairType,
+          'p_porosity': porosity,
+          'p_skin_type': skinType,
+          'p_scalp_type': scalpType,
+          'p_beauty_goals': beautyGoals,
+          'p_skin_concerns': skinConcerns,
+          'p_hair_length_cm': hairLengthCm,
+          'p_hair_strength_score': hairStrengthScore,
+          'p_hair_thickness_score': hairThicknessScore,
+          'p_hair_shedding_rate': hairSheddingRate,
+          'p_skin_hydration_level': skinHydrationLevel,
+          'p_skin_clarity_score': skinClarityScore,
+          'p_checkin_notes': checkinNotes,
+        });
+      }
 
       ref.invalidate(userProfileProvider);
       ref.invalidate(healthProfileProvider);

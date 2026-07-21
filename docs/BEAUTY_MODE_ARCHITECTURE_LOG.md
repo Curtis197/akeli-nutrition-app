@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:26 UTC)**
+### **Changelog Entry — July 21, 2026 (14:35 UTC)**
+- **Dedicated Beauty Onboarding Edge Function**: Created `supabase/functions/complete-beauty-onboarding/index.ts` to achieve architectural parity with Nutrition Mode (`complete-onboarding`). Features Bearer JWT verification (`getAuthUser`), structured Deno logging (`createLogger`), service role execution, and RPC fallback.
+- **Provider Parity (`user_profile_provider.dart`)**: Updated `completeBeautyOnboarding` in `UserProfileNotifier` to invoke `client.functions.invoke('complete-beauty-onboarding', body: ...)` with RPC fallback so both Edge Function and database execution are supported seamlessly.
+- **Verification**: Tested live, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **5-Step Beauty Onboarding Wizard**: Added Step 5 (**Résumé & Confirmation / Summary & Confirmation**) to `BeautyOnboardingPage` (`beauty_onboarding_page.dart`). Renders interactive summary cards for Hair Profile, Skin Diagnostic, Selected Goals, and First Log Measurements, allowing quick inline edit navigation (`onEdit` callbacks) back to previous steps before final confirmation.
 - **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **First Beauty Log Check-in Migration**: Updated `complete_beauty_onboarding(...)` RPC in migration `20260721000018_first_beauty_log_onboarding.sql` to accept baseline `beauty_log` parameters (`p_hair_length_cm`, `p_hair_strength_score`, `p_hair_thickness_score`, `p_hair_shedding_rate`, `p_skin_hydration_level`, `p_skin_clarity_score`, `p_checkin_notes`) and automatically log the user's initial baseline check-in row upon completing onboarding.
