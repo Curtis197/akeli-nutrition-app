@@ -126,12 +126,40 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
     assert vector is not None
     assert len(vector) == VECTOR_DIM
     assert np.isclose(np.linalg.norm(vector), 1.0)
-    assert vector[27] > 0.0  # TYPE4_HAIR
+    assert vector[27] > 0.0  # TYPE4_HAIR / HAIR_TEXTURE
     assert vector[28] > 0.0  # HIGH_POROSITY (heavy_butter)
     assert vector[31] > 0.0  # DRY_SKIN / MOISTURE (0.90 from dry_skin_moisture / barrier_repair)
     assert vector[33] > 0.0  # HAIR_GROWTH / GROWTH_RETENTION (0.95 from chebe)
     assert vector[36] > 0.0  # shea_butter active
     assert vector[38] > 0.0  # chebe active
+
+@patch("engine.vectorization.get_user_health_profile")
+@patch("engine.vectorization.get_recipe_consumption_stats")
+@patch("engine.vectorization.get_recipe_data")
+def test_continuous_hair_type_spectrum_similarity(mock_get_recipe, mock_get_stats, mock_get_user):
+    """Verify 3B user (0.60) yields strong continuous similarity with a 4A remedy (0.80)."""
+    mock_get_user.return_value = {
+        "hair_type": "3B",  # Spectrum 0.60
+        "porosity": "high",
+        "beauty_goals": ["growth"]
+    }
+    mock_get_recipe.return_value = {
+        "mode": "beauty",
+        "suitable_hair_type": "4A",  # Spectrum 0.80
+        "virtues": ["growth_retention"],
+        "ingredients": ["shea_butter"]
+    }
+    mock_get_stats.return_value = {}
+
+    user_vec = compute_user_vector("u_3b", mode="beauty")
+    recipe_vec = compute_recipe_vector("r_4a", mode="beauty")
+
+    assert user_vec is not None
+    assert recipe_vec is not None
+
+    # Calculate cosine similarity (dot product of L2 normalized vectors)
+    similarity = float(np.dot(user_vec, recipe_vec))
+    assert similarity > 0.40  # Strong positive similarity between 3B and 4A!
 
 @patch("engine.vectorization.get_recipe_data")
 def test_compute_recipe_vector_not_found(mock_get_data):

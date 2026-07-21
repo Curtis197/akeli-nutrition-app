@@ -115,6 +115,30 @@ BEAUTY_ACTIVES_MAP = {
     "jojoba":      8,  # Jojoba
 }
 
+# Continuous Spectrum Encodings (0.0 to 1.0)
+HAIR_TYPE_SPECTRUM = {
+    "1A": 0.10, "1B": 0.10, "1C": 0.15,
+    "2A": 0.25, "2B": 0.30, "2C": 0.40,
+    "3A": 0.50, "3B": 0.60, "3C": 0.70,
+    "4A": 0.80, "4B": 0.90, "4C": 1.00,
+    "1": 0.10, "2": 0.30, "3": 0.60, "4": 0.90,
+}
+
+POROSITY_SPECTRUM = {
+    "low": 0.20,
+    "medium": 0.50,
+    "normal": 0.50,
+    "high": 1.00,
+}
+
+SKIN_TYPE_SPECTRUM = {
+    "dry": 0.10,
+    "normal": 0.50,
+    "combination": 0.50,
+    "oily": 0.90,
+    "acne": 1.00,
+}
+
 
 def _normalize_l2(v: np.ndarray) -> np.ndarray:
     norm = np.linalg.norm(v)
@@ -167,21 +191,20 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
 
     if mode == "beauty":
         # ---- Beauty Dimensions (27-44) ----
-        hair_type = profile.get("hair_type") or "4C"
-        if "4" in str(hair_type):
-            vector[DIM_TYPE4_HAIR] = 1.0
+        hair_type = str(profile.get("hair_type") or "4C").upper()
+        vector[DIM_TYPE4_HAIR] = HAIR_TYPE_SPECTRUM.get(hair_type, 0.90)
 
-        porosity = profile.get("porosity")
+        porosity = str(profile.get("porosity") or "high").lower()
         if porosity == "high":
-            vector[DIM_HIGH_POROSITY] = 1.0
+            vector[DIM_HIGH_POROSITY] = POROSITY_SPECTRUM.get(porosity, 1.0)
         elif porosity == "low":
-            vector[DIM_LOW_POROSITY] = 1.0
+            vector[DIM_LOW_POROSITY] = POROSITY_SPECTRUM.get(porosity, 0.20)
 
-        skin_type = profile.get("skin_type")
+        skin_type = str(profile.get("skin_type") or "oily").lower()
         if skin_type in ("oily", "acne"):
-            vector[DIM_OILY_ACNE_SKIN] = 1.0
+            vector[DIM_OILY_ACNE_SKIN] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.90)
         elif skin_type == "dry":
-            vector[DIM_DRY_SKIN] = 1.0
+            vector[DIM_DRY_SKIN] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.10)
 
         if profile.get("sensitive_scalp"):
             vector[DIM_SENSITIVE_SCALP] = 1.0
@@ -288,13 +311,13 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
 
     if mode == "beauty" or recipe.get("mode") == "beauty":
         # ---- Beauty Recipe Dimensions (27-44) ----
-        if recipe.get("suitable_hair_type") == "4" or "4" in str(recipe.get("tags") or []):
-            vector[DIM_TYPE4_HAIR] = 1.0
+        suitable_hair = str(recipe.get("suitable_hair_type") or "4C").upper()
+        vector[DIM_TYPE4_HAIR] = HAIR_TYPE_SPECTRUM.get(suitable_hair, 0.85)
 
         if recipe.get("formulation") == "heavy_butter":
             vector[DIM_HIGH_POROSITY] = 1.0
         elif recipe.get("formulation") == "light_oil":
-            vector[DIM_LOW_POROSITY] = 1.0
+            vector[DIM_LOW_POROSITY] = 0.20
 
         if recipe.get("skin_target") in ("oily", "acne"):
             vector[DIM_OILY_ACNE_SKIN] = 1.0
