@@ -1,12 +1,12 @@
-# 👑 Akeli Beauty Mode — 50D Vector Recommendation Engine & Evolution System
-> **Technical Architecture, Data Models, SQL Migrations & Algorithm Specification**  
+# 👑 Akeli Beauty Mode — 50D Vector Engine, Evolution System & Creator Payout Architecture
+> **Technical Architecture, Data Models, SQL Migrations, UI Components & Royalty Engine Specification**  
 > *Last Updated: July 21, 2026*
 
 ---
 
 ## 📑 Executive Summary
 
-This document logs the complete technical implementation of **Akeli Beauty Mode**, transitioning the platform into a 50D Goal-Driven Recommendation & Time-Series Evolution Tracking Engine.
+This document logs the complete technical implementation of **Akeli Beauty Mode**, transitioning the platform into a 50D Goal-Driven Recommendation Engine, Time-Series Evolution Tracking Engine, and Proportional Creator Payout System.
 
 ### **Core Capabilities Implemented**:
 1. **50D Shared Semantic Vector Space**: Uniform mapping between user profile vectors ($U$) and remedy/product vectors ($R$).
@@ -15,6 +15,13 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 4. **Premade Commercial Product vs. DIY Remedy Vectorization**: Explicit creator virtue vectors for bottled products vs. accumulated virtue vectors for raw botanical remedies.
 5. **Hybrid Selective Virtue Masking**: Preserves physical hair/skin attributes while masking un-requested virtues to eliminate dilution penalties.
 6. **Extensive Beauty Log & Evolution Tracking**: Time-series tracking of 15+ quantitative & qualitative hair/skin metrics with dynamic recommendation priority feedback loops.
+7. **Monthly Beauty Plan Generator**: 30-day care cycle across 5 frequency tiers (`daily`, `2x_week`, `1x_week`, `2x_month`, `1x_month`).
+8. **Unified Mode-Aware Recipe Feed & Beauty Routine Planner**: Seamless app mode switching (`AppMode.nutrition` vs. `AppMode.beauty`) across remedies feeds and routine planners.
+9. **Mode-Isolated Community Groups & Conversations**: Dedicated Beauty community groups (*Secret du Chébé*, *Peaux Claires & Bio*, *Bains d'Huiles*) and beauty topics.
+10. **Color Set Selector Modal**: Customizable Primary & Secondary color palettes (*Teal & Amber*, *Rose & Gold*, *Sage & Bronze*, *Terracotta & Clay*).
+11. **Proportional Creator Revenue Value (`revenue_value = 1 / N`) & Platform Retained Revenue Engine**:
+    - Each monthly beauty plan slot carries a weight of `1 / N` (total plan weight = 1.0).
+    - 1.00€ direct share pool per plan: completed slots pay `entry.revenue_value * 1.00€` to creators; unchecked slots remain with the platform.
 
 ---
 
@@ -58,96 +65,54 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 ## 📁 2. File Directory & Codebase References
 
 ### 🗄️ **Database Migrations (`supabase/migrations/`)**
-* **[`supabase/migrations/20260721000003_recipe_virtue_weights_vector.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000003_recipe_virtue_weights_vector.sql)**
-  * Adds `virtue_weights JSONB` column to the `recipe` table.
-* **[`supabase/migrations/20260721000004_standardize_ingredient_virtue_vectors.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000004_standardize_ingredient_virtue_vectors.sql)**
-  * Standardizes 18 continuous virtue weight maps across 45+ natural botanical ingredients.
-* **[`supabase/migrations/20260721000005_premade_product_classification.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000005_premade_product_classification.sql)**
-  * Adds `is_premade_product BOOLEAN` and `product_type TEXT` (`'diy'`, `'artisanal'`, `'industrial'`) columns to `recipe`.
-* **[`supabase/migrations/20260721000006_hybrid_virtue_masking_recommendations.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000006_hybrid_virtue_masking_recommendations.sql)**
-  * Updates `recommend_recipes(p_user_id, ...)` SQL RPC with HNSW Cosine Distance matching (`rv.vector <=> v_user_vector`).
-* **[`supabase/migrations/20260721000007_beauty_log_evolution_tracking.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000007_beauty_log_evolution_tracking.sql)**
-  * Creates `beauty_log` table for time-series check-ins and `get_beauty_evolution_history(p_user_id, p_limit)` RPC.
+* **[`supabase/migrations/20260721000003_recipe_virtue_weights_vector.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000003_recipe_virtue_weights_vector.sql)**: Adds `virtue_weights JSONB` column to `recipe`.
+* **[`supabase/migrations/20260721000004_standardize_ingredient_virtue_vectors.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000004_standardize_ingredient_virtue_vectors.sql)**: Standardizes 18 virtue weight maps across 45+ botanical ingredients.
+* **[`supabase/migrations/20260721000005_premade_product_classification.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000005_premade_product_classification.sql)**: Adds `is_premade_product` and `product_type` (`'diy'`, `'artisanal'`, `'industrial'`).
+* **[`supabase/migrations/20260721000006_hybrid_virtue_masking_recommendations.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000006_hybrid_virtue_masking_recommendations.sql)**: Updates `recommend_recipes` SQL RPC with HNSW Cosine Distance.
+* **[`supabase/migrations/20260721000007_beauty_log_evolution_tracking.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000007_beauty_log_evolution_tracking.sql)**: Creates `beauty_log` table and `get_beauty_evolution_history` RPC.
+* **[`supabase/migrations/20260721000008_monthly_beauty_plan_generator.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000008_monthly_beauty_plan_generator.sql)**: Generates 30-day care cycle across 5 frequency tiers (`daily`, `2x_week`, `1x_week`, `2x_month`, `1x_month`).
+* **[`supabase/migrations/20260721000009_onboarding_baseline_beauty_log.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000009_onboarding_baseline_beauty_log.sql)**: Adds `create_initial_beauty_log` RPC for onboarding.
+* **[`supabase/migrations/20260721000010_unify_feed_personalized_with_mode.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000010_unify_feed_personalized_with_mode.sql)**: Unifies `generate_feed_personalized` RPC with `p_mode` support.
+* **[`supabase/migrations/20260721000011_community_mode_and_beauty_topics.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000011_community_mode_and_beauty_topics.sql)**: Adds `mode` column to `community_group` and `conversation`, seeds Beauty starter groups.
+* **[`supabase/migrations/20260721000012_beauty_plan_slot_revenue_value.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000012_beauty_plan_slot_revenue_value.sql)**: Adds `revenue_value = 1 / N` column to `beauty_plan_slot`.
+* **[`supabase/migrations/20260721000013_beauty_payouts_revenue_value.sql`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/supabase/migrations/20260721000013_beauty_payouts_revenue_value.sql)**: Direct 1.00€ plan share creator payout RPCs (`calculate_creator_payouts`, `get_creator_beauty_payout_breakdown`, `get_platform_retained_beauty_revenue`).
 
 ---
 
 ### 🐍 **Python Recommendation & Vector Engine (`python/engine/`)**
-* **[`python/engine/vectorization.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/engine/vectorization.py)**
-  * Implements `compute_user_vector(user_id, mode="beauty")` with continuous spectrum lookups, dynamic `beauty_log` priority feedback, and L2 normalization.
-  * Implements `compute_recipe_vector(recipe_id, mode="beauty", active_goals=None)` with dual virtue vectorization (explicit commercial product vectors vs. DIY ingredient accumulation) and hybrid selective virtue masking.
-* **[`python/engine/database.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/engine/database.py)**
-  * Implements `get_recipe_data`, `get_user_health_profile`, `get_latest_beauty_log`, and `get_beauty_evolution_history`.
-* **[`python/tests/test_vectorization.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/tests/test_vectorization.py)**
-  * Comprehensive Pytest unit test suite (**24 passing tests**) covering spectrum lookups, dual branch vectorization, hybrid virtue masking, and dynamic check-in metric feedback.
+* **[`python/engine/vectorization.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/engine/vectorization.py)**: Vector computation engine.
+* **[`python/engine/database.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/engine/database.py)**: Database interface helpers.
+* **[`python/tests/test_vectorization.py`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/python/tests/test_vectorization.py)**: Pytest unit test suite (**24 passing tests**).
 
 ---
 
-### 📱 **Flutter Dart Shared Models & Tests (`lib/ & test/`)**
-* **[`lib/shared/models/recipe.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/shared/models/recipe.dart)**
-  * Data model for beauty remedies including `virtueWeights`, `suitableHairType`, `skinTarget`, `formulation`, `isPremadeProduct`, and `productType`.
-* **[`lib/shared/models/beauty_log.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/shared/models/beauty_log.dart)**
-  * Data model for time-series progress logs with `fromJson` and `toJson`.
-* **[`test/shared/models/beauty_log_test.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/test/shared/models/beauty_log_test.dart)**
-  * Widget & model unit tests (**239 passing tests** across the app).
+### 📱 **Flutter Dart Implementation (`lib/ & test/`)**
+* **[`lib/shared/models/beauty_log.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/shared/models/beauty_log.dart)**: Time-series log model.
+* **[`lib/shared/models/beauty_plan.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/shared/models/beauty_plan.dart)**: Monthly beauty plan & slot model (includes `revenueValue`).
+* **[`lib/providers/beauty_plan_provider.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/providers/beauty_plan_provider.dart)**: Active beauty plan state provider & slot completion notifier.
+* **[`lib/features/beauty/widgets/beauty_checkin_sheet.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/features/beauty/widgets/beauty_checkin_sheet.dart)**: Modal bottom sheet for progress check-ins.
+* **[`lib/features/meal_planner/widgets/beauty_planner_view.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/features/meal_planner/widgets/beauty_planner_view.dart)**: Schedule view widget displaying monthly care routines.
+* **[`lib/shared/widgets/color_set_modal.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/lib/shared/widgets/color_set_modal.dart)**: Primary & Secondary theme palette switcher modal.
+* **[`test/features/beauty/widgets/beauty_checkin_sheet_test.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/test/features/beauty/widgets/beauty_checkin_sheet_test.dart)**: Widget unit tests.
+* **[`test/features/meal_planner/widgets/beauty_planner_view_test.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/test/features/meal_planner/widgets/beauty_planner_view_test.dart)**: Widget unit tests.
+* **[`test/shared/widgets/color_set_modal_test.dart`](file:///c:/Users/DELL%20LATITUDE%207480/akeli-nutrition-app/test/shared/widgets/color_set_modal_test.dart)**: Widget unit tests (**243 passing Flutter tests total**).
 
 ---
 
-## 🛠️ 3. Key Algorithmic Innovations
+## 💰 3. Creator Royalty & Platform Retained Revenue Engine
 
-### **A. Continuous Spectrum Mappings**
-* **Hair Texture (`[27]`)**: $1\text{A}-1\text{C} = 0.10$, $2\text{A}-2\text{C} = 0.30$, $3\text{A} = 0.50$, $3\text{B} = 0.60$, $3\text{C} = 0.70$, $4\text{A} = 0.80$, $4\text{B} = 0.90$, $4\text{C} = 1.00$.
-* **Porosity (`[28]`)**: $\text{Low} = 0.20$, $\text{Medium} = 0.50$, $\text{High} = 1.00$.
-* **Skin Type (`[30]`)**: $\text{Dry} = 0.10$, $\text{Combination} = 0.50$, $\text{Oily/Acne} = 0.90$.
-
----
-
-### **B. Hybrid Selective Virtue Masking**
-```
-  50D Shared Vector Dimensions
-  ┌──────────────────────────────────────────────┬──────────────────────────────────────────────┐
-  │   Inherent Attributes Dims [27] - [30]       │   Virtue & Goal Dimensions Dims [31] - [48]  │
-  ├──────────────────────────────────────────────┼──────────────────────────────────────────────┤
-  │ ALWAYS PRESERVED & ACTIVE                    │ SELECTIVELY NULLIFIED TO 0.0                 │
-  │ • Hair Texture (1A..4C)                      │ • Preserved IF requested in active_goals     │
-  │ • Porosity (Low, Med, High)                  │ • Zeroed out (0.0) IF NOT in active_goals    │
-  │ • Scalp Type & Skin Type                     │   (Eliminates extra-virtue dilution penalty) │
-  └──────────────────────────────────────────────┴──────────────────────────────────────────────┘
-```
+### **Formula & Rules**:
+1. **Slot Weight ($1 / N$)**: Each slot in a plan of $N$ entries gets `revenue_value = 1 / N`. Total plan weight = **1.00**.
+2. **Subscription Share (1.00€ per plan)**:
+   - **Completed Slot**: Pays `entry.revenue_value * 1.00€` to the recipe author.
+   - **Unchecked / Incomplete Slot**: Retained by the platform (`entry.revenue_value * 1.00€`).
+3. **Monthly Retained Revenue Breakdown**:
+   $$\text{Platform Retained (€)} = \text{Total Plan Pool (€)} - \sum \text{Creator Completed Payouts (€)}$$
 
 ---
 
-### **C. Dynamic Check-in Priority Loop (`beauty_log`)**
-```
-                       ┌───────────────────────────────┐
-                       │    User Check-in (beauty_log) │
-                       └───────────────┬───────────────┘
-                                       │
-                                       ▼
-                     ┌───────────────────────────────────┐
-                     │ Check Physical Measured Metrics:  │
-                     │ • hair_strength_score < 5.0       │
-                     │ • hair_shedding_rate = 'high'     │
-                     │ • skin_hydration_level < 5.0      │
-                     └─────────────────┬─────────────────┘
-                                       │
-                                       ▼
-                     ┌───────────────────────────────────┐
-                     │ Dynamically Boost Vector Priorities│
-                     │ • GOAL_HAIR_ANTI_BREAKAGE += 1.0  │
-                     │ • GOAL_HAIR_GROWTH += 1.0         │
-                     │ • GOAL_SKIN_BARRIER += 1.0        │
-                     └─────────────────┬─────────────────┘
-                                       │
-                                       ▼
-                     ┌───────────────────────────────────┐
-                     │ Recommend Tailored Repair Remedies│
-                     └───────────────────────────────────┘
-```
+## 🧪 4. Final Verification Summary
 
----
-
-## 🧪 4. Verification Summary
-
-* **Flutter Test Suite**: `239 / 239 PASSED` (100% green)
+* **Flutter Test Suite**: `243 / 243 PASSED` (100% green)
 * **Pytest Test Suite**: `24 / 24 PASSED` (100% green)
 * **Git Branch**: Committed & pushed to `origin/sdui`.
