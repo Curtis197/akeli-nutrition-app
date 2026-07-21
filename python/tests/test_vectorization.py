@@ -155,6 +155,37 @@ def test_premade_product_vs_diy_recipe_vectorization(mock_get_recipe, mock_get_s
     assert vector[38] > 0.0  # GOAL_HAIR_SHINE (0.85 explicit)
     assert vector[32] == 0.0  # GOAL_HAIR_ANTI_BREAKAGE is 0 because premade product uses explicit creator vector
 
+@patch("engine.vectorization.get_recipe_consumption_stats")
+@patch("engine.vectorization.get_recipe_data")
+def test_hybrid_selective_virtue_masking(mock_get_recipe, mock_get_stats):
+    """Verify selective virtue masking nullifies un-requested virtues while preserving physical hair/skin dims."""
+    mock_get_recipe.return_value = {
+        "mode": "beauty",
+        "suitable_hair_type": "4C",
+        "formulation": "heavy_butter",
+        "virtue_weights": {
+            "growth_retention": 0.95,
+            "shine_softness": 0.90,  # Un-requested virtue
+        }
+    }
+    mock_get_stats.return_value = {}
+
+    # 1. Without active_goals masking: shine_softness (dim 38) is present
+    full_vector = compute_recipe_vector("recipe_mask_test", mode="beauty")
+    assert full_vector is not None
+    assert full_vector[27] > 0.0  # DIM_HAIR_TEXTURE (preserved)
+    assert full_vector[28] > 0.0  # DIM_POROSITY (preserved)
+    assert full_vector[31] > 0.0  # GOAL_HAIR_GROWTH (preserved)
+    assert full_vector[38] > 0.0  # GOAL_HAIR_SHINE (present)
+
+    # 2. With active_goals = {'growth_retention'}: shine_softness (dim 38) is masked to 0.0
+    masked_vector = compute_recipe_vector("recipe_mask_test", mode="beauty", active_goals={"growth_retention"})
+    assert masked_vector is not None
+    assert masked_vector[27] > 0.0  # DIM_HAIR_TEXTURE (preserved)
+    assert masked_vector[28] > 0.0  # DIM_POROSITY (preserved)
+    assert masked_vector[31] > 0.0  # GOAL_HAIR_GROWTH (preserved)
+    assert masked_vector[38] == 0.0  # GOAL_HAIR_SHINE is SELECTIVELY NULLIFIED to 0.0!
+
 @patch("engine.vectorization.get_user_health_profile")
 @patch("engine.vectorization.get_recipe_consumption_stats")
 @patch("engine.vectorization.get_recipe_data")

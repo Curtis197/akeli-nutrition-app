@@ -349,7 +349,7 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
 # RECIPE VECTOR
 # ---------------------------------------------------------------------------
 
-def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[np.ndarray]:
+def compute_recipe_vector(recipe_id: str, mode: str = "nutrition", active_goals: Optional[set] = None) -> Optional[np.ndarray]:
     recipe = get_recipe_data(recipe_id)
     if not recipe:
         return None
@@ -434,6 +434,20 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
                         dim_idx = VIRTUE_TO_DIM_MAP.get(virtue_key)
                         if dim_idx is not None:
                             vector[dim_idx] = max(vector[dim_idx], float(weight))
+
+        # ---- Hybrid Selective Virtue Masking ----
+        # Dims 27-30 (Hair Texture, Porosity, Scalp & Skin Type) are ALWAYS PRESERVED.
+        # Dims 31-48 (Virtues/Goals) are masked: zeroed out if NOT in active_goals.
+        if active_goals is not None:
+            active_dim_indices = set()
+            for goal in active_goals:
+                dim_idx = VIRTUE_TO_DIM_MAP.get(goal)
+                if dim_idx is not None:
+                    active_dim_indices.add(dim_idx)
+
+            for goal_dim in range(31, 49):
+                if goal_dim not in active_dim_indices:
+                    vector[goal_dim] = 0.0
 
         return _normalize_l2(vector)
 
