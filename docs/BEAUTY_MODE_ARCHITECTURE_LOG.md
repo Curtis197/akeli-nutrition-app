@@ -123,7 +123,9 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (13:50 UTC)**
+### **Changelog Entry — July 21, 2026 (14:26 UTC)**
+- **5-Step Beauty Onboarding Wizard**: Added Step 5 (**Résumé & Confirmation / Summary & Confirmation**) to `BeautyOnboardingPage` (`beauty_onboarding_page.dart`). Renders interactive summary cards for Hair Profile, Skin Diagnostic, Selected Goals, and First Log Measurements, allowing quick inline edit navigation (`onEdit` callbacks) back to previous steps before final confirmation.
+- **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **First Beauty Log Check-in Migration**: Updated `complete_beauty_onboarding(...)` RPC in migration `20260721000018_first_beauty_log_onboarding.sql` to accept baseline `beauty_log` parameters (`p_hair_length_cm`, `p_hair_strength_score`, `p_hair_thickness_score`, `p_hair_shedding_rate`, `p_skin_hydration_level`, `p_skin_clarity_score`, `p_checkin_notes`) and automatically log the user's initial baseline check-in row upon completing onboarding.
 - **4-Step Beauty Onboarding Wizard**: Added Step 4 (**Premier Bilan Initial / First Beauty Log**) to `BeautyOnboardingPage` (`beauty_onboarding_page.dart`) with interactive sliders for hair length (cm), strength (1-10), shedding rate (low/med/high), skin hydration (1-10), skin clarity (1-10), and initial notes.
 - **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.

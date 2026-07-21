@@ -75,16 +75,16 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Indicator Header (4 Steps)
+            // Progress Indicator Header (5 Steps)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Row(
-                children: List.generate(4, (index) {
+                children: List.generate(5, (index) {
                   final isActive = index <= _currentStep;
                   return Expanded(
                     child: Container(
                       height: 6,
-                      margin: EdgeInsets.only(right: index < 3 ? 8 : 0),
+                      margin: EdgeInsets.only(right: index < 4 ? 6 : 0),
                       decoration: BoxDecoration(
                         color: isActive
                             ? BeautyOnboardingPage.beautyPrimary
@@ -136,8 +136,8 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
                           : Text(
-                              _currentStep == 3
-                                  ? 'Valider mon Premier Bilan & Plan ✨'
+                              _currentStep == 4
+                                  ? 'Confirmer & Générer Mon Plan 30 Jours ✨'
                                   : 'Étape Suivante ➔',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
@@ -162,6 +162,8 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         return _buildStep3Goals();
       case 3:
         return _buildStep4FirstLog();
+      case 4:
+        return _buildStep5Summary();
       default:
         return const SizedBox.shrink();
     }
@@ -510,6 +512,142 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     );
   }
 
+  Widget _buildStep5Summary() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '📋 Résumé & Confirmation',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: BeautyOnboardingPage.beautyPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Vérifiez la synthèse de votre profil beauté avant d\'activer votre programme personnalisé 30 jours.',
+          style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
+        ),
+        const SizedBox(height: 24),
+
+        // Card 1: Hair Profile Summary
+        _buildSummaryCard(
+          title: '👑 Profil Capillaire',
+          onEdit: () => setState(() => _currentStep = 0),
+          children: [
+            _buildSummaryRow('Texture / Type:', _hairType),
+            _buildSummaryRow('Porosité:', _porosity == 'low' ? 'Faible' : _porosity == 'high' ? 'Poreuse' : 'Moyenne'),
+            _buildSummaryRow('Cuir Chevelu:', _scalpType == 'dry' ? 'Sec' : _scalpType == 'oily' ? 'Gras' : _scalpType == 'sensitive' ? 'Sensible' : 'Normal'),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+        // Card 2: Skin Diagnostic Summary
+        _buildSummaryCard(
+          title: '✨ Diagnostic Cutané',
+          onEdit: () => setState(() => _currentStep = 1),
+          children: [
+            _buildSummaryRow('Typologie:', _skinType.replaceAll('_', ' ').toUpperCase()),
+            _buildSummaryRow('Préoccupations:', _skinConcerns.isEmpty ? 'Aucune' : _skinConcerns.join(', ')),
+            _buildSummaryRow('Particularité Corps:', _bodySkinProfile),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+        // Card 3: Beauty Goals Summary
+        _buildSummaryCard(
+          title: '🌱 Objectifs Sélectionnés',
+          onEdit: () => setState(() => _currentStep = 2),
+          children: [
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: _beautyGoals.map((g) {
+                return Chip(
+                  label: Text(g.replaceAll('_', ' ')),
+                  backgroundColor: BeautyOnboardingPage.beautySurfaceHigh,
+                  labelStyle: const TextStyle(fontSize: 12, color: BeautyOnboardingPage.beautyPrimary, fontWeight: FontWeight.w600),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 16),
+        // Card 4: First Log Summary
+        _buildSummaryCard(
+          title: '📊 Mesures du Premier Bilan',
+          onEdit: () => setState(() => _currentStep = 3),
+          children: [
+            _buildSummaryRow('Longueur Cheveux:', '${_hairLengthCm.toInt()} cm'),
+            _buildSummaryRow('Force Capillaire:', '${_hairStrengthScore.toInt()}/10'),
+            _buildSummaryRow('Taux de Chute:', _hairSheddingRate),
+            _buildSummaryRow('Hydratation Peau:', '${_skinHydrationLevel.toInt()}/10'),
+            _buildSummaryRow('Éclat Teint:', '${_skinClarityScore.toInt()}/10'),
+            if (_notesCtrl.text.isNotEmpty) _buildSummaryRow('Notes:', _notesCtrl.text),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSummaryCard({required String title, required VoidCallback onEdit, required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 18, color: BeautyOnboardingPage.beautyPrimary),
+                onPressed: onEdit,
+                tooltip: 'Modifier',
+              ),
+            ],
+          ),
+          const Divider(),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSelectableChip(String label, String value, String currentValue, ValueChanged<String> onSelect) {
     final isSelected = currentValue == value;
     return ChoiceChip(
@@ -564,7 +702,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   }
 
   Future<void> _handleNextOrSubmit() async {
-    if (_currentStep < 3) {
+    if (_currentStep < 4) {
       setState(() => _currentStep++);
       return;
     }
