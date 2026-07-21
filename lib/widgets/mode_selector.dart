@@ -95,7 +95,7 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
           width: double.maxFinite,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: AppMode.values.map((mode) {
+            children: AppMode.values.where((m) => m == AppMode.nutrition || m == AppMode.beauty).map((mode) {
               final isSelected = mode == currentMode;
               final color = getAppModeColor(mode);
               final icon = getAppModeIcon(mode);
@@ -227,7 +227,7 @@ class ModeSelectorTile extends ConsumerWidget {
         ),
       ),
       subtitle: Text(
-        'Basculer entre Nutrition, Beauté, Santé...',
+        'Basculer entre Nutrition et Beauté',
         style: TextStyle(
           fontSize: 12,
           color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8),
