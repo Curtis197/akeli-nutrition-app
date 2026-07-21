@@ -15,6 +15,7 @@ import 'core/theme.dart';
 import 'core/logger.dart';
 import 'core/notification_handler.dart';
 import 'l10n/app_localizations.dart';
+import 'providers/mode_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,11 +130,13 @@ class AkeliApp extends ConsumerWidget {
     appLogger.d('🔄 AkeliApp.build() | evaluating router');
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
+    final currentMode = ref.watch(currentModeProvider);
+
     return MaterialApp.router(
       title: 'Akeli',
       debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(),
-      darkTheme: buildDarkTheme(),
+      theme: buildLightTheme(currentMode),
+      darkTheme: buildDarkTheme(currentMode),
       themeMode: ThemeMode.system,
       locale: locale,
       supportedLocales: LocaleNotifier.supportedLocales,

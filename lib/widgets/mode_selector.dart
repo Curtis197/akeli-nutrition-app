@@ -38,22 +38,6 @@ String getAppModeDescription(AppMode mode) {
   }
 }
 
-/// Helper to get accent color for each AppMode
-Color getAppModeColor(AppMode mode) {
-  switch (mode) {
-    case AppMode.nutrition:
-      return const Color(0xFF4CAF50); // Leaf Green
-    case AppMode.beauty:
-      return const Color(0xFFFF6B6B); // Rose Coral
-    case AppMode.health:
-      return const Color(0xFF2196F3); // Blue
-    case AppMode.sport:
-      return const Color(0xFFFF9800); // Orange
-    case AppMode.family:
-      return const Color(0xFF9C27B0); // Purple
-  }
-}
-
 /// Interactive Dialog to select the active SDUI App Mode
 Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
   _logger.userAction('Opening App Mode Selector Dialog', screen: 'SettingsPage');

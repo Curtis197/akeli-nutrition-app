@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../providers/mode_provider.dart';
 
 // ---------------------------------------------------------------------------
 // DESIGN TOKENS — Akeli V1
@@ -114,16 +115,32 @@ abstract class AkeliElevation {
   static const double high = 8;
 }
 
+Color getAppModeColor(AppMode mode) {
+  switch (mode) {
+    case AppMode.nutrition:
+      return const Color(0xFF00504A);
+    case AppMode.beauty:
+      return const Color(0xFF8A3B58);
+    case AppMode.health:
+      return const Color(0xFF2196F3);
+    case AppMode.sport:
+      return const Color(0xFFFF9800);
+    case AppMode.family:
+      return const Color(0xFF9C27B0);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // THEME BUILDER
 // ---------------------------------------------------------------------------
 
-ThemeData buildLightTheme() {
+ThemeData buildLightTheme([AppMode mode = AppMode.nutrition]) {
+  final primaryColor = getAppModeColor(mode);
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AkeliColors.primary,
-    primary: AkeliColors.primary,
+    seedColor: primaryColor,
+    primary: primaryColor,
     onPrimary: Colors.white,
-    primaryContainer: AkeliColors.primaryContainer,
+    primaryContainer: primaryColor.withValues(alpha: 0.85),
     onPrimaryContainer: Colors.white,
     secondary: AkeliColors.secondary,
     onSecondary: Colors.white,
@@ -165,7 +182,7 @@ ThemeData buildLightTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: AkeliColors.primary,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(
@@ -179,8 +196,8 @@ ThemeData buildLightTheme() {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: AkeliColors.primary,
-        side: const BorderSide(color: AkeliColors.primary, width: 1.5),
+        foregroundColor: primaryColor,
+        side: BorderSide(color: primaryColor, width: 1.5),
         minimumSize: const Size(double.infinity, 52),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AkeliRadius.pill),
@@ -209,7 +226,7 @@ ThemeData buildLightTheme() {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
         borderSide: BorderSide(
-            color: AkeliColors.primaryContainer.withValues(alpha: 0.4), width: 2),
+            color: primaryColor.withValues(alpha: 0.4), width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.md),
@@ -226,16 +243,16 @@ ThemeData buildLightTheme() {
           letterSpacing: 0.08),
       hintStyle: GoogleFonts.inter(color: AkeliColors.outline),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: AkeliColors.surface,
-      selectedItemColor: AkeliColors.primary,
+      selectedItemColor: primaryColor,
       unselectedItemColor: AkeliColors.textSecondary,
       type: BottomNavigationBarType.fixed,
       elevation: AkeliElevation.high,
     ),
     chipTheme: ChipThemeData(
       backgroundColor: AkeliColors.background,
-      selectedColor: AkeliColors.primary.withValues(alpha: 0.15),
+      selectedColor: primaryColor.withValues(alpha: 0.15),
       labelStyle: GoogleFonts.inter(fontSize: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AkeliRadius.pill),
@@ -247,16 +264,17 @@ ThemeData buildLightTheme() {
       thickness: 1,
       space: 0,
     ),
-    progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: AkeliColors.primary,
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: primaryColor,
     ),
   );
 }
 
-ThemeData buildDarkTheme() {
+ThemeData buildDarkTheme([AppMode mode = AppMode.nutrition]) {
+  final primaryColor = getAppModeColor(mode);
   final colorScheme = ColorScheme.fromSeed(
-    seedColor: AkeliColors.primary,
-    primary: AkeliColors.primary,
+    seedColor: primaryColor,
+    primary: primaryColor,
     secondary: AkeliColors.secondary,
     surface: AkeliColors.surfaceDark,
     error: AkeliColors.error,

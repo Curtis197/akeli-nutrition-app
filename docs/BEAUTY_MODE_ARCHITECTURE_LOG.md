@@ -123,6 +123,12 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
+### **Changelog Entry — July 21, 2026 (18:45 UTC)**
+- **Dynamic Mode-Specific Theme Architecture**: Refactored the global `ThemeData` builders (`buildLightTheme`, `buildDarkTheme`) to accept an optional `AppMode` parameter (defaulting to `AppMode.nutrition` for backward compatibility with existing tests).
+- **Theme Propagation to Core Elements**: Replaced hardcoded references to `AkeliColors.primary` (deep teal) inside `filledButtonTheme`, `outlinedButtonTheme`, `bottomNavigationBarTheme`, `chipTheme`, and `progressIndicatorTheme` with the dynamic, mode-specific accent color (Teal/Green for Nutrition, luxury Rosewood `#8A3B58` for Beauty).
+- **Reactive Watch in Main Entrypoint**: Updated `AkeliApp` (`main.dart`) to watch `currentModeProvider` and rebuild the theme reactively when the user switches modes.
+- **Verification**: Verified settings tile, dialogs, buttons, and navigation elements automatically switch colors in real time. Running `health_profile_page_beauty_test.dart` passes 100%.
+
 ### **Changelog Entry — July 21, 2026 (18:40 UTC)**
 - **Mode Selector UI Optimization**: Cleaned up the app mode picker sheet (`mode_selector.dart`). Restricted visible options in the dialog to **Nutrition** and **Beauté** (removing placeholders for Health, Sport, and Family). Updated the selector tile subtitle to explicitly state *"Basculer entre Nutrition et Beauté"* for clear user flow.
 - **Verification**: Verified settings tile renders correctly, and compilation/tests pass cleanly.
