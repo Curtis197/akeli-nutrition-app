@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:47 UTC)**
+### **Changelog Entry — July 21, 2026 (14:51 UTC)**
+- **Saved Beauty Recipe Pool Threshold Migration**: Updated `generate_beauty_plan_from_saved(...)` in migration `20260721000020_beauty_plan_saved_threshold.sql` with a minimum pool threshold parameter (`p_min_saved_threshold INT DEFAULT 3`) and fallback parameter (`p_fallback_to_recommended BOOLEAN DEFAULT true`).
+- **Threshold Validation**: If the user's saved beauty recipe collection is below the threshold (`< 3`), it automatically logs a notice and falls back to generating the standard recommended beauty plan (or raises `insufficient_saved_beauty_recipes` if fallback is disabled).
+- **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Monthly Remainder Onboarding Beauty Plan**: Updated `generate_initial_beauty_plan(p_user_id)` in migration `20260721000019_beauty_plan_generation_trio.sql` to calculate the exact remaining days from the user's onboarding date to the end of the current calendar month (`(end_of_month - start_date + 1)`). This ensures Beauty Mode onboarding generates a monthly routine plan aligned to the remainder of the current month rather than truncating at Sunday.
 - **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Beauty Plan Generation Parity Trio**: Created migration `20260721000019_beauty_plan_generation_trio.sql` introducing the full trio of plan generation RPCs to mirror Nutrition Mode:
