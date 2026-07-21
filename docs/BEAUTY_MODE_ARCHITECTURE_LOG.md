@@ -123,10 +123,11 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (12:15 UTC)**
-- **HomePage Mode Comparison**: Performed exhaustive comparison between Nutrition Homepage (`HomePage` hardcoded layout) and Beauty Homepage (`DynamicLayoutPage` Server-Driven UI layout).
+### **Changelog Entry — July 21, 2026 (12:17 UTC)**
+- **Section-by-Section Homepage Comparison**: Detailed 7-section side-by-side analysis (Header, Core Metrics, Daily Schedule, Progress Check-in, Creator Feed, Utility Tools, and Monetization Logic) logged.
 - **Mandatory Logging Directive**: Established rule that all future development actions must be recorded in this document.
 - **Session Commits Summary**:
+  - `479ee67`: Logged initial Homepage mode comparison.
   - `ee710b7`: Added mandatory Activity Log section to `BEAUTY_MODE_ARCHITECTURE_LOG.md`.
   - `7945dfb`: Documented 50D Vector Engine, Beauty Log, Community Isolation, ColorSetModal & Royalty Engine.
   - `1c90311`: Direct 1.00€ plan share creator payout RPCs (`calculate_creator_payouts`, `get_creator_beauty_payout_breakdown`, `get_platform_retained_beauty_revenue`).
