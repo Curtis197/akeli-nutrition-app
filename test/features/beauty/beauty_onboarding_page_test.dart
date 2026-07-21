@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('BeautyOnboardingPage renders 3-step wizard correctly with Rosewood theme, hair dropdown, and deep skin profile', (WidgetTester tester) async {
+  testWidgets('BeautyOnboardingPage renders 4-step wizard with First Beauty Log baseline correctly', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
@@ -13,26 +13,27 @@ void main() {
       ),
     );
 
-    // Verify Step 1 elements
+    // Step 1
     expect(find.text('Profil Beauté Botanique'), findsOneWidget);
     expect(find.textContaining('Empreinte Capillaire'), findsOneWidget);
     expect(find.textContaining('4C — Crépu Très Serré'), findsOneWidget);
     expect(find.text('Étape Suivante ➔'), findsOneWidget);
 
-    // Tap Next to navigate to Step 2
+    // Tap Next → Step 2
     await tester.tap(find.text('Étape Suivante ➔'));
     await tester.pumpAndSettle();
-
-    // Verify Step 2 elements
     expect(find.textContaining('Diagnostic Cutané Profond'), findsOneWidget);
-    expect(find.textContaining('Peau Mixte'), findsOneWidget);
 
-    // Tap Next to navigate to Step 3
+    // Tap Next → Step 3
     await tester.tap(find.text('Étape Suivante ➔'));
     await tester.pumpAndSettle();
-
-    // Verify Step 3 elements
     expect(find.textContaining('Objectifs Beauté & Priorités'), findsOneWidget);
-    expect(find.text('Générer Mon Plan 30 Jours ✨'), findsOneWidget);
+
+    // Tap Next → Step 4 (First Beauty Log Check-in)
+    await tester.tap(find.text('Étape Suivante ➔'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Premier Bilan Initial'), findsOneWidget);
+    expect(find.textContaining('Longueur Actuelle des Cheveux'), findsOneWidget);
+    expect(find.text('Valider mon Premier Bilan & Plan ✨'), findsOneWidget);
   });
 }

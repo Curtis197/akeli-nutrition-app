@@ -24,7 +24,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   int _currentStep = 0;
   bool _submitting = false;
 
-  // Step 1: Hair & Scalp (Extensive Hair Composition Dropdown)
+  // Step 1: Hair & Scalp
   String _hairType = '4C';
   String _porosity = 'medium';
   String _scalpType = 'normal';
@@ -34,8 +34,23 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   final Set<String> _skinConcerns = {'hyperpigmentation', 'dehydration'};
   String _bodySkinProfile = 'normal';
 
-  // Step 3: Balanced Hair & Skin Goals (No ingredient recommendations)
+  // Step 3: Balanced Hair & Skin Goals
   final Set<String> _beautyGoals = {'hair_growth', 'hair_moisture', 'skin_glow', 'skin_moisture'};
+
+  // Step 4: First Beauty Log Check-in Baseline
+  double _hairLengthCm = 15.0;
+  double _hairStrengthScore = 7.0;
+  double _hairThicknessScore = 7.0;
+  String _hairSheddingRate = 'moderate';
+  double _skinHydrationLevel = 7.0;
+  double _skinClarityScore = 7.0;
+  final _notesCtrl = TextEditingController(text: 'Bilan initial du profil beauté');
+
+  @override
+  void dispose() {
+    _notesCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,16 +75,16 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Indicator Header
+            // Progress Indicator Header (4 Steps)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Row(
-                children: List.generate(3, (index) {
+                children: List.generate(4, (index) {
                   final isActive = index <= _currentStep;
                   return Expanded(
                     child: Container(
                       height: 6,
-                      margin: EdgeInsets.only(right: index < 2 ? 8 : 0),
+                      margin: EdgeInsets.only(right: index < 3 ? 8 : 0),
                       decoration: BoxDecoration(
                         color: isActive
                             ? BeautyOnboardingPage.beautyPrimary
@@ -121,8 +136,8 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
                           : Text(
-                              _currentStep == 2
-                                  ? 'Générer Mon Plan 30 Jours ✨'
+                              _currentStep == 3
+                                  ? 'Valider mon Premier Bilan & Plan ✨'
                                   : 'Étape Suivante ➔',
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
@@ -145,6 +160,8 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         return _buildStep2Skin();
       case 2:
         return _buildStep3Goals();
+      case 3:
+        return _buildStep4FirstLog();
       default:
         return const SizedBox.shrink();
     }
@@ -172,7 +189,6 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        // Extensive Hair Composition Dropdown
         DropdownButtonFormField<String>(
           value: _hairType,
           decoration: InputDecoration(
@@ -269,7 +285,6 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        // Extensive Skin Type Dropdown
         DropdownButtonFormField<String>(
           value: _skinType,
           decoration: InputDecoration(
@@ -313,7 +328,6 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         _buildSkinConcernCheckbox('🛡️ Barrière Cutanée Fragilisée & Sensibilité', 'barrier_damage'),
         _buildSkinConcernCheckbox('✨ Brillance Excessive & Pores Dilatés', 'excess_sebum'),
         _buildSkinConcernCheckbox('🌿 Perte d\'Élasticité & Rides d\'Expression', 'aging_elasticity'),
-
         const SizedBox(height: 28),
         const Text(
           'Particularités du Corps',
@@ -377,6 +391,125 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     );
   }
 
+  Widget _buildStep4FirstLog() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '📊 Premier Bilan Initial (First Beauty Log)',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: BeautyOnboardingPage.beautyPrimary,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Saisissez vos mesures et observations de départ. Ce premier journal servira de point de référence pour mesurer vos progrès au fil des 30 jours.',
+          style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
+        ),
+        const SizedBox(height: 24),
+        
+        // Hair Length Slider
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('📏 Longueur Actuelle des Cheveux', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text('${_hairLengthCm.toInt()} cm', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+          ],
+        ),
+        Slider(
+          value: _hairLengthCm,
+          min: 1.0,
+          max: 100.0,
+          divisions: 99,
+          activeColor: BeautyOnboardingPage.beautyPrimary,
+          onChanged: (val) => setState(() => _hairLengthCm = val),
+        ),
+
+        const SizedBox(height: 20),
+        // Hair Strength Score Slider
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('💪 Force & Résistance Capillaire', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text('${_hairStrengthScore.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+          ],
+        ),
+        Slider(
+          value: _hairStrengthScore,
+          min: 1.0,
+          max: 10.0,
+          divisions: 9,
+          activeColor: BeautyOnboardingPage.beautyPrimary,
+          onChanged: (val) => setState(() => _hairStrengthScore = val),
+        ),
+
+        const SizedBox(height: 20),
+        // Hair Shedding Rate
+        const Text('📊 Taux de Chute Actuel', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 10,
+          children: [
+            _buildSelectableChip('Faible', 'low', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+            _buildSelectableChip('Modéré', 'moderate', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+            _buildSelectableChip('Élevé', 'high', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+        // Skin Hydration Level Slider
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('💧 Niveau d\'Hydratation de la Peau', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text('${_skinHydrationLevel.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+          ],
+        ),
+        Slider(
+          value: _skinHydrationLevel,
+          min: 1.0,
+          max: 10.0,
+          divisions: 9,
+          activeColor: BeautyOnboardingPage.beautyPrimary,
+          onChanged: (val) => setState(() => _skinHydrationLevel = val),
+        ),
+
+        const SizedBox(height: 20),
+        // Skin Clarity Score Slider
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('✨ Éclat & Clarté du Teint', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text('${_skinClarityScore.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+          ],
+        ),
+        Slider(
+          value: _skinClarityScore,
+          min: 1.0,
+          max: 10.0,
+          divisions: 9,
+          activeColor: BeautyOnboardingPage.beautyPrimary,
+          onChanged: (val) => setState(() => _skinClarityScore = val),
+        ),
+
+        const SizedBox(height: 24),
+        const Text('📝 Notes Initiales & Observations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: _notesCtrl,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Notes sur l\'état de vos cheveux et de votre peau...',
+            filled: true,
+            fillColor: BeautyOnboardingPage.beautySurfaceHigh,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSelectableChip(String label, String value, String currentValue, ValueChanged<String> onSelect) {
     final isSelected = currentValue == value;
     return ChoiceChip(
@@ -431,7 +564,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   }
 
   Future<void> _handleNextOrSubmit() async {
-    if (_currentStep < 2) {
+    if (_currentStep < 3) {
       setState(() => _currentStep++);
       return;
     }
@@ -447,6 +580,13 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
             scalpType: _scalpType,
             beautyGoals: _beautyGoals.toList(),
             skinConcerns: _skinConcerns.toList(),
+            hairLengthCm: _hairLengthCm,
+            hairStrengthScore: _hairStrengthScore,
+            hairThicknessScore: _hairThicknessScore,
+            hairSheddingRate: _hairSheddingRate,
+            skinHydrationLevel: _skinHydrationLevel,
+            skinClarityScore: _skinClarityScore,
+            checkinNotes: _notesCtrl.text,
           );
       if (mounted) {
         context.go(AkeliRoutes.home);

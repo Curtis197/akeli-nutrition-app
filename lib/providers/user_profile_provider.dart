@@ -238,6 +238,13 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     required String scalpType,
     required List<String> beautyGoals,
     List<String> skinConcerns = const [],
+    double hairLengthCm = 15,
+    double hairStrengthScore = 7,
+    double hairThicknessScore = 7,
+    String hairSheddingRate = 'moderate',
+    double skinHydrationLevel = 7,
+    double skinClarityScore = 7,
+    String checkinNotes = 'Premier journal de bord initial',
   }) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
@@ -249,6 +256,9 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
       'scalpType': scalpType,
       'goals': beautyGoals,
       'skinConcerns': skinConcerns,
+      'hairLengthCm': hairLengthCm,
+      'hairStrength': hairStrengthScore,
+      'skinHydration': skinHydrationLevel,
     });
 
     final client = ref.read(supabaseClientProvider);
@@ -262,6 +272,13 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         'p_scalp_type': scalpType,
         'p_beauty_goals': beautyGoals,
         'p_skin_concerns': skinConcerns,
+        'p_hair_length_cm': hairLengthCm,
+        'p_hair_strength_score': hairStrengthScore,
+        'p_hair_thickness_score': hairThicknessScore,
+        'p_hair_shedding_rate': hairSheddingRate,
+        'p_skin_hydration_level': skinHydrationLevel,
+        'p_skin_clarity_score': skinClarityScore,
+        'p_checkin_notes': checkinNotes,
       });
 
       ref.invalidate(userProfileProvider);
