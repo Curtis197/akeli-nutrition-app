@@ -116,3 +116,22 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 * **Flutter Test Suite**: `243 / 243 PASSED` (100% green)
 * **Pytest Test Suite**: `24 / 24 PASSED` (100% green)
 * **Git Branch**: Committed & pushed to `origin/sdui`.
+
+---
+
+## 📜 5. Activity Log & Ongoing Changelog
+
+> **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
+
+### **Changelog Entry — July 21, 2026 (12:14 UTC)**
+- **Mandatory Logging Directive**: Established rule that all future development actions must be recorded in this document.
+- **Session Commits Summary**:
+  - `7945dfb`: Documented 50D Vector Engine, Beauty Log, Community Isolation, ColorSetModal & Royalty Engine.
+  - `1c90311`: Direct 1.00€ plan share creator payout RPCs (`calculate_creator_payouts`, `get_creator_beauty_payout_breakdown`, `get_platform_retained_beauty_revenue`).
+  - `d0d5510`: Added proportional slot revenue weight (`revenue_value = 1 / N`) migration `20260721000012` and model upgrade.
+  - `079a530`: Added widget unit tests for `ColorSetModal` (`color_set_modal_test.dart`).
+  - `274b3a8`: Mode-isolated community conversations & Beauty starter groups migration `20260721000011`.
+  - `ffc90ab`: Created `ColorSetModal` theme palette switcher component.
+  - `5c113be` & `21d7655`: Fixed `BeautyPlannerView` image URL and routing.
+  - `a7e1af7` & `1005141`: Unified `generate_feed_personalized` RPC with `p_mode` support and mode-aware feed page auto-refresh.
+
