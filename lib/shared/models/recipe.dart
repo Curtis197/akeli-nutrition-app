@@ -45,6 +45,7 @@ class Recipe {
   final String? mode;
   final String? beautyType;
   final String? beautySubType;
+  final String? frequency;
   final DateTime createdAt;
 
   const Recipe({
@@ -64,21 +65,21 @@ class Recipe {
     this.carbsG,
     this.fatG,
     this.fiberG,
-    required this.averageRating,
-    required this.averageRatingTaste,
-    required this.averageRatingEase,
-    required this.averageRatingSatiety,
-    required this.ratingCount,
-    required this.commentCount,
-    required this.likeCount,
-    required this.saveCount,
-    required this.isSaved,
-    required this.isLiked,
-    required this.isPublished,
+    this.averageRating = 0.0,
+    this.averageRatingTaste = 0.0,
+    this.averageRatingEase = 0.0,
+    this.averageRatingSatiety = 0.0,
+    this.ratingCount = 0,
+    this.commentCount = 0,
+    this.likeCount = 0,
+    this.saveCount = 0,
+    this.isSaved = false,
+    this.isLiked = false,
+    this.isPublished = true,
     this.videoUrl,
-    required this.ingredients,
-    required this.steps,
-    required this.tagIds,
+    this.ingredients = const [],
+    this.steps = const [],
+    this.tagIds = const [],
     this.mealTypes = const [],
     this.calories100g,
     this.protein100g,
@@ -89,6 +90,7 @@ class Recipe {
     this.mode,
     this.beautyType,
     this.beautySubType,
+    this.frequency,
     required this.createdAt,
   });
 
@@ -247,6 +249,7 @@ class Recipe {
         mode: json['mode'] as String?,
         beautyType: json['beauty_type'] as String?,
         beautySubType: json['beauty_sub_type'] as String?,
+        frequency: json['frequency'] as String?,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : DateTime.now(),

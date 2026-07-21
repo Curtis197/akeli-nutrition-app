@@ -102,7 +102,7 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("""
                 SELECT
-                    r.id, r.mode, r.beauty_type, r.beauty_sub_type, r.difficulty, r.prep_time_min, r.cook_time_min,
+                    r.id, r.mode, r.beauty_type, r.beauty_sub_type, r.frequency, r.difficulty, r.prep_time_min, r.cook_time_min,
                     r.region, r.created_at, r.creator_id, r.virtues, r.usage_instructions,
                     GREATEST(r.servings, 1) AS servings,
                     -- Per-serving macros: divide totals by servings
@@ -134,7 +134,7 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                 LEFT JOIN recipe_ingredient ri ON ri.recipe_id = r.id
                 LEFT JOIN ingredient i ON i.id = ri.ingredient_id
                 WHERE r.id = %s AND r.is_published = true
-                GROUP BY r.id, r.mode, r.beauty_type, r.beauty_sub_type, r.difficulty, r.prep_time_min, r.cook_time_min,
+                GROUP BY r.id, r.mode, r.beauty_type, r.beauty_sub_type, r.frequency, r.difficulty, r.prep_time_min, r.cook_time_min,
                          r.region, r.created_at, r.creator_id, r.virtues, r.usage_instructions,
                          rm.calories, rm.protein_g, rm.carbs_g, rm.fat_g, rm.fiber_g, c.recipe_count
             """, (recipe_id,))
