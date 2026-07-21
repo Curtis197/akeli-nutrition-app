@@ -39,6 +39,7 @@ import '../features/settings/preferences_page.dart';
 import '../features/settings/health_profile_page.dart';
 import '../features/settings/account_page.dart';
 import '../features/beauty/beauty_onboarding_page.dart';
+import '../features/beauty/beauty_analytics_page.dart';
 import '../features/settings/meal_schedule_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
@@ -67,6 +68,7 @@ abstract class AkeliRoutes {
   static const savedRecipes = "/saved-recipes";
   static const shoppingList = "/shopping-list";
   static const nutrition = "/nutrition";
+  static const beautyAnalytics = "/beauty-analytics";
   static const fanMode = "/fan-mode";
   static const subscription = "/subscription";
   static const aiChat = "/ai-chat";
@@ -395,6 +397,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.healthProfile,
         builder: (context, state) => const HealthProfilePage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.beautyAnalytics,
+        builder: (context, state) => const BeautyAnalyticsPage(),
       ),
       GoRoute(
         path: AkeliRoutes.mealSchedule,

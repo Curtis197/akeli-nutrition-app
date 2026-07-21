@@ -123,6 +123,16 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
+### **Changelog Entry — July 21, 2026 (18:50 UTC)**
+- **Settings Page Dynamic Menu Terminology**: Updated `SettingsPage` (`settings_page.dart`) to dynamically modify menu item labels and icons based on `currentModeProvider` to ensure full terminology alignment with the active mode.
+- **Dynamic Adaptations (Beauty Mode)**:
+  - *"Suivi nutritionnel"* ➔ **"Suivi Rituel Beauté"** (navigates to `AkeliRoutes.beautyAnalytics` using `Icons.spa_outlined`).
+  - *"Recettes Sauvegardées"* ➔ **"Remèdes & Recettes Favoris"** (`Icons.auto_awesome_outlined`).
+  - *"Santé & Objectifs"* ➔ **"Diagnostic Cheveux & Peau"** (`Icons.face_retouching_natural_outlined`).
+  - *"Planning des repas"* ➔ **"Planification des Soins"** (`Icons.calendar_month_outlined`).
+- **Router Integration**: Added `AkeliRoutes.beautyAnalytics` route and mapped it to `BeautyAnalyticsPage` in `router.dart`.
+- **Verification**: Created `settings_page_beauty_test.dart`. Tested widget rendering in both Beauty and Nutrition modes, passing 100%.
+
 ### **Changelog Entry — July 21, 2026 (18:45 UTC)**
 - **Dynamic Mode-Specific Theme Architecture**: Refactored the global `ThemeData` builders (`buildLightTheme`, `buildDarkTheme`) to accept an optional `AppMode` parameter (defaulting to `AppMode.nutrition` for backward compatibility with existing tests).
 - **Theme Propagation to Core Elements**: Replaced hardcoded references to `AkeliColors.primary` (deep teal) inside `filledButtonTheme`, `outlinedButtonTheme`, `bottomNavigationBarTheme`, `chipTheme`, and `progressIndicatorTheme` with the dynamic, mode-specific accent color (Teal/Green for Nutrition, luxury Rosewood `#8A3B58` for Beauty).

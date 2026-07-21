@@ -26,6 +26,7 @@ class SettingsPage extends ConsumerWidget {
     final profileAsync = ref.watch(userProfileProvider);
     final isPremium = ref.watch(isPremiumProvider);
     final localeState = ref.watch(localeProvider);
+    final currentMode = ref.watch(currentModeProvider);
     final String currentLangText;
     if (localeState.isUsLocale) {
       currentLangText = l10n.preferencesLocaleUsImperial;
@@ -253,16 +254,21 @@ class SettingsPage extends ConsumerWidget {
                       title: l10n.settingsSectionMenu,
                       items: [
                         _MenuItem(
-                          icon: Icons.monitor_weight_outlined,
-                          label: l10n.settingsNutritionTracking,
+                          icon: currentMode == AppMode.beauty ? Icons.spa_outlined : Icons.monitor_weight_outlined,
+                          label: currentMode == AppMode.beauty ? 'Suivi Rituel Beauté' : l10n.settingsNutritionTracking,
                           onTap: () {
-                            appLogger.userAction('Nutrition tracking menu tapped', screen: 'SettingsPage');
-                            context.push(AkeliRoutes.nutrition);
+                            if (currentMode == AppMode.beauty) {
+                              appLogger.userAction('Beauty tracking menu tapped', screen: 'SettingsPage');
+                              context.push(AkeliRoutes.beautyAnalytics);
+                            } else {
+                              appLogger.userAction('Nutrition tracking menu tapped', screen: 'SettingsPage');
+                              context.push(AkeliRoutes.nutrition);
+                            }
                           },
                         ),
                         _MenuItem(
-                          icon: Icons.bookmark_outline_rounded,
-                          label: l10n.settingsSavedRecipes,
+                          icon: currentMode == AppMode.beauty ? Icons.auto_awesome_outlined : Icons.bookmark_outline_rounded,
+                          label: currentMode == AppMode.beauty ? 'Remèdes & Recettes Favoris' : l10n.settingsSavedRecipes,
                           onTap: () {
                             appLogger.userAction('Saved recipes menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.savedRecipes);
@@ -293,16 +299,16 @@ class SettingsPage extends ConsumerWidget {
                           },
                         ),
                         _MenuItem(
-                          icon: Icons.monitor_heart_outlined,
-                          label: l10n.settingsHealthGoals,
+                          icon: currentMode == AppMode.beauty ? Icons.face_retouching_natural_outlined : Icons.monitor_heart_outlined,
+                          label: currentMode == AppMode.beauty ? 'Diagnostic Cheveux & Peau' : l10n.settingsHealthGoals,
                           onTap: () {
                             appLogger.userAction('Health profile menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.healthProfile);
                           },
                         ),
                         _MenuItem(
-                          icon: Icons.restaurant_outlined,
-                          label: l10n.mealScheduleTitle,
+                          icon: currentMode == AppMode.beauty ? Icons.calendar_month_outlined : Icons.restaurant_outlined,
+                          label: currentMode == AppMode.beauty ? 'Planification des Soins' : l10n.mealScheduleTitle,
                           onTap: () {
                             appLogger.userAction('Meal schedule settings tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.mealSchedule);
