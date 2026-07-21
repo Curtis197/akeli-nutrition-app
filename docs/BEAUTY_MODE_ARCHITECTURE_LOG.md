@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:51 UTC)**
+### **Changelog Entry — July 21, 2026 (14:57 UTC)**
+- **Fan Mode Recommendation Support (`recommend_recipes`)**: Updated `recommend_recipes` RPC in migration `20260721000021_recommend_recipes_fan_mode.sql` to check active user fan subscriptions (`fan_subscription`). When a user is subscribed to a creator in Fan Mode (`fs.status = 'active'`), recipes by that creator receive a **1.5x similarity multiplier score boost** and prioritize creator recipes at the top of routine recommendations.
+- **Beauty Plan Integration**: Because `generate_beauty_plan` and `generate_initial_beauty_plan` rely on `recommend_recipes` for routine slot assignment, Fan Mode is now automatically enabled and respected during Beauty Plan generation!
+- **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Saved Beauty Recipe Pool Threshold Migration**: Updated `generate_beauty_plan_from_saved(...)` in migration `20260721000020_beauty_plan_saved_threshold.sql` with a minimum pool threshold parameter (`p_min_saved_threshold INT DEFAULT 3`) and fallback parameter (`p_fallback_to_recommended BOOLEAN DEFAULT true`).
 - **Threshold Validation**: If the user's saved beauty recipe collection is below the threshold (`< 3`), it automatically logs a notice and falls back to generating the standard recommended beauty plan (or raises `insufficient_saved_beauty_recipes` if fallback is disabled).
 - **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
