@@ -92,28 +92,32 @@ DIM_CREATOR_Q    = 25
 DIM_FAN_ELIGIBLE = 26
 
 # Dim offsets — Beauty & Care (27-49)
-DIM_TYPE4_HAIR       = 27
-DIM_HIGH_POROSITY    = 28
-DIM_LOW_POROSITY     = 29
-DIM_OILY_ACNE_SKIN   = 30
-DIM_DRY_SKIN         = 31
-DIM_SENSITIVE_SCALP  = 32
-DIM_HAIR_GROWTH      = 33
-DIM_SKIN_GLOW        = 34
-DIM_PROTECTIVE_STYLE = 35
-DIM_BEAUTY_ACTIVES   = 36   # 36..44 (9 dims)
+DIM_HAIR_TEXTURE          = 27  # Spectrum 0.10 (1A) to 1.00 (4C)
+DIM_POROSITY              = 28  # Spectrum 0.20 (Low) to 1.00 (High)
+DIM_SCALP_TYPE            = 29  # Spectrum 0.10 (Dry) to 1.00 (Flaky)
+DIM_SKIN_TYPE             = 30  # Spectrum 0.10 (Dry) to 1.00 (Acne)
 
-BEAUTY_ACTIVES_MAP = {
-    "shea_butter": 0,  # Karité
-    "aloe_vera":   1,  # Aloé Véra
-    "chebe":       2,  # Chébé
-    "black_seed":  3,  # Nigelle
-    "argan":       4,  # Argan
-    "ricin":       5,  # Castor / Ricin
-    "hibiscus":    6,  # Hibiscus / Karkadé
-    "clay":        7,  # Argile
-    "jojoba":      8,  # Jojoba
-}
+# Hair Care Goals & Virtues (31-39)
+GOAL_HAIR_GROWTH          = 31  # Length retention & follicle stimulation
+GOAL_HAIR_ANTI_BREAKAGE   = 32  # Strengthening & anti-breakage
+GOAL_HAIR_MOISTURE        = 33  # Deep hydration & elasticity
+GOAL_SCALP_SOOTHING       = 34  # Anti-itch & dandruff relief
+GOAL_CURL_DEFINITION      = 35  # Anti-frizz & curl shaping
+GOAL_PROTECTIVE_STYLE     = 36  # Braids, locs & edge care
+GOAL_HAIR_VOLUME          = 37  # Density & body
+GOAL_HAIR_SHINE           = 38  # Cuticle smoothing & luster
+GOAL_SCALP_DETOX          = 39  # Clarifying & buildup removal
+
+# Skin Care Goals & Virtues (40-48)
+GOAL_SKIN_GLOW            = 40  # Radiance & anti-dullness
+GOAL_SKIN_BARRIER         = 41  # Lipid repair & deep moisture
+GOAL_SKIN_SEBUM_ACNE      = 42  # Matrifying & blemish control
+GOAL_SKIN_SOOTHING        = 43  # Calming reactive skin
+GOAL_SKIN_ANTI_DARK_SPOTS = 44  # Hyperpigmentation & even tone
+GOAL_SKIN_ANTI_AGING      = 45  # Firming & elasticity
+GOAL_SKIN_EXFOLIATION     = 46  # Smooth texture & dead skin removal
+GOAL_BODY_NUTRITION       = 47  # Body butter moisture & firming
+GOAL_SUN_PROTECTION       = 48  # Antioxidant defense
 
 # Continuous Spectrum Encodings (0.0 to 1.0)
 HAIR_TYPE_SPECTRUM = {
@@ -190,41 +194,49 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
 
     if mode == "beauty":
-        # ---- Beauty Dimensions (27-44) ----
+        # ---- Inherent Attributes (27-30) ----
         hair_type = str(profile.get("hair_type") or "4C").upper()
-        vector[DIM_TYPE4_HAIR] = HAIR_TYPE_SPECTRUM.get(hair_type, 0.90)
+        vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM.get(hair_type, 0.90)
 
         porosity = str(profile.get("porosity") or "high").lower()
-        if porosity == "high":
-            vector[DIM_HIGH_POROSITY] = POROSITY_SPECTRUM.get(porosity, 1.0)
-        elif porosity == "low":
-            vector[DIM_LOW_POROSITY] = POROSITY_SPECTRUM.get(porosity, 0.20)
+        vector[DIM_POROSITY] = POROSITY_SPECTRUM.get(porosity, 1.0)
 
         skin_type = str(profile.get("skin_type") or "oily").lower()
-        if skin_type in ("oily", "acne"):
-            vector[DIM_OILY_ACNE_SKIN] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.90)
-        elif skin_type == "dry":
-            vector[DIM_DRY_SKIN] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.10)
+        vector[DIM_SKIN_TYPE] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.90)
 
         if profile.get("sensitive_scalp"):
-            vector[DIM_SENSITIVE_SCALP] = 1.0
+            vector[GOAL_SCALP_SOOTHING] = 1.0
 
+        # ---- User Beauty Goals (31-48) ----
         beauty_goals = set(profile.get("beauty_goals") or [])
-        if "growth" in beauty_goals or "anti_breakage" in beauty_goals:
-            vector[DIM_HAIR_GROWTH] = 1.0
-        if "glow" in beauty_goals or "anti_dark_spots" in beauty_goals:
-            vector[DIM_SKIN_GLOW] = 1.0
+        if "growth" in beauty_goals or "growth_retention" in beauty_goals:
+            vector[GOAL_HAIR_GROWTH] = 1.0
+        if "anti_breakage" in beauty_goals:
+            vector[GOAL_HAIR_ANTI_BREAKAGE] = 1.0
+        if "moisture" in beauty_goals or "hydration" in beauty_goals:
+            vector[GOAL_HAIR_MOISTURE] = 1.0
+        if "curl_definition" in beauty_goals:
+            vector[GOAL_CURL_DEFINITION] = 1.0
         if "protective_style" in beauty_goals:
-            vector[DIM_PROTECTIVE_STYLE] = 1.0
+            vector[GOAL_PROTECTIVE_STYLE] = 1.0
+        if "volume" in beauty_goals:
+            vector[GOAL_HAIR_VOLUME] = 1.0
 
-        preferred_actives = profile.get("preferred_actives") or []
-        for active in preferred_actives:
-            idx = BEAUTY_ACTIVES_MAP.get(active)
-            if idx is not None:
-                vector[DIM_BEAUTY_ACTIVES + idx] = 1.0
+        if "glow" in beauty_goals or "radiance" in beauty_goals:
+            vector[GOAL_SKIN_GLOW] = 1.0
+        if "anti_dark_spots" in beauty_goals or "brightening" in beauty_goals:
+            vector[GOAL_SKIN_ANTI_DARK_SPOTS] = 1.0
+        if "sebum_control" in beauty_goals or "acne_control" in beauty_goals:
+            vector[GOAL_SKIN_SEBUM_ACNE] = 1.0
+        if "barrier_repair" in beauty_goals:
+            vector[GOAL_SKIN_BARRIER] = 1.0
+        if "anti_aging" in beauty_goals:
+            vector[GOAL_SKIN_ANTI_AGING] = 1.0
 
-        for dim in (DIM_TYPE4_HAIR, DIM_HIGH_POROSITY, DIM_LOW_POROSITY,
-                    DIM_OILY_ACNE_SKIN, DIM_DRY_SKIN, DIM_HAIR_GROWTH, DIM_SKIN_GLOW):
+        # Goal weight amplification
+        for dim in (DIM_HAIR_TEXTURE, DIM_POROSITY, DIM_SKIN_TYPE,
+                    GOAL_HAIR_GROWTH, GOAL_HAIR_ANTI_BREAKAGE, GOAL_HAIR_MOISTURE,
+                    GOAL_SKIN_GLOW, GOAL_SKIN_BARRIER, GOAL_SKIN_SEBUM_ACNE):
             vector[dim] *= 2.0
 
         return _normalize_l2(vector)
@@ -310,64 +322,67 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
     vector = np.zeros(VECTOR_DIM, dtype=np.float32)
 
     if mode == "beauty" or recipe.get("mode") == "beauty":
-        # ---- Beauty Recipe Dimensions (27-44) ----
+        # ---- Inherent Attributes (27-30) ----
         suitable_hair = str(recipe.get("suitable_hair_type") or "4C").upper()
-        vector[DIM_TYPE4_HAIR] = HAIR_TYPE_SPECTRUM.get(suitable_hair, 0.85)
+        vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM.get(suitable_hair, 0.85)
 
-        if recipe.get("formulation") == "heavy_butter":
-            vector[DIM_HIGH_POROSITY] = 1.0
-        elif recipe.get("formulation") == "light_oil":
-            vector[DIM_LOW_POROSITY] = 0.20
+        formulation = str(recipe.get("formulation") or "").lower()
+        if formulation == "heavy_butter":
+            vector[DIM_POROSITY] = 1.0
+        elif formulation == "light_oil":
+            vector[DIM_POROSITY] = 0.20
+        else:
+            vector[DIM_POROSITY] = 0.50
 
-        if recipe.get("skin_target") in ("oily", "acne"):
-            vector[DIM_OILY_ACNE_SKIN] = 1.0
-        elif recipe.get("skin_target") == "dry":
-            vector[DIM_DRY_SKIN] = 1.0
+        skin_target = str(recipe.get("skin_target") or "").lower()
+        if skin_target in ("oily", "acne"):
+            vector[DIM_SKIN_TYPE] = 0.90
+        elif skin_target == "dry":
+            vector[DIM_SKIN_TYPE] = 0.10
+        else:
+            vector[DIM_SKIN_TYPE] = 0.50
 
-        if recipe.get("scalp_soothing"):
-            vector[DIM_SENSITIVE_SCALP] = 1.0
-
+        # ---- Remedy Virtues & Goals (31-48) ----
         virtues = set(recipe.get("virtues") or [])
         tags = set(recipe.get("tags") or []).union(virtues)
 
-        if "growth" in tags or "growth_retention" in tags or "anti_breakage" in tags:
-            vector[DIM_HAIR_GROWTH] = max(vector[DIM_HAIR_GROWTH], 1.0)
-        if "glow" in tags or "glow_brightening" in tags or "anti_dark_spots" in tags:
-            vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], 1.0)
-        if "protective_style" in tags or "protective_care" in tags:
-            vector[DIM_PROTECTIVE_STYLE] = max(vector[DIM_PROTECTIVE_STYLE], 1.0)
+        if "growth" in tags or "growth_retention" in tags:
+            vector[GOAL_HAIR_GROWTH] = 1.0
+        if "anti_breakage" in tags:
+            vector[GOAL_HAIR_ANTI_BREAKAGE] = 1.0
+        if "intense_hydration" in virtues or "moisture" in tags:
+            vector[GOAL_HAIR_MOISTURE] = 1.0
+            vector[GOAL_SKIN_BARRIER] = 0.8
         if "scalp_soothing" in virtues:
-            vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], 1.0)
+            vector[GOAL_SCALP_SOOTHING] = 1.0
+            vector[GOAL_SKIN_SOOTHING] = 0.9
+        if "curl_definition" in tags:
+            vector[GOAL_CURL_DEFINITION] = 1.0
+        if "protective_style" in tags or "protective_care" in tags:
+            vector[GOAL_PROTECTIVE_STYLE] = 1.0
+        if "glow" in tags or "glow_brightening" in tags:
+            vector[GOAL_SKIN_GLOW] = 1.0
         if "sebum_balance" in virtues:
-            vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], 1.0)
-        if "intense_hydration" in virtues:
-            vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], 0.8)
+            vector[GOAL_SKIN_SEBUM_ACNE] = 1.0
 
-        # Accumulate continuous virtue weight vectors from ingredients (hair + skincare)
+        # Accumulate continuous virtue weight vectors from ingredients
         ingredient_details = recipe.get("ingredient_details") or []
         for detail in ingredient_details:
             weights = detail.get("virtue_weights") or {}
             if weights:
-                vector[DIM_HAIR_GROWTH] = max(vector[DIM_HAIR_GROWTH], float(weights.get("growth_retention", 0.0)), float(weights.get("anti_breakage", 0.0)))
-                vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], float(weights.get("glow_brightening", 0.0)))
-                vector[DIM_PROTECTIVE_STYLE] = max(vector[DIM_PROTECTIVE_STYLE], float(weights.get("protective_care", 0.0)))
-                vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], float(weights.get("scalp_soothing", 0.0)))
-                vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], float(weights.get("sebum_balance", 0.0)))
-                vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], float(weights.get("moisture", 0.0)))
+                vector[GOAL_HAIR_GROWTH] = max(vector[GOAL_HAIR_GROWTH], float(weights.get("growth_retention", 0.0)))
+                vector[GOAL_HAIR_ANTI_BREAKAGE] = max(vector[GOAL_HAIR_ANTI_BREAKAGE], float(weights.get("anti_breakage", 0.0)))
+                vector[GOAL_HAIR_MOISTURE] = max(vector[GOAL_HAIR_MOISTURE], float(weights.get("moisture", 0.0)))
+                vector[GOAL_SCALP_SOOTHING] = max(vector[GOAL_SCALP_SOOTHING], float(weights.get("scalp_soothing", 0.0)))
+                vector[GOAL_PROTECTIVE_STYLE] = max(vector[GOAL_PROTECTIVE_STYLE], float(weights.get("protective_care", 0.0)))
 
             skin_weights = detail.get("skin_virtue_weights") or {}
             if skin_weights:
-                vector[DIM_OILY_ACNE_SKIN] = max(vector[DIM_OILY_ACNE_SKIN], float(skin_weights.get("oily_acne_sebum", 0.0)))
-                vector[DIM_DRY_SKIN] = max(vector[DIM_DRY_SKIN], float(skin_weights.get("dry_skin_moisture", 0.0)), float(skin_weights.get("barrier_repair", 0.0)))
-                vector[DIM_SKIN_GLOW] = max(vector[DIM_SKIN_GLOW], float(skin_weights.get("brightening_anti_spots", 0.0)), float(skin_weights.get("anti_aging_elasticity", 0.0)))
-                vector[DIM_SENSITIVE_SCALP] = max(vector[DIM_SENSITIVE_SCALP], float(skin_weights.get("sensitive_skin_soothing", 0.0)))
-
-        ingredients = recipe.get("ingredients") or []
-        for ing in ingredients:
-            ing_code = str(ing).lower()
-            for active_key, idx in BEAUTY_ACTIVES_MAP.items():
-                if active_key in ing_code:
-                    vector[DIM_BEAUTY_ACTIVES + idx] = 1.0
+                vector[GOAL_SKIN_SEBUM_ACNE] = max(vector[GOAL_SKIN_SEBUM_ACNE], float(skin_weights.get("oily_acne_sebum", 0.0)))
+                vector[GOAL_SKIN_BARRIER] = max(vector[GOAL_SKIN_BARRIER], float(skin_weights.get("dry_skin_moisture", 0.0)), float(skin_weights.get("barrier_repair", 0.0)))
+                vector[GOAL_SKIN_GLOW] = max(vector[GOAL_SKIN_GLOW], float(skin_weights.get("brightening_anti_spots", 0.0)))
+                vector[GOAL_SKIN_ANTI_AGING] = max(vector[GOAL_SKIN_ANTI_AGING], float(skin_weights.get("anti_aging_elasticity", 0.0)))
+                vector[GOAL_SKIN_SOOTHING] = max(vector[GOAL_SKIN_SOOTHING], float(skin_weights.get("sensitive_skin_soothing", 0.0)))
 
         return _normalize_l2(vector)
 

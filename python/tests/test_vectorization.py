@@ -47,10 +47,11 @@ def test_compute_beauty_user_vector(mock_get_profile):
     assert isinstance(vector, np.ndarray)
     assert len(vector) == VECTOR_DIM
     assert np.isclose(np.linalg.norm(vector), 1.0)
-    assert vector[27] > 0.0  # TYPE4_HAIR
-    assert vector[28] > 0.0  # HIGH_POROSITY
-    assert vector[31] > 0.0  # DRY_SKIN
-    assert vector[33] > 0.0  # HAIR_GROWTH
+    assert vector[27] > 0.0  # DIM_HAIR_TEXTURE
+    assert vector[28] > 0.0  # DIM_POROSITY
+    assert vector[30] > 0.0  # DIM_SKIN_TYPE
+    assert vector[31] > 0.0  # GOAL_HAIR_GROWTH
+    assert vector[40] > 0.0  # GOAL_SKIN_GLOW
 
 @patch("engine.vectorization.get_user_health_profile")
 def test_compute_user_vector_not_found(mock_get_profile):
@@ -126,12 +127,11 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
     assert vector is not None
     assert len(vector) == VECTOR_DIM
     assert np.isclose(np.linalg.norm(vector), 1.0)
-    assert vector[27] > 0.0  # TYPE4_HAIR / HAIR_TEXTURE
-    assert vector[28] > 0.0  # HIGH_POROSITY (heavy_butter)
-    assert vector[31] > 0.0  # DRY_SKIN / MOISTURE (0.90 from dry_skin_moisture / barrier_repair)
-    assert vector[33] > 0.0  # HAIR_GROWTH / GROWTH_RETENTION (0.95 from chebe)
-    assert vector[36] > 0.0  # shea_butter active
-    assert vector[38] > 0.0  # chebe active
+    assert vector[27] > 0.0  # DIM_HAIR_TEXTURE (0.90 for Type 4)
+    assert vector[28] > 0.0  # DIM_POROSITY (1.0 for heavy_butter)
+    assert vector[31] > 0.0  # GOAL_HAIR_GROWTH (0.95 from chebe)
+    assert vector[32] > 0.0  # GOAL_HAIR_ANTI_BREAKAGE (0.90 from chebe & shea)
+    assert vector[41] > 0.0  # GOAL_SKIN_BARRIER (0.95 from dry_skin_moisture / barrier_repair)
 
 @patch("engine.vectorization.get_user_health_profile")
 @patch("engine.vectorization.get_recipe_consumption_stats")
