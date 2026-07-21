@@ -21,6 +21,7 @@ import '../../providers/user_profile_provider.dart';
 import '../../providers/mode_provider.dart';
 import '../../widgets/mode_selector.dart';
 import 'widgets/journey/journey_tab.dart';
+import '../beauty/beauty_analytics_page.dart';
 
 class NutritionPage extends ConsumerStatefulWidget {
   const NutritionPage({super.key});
@@ -51,11 +52,14 @@ class _NutritionPageState extends ConsumerState<NutritionPage>
   @override
   Widget build(BuildContext context) {
     _logger.provider('NutritionPage build()');
-    final l10n = AppLocalizations.of(context);
     final mode = ref.watch(currentModeProvider);
-    final isBeauty = mode == AppMode.beauty;
+    if (mode == AppMode.beauty) {
+      return const BeautyAnalyticsPage();
+    }
+
+    final l10n = AppLocalizations.of(context);
     final accentColor = getAppModeColor(mode);
-    final title = isBeauty ? 'Mon Suivi Beauté & Soins' : l10n.nutritionTitle;
+    final title = l10n.nutritionTitle;
 
     return Scaffold(
       backgroundColor: AkeliColors.surface,

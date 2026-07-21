@@ -123,6 +123,11 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
+### **Changelog Entry — July 21, 2026 (18:55 UTC)**
+- **Tracker Page Dynamic Mode Swapping**: Updated `NutritionPage` (`nutrition_page.dart`) to dynamically intercept and swap its entire view hierarchy with `BeautyAnalyticsPage` when the active mode is `AppMode.beauty`.
+- **Alignment with Beauty Metrics**: This corrects the critical bug where accessing the tracking page `/nutrition` directly or via settings in Beauty Mode still displayed nutrition values (Calories, Macros, Water log, and consumed meal logs), ensuring it instead displays Beauty Adherence, Hair growth charts, Strength Score, Hydration/Clarity levels, and the Beauty Checkin timeline logs.
+- **Verification**: Created `nutrition_page_beauty_test.dart` to verify that `NutritionPage` returns `BeautyAnalyticsPage` in Beauty mode and regular nutrition tabs in Nutrition mode, passing 100% (along with settings and health profile page tests).
+
 ### **Changelog Entry — July 21, 2026 (18:50 UTC)**
 - **Settings Page Dynamic Menu Terminology**: Updated `SettingsPage` (`settings_page.dart`) to dynamically modify menu item labels and icons based on `currentModeProvider` to ensure full terminology alignment with the active mode.
 - **Dynamic Adaptations (Beauty Mode)**:
