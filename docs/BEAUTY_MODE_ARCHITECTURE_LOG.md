@@ -123,7 +123,11 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (12:17 UTC)**
+### **Changelog Entry — July 21, 2026 (12:27 UTC)**
+- **Hero Banner Removal**: Removed `hero_banner` component from Beauty fallback SDUI layout (`layout_fetch_service.dart`).
+- **Shared Native Greeting Header**: Updated `home_page.dart` to render the native greeting header ("Bonjour [Name] 👋", "Ravi de vous revoir") identically across Nutrition and Beauty modes.
+- **Today's Beauty Routines Widget**: Created `TodayBeautyRoutinesWidget` (`lib/features/beauty/widgets/today_beauty_routines_widget.dart`) filtering routines strictly for today (`dayNumber == currentDayOfMonth`) with completion checkboxes and a direct link to the 30-day planner (`BeautyPlannerView`).
+- **Widget Unit Test Suite**: Added `today_beauty_routines_widget_test.dart` (244 Flutter tests passing 100%).
 - **Section-by-Section Homepage Comparison**: Detailed 7-section side-by-side analysis (Header, Core Metrics, Daily Schedule, Progress Check-in, Creator Feed, Utility Tools, and Monetization Logic) logged.
 - **Mandatory Logging Directive**: Established rule that all future development actions must be recorded in this document.
 - **Session Commits Summary**:

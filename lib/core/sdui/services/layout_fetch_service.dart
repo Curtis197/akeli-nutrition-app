@@ -118,7 +118,6 @@ class LayoutFetchService {
           'version': '1.0.0',
           'layout': {
             'components': [
-              {'type': 'hero_banner', 'config': {'title': 'Beauty', 'subtitle': 'Skin & Hair Care'}},
               {'type': 'routine_grid', 'config': {'title': 'Your Routines'}},
               {'type': 'product_tracker', 'config': {'title': 'Products'}},
             ],

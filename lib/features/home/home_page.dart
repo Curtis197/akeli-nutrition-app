@@ -25,6 +25,7 @@ import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/shopping_row.dart';
 import '../../core/sdui/widgets/dynamic_layout_page.dart';
 import '../../providers/mode_provider.dart';
+import '../beauty/widgets/today_beauty_routines_widget.dart';
 import 'home_creator_chip.dart';
 
 class HomePage extends ConsumerStatefulWidget {
@@ -70,9 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final currentMode = ref.watch(currentModeProvider);
-    if (currentMode != AppMode.nutrition) {
-      return DynamicLayoutPage(mode: currentMode.name);
-    }
+    final isBeautyMode = currentMode == AppMode.beauty;
 
     final l10n = AppLocalizations.of(context);
     final localeState = ref.watch(localeProvider);
@@ -200,7 +199,12 @@ class _HomePageState extends ConsumerState<HomePage> {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
+              if (isBeautyMode) ...[
+                const SizedBox(height: 16),
+                const TodayBeautyRoutinesWidget(),
+                const SizedBox(height: 80),
+              ] else ...[
+                const SizedBox(height: 24),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -775,6 +779,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
               ),
               const SizedBox(height: 80),
+              ],
             ],
           ),
         ),
