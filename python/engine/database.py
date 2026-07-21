@@ -104,6 +104,7 @@ def get_recipe_data(recipe_id: str) -> Optional[dict]:
                 SELECT
                     r.id, r.mode, r.beauty_type, r.beauty_sub_type, r.frequency, r.difficulty, r.prep_time_min, r.cook_time_min,
                     r.region, r.created_at, r.creator_id, r.virtues, r.virtue_weights, r.usage_instructions,
+                    r.suitable_hair_type, r.skin_target, r.formulation,
                     GREATEST(r.servings, 1) AS servings,
                     -- Per-serving macros: divide totals by servings
                     rm.calories  / GREATEST(r.servings, 1) AS calories,
