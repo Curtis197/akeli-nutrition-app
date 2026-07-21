@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/logger.dart';
 import '../core/supabase_client.dart';
 import 'auth_provider.dart';
+import 'mode_provider.dart';
 
 // ─── Models ────────────────────────────────────────────────────────────────
 
@@ -929,6 +930,9 @@ Future<String> createGroup(
       logger.db('AFTER | storage: group_covers | op: UPLOAD | url: $coverUrl');
     }
 
+    final appMode = ref.read(currentModeProvider);
+    final activeMode = appMode == AppMode.beauty ? 'beauty' : 'nutrition';
+
     final groupResult = await client
         .from('community_group')
         .insert({
@@ -936,6 +940,7 @@ Future<String> createGroup(
           'description': description?.isNotEmpty == true ? description : null,
           'is_public': isPublic,
           'creator_id': userId,
+          'mode': activeMode,
           if (coverUrl != null) 'cover_url': coverUrl,
         })
         .select('id')
@@ -959,6 +964,7 @@ Future<String> createGroup(
           'type': 'creator_group',
           'community_group_id': groupId,
           'created_by': userId,
+          'mode': activeMode,
         })
         .select('id')
         .single();

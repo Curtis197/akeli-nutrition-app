@@ -28,6 +28,8 @@ final communityGroupsProvider =
   if (user == null) return [];
 
   final client = ref.watch(supabaseClientProvider);
+  final appMode = ref.watch(currentModeProvider);
+  final activeMode = appMode == AppMode.beauty ? 'beauty' : 'nutrition';
 
   logger.db('BEFORE | table: group_member | op: SELECT my groups | userId: ${user.id}');
   final memberships = await client
@@ -42,11 +44,12 @@ final communityGroupsProvider =
       .map((m) => m['group_id'] as String)
       .toList();
 
-  logger.db('BEFORE | table: v_community_group | op: SELECT | inFilter count: ${groupIds.length}');
+  logger.db('BEFORE | table: v_community_group | op: SELECT | mode: $activeMode | count: ${groupIds.length}');
   final groups = await client
       .from('v_community_group')
       .select('*')
       .inFilter('id', groupIds)
+      .eq('app_mode', activeMode)
       .order('updated_at', ascending: false) as List<dynamic>;
 
   logger.db('AFTER | table: v_community_group | rows: ${groups.length}');
