@@ -46,6 +46,7 @@ class Recipe {
   final String? beautyType;
   final String? beautySubType;
   final String? frequency;
+  final Map<String, double>? virtueWeights;
   final DateTime createdAt;
 
   const Recipe({
@@ -91,6 +92,7 @@ class Recipe {
     this.beautyType,
     this.beautySubType,
     this.frequency,
+    this.virtueWeights,
     required this.createdAt,
   });
 
@@ -250,6 +252,11 @@ class Recipe {
         beautyType: json['beauty_type'] as String?,
         beautySubType: json['beauty_sub_type'] as String?,
         frequency: json['frequency'] as String?,
+        virtueWeights: json['virtue_weights'] is Map<String, dynamic>
+            ? (json['virtue_weights'] as Map<String, dynamic>).map(
+                (k, v) => MapEntry(k, (v as num).toDouble()),
+              )
+            : null,
         createdAt: json['created_at'] != null
             ? DateTime.parse(json['created_at'] as String)
             : DateTime.now(),

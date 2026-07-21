@@ -119,6 +119,42 @@ GOAL_SKIN_EXFOLIATION     = 46  # Smooth texture & dead skin removal
 GOAL_BODY_NUTRITION       = 47  # Body butter moisture & firming
 GOAL_SUN_PROTECTION       = 48  # Antioxidant defense
 
+VIRTUE_TO_DIM_MAP = {
+    # Hair Virtues
+    "growth_retention": GOAL_HAIR_GROWTH,
+    "growth": GOAL_HAIR_GROWTH,
+    "anti_breakage": GOAL_HAIR_ANTI_BREAKAGE,
+    "intense_hydration": GOAL_HAIR_MOISTURE,
+    "moisture": GOAL_HAIR_MOISTURE,
+    "scalp_soothing": GOAL_SCALP_SOOTHING,
+    "curl_definition": GOAL_CURL_DEFINITION,
+    "protective_care": GOAL_PROTECTIVE_STYLE,
+    "protective_style": GOAL_PROTECTIVE_STYLE,
+    "volume_thickness": GOAL_HAIR_VOLUME,
+    "shine_softness": GOAL_HAIR_SHINE,
+    "scalp_detox": GOAL_SCALP_DETOX,
+    "anti_dandruff": GOAL_SCALP_SOOTHING,
+
+    # Skin Virtues
+    "glow_brightening": GOAL_SKIN_GLOW,
+    "glow": GOAL_SKIN_GLOW,
+    "moisture_barrier": GOAL_SKIN_BARRIER,
+    "dry_skin_moisture": GOAL_SKIN_BARRIER,
+    "barrier_repair": GOAL_SKIN_BARRIER,
+    "sebum_balance": GOAL_SKIN_SEBUM_ACNE,
+    "sebum_acne_control": GOAL_SKIN_SEBUM_ACNE,
+    "oily_acne_sebum": GOAL_SKIN_SEBUM_ACNE,
+    "sensitive_soothing": GOAL_SKIN_SOOTHING,
+    "sensitive_skin_soothing": GOAL_SKIN_SOOTHING,
+    "anti_dark_spots": GOAL_SKIN_ANTI_DARK_SPOTS,
+    "brightening_anti_spots": GOAL_SKIN_ANTI_DARK_SPOTS,
+    "anti_aging_elasticity": GOAL_SKIN_ANTI_AGING,
+    "anti_aging": GOAL_SKIN_ANTI_AGING,
+    "exfoliation_smoothing": GOAL_SKIN_EXFOLIATION,
+    "body_nourishing": GOAL_BODY_NUTRITION,
+    "antioxidant_defense": GOAL_SUN_PROTECTION,
+}
+
 # Continuous Spectrum Encodings (0.0 to 1.0)
 HAIR_TYPE_SPECTRUM = {
     "1A": 0.10, "1B": 0.10, "1C": 0.15,
@@ -342,28 +378,35 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
         else:
             vector[DIM_SKIN_TYPE] = 0.50
 
-        # ---- Remedy Virtues & Goals (31-48) ----
+        # ---- Remedy Continuous Virtue Weight Vectors (31-48) ----
+        recipe_virtue_weights = recipe.get("virtue_weights") or {}
+        if isinstance(recipe_virtue_weights, dict):
+            for virtue_key, weight in recipe_virtue_weights.items():
+                dim_idx = VIRTUE_TO_DIM_MAP.get(virtue_key)
+                if dim_idx is not None:
+                    vector[dim_idx] = max(vector[dim_idx], float(weight))
+
         virtues = set(recipe.get("virtues") or [])
         tags = set(recipe.get("tags") or []).union(virtues)
 
         if "growth" in tags or "growth_retention" in tags:
-            vector[GOAL_HAIR_GROWTH] = 1.0
+            vector[GOAL_HAIR_GROWTH] = max(vector[GOAL_HAIR_GROWTH], 1.0)
         if "anti_breakage" in tags:
-            vector[GOAL_HAIR_ANTI_BREAKAGE] = 1.0
+            vector[GOAL_HAIR_ANTI_BREAKAGE] = max(vector[GOAL_HAIR_ANTI_BREAKAGE], 1.0)
         if "intense_hydration" in virtues or "moisture" in tags:
-            vector[GOAL_HAIR_MOISTURE] = 1.0
-            vector[GOAL_SKIN_BARRIER] = 0.8
+            vector[GOAL_HAIR_MOISTURE] = max(vector[GOAL_HAIR_MOISTURE], 1.0)
+            vector[GOAL_SKIN_BARRIER] = max(vector[GOAL_SKIN_BARRIER], 0.8)
         if "scalp_soothing" in virtues:
-            vector[GOAL_SCALP_SOOTHING] = 1.0
-            vector[GOAL_SKIN_SOOTHING] = 0.9
+            vector[GOAL_SCALP_SOOTHING] = max(vector[GOAL_SCALP_SOOTHING], 1.0)
+            vector[GOAL_SKIN_SOOTHING] = max(vector[GOAL_SKIN_SOOTHING], 0.9)
         if "curl_definition" in tags:
-            vector[GOAL_CURL_DEFINITION] = 1.0
+            vector[GOAL_CURL_DEFINITION] = max(vector[GOAL_CURL_DEFINITION], 1.0)
         if "protective_style" in tags or "protective_care" in tags:
-            vector[GOAL_PROTECTIVE_STYLE] = 1.0
+            vector[GOAL_PROTECTIVE_STYLE] = max(vector[GOAL_PROTECTIVE_STYLE], 1.0)
         if "glow" in tags or "glow_brightening" in tags:
-            vector[GOAL_SKIN_GLOW] = 1.0
+            vector[GOAL_SKIN_GLOW] = max(vector[GOAL_SKIN_GLOW], 1.0)
         if "sebum_balance" in virtues:
-            vector[GOAL_SKIN_SEBUM_ACNE] = 1.0
+            vector[GOAL_SKIN_SEBUM_ACNE] = max(vector[GOAL_SKIN_SEBUM_ACNE], 1.0)
 
         # Accumulate continuous virtue weight vectors from ingredients
         ingredient_details = recipe.get("ingredient_details") or []
