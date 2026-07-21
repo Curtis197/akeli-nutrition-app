@@ -34,8 +34,8 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   final Set<String> _skinConcerns = {'hyperpigmentation', 'dehydration'};
   String _bodySkinProfile = 'normal';
 
-  // Step 3: Goals
-  final Set<String> _beautyGoals = {'hair_growth', 'moisture'};
+  // Step 3: Balanced Hair & Skin Goals (No ingredient recommendations)
+  final Set<String> _beautyGoals = {'hair_growth', 'hair_moisture', 'skin_glow', 'skin_moisture'};
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +163,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos recettes botaniques.',
+          'Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos soins botaniques.',
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
@@ -291,7 +291,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           items: const [
             DropdownMenuItem(value: 'mixte_t', child: Text('Peau Mixte (Zone T brillante, joues normales/sèches)')),
             DropdownMenuItem(value: 'seche_deshydratee', child: Text('Peau Sèche & Déshydratée (Tiraillements & desquamation)')),
-            DropdownMenuItem(value: 'grasse_acneique', child: Text('Peau Grasse & Acneique (Excès de sébum, pores dilatés)')),
+            DropdownMenuItem(value: 'grasse_acneique', child: Text('Peau Grasse & Acnéique (Excès de sébum, pores dilatés)')),
             DropdownMenuItem(value: 'sensible_reactive', child: Text('Peau Sensible & Réactive (Rougeurs, rosacée)')),
             DropdownMenuItem(value: 'hypermentee', child: Text('Peau Sujette à l\'Hyperpigmentation (Taches sombres, mélasma)')),
             DropdownMenuItem(value: 'mature', child: Text('Peau Mature (Perte de fermeté & rides d\'expression)')),
@@ -303,16 +303,16 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 28),
         const Text(
-          'Préoccupations & Défis Cutanés (Visage & Décolleté)',
+          'Préoccupations Cutanées (Visage & Décolleté)',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        _buildSkinConcernCheckbox('🌖 Taches Sombres & Teint Irrégulier (Hyperpigmentation)', 'hyperpigmentation'),
-        _buildSkinConcernCheckbox('🌋 Boutons, Points Noirs & Imperfections', 'acne_imperfections'),
+        _buildSkinConcernCheckbox('🌖 Taches Sombres & Teint Irrégulier', 'hyperpigmentation'),
+        _buildSkinConcernCheckbox('🌋 Boutons & Imperfections', 'acne_imperfections'),
         _buildSkinConcernCheckbox('💧 Déshydratation Profonde & Perte d\'Éclat', 'dehydration'),
         _buildSkinConcernCheckbox('🛡️ Barrière Cutanée Fragilisée & Sensibilité', 'barrier_damage'),
         _buildSkinConcernCheckbox('✨ Brillance Excessive & Pores Dilatés', 'excess_sebum'),
-        _buildSkinConcernCheckbox('🌿 Perte d\'Élasticité & Relâchement', 'aging_elasticity'),
+        _buildSkinConcernCheckbox('🌿 Perte d\'Élasticité & Rides d\'Expression', 'aging_elasticity'),
 
         const SizedBox(height: 28),
         const Text(
@@ -348,15 +348,31 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Choisissez vos objectifs prioritaires pour calibrer les recommandations de soins quotidiens.',
+          'Sélectionnez vos priorités capillaires et cutanées pour calibrer votre routine sur 30 jours.',
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
-        _buildGoalCheckbox('🌱 Pousse & Longueur (Chébé, Nigelle)', 'hair_growth'),
-        _buildGoalCheckbox('🛡️ Force & Anti-Casse', 'anti_breakage'),
-        _buildGoalCheckbox('💧 Hydratation Profonde & Souplesse', 'moisture'),
-        _buildGoalCheckbox('💆 Soin Apaisant Cuir Chevelu', 'scalp_soothing'),
-        _buildGoalCheckbox('✨ Barrière Cutanée & Éclat du Teint', 'skin_barrier'),
+        const Text(
+          'Objectifs Capillaires 👑',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        ),
+        const SizedBox(height: 12),
+        _buildGoalCheckbox('🌱 Pousse, Densité & Longueur', 'hair_growth'),
+        _buildGoalCheckbox('🛡️ Force, Retention & Anti-Casse', 'anti_breakage'),
+        _buildGoalCheckbox('💧 Hydratation Profonde & Définition', 'hair_moisture'),
+        _buildGoalCheckbox('💆 Équilibre & Apaisement du Cuir Chevelu', 'scalp_soothing'),
+
+        const SizedBox(height: 28),
+        const Text(
+          'Objectifs Cutanés & Teint ✨',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        ),
+        const SizedBox(height: 12),
+        _buildGoalCheckbox('✨ Éclat du Teint & Teint Uniforme', 'skin_glow'),
+        _buildGoalCheckbox('🌖 Atténuation des Taches & Hyperpigmentation', 'skin_anti_spot'),
+        _buildGoalCheckbox('💧 Hydratation & Souplesse Cutanée', 'skin_moisture'),
+        _buildGoalCheckbox('🌋 Clarification & Anti-Imperfections', 'skin_anti_imperfection'),
+        _buildGoalCheckbox('🛡️ Renforcement de la Barrière Cutanée', 'skin_barrier'),
       ],
     );
   }

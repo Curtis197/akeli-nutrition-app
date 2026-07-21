@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (13:42 UTC)**
+### **Changelog Entry — July 21, 2026 (13:47 UTC)**
+- **Balanced Hair & Skin Ritual Goals**: Reorganized Step 3 of `BeautyOnboardingPage` into two distinct categories: **Objectifs Capillaires 👑** (Pousse, Densité, Force, Anti-Casse, Hydratation, Apaisement Cuir Chevelu) and **Objectifs Cutanés & Teint ✨** (Éclat du Teint, Atténuation des Taches, Hydratation Cutanée, Clarification Anti-Imperfections, Barrière Cutanée).
+- **Clean Outcome Goal Titles**: Removed all ingredient recommendations (e.g. `Chébé, Nigelle`) from goal labels to keep the onboarding goals focused purely on personal beauty outcomes.
+- **Verification**: Tested live via widget tests, **24 / 24 Pytest tests**, and **245 / 245 Flutter tests** passing 100%.
 - **Deep Skin Profile Migration**: Added `skin_concerns TEXT[] DEFAULT '{}'` to `user_health_profile` table and updated `complete_beauty_onboarding(...)` RPC in migration `20260721000017_deep_skin_profile.sql`.
 - **Comprehensive Skin Typology & Dermatology Concerns**: Upgraded Step 2 of `BeautyOnboardingPage` with an extensive Skin Typology Dropdown (Peau Mixte, Sèche & Déshydratée, Grasse & Acneique, Sensible & Réactive, Hyperpigmentée, Mature, Normale), 6 Dermatological Concern Checkboxes (Hyperpigmentation, Acné, Déshydratation, Barrière Fragilisée, Sébum, Perte d'Élasticité), and Body Skin Particularities.
 - **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
