@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (15:02 UTC)**
+### **Changelog Entry — July 21, 2026 (15:05 UTC)**
+- **Beauty Analytics Page & History Timeline**: Built `BeautyAnalyticsPage` (`beauty_analytics_page.dart`) with Rosewood (`#8A3B58`) and Gold (`#D4AF37`) digital editorial aesthetics, time-range chips (7J, 30J, 90J, Tout), ritual adherence percentage score card, hair growth delta metric, strength score meter, anti-shedding status badge, skin hydration/clarity progress metrics, and historical `BeautyLog` timeline entries.
+- **Provider & Model Expansion**: Created `BeautyLog` model (`beauty_log.dart`), `beautyLogsProvider`, and `addBeautyLogNotifierProvider` in `beauty_plan_provider.dart`.
+- **Verification**: Created `beauty_analytics_page_test.dart`. Tested live via widget tests, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Nutrition Fan Mode Audit & Beauty Alignment**: Verified `generate_meal_plan` (Nutrition Mode) Fan Mode mechanics (`fan_subscription` check, 1.5x vector similarity score multiplier for creator recipes, and 90% fan slot quota with 10% non-fan cap `v_max_other_slots`).
 - **Beauty Mode Parity Migration (`20260721000022_beauty_plan_fan_mode_quota.sql`)**: Updated `generate_beauty_plan` to incorporate active Fan Subscription lookups and slot quota tracking so that Beauty Mode routine plan generation achieves 100% feature and architectural parity with Nutrition Mode.
 - **Verification**: Verified live on Supabase DB, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.

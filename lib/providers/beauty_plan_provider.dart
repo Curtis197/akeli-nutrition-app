@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/logger.dart';
 import '../core/supabase_client.dart';
+import '../shared/models/beauty_log.dart';
 import '../shared/models/beauty_plan.dart';
 import '../shared/models/recipe.dart';
 import 'auth_provider.dart';
@@ -115,6 +116,81 @@ class GenerateBeautyPlanNotifier extends AutoDisposeAsyncNotifier<void> {
   }
 }
 
-final generateBeautyPlanNotifierProvider =
+    final generateBeautyPlanNotifierProvider =
     AsyncNotifierProvider.autoDispose<GenerateBeautyPlanNotifier, void>(
         GenerateBeautyPlanNotifier.new);
+
+final beautyLogsProvider = FutureProvider.autoDispose<List<BeautyLog>>((ref) async {
+  final user = ref.watch(currentUserProvider);
+  if (user == null) return [];
+
+  final client = ref.watch(supabaseClientProvider);
+  appLogger.db('BEFORE | table: beauty_log | op: SELECT logs | user_id: ${user.id}');
+
+  try {
+    final response = await client
+        .from('beauty_log')
+        .select()
+        .eq('user_id', user.id)
+        .order('logged_at', ascending: false);
+
+    final logs = (response as List<dynamic>)
+        .map((data) => BeautyLog.fromJson(data as Map<String, dynamic>))
+        .toList();
+
+    appLogger.db('AFTER | table: beauty_log | rows: ${logs.length}');
+    return logs;
+  } catch (e, st) {
+    appLogger.db('ERROR | beautyLogsProvider | $e', error: e, stackTrace: st);
+    return [];
+  }
+});
+
+class AddBeautyLogNotifier extends AutoDisposeAsyncNotifier<void> {
+  @override
+  Future<void> build() async {}
+
+  Future<void> addLog({
+    required double hairLengthCm,
+    required double hairStrengthScore,
+    required double hairThicknessScore,
+    required String hairSheddingRate,
+    required double skinHydrationLevel,
+    required double skinClarityScore,
+    String? checkinNotes,
+    List<String> checkinPhotoUrls = const [],
+  }) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncValue.loading();
+
+    try {
+      await client.from('beauty_log').insert({
+        'user_id': user.id,
+        'hair_length_cm': hairLengthCm,
+        'hair_strength_score': hairStrengthScore,
+        'hair_thickness_score': hairThicknessScore,
+        'hair_shedding_rate': hairSheddingRate,
+        'skin_hydration_level': skinHydrationLevel,
+        'skin_clarity_score': skinClarityScore,
+        'checkin_notes': checkinNotes,
+        'checkin_photo_urls': checkinPhotoUrls,
+        'logged_at': DateTime.now().toIso8601String(),
+      });
+
+      ref.invalidate(beautyLogsProvider);
+      state = const AsyncValue.data(null);
+    } catch (e, st) {
+      appLogger.db('ERROR | addBeautyLog | $e', error: e, stackTrace: st);
+      state = AsyncValue.error(e, st);
+      rethrow;
+    }
+  }
+}
+
+final addBeautyLogNotifierProvider =
+    AsyncNotifierProvider.autoDispose<AddBeautyLogNotifier, void>(
+        AddBeautyLogNotifier.new);
+
