@@ -408,24 +408,22 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition") -> Optional[n
         if "sebum_balance" in virtues:
             vector[GOAL_SKIN_SEBUM_ACNE] = max(vector[GOAL_SKIN_SEBUM_ACNE], 1.0)
 
-        # Accumulate continuous virtue weight vectors from ingredients
+        # Dynamically accumulate continuous virtue weight vectors from all constituent ingredients
         ingredient_details = recipe.get("ingredient_details") or []
         for detail in ingredient_details:
             weights = detail.get("virtue_weights") or {}
-            if weights:
-                vector[GOAL_HAIR_GROWTH] = max(vector[GOAL_HAIR_GROWTH], float(weights.get("growth_retention", 0.0)))
-                vector[GOAL_HAIR_ANTI_BREAKAGE] = max(vector[GOAL_HAIR_ANTI_BREAKAGE], float(weights.get("anti_breakage", 0.0)))
-                vector[GOAL_HAIR_MOISTURE] = max(vector[GOAL_HAIR_MOISTURE], float(weights.get("moisture", 0.0)))
-                vector[GOAL_SCALP_SOOTHING] = max(vector[GOAL_SCALP_SOOTHING], float(weights.get("scalp_soothing", 0.0)))
-                vector[GOAL_PROTECTIVE_STYLE] = max(vector[GOAL_PROTECTIVE_STYLE], float(weights.get("protective_care", 0.0)))
+            if isinstance(weights, dict):
+                for virtue_key, weight in weights.items():
+                    dim_idx = VIRTUE_TO_DIM_MAP.get(virtue_key)
+                    if dim_idx is not None:
+                        vector[dim_idx] = max(vector[dim_idx], float(weight))
 
             skin_weights = detail.get("skin_virtue_weights") or {}
-            if skin_weights:
-                vector[GOAL_SKIN_SEBUM_ACNE] = max(vector[GOAL_SKIN_SEBUM_ACNE], float(skin_weights.get("oily_acne_sebum", 0.0)))
-                vector[GOAL_SKIN_BARRIER] = max(vector[GOAL_SKIN_BARRIER], float(skin_weights.get("dry_skin_moisture", 0.0)), float(skin_weights.get("barrier_repair", 0.0)))
-                vector[GOAL_SKIN_GLOW] = max(vector[GOAL_SKIN_GLOW], float(skin_weights.get("brightening_anti_spots", 0.0)))
-                vector[GOAL_SKIN_ANTI_AGING] = max(vector[GOAL_SKIN_ANTI_AGING], float(skin_weights.get("anti_aging_elasticity", 0.0)))
-                vector[GOAL_SKIN_SOOTHING] = max(vector[GOAL_SKIN_SOOTHING], float(skin_weights.get("sensitive_skin_soothing", 0.0)))
+            if isinstance(skin_weights, dict):
+                for virtue_key, weight in skin_weights.items():
+                    dim_idx = VIRTUE_TO_DIM_MAP.get(virtue_key)
+                    if dim_idx is not None:
+                        vector[dim_idx] = max(vector[dim_idx], float(weight))
 
         return _normalize_l2(vector)
 

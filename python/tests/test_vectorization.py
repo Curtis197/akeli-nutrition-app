@@ -109,8 +109,8 @@ def test_compute_creator_beauty_recipe_vector(mock_get_data, mock_get_stats):
         "ingredient_details": [
             {
                 "active_key": "shea_butter",
-                "virtue_weights": {"moisture": 0.90, "anti_breakage": 0.85},
-                "skin_virtue_weights": {"dry_skin_moisture": 0.90, "barrier_repair": 0.95}
+                "virtue_weights": {"intense_hydration": 0.90, "anti_breakage": 0.85},
+                "skin_virtue_weights": {"moisture_barrier": 0.95}
             },
             {
                 "active_key": "chebe",
