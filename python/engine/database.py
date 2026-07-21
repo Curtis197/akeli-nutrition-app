@@ -50,6 +50,44 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
             return dict(row) if row else None
 
 
+def get_latest_beauty_log(user_id: str) -> Optional[dict]:
+    """Récupère le log de suivi beauté le plus récent d'un utilisateur."""
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT 
+                    hair_length_cm, hair_strength_score, hair_thickness_score,
+                    hair_shedding_rate, scalp_health_score, curl_retention_score,
+                    porosity_level, protective_style_active,
+                    skin_hydration_level, skin_clarity_score, sebum_oil_level,
+                    acne_breakout_count, skin_elasticity_score, skin_redness_level,
+                    routine_compliance_pct, routine_satisfaction_score, logged_at
+                FROM beauty_log
+                WHERE user_id = %s
+                ORDER BY logged_at DESC
+                LIMIT 1
+            """, (user_id,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+
+def get_beauty_evolution_history(user_id: str, limit: int = 30) -> list[dict]:
+    """Récupère l'historique d'évolution beauté d'un utilisateur."""
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT 
+                    id, hair_length_cm, hair_strength_score, hair_thickness_score,
+                    skin_hydration_level, skin_clarity_score, routine_compliance_pct,
+                    checkin_photo_urls, checkin_notes, logged_at
+                FROM beauty_log
+                WHERE user_id = %s
+                ORDER BY logged_at DESC
+                LIMIT %s
+            """, (user_id, limit))
+            return [dict(row) for row in cur.fetchall()]
+
+
 def get_user_behavior(user_id: str, weeks: int = 4) -> dict:
     """Récupère le comportement des N dernières semaines."""
     since = (datetime.now() - timedelta(weeks=weeks)).date()

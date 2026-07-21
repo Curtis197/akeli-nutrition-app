@@ -186,6 +186,26 @@ def test_hybrid_selective_virtue_masking(mock_get_recipe, mock_get_stats):
     assert masked_vector[31] > 0.0  # GOAL_HAIR_GROWTH (preserved)
     assert masked_vector[38] == 0.0  # GOAL_HAIR_SHINE is SELECTIVELY NULLIFIED to 0.0!
 
+@patch("engine.vectorization.get_latest_beauty_log")
+@patch("engine.vectorization.get_user_health_profile")
+def test_user_vector_beauty_log_dynamic_metrics(mock_get_profile, mock_get_log):
+    """Verify dynamic check-in metrics (low hair strength, high shedding) boost anti-breakage priority."""
+    mock_get_profile.return_value = {
+        "hair_type": "4C",
+        "porosity": "high",
+        "skin_type": "dry",
+        "beauty_goals": ["growth_retention"]
+    }
+    mock_get_log.return_value = {
+        "hair_strength_score": 3.5,  # Low strength triggers anti-breakage priority
+        "hair_shedding_rate": "high"
+    }
+
+    vec = compute_user_vector("user_log_test", mode="beauty")
+    assert vec is not None
+    assert vec[31] > 0.0  # GOAL_HAIR_GROWTH
+    assert vec[32] > 0.0  # GOAL_HAIR_ANTI_BREAKAGE boosted dynamically from beauty log!
+
 @patch("engine.vectorization.get_user_health_profile")
 @patch("engine.vectorization.get_recipe_consumption_stats")
 @patch("engine.vectorization.get_recipe_data")

@@ -33,6 +33,7 @@ import numpy as np
 
 from .database import (
     get_user_health_profile,
+    get_latest_beauty_log,
     get_recipe_data,
     get_recipe_consumption_stats,
     get_creator_recipe_vectors,   # new
@@ -268,6 +269,33 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
             vector[GOAL_SKIN_BARRIER] = 1.0
         if "anti_aging" in beauty_goals:
             vector[GOAL_SKIN_ANTI_AGING] = 1.0
+
+        # ---- Dynamic Measured Check-in Metrics (from latest beauty_log) ----
+        try:
+            latest_log = get_latest_beauty_log(user_id)
+            if latest_log:
+                # Low hair strength (< 5.0) dynamic priority boost for anti-breakage
+                strength = latest_log.get("hair_strength_score")
+                if strength is not None and float(strength) < 5.0:
+                    vector[GOAL_HAIR_ANTI_BREAKAGE] = max(vector[GOAL_HAIR_ANTI_BREAKAGE], 1.0)
+
+                # Low skin hydration (< 5.0) boost for barrier repair
+                hydration = latest_log.get("skin_hydration_level")
+                if hydration is not None and float(hydration) < 5.0:
+                    vector[GOAL_SKIN_BARRIER] = max(vector[GOAL_SKIN_BARRIER], 1.0)
+
+                # High shedding rate boost for growth & anti-breakage
+                shedding = str(latest_log.get("hair_shedding_rate") or "").lower()
+                if shedding in ("high", "excessive"):
+                    vector[GOAL_HAIR_GROWTH] = max(vector[GOAL_HAIR_GROWTH], 1.0)
+                    vector[GOAL_HAIR_ANTI_BREAKAGE] = max(vector[GOAL_HAIR_ANTI_BREAKAGE], 1.0)
+
+                # Scalp health score boost
+                scalp_health = latest_log.get("scalp_health_score")
+                if scalp_health is not None and float(scalp_health) < 5.0:
+                    vector[GOAL_SCALP_SOOTHING] = max(vector[GOAL_SCALP_SOOTHING], 1.0)
+        except Exception:
+            pass
 
         # Goal weight amplification
         for dim in (DIM_HAIR_TEXTURE, DIM_POROSITY, DIM_SKIN_TYPE,
