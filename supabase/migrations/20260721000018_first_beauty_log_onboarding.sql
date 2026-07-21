@@ -1,5 +1,5 @@
 -- Migration: 20260721000018_first_beauty_log_onboarding.sql
--- Description: Update complete_beauty_onboarding RPC to accept initial baseline beauty_log measurements
+-- Description: Update complete_beauty_onboarding RPC to accept initial baseline beauty_log measurements and call generate_initial_beauty_plan
 
 DROP FUNCTION IF EXISTS complete_beauty_onboarding(uuid, text, text, text, text, text[]);
 DROP FUNCTION IF EXISTS complete_beauty_onboarding(uuid, text, text, text, text, text[], text[]);
@@ -71,8 +71,8 @@ BEGIN
     NOW()
   );
 
-  -- 4. Generate initial 30-day Beauty Plan
-  PERFORM generate_beauty_plan(p_user_id);
+  -- 4. Generate initial Beauty Plan for remainder of current week until Sunday (matching Nutrition mode parity)
+  PERFORM generate_initial_beauty_plan(p_user_id);
 
   RETURN true;
 END;

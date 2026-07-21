@@ -123,7 +123,13 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:38 UTC)**
+### **Changelog Entry — July 21, 2026 (14:43 UTC)**
+- **Beauty Plan Generation Parity Trio**: Created migration `20260721000019_beauty_plan_generation_trio.sql` introducing the full trio of plan generation RPCs to mirror Nutrition Mode:
+  1. `generate_beauty_plan(p_user_id, p_start_date, p_days)` — Full $N$-day routine plan generator.
+  2. `generate_initial_beauty_plan(p_user_id)` — Partial initial onboarding plan from current day until upcoming Sunday.
+  3. `generate_beauty_plan_from_saved(p_user_id, p_start_date, p_days)` — Routine plan built exclusively from saved beauty recipes (`recipe_save`).
+- **Onboarding Alignment (`20260721000018_first_beauty_log_onboarding.sql`)**: Updated `complete_beauty_onboarding` RPC to call `generate_initial_beauty_plan` during onboarding.
+- **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Python Beauty User Vectorization Trigger**: Updated `complete-beauty-onboarding` Edge Function (`index.ts`) to fire an asynchronous, non-blocking HTTP POST request to `${PYTHON_SERVICE_URL}/compute-user-vector` with `{ user_id, mode: "beauty" }`. This immediately builds the initial 50D Beauty User Vector (covering dims 27-49: hair texture spectrum, porosity, scalp condition, skin typology, and virtue preferences) upon onboarding completion.
 - **Verification**: Tested live, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Dedicated Beauty Onboarding Edge Function**: Created `supabase/functions/complete-beauty-onboarding/index.ts` to achieve architectural parity with Nutrition Mode (`complete-onboarding`). Features Bearer JWT verification (`getAuthUser`), structured Deno logging (`createLogger`), service role execution, and RPC fallback.
