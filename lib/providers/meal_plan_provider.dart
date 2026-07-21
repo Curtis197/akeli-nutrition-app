@@ -7,6 +7,8 @@ import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/meal_plan.dart';
 import 'auth_provider.dart';
+import 'beauty_plan_provider.dart';
+import 'mode_provider.dart';
 import 'nutrition_provider.dart';
 import 'recipe_provider.dart';
 
@@ -247,13 +249,75 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
     ref.onDispose(() => _logger.provider('ShoppingListNotifier disposed'));
 
     final locale = ref.watch(localeProvider).languageCode;
+    final currentMode = ref.watch(currentModeProvider);
+    final isBeautyMode = currentMode == AppMode.beauty;
+    final client = ref.watch(supabaseClientProvider);
+
+    if (isBeautyMode) {
+      final beautyPlan = await ref.watch(activeBeautyPlanProvider.future);
+      if (beautyPlan == null) {
+        _logger.provider('ShoppingListNotifier EARLY RETURN | reason: no active beauty plan');
+        return [];
+      }
+
+      _logger.db('BEFORE | table: shopping_list | op: SELECT (beauty) | beautyPlanId: ${beautyPlan.id} | locale: $locale');
+      try {
+        final existingList = await client
+            .from('shopping_list')
+            .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
+            .eq('beauty_plan_id', beautyPlan.id)
+            .maybeSingle();
+
+        List<dynamic> itemsData = [];
+        if (existingList != null && existingList['shopping_list_item'] != null) {
+          itemsData = existingList['shopping_list_item'] as List<dynamic>;
+        } else {
+          final rpcResult = await client.rpc('generate_beauty_shopping_list', params: {'p_beauty_plan_id': beautyPlan.id}) as List<dynamic>;
+          final newList = await client
+              .from('shopping_list')
+              .select('id, shopping_list_item(id, ingredient_id, quantity, unit, is_checked, ingredient(name, name_fr, name_en, category))')
+              .eq('beauty_plan_id', beautyPlan.id)
+              .maybeSingle();
+          if (newList != null && newList['shopping_list_item'] != null) {
+            itemsData = newList['shopping_list_item'] as List<dynamic>;
+          }
+        }
+
+        final items = itemsData.map((e) {
+          final ingredient = e['ingredient'] as Map<String, dynamic>?;
+          final nameFr = (ingredient?['name_fr'] as String?) ?? (ingredient?['name'] as String?) ?? e['custom_name'] as String? ?? 'Unknown';
+          final nameEn = ingredient?['name_en'] as String?;
+          return ShoppingItem(
+            id: e['id'] as String,
+            ingredientId: e['ingredient_id'] as String?,
+            name: (locale == 'en' && nameEn != null) ? nameEn : nameFr,
+            quantity: (e['quantity'] as num).toDouble(),
+            unit: (e['unit'] as String?) ?? '',
+            category: ingredient?['category'] as String?,
+            isChecked: (e['is_checked'] as bool?) ?? false,
+          );
+        }).toList();
+
+        items.sort((a, b) {
+          final catCmp = (a.category ?? '').compareTo(b.category ?? '');
+          if (catCmp != 0) return catCmp;
+          return a.name.compareTo(b.name);
+        });
+
+        _logger.provider('ShoppingListNotifier → data (beauty) | items: ${items.length}');
+        return items;
+      } catch (e, st) {
+        _logger.db('ERROR | shopping_list fetch (beauty) | $e', error: e, stackTrace: st);
+        return [];
+      }
+    }
+
     final plan = await ref.watch(activeMealPlanProvider.future);
     if (plan == null) {
       _logger.provider('ShoppingListNotifier EARLY RETURN | reason: no active meal plan');
       return [];
     }
 
-    final client = ref.watch(supabaseClientProvider);
     _logger.db('BEFORE | table: shopping_list | op: SELECT | mealPlanId: ${plan.id} | locale: $locale');
     
     try {
@@ -316,10 +380,10 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
 
   Future<void> toggleItem(String id, bool isChecked) async {
     final client = ref.read(supabaseClientProvider);
-    final plan = await ref.read(activeMealPlanProvider.future);
-    if (plan == null) return;
+    final currentMode = ref.read(currentModeProvider);
+    final isBeautyMode = currentMode == AppMode.beauty;
 
-    _logger.userAction('Toggle shopping item', metadata: {'id': id, 'isChecked': isChecked});
+    _logger.userAction('Toggle shopping item', metadata: {'id': id, 'isChecked': isChecked, 'isBeautyMode': isBeautyMode});
     
     final previousState = state.valueOrNull;
     if (previousState != null) {
@@ -333,7 +397,19 @@ class ShoppingListNotifier extends AutoDisposeAsyncNotifier<List<ShoppingItem>> 
     }
 
     try {
-      final listData = await client.from('shopping_list').select('id').eq('meal_plan_id', plan.id).maybeSingle();
+      Map<String, dynamic>? listData;
+      if (isBeautyMode) {
+        final beautyPlan = await ref.read(activeBeautyPlanProvider.future);
+        if (beautyPlan != null) {
+          listData = await client.from('shopping_list').select('id').eq('beauty_plan_id', beautyPlan.id).maybeSingle();
+        }
+      } else {
+        final plan = await ref.read(activeMealPlanProvider.future);
+        if (plan != null) {
+          listData = await client.from('shopping_list').select('id').eq('meal_plan_id', plan.id).maybeSingle();
+        }
+      }
+      
       if (listData == null) return;
       
       await client

@@ -123,7 +123,11 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (12:27 UTC)**
+### **Changelog Entry — July 21, 2026 (12:31 UTC)**
+- **Mode-Aware Beauty Shopping List Migration**: Added `beauty_plan_id` to `shopping_list` table and created `generate_beauty_shopping_list(p_beauty_plan_id uuid)` RPC in migration `20260721000014_beauty_shopping_list.sql`.
+- **Botanical Ingredient Aggregation**: Automatically aggregates powders (Chébé), plant oils (Nigella, Carrot), hydrosols, clays, and butters (Shea) across all 30-day routine recipes in the active Beauty Plan.
+- **Mode-Aware `ShoppingListNotifier`**: Updated `ShoppingListNotifier` in `meal_plan_provider.dart` to watch `currentModeProvider` and fetch/toggle items for `activeBeautyPlanProvider` in Beauty Mode.
+- **Verification**: Verified via live SQL execution on active plan (`63341436-651d...`), **24 / 24 Pytest tests**, and **244 / 244 Flutter tests** passing 100%.
 - **Hero Banner Removal**: Removed `hero_banner` component from Beauty fallback SDUI layout (`layout_fetch_service.dart`).
 - **Shared Native Greeting Header**: Updated `home_page.dart` to render the native greeting header ("Bonjour [Name] 👋", "Ravi de vous revoir") identically across Nutrition and Beauty modes.
 - **Today's Beauty Routines Widget**: Created `TodayBeautyRoutinesWidget` (`lib/features/beauty/widgets/today_beauty_routines_widget.dart`) filtering routines strictly for today (`dayNumber == currentDayOfMonth`) with completion checkboxes and a direct link to the 30-day planner (`BeautyPlannerView`).
