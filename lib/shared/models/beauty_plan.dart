@@ -52,8 +52,11 @@ class BeautyPlanSlot {
   final String id;
   final String planId;
   final int dayOfWeek; // 1 = Mon, 7 = Sun
+  final int? dayNumber; // 1 to 31 (day of month)
+  final int? weekNumber; // 1 to 5 (week of month)
   final String routineCategory; // 'hair', 'skin', 'both'
   final String stepStage;
+  final String? frequencyTier; // 'daily', '2x_week', '1x_week', '2x_month', '1x_month'
   final String recipeId;
   final Recipe? recipe;
   final bool isCompleted;
@@ -63,8 +66,11 @@ class BeautyPlanSlot {
     required this.id,
     required this.planId,
     required this.dayOfWeek,
+    this.dayNumber,
+    this.weekNumber,
     required this.routineCategory,
     required this.stepStage,
+    this.frequencyTier,
     required this.recipeId,
     this.recipe,
     this.isCompleted = false,
@@ -77,8 +83,11 @@ class BeautyPlanSlot {
       id: json['id'] as String,
       planId: json['plan_id'] as String,
       dayOfWeek: (json['day_of_week'] as int?) ?? 1,
+      dayNumber: json['day_number'] as int?,
+      weekNumber: json['week_number'] as int?,
       routineCategory: (json['routine_category'] as String?) ?? 'both',
       stepStage: (json['step_stage'] as String?) ?? 'daily_hydration',
+      frequencyTier: json['frequency_tier'] as String?,
       recipeId: json['recipe_id'] as String,
       recipe: recipeRaw is Map<String, dynamic> ? Recipe.fromJson(recipeRaw) : null,
       isCompleted: (json['is_completed'] as bool?) ?? false,
@@ -93,8 +102,11 @@ class BeautyPlanSlot {
       'id': id,
       'plan_id': planId,
       'day_of_week': dayOfWeek,
+      'day_number': dayNumber,
+      'week_number': weekNumber,
       'routine_category': routineCategory,
       'step_stage': stepStage,
+      'frequency_tier': frequencyTier,
       'recipe_id': recipeId,
       'is_completed': isCompleted,
       'completed_at': completedAt?.toIso8601String(),
