@@ -61,6 +61,7 @@ class BeautyPlanSlot {
   final Recipe? recipe;
   final bool isCompleted;
   final DateTime? completedAt;
+  final double revenueValue;
 
   const BeautyPlanSlot({
     required this.id,
@@ -75,6 +76,7 @@ class BeautyPlanSlot {
     this.recipe,
     this.isCompleted = false,
     this.completedAt,
+    this.revenueValue = 0.0,
   });
 
   factory BeautyPlanSlot.fromJson(Map<String, dynamic> json) {
@@ -94,6 +96,7 @@ class BeautyPlanSlot {
       completedAt: json['completed_at'] != null
           ? DateTime.parse(json['completed_at'] as String)
           : null,
+      revenueValue: (json['revenue_value'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
@@ -110,6 +113,7 @@ class BeautyPlanSlot {
       'recipe_id': recipeId,
       'is_completed': isCompleted,
       'completed_at': completedAt?.toIso8601String(),
+      'revenue_value': revenueValue,
     };
   }
 }
