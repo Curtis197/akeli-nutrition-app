@@ -95,10 +95,11 @@ class _ColorSetModalState extends State<ColorSetModal> {
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Center(
             child: Container(
               width: 40,
@@ -219,6 +220,7 @@ class _ColorSetModalState extends State<ColorSetModal> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
