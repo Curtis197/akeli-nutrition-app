@@ -2,12 +2,11 @@
 
 import 'package:akeli/core/logger.dart';
 
-// Logger import required by CLAUDE.md logging standard.
-// Pure data model — no side-effect logging calls needed at runtime.
 // ignore: unused_element
 final _logger = appLogger;
 
 class HealthProfileModel {
+  // Nutrition fields
   final String? sex;
   final DateTime? birthDate;
   final double? heightCm;
@@ -19,6 +18,14 @@ class HealthProfileModel {
   final double? startingWeightKg;
   final DateTime? targetDate;
   final String? goalType;
+
+  // Beauty fields
+  final String? hairType;
+  final String? porosity;
+  final String? skinType;
+  final bool? sensitiveScalp;
+  final List<String> beautyGoals;
+  final List<String> skinConcerns;
 
   const HealthProfileModel({
     this.sex,
@@ -32,6 +39,12 @@ class HealthProfileModel {
     this.startingWeightKg,
     this.targetDate,
     this.goalType,
+    this.hairType,
+    this.porosity,
+    this.skinType,
+    this.sensitiveScalp,
+    this.beautyGoals = const [],
+    this.skinConcerns = const [],
   });
 
   int? get age {
@@ -57,6 +70,12 @@ class HealthProfileModel {
     double? startingWeightKg,
     DateTime? targetDate,
     String? goalType,
+    String? hairType,
+    String? porosity,
+    String? skinType,
+    bool? sensitiveScalp,
+    List<String>? beautyGoals,
+    List<String>? skinConcerns,
     bool clearBirthDate = false,
     bool clearSex = false,
     bool clearActivityLevel = false,
@@ -78,6 +97,12 @@ class HealthProfileModel {
       startingWeightKg: startingWeightKg ?? this.startingWeightKg,
       targetDate: clearTargetDate ? null : (targetDate ?? this.targetDate),
       goalType: clearGoalType ? null : (goalType ?? this.goalType),
+      hairType: hairType ?? this.hairType,
+      porosity: porosity ?? this.porosity,
+      skinType: skinType ?? this.skinType,
+      sensitiveScalp: sensitiveScalp ?? this.sensitiveScalp,
+      beautyGoals: beautyGoals ?? this.beautyGoals,
+      skinConcerns: skinConcerns ?? this.skinConcerns,
     );
   }
 
@@ -101,28 +126,18 @@ class HealthProfileModel {
           ? DateTime.tryParse(health!['target_date'] as String)
           : null,
       goalType: goal?['goal_type'] as String?,
+      hairType: health?['hair_type'] as String?,
+      porosity: health?['porosity'] as String?,
+      skinType: health?['skin_type'] as String?,
+      sensitiveScalp: health?['sensitive_scalp'] as bool?,
+      beautyGoals: (health?['beauty_goals'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
+      skinConcerns: (health?['skin_concerns'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          const [],
     );
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HealthProfileModel &&
-          sex == other.sex &&
-          birthDate == other.birthDate &&
-          heightCm == other.heightCm &&
-          weightKg == other.weightKg &&
-          targetWeightKg == other.targetWeightKg &&
-          activityLevel == other.activityLevel &&
-          weightGoal == other.weightGoal &&
-          muscleGoal == other.muscleGoal &&
-          startingWeightKg == other.startingWeightKg &&
-          targetDate == other.targetDate &&
-          goalType == other.goalType;
-
-  @override
-  int get hashCode => Object.hash(
-      sex, birthDate, heightCm, weightKg, targetWeightKg,
-      activityLevel, weightGoal, muscleGoal,
-      startingWeightKg, targetDate, goalType);
 }

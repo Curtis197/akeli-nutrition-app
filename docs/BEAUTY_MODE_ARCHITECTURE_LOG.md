@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (15:05 UTC)**
+### **Changelog Entry — July 21, 2026 (15:54 UTC)**
+- **Health Profile Beauty Mode Separation & Audit**: Audited `user_health_profile` schema and health parameters UI. Confirmed database table `user_health_profile` contains distinct Beauty parameters (`hair_type`, `porosity`, `skin_type`, `sensitive_scalp`, `beauty_goals`, `preferred_actives`, `skin_concerns`) alongside Nutrition parameters (`height_cm`, `weight_kg`, `target_weight_kg`, `activity_level`, `weight_goal`).
+- **Dynamic Mode-Specific Health Profile UI**: Updated `HealthProfileModel` (`health_profile_model.dart`), `HealthProfileNotifier` (`health_profile_provider.dart`), and `HealthProfilePage` (`health_profile_page.dart`). When the app is in **Beauty Mode** (`AppMode.beauty`), the page dynamically renders **Diagnostic & Profil Beauté** (Empreinte Capillaire 👑 with texture/porosity/scalp sensitivity, Diagnostic Cutané Profond ✨ with skin typology/dermatological concerns, and Objectifs Rituel Beauté 🌸) instead of nutrition metrics.
+- **Verification**: Created `health_profile_page_beauty_test.dart`. Tested live via widget tests passing 100%.
 - **Beauty Analytics Page & History Timeline**: Built `BeautyAnalyticsPage` (`beauty_analytics_page.dart`) with Rosewood (`#8A3B58`) and Gold (`#D4AF37`) digital editorial aesthetics, time-range chips (7J, 30J, 90J, Tout), ritual adherence percentage score card, hair growth delta metric, strength score meter, anti-shedding status badge, skin hydration/clarity progress metrics, and historical `BeautyLog` timeline entries.
 - **Provider & Model Expansion**: Created `BeautyLog` model (`beauty_log.dart`), `beautyLogsProvider`, and `addBeautyLogNotifierProvider` in `beauty_plan_provider.dart`.
 - **Verification**: Created `beauty_analytics_page_test.dart`. Tested live via widget tests, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.

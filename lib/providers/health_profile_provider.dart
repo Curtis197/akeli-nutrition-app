@@ -32,7 +32,7 @@ class HealthProfileNotifier
       final healthFuture = client
           .from('user_health_profile')
           .select(
-              'sex, birth_date, height_cm, weight_kg, target_weight_kg, activity_level, weight_goal, muscle_goal, starting_weight_kg, target_date')
+              'sex, birth_date, height_cm, weight_kg, target_weight_kg, activity_level, weight_goal, muscle_goal, starting_weight_kg, target_date, hair_type, porosity, skin_type, sensitive_scalp, beauty_goals, skin_concerns')
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -114,6 +114,12 @@ class HealthProfileNotifier
         if (updated.targetDate != null)
           'target_date':
               updated.targetDate!.toIso8601String().split('T').first,
+        if (updated.hairType != null) 'hair_type': updated.hairType,
+        if (updated.porosity != null) 'porosity': updated.porosity,
+        if (updated.skinType != null) 'skin_type': updated.skinType,
+        if (updated.sensitiveScalp != null) 'sensitive_scalp': updated.sensitiveScalp,
+        'beauty_goals': updated.beautyGoals,
+        'skin_concerns': updated.skinConcerns,
       }, onConflict: 'user_id');
       _logger
           .db('AFTER | table: user_health_profile | op: UPSERT | rows: 1');
