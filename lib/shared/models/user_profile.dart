@@ -11,6 +11,7 @@ class UserProfile {
   final String? email;
   final String role; // user | admin
   final bool onboardingDone;
+  final bool beautyOnboardingDone;
   final bool isCreator;
   final bool isPrivate;
   final String locale; // fr | en | ...
@@ -34,6 +35,7 @@ class UserProfile {
     this.email,
     this.role = 'user',
     required this.onboardingDone,
+    this.beautyOnboardingDone = false,
     required this.isCreator,
     this.isPrivate = false,
     this.locale = 'fr',
@@ -61,6 +63,7 @@ class UserProfile {
         email: json['email'] as String?,
         role: json['role'] as String? ?? 'user',
         onboardingDone: (json['onboarding_done'] as bool?) ?? false,
+        beautyOnboardingDone: (json['beauty_onboarding_done'] as bool?) ?? false,
         isCreator: (json['is_creator'] as bool?) ?? false,
         isPrivate: (json['is_private'] as bool?) ?? false,
         locale: json['locale'] as String? ?? 'fr',
@@ -89,6 +92,7 @@ class UserProfile {
     String? avatarUrl,
     String? bio,
     bool? onboardingDone,
+    bool? beautyOnboardingDone,
     bool? isCreator,
     bool? isPrivate,
     String? locale,
@@ -108,6 +112,7 @@ class UserProfile {
         bio: bio ?? this.bio,
         email: email,
         onboardingDone: onboardingDone ?? this.onboardingDone,
+        beautyOnboardingDone: beautyOnboardingDone ?? this.beautyOnboardingDone,
         isCreator: isCreator ?? this.isCreator,
         isPrivate: isPrivate ?? this.isPrivate,
         locale: locale ?? this.locale,

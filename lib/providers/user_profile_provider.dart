@@ -231,6 +231,49 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     if (state.hasValue) ref.invalidate(userProfileProvider);
   }
 
+  Future<void> completeBeautyOnboarding({
+    required String hairType,
+    required String porosity,
+    required String skinType,
+    required String scalpType,
+    required List<String> beautyGoals,
+  }) async {
+    final user = ref.read(currentUserProvider);
+    if (user == null) return;
+
+    _logger.userAction('completeBeautyOnboarding', metadata: {
+      'hairType': hairType,
+      'porosity': porosity,
+      'skinType': skinType,
+      'scalpType': scalpType,
+      'goals': beautyGoals,
+    });
+
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await client.rpc('complete_beauty_onboarding', params: {
+        'p_user_id': user.id,
+        'p_hair_type': hairType,
+        'p_porosity': porosity,
+        'p_skin_type': skinType,
+        'p_scalp_type': scalpType,
+        'p_beauty_goals': beautyGoals,
+      });
+
+      ref.invalidate(userProfileProvider);
+      ref.invalidate(healthProfileProvider);
+
+      final data = await client
+          .from('user_profile')
+          .select()
+          .eq('id', user.id)
+          .maybeSingle();
+      if (data == null) return null;
+      return UserProfile.fromJson(data);
+    });
+  }
+
   Future<void> updateAvatar(File imageFile) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;

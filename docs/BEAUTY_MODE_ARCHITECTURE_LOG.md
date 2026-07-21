@@ -123,7 +123,12 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (12:37 UTC)**
+### **Changelog Entry — July 21, 2026 (13:18 UTC)**
+- **Beauty Onboarding Guard & Schema Migration**: Added `beauty_onboarding_done BOOLEAN DEFAULT FALSE` column to `user_profile` table and created `complete_beauty_onboarding(...)` RPC in migration `20260721000016_beauty_onboarding_flag.sql`.
+- **User Profile Model & Provider**: Added `beautyOnboardingDone` to `UserProfile` model (`user_profile.dart`) and added `completeBeautyOnboarding` method to `UserProfileNotifier` (`user_profile_provider.dart`).
+- **Beauty Onboarding Wizard Screen**: Created `BeautyOnboardingPage` (`lib/features/beauty/beauty_onboarding_page.dart`), a 3-step wizard collecting hair texture/porosity, skin type/scalp condition, and ritual goals, which auto-generates the initial 30-day Beauty Plan upon completion.
+- **GoRouter Guard Redirect**: Updated `router.dart` to automatically redirect users who toggle to Beauty Mode without a completed Beauty Health Profile (`beautyOnboardingDone == false`) directly to `/onboarding/beauty`.
+- **Verification**: Added `beauty_onboarding_page_test.dart`. Tested live via SQL query, **24 / 24 Pytest tests**, and **245 / 245 Flutter tests** passing 100%.
 - **Feed RPC Beauty Filter Parameters Migration**: Extended `generate_feed_personalized` RPC with `p_product_type`, `p_routine_category`, and `p_beauty_goal` parameters in migration `20260721000015_feed_beauty_filters.sql`.
 - **Dart Feed Provider (`recipe_provider.dart`)**: Extended `FeedParams` with `productType`, `routineCategory`, and `beautyGoal`.
 - **Mode-Aware Filter UI (`feed_page.dart`)**: Updated `_showCombinedFilterSheet` in `FeedPage` to render Beauty filter choices (Catégorie de Soin: Cheveux, Cuir Chevelu, Visage, Corps; Type de Formule: DIY, Artisanal, Commercial; Objectif: Pousse, Force Anti-Casse, Hydratation, Soin Apaisant, Barrière Cutanée).

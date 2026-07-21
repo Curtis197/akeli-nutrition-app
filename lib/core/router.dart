@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
+import '../providers/mode_provider.dart';
 import '../features/auth/auth_page.dart';
 import '../features/auth/onboarding_page.dart';
 import '../features/auth/reset_password_page.dart';
@@ -37,6 +38,7 @@ import '../features/referral/referral_page.dart';
 import '../features/settings/preferences_page.dart';
 import '../features/settings/health_profile_page.dart';
 import '../features/settings/account_page.dart';
+import '../features/beauty/beauty_onboarding_page.dart';
 import '../features/settings/meal_schedule_page.dart';
 import '../shared/widgets/main_shell.dart';
 import '../features/recipes/domain/entities/recipe_tracking.dart';
@@ -54,6 +56,7 @@ final rootScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 abstract class AkeliRoutes {
   static const auth = "/auth";
   static const onboarding = "/onboarding";
+  static const beautyOnboarding = "/onboarding/beauty";
   static const home = "/home";
   static const mealPlanner = "/meal-planner";
   static const recipes = "/recipes";
@@ -107,6 +110,7 @@ abstract class AkeliRoutes {
 class _RouterNotifier extends ChangeNotifier {
   _RouterNotifier(Ref ref) {
     ref.listen(isAuthenticatedProvider, (_, __) => notifyListeners());
+    ref.listen(currentModeProvider, (_, __) => notifyListeners());
     // Only refresh the router once the profile has settled (data or error),
     // not when it enters the loading state — that prevents the redirect loop
     // where hasProfile=false fires repeatedly while the fetch is in-flight.
@@ -146,6 +150,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
       final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
+      final isOnBeautyOnboarding = state.uri.path == AkeliRoutes.beautyOnboarding;
 
       appLogger.navigation(
         state.uri.path,
@@ -175,6 +180,8 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (isAuth) {
         if (profile != null) {
+          final currentMode = ref.read(currentModeProvider);
+
           if (!profile.onboardingDone && !isOnOnboarding) {
             final path = state.uri.path;
             if (path == AkeliRoutes.privacyPolicy || path == AkeliRoutes.termsOfService) {
@@ -187,12 +194,34 @@ final routerProvider = Provider<GoRouter>((ref) {
             appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'onboarding already done → redirect to home');
             return AkeliRoutes.home;
           }
+
+          // Beauty Mode Onboarding Check
+          if (currentMode == AppMode.beauty && !profile.beautyOnboardingDone && !isOnBeautyOnboarding) {
+            final path = state.uri.path;
+            if (path == AkeliRoutes.privacyPolicy || path == AkeliRoutes.termsOfService) {
+              return null;
+            }
+            appLogger.navigation(state.uri.path, AkeliRoutes.beautyOnboarding, reason: 'beauty onboarding not done → redirect to beauty onboarding');
+            return AkeliRoutes.beautyOnboarding;
+          }
+          if (profile.beautyOnboardingDone && isOnBeautyOnboarding) {
+            appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'beauty onboarding already done → redirect to home');
+            return AkeliRoutes.home;
+          }
         }
       }
       
       return null;
     },
     routes: [
+      GoRoute(
+        path: AkeliRoutes.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      GoRoute(
+        path: AkeliRoutes.beautyOnboarding,
+        builder: (context, state) => const BeautyOnboardingPage(),
+      ),
       GoRoute(
         path: AkeliRoutes.auth,
         builder: (context, state) => const AuthPage(),
