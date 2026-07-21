@@ -162,8 +162,8 @@ class BeautyPlannerView extends ConsumerWidget {
             width: 52,
             height: 52,
             color: AkeliColors.surfaceContainerHigh,
-            child: recipe?.coverImageUrl != null && recipe!.coverImageUrl!.isNotEmpty
-                ? Image.network(recipe.coverImageUrl!, fit: BoxFit.cover)
+            child: recipe?.heroImageUrl != null && recipe!.heroImageUrl!.isNotEmpty
+                ? Image.network(recipe.heroImageUrl!, fit: BoxFit.cover)
                 : const Icon(Icons.spa, color: AkeliColors.primary),
           ),
         ),
@@ -213,7 +213,7 @@ class BeautyPlannerView extends ConsumerWidget {
         ),
         onTap: () {
           if (recipe != null) {
-            context.push(AppRoutes.recipeDetail(recipe.id));
+            context.push(AkeliRoutes.recipeDetail(recipe.id));
           }
         },
       ),
