@@ -33,7 +33,9 @@ void main() {
       await tester.tap(find.text('Rose & Gold (Beauty)'));
       await tester.pumpAndSettle();
 
-      // Tap apply button
+      // Tap apply button (ensure visible in scroll view first)
+      await tester.ensureVisible(find.byKey(const Key('apply_color_set_button')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('apply_color_set_button')));
       await tester.pumpAndSettle();
 
