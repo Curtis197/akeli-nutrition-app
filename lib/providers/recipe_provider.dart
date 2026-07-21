@@ -165,6 +165,8 @@ Future<Recipe> _applyDetailTranslations(
 // Feed
 // ---------------------------------------------------------------------------
 
+import 'mode_provider.dart';
+
 class FeedParams {
   final int limit;
   final List<String> excludeIds;
@@ -175,6 +177,7 @@ class FeedParams {
   final int? maxCal;
   final String? orderBy; // 'rating' | 'likes' | 'created_at' | null = personalized
   final String? mealType; // filter by meal_types array membership e.g. 'snack'
+  final String? mode; // 'nutrition' | 'beauty'
 
   const FeedParams({
     this.limit = 20,
@@ -186,6 +189,7 @@ class FeedParams {
     this.maxCal,
     this.orderBy,
     this.mealType,
+    this.mode,
   });
 
   @override
@@ -200,11 +204,12 @@ class FeedParams {
           minCal == other.minCal &&
           maxCal == other.maxCal &&
           orderBy == other.orderBy &&
-          mealType == other.mealType;
+          mealType == other.mealType &&
+          mode == other.mode;
 
   @override
   int get hashCode =>
-      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, mealType);
+      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, mealType, mode);
 }
 
 final feedProvider =
@@ -212,8 +217,11 @@ final feedProvider =
         (ref, params) async {
   final user = ref.watch(currentUserProvider);
   final locale = ref.watch(localeProvider).languageCode;
+  final appMode = ref.watch(currentModeProvider);
+  final activeMode = params.mode ?? (appMode == AppMode.beauty ? 'beauty' : 'nutrition');
+
   appLogger.provider(
-      'feedProvider build() | userId: ${user?.id ?? "null"} | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
+      'feedProvider build() | userId: ${user?.id ?? "null"} | mode: $activeMode | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
   ref.onDispose(() => appLogger.provider('feedProvider disposed'));
 
   if (user == null) {
@@ -234,6 +242,7 @@ final feedProvider =
     if (params.maxCal != null) 'p_max_cal': params.maxCal,
     if (params.orderBy != null) 'p_order_by': params.orderBy,
     if (params.mealType != null) 'p_meal_type': params.mealType,
+    'p_mode': activeMode,
   };
 
   appLogger.db(

@@ -742,6 +742,14 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final appMode = ref.watch(currentModeProvider);
+
+    ref.listen<AppMode>(currentModeProvider, (previous, next) {
+      if (previous != next) {
+        _resetRecipes();
+        _loadMoreRecipes();
+      }
+    });
+
     final isBeauty = appMode == AppMode.beauty;
     final feedTabs = isBeauty
         ? ['Remèdes', 'Par Actifs', 'Créateurs Beauté']

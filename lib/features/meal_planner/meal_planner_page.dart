@@ -19,12 +19,35 @@ import 'widgets/meal_planner_day_row.dart';
 import 'widgets/meal_planner_day_tab_view.dart';
 import 'widgets/meal_planner_view_toggle.dart';
 
+import 'widgets/beauty_planner_view.dart';
+
 class MealPlannerPage extends ConsumerWidget {
   const MealPlannerPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final appMode = ref.watch(currentModeProvider);
+
+    if (appMode == AppMode.beauty) {
+      return Scaffold(
+        backgroundColor: AkeliColors.surface,
+        appBar: AppBar(
+          title: Text(
+            'Mon Plan de Routines',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  height: 1.1,
+                  letterSpacing: -1.0,
+                ),
+          ),
+          backgroundColor: AkeliColors.surface,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+        ),
+        body: const BeautyPlannerView(),
+      );
+    }
 
     ref.listen(mealConsumptionProvider, (_, next) {
       if (next.hasError) {
