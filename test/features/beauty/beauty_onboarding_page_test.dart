@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('BeautyOnboardingPage renders 3-step wizard correctly', (WidgetTester tester) async {
+  testWidgets('BeautyOnboardingPage renders 3-step wizard correctly with Rosewood theme and extensive hair dropdown', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
@@ -16,7 +16,7 @@ void main() {
     // Verify Step 1 elements
     expect(find.text('Profil Beauté Botanique'), findsOneWidget);
     expect(find.textContaining('Empreinte Capillaire'), findsOneWidget);
-    expect(find.text('4C (Crépu très serré)'), findsOneWidget);
+    expect(find.textContaining('4C — Crépu Très Serré'), findsOneWidget);
     expect(find.text('Étape Suivante ➔'), findsOneWidget);
 
     // Tap Next to navigate to Step 2

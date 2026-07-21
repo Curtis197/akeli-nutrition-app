@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (13:18 UTC)**
+### **Changelog Entry — July 21, 2026 (13:28 UTC)**
+- **Rosewood & Gold Editorial Color Palette**: Replaced default green `AkeliColors.primary` in `BeautyOnboardingPage` with Beauty Mode's editorial Rosewood palette (`Color(0xFF8A3B58)` & `Color(0xFFD4AF37)` matching `ColorSetModal`).
+- **Extensive Hair Composition Dropdown**: Upgraded hair texture selection to a comprehensive `DropdownButtonFormField` covering all 15 hair compositions (Types 1A–1C, 2A–2C, 3A–3C, 4A–4C, Locks/Dreadlocks, Cheveux en Transition, and Soin Sous Tresses/Perruque).
+- **Verification**: Updated `beauty_onboarding_page_test.dart`. **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Beauty Onboarding Guard & Schema Migration**: Added `beauty_onboarding_done BOOLEAN DEFAULT FALSE` column to `user_profile` table and created `complete_beauty_onboarding(...)` RPC in migration `20260721000016_beauty_onboarding_flag.sql`.
 - **User Profile Model & Provider**: Added `beautyOnboardingDone` to `UserProfile` model (`user_profile.dart`) and added `completeBeautyOnboarding` method to `UserProfileNotifier` (`user_profile_provider.dart`).
 - **Beauty Onboarding Wizard Screen**: Created `BeautyOnboardingPage` (`lib/features/beauty/beauty_onboarding_page.dart`), a 3-step wizard collecting hair texture/porosity, skin type/scalp condition, and ritual goals, which auto-generates the initial 30-day Beauty Plan upon completion.
