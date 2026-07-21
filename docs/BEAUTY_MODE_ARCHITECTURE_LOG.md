@@ -123,7 +123,10 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (14:57 UTC)**
+### **Changelog Entry — July 21, 2026 (15:02 UTC)**
+- **Nutrition Fan Mode Audit & Beauty Alignment**: Verified `generate_meal_plan` (Nutrition Mode) Fan Mode mechanics (`fan_subscription` check, 1.5x vector similarity score multiplier for creator recipes, and 90% fan slot quota with 10% non-fan cap `v_max_other_slots`).
+- **Beauty Mode Parity Migration (`20260721000022_beauty_plan_fan_mode_quota.sql`)**: Updated `generate_beauty_plan` to incorporate active Fan Subscription lookups and slot quota tracking so that Beauty Mode routine plan generation achieves 100% feature and architectural parity with Nutrition Mode.
+- **Verification**: Verified live on Supabase DB, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
 - **Fan Mode Recommendation Support (`recommend_recipes`)**: Updated `recommend_recipes` RPC in migration `20260721000021_recommend_recipes_fan_mode.sql` to check active user fan subscriptions (`fan_subscription`). When a user is subscribed to a creator in Fan Mode (`fs.status = 'active'`), recipes by that creator receive a **1.5x similarity multiplier score boost** and prioritize creator recipes at the top of routine recommendations.
 - **Beauty Plan Integration**: Because `generate_beauty_plan` and `generate_initial_beauty_plan` rely on `recommend_recipes` for routine slot assignment, Fan Mode is now automatically enabled and respected during Beauty Plan generation!
 - **Verification**: Tested live via SQL query, **24 / 24 Pytest tests** and **245 / 245 Flutter tests** passing 100%.
