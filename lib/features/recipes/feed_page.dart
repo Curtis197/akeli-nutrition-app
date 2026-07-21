@@ -73,6 +73,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   int? _maxCal;
   String? _orderBy;
   String? _mealType;
+  String? _productType;
+  String? _routineCategory;
+  String? _beautyGoal;
 
   int _tabIndex = 0;
 
@@ -107,7 +110,7 @@ class _FeedPageState extends ConsumerState<FeedPage> {
   String? _creatorsOrderBy;
 
   bool get _hasActiveFilter =>
-      _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null || _mealType != null;
+      _regionId != null || _difficulty != null || _maxTimeMin != null || _minCal != null || _maxCal != null || _orderBy != null || _mealType != null || _productType != null || _routineCategory != null || _beautyGoal != null;
 
   bool get _hasActiveCreatorFilter =>
       _creatorsRegionId != null || _creatorsSpecialty != null;
@@ -171,6 +174,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
       maxCal: _maxCal,
       orderBy: _orderBy,
       mealType: _mealType,
+      productType: _productType,
+      routineCategory: _routineCategory,
+      beautyGoal: _beautyGoal,
     );
 
     try {
@@ -363,6 +369,8 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     _logger.userAction('Combined filter sheet opened', screen: 'FeedPage');
     final l10n = AppLocalizations.of(context);
     final regionNames = ref.read(foodRegionNamesProvider).valueOrNull ?? {};
+    final currentMode = ref.read(currentModeProvider);
+    final isBeautyMode = currentMode == AppMode.beauty;
     
     String? tempRegion = _regionId;
     String? tempDiff = _difficulty;
@@ -370,6 +378,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
     int? tempMinCal = _minCal;
     int? tempMaxCal = _maxCal;
     String? tempMealType = _mealType;
+    String? tempProductType = _productType;
+    String? tempCategory = _routineCategory;
+    String? tempGoal = _beautyGoal;
 
     showModalBottomSheet(
       context: context,
@@ -404,24 +415,194 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    Text(l10n.feedFilterRegion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ChoiceChip(
-                          label: Text(l10n.feedAllRegions),
-                          selected: tempRegion == null,
-                          onSelected: (v) => setModalState(() => tempRegion = null),
+                    if (isBeautyMode) ...[
+                      Text('Catégorie de Soin', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Toutes'),
+                            selected: tempCategory == null,
+                            onSelected: (v) => setModalState(() => tempCategory = null),
+                          ),
+                          ChoiceChip(
+                            label: const Text('👑 Cheveux'),
+                            selected: tempCategory == 'hair',
+                            onSelected: (v) => setModalState(() => tempCategory = 'hair'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🌿 Cuir Chevelu'),
+                            selected: tempCategory == 'scalp',
+                            onSelected: (v) => setModalState(() => tempCategory = 'scalp'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('✨ Visage'),
+                            selected: tempCategory == 'skin',
+                            onSelected: (v) => setModalState(() => tempCategory = 'skin'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🧴 Corps'),
+                            selected: tempCategory == 'body',
+                            onSelected: (v) => setModalState(() => tempCategory = 'body'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text('Type de Formule', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Toutes'),
+                            selected: tempProductType == null,
+                            onSelected: (v) => setModalState(() => tempProductType = null),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🧪 Recette DIY'),
+                            selected: tempProductType == 'diy',
+                            onSelected: (v) => setModalState(() => tempProductType = 'diy'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🌿 Artisanal'),
+                            selected: tempProductType == 'artisanal',
+                            onSelected: (v) => setModalState(() => tempProductType = 'artisanal'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🏬 Commercial'),
+                            selected: tempProductType == 'industrial',
+                            onSelected: (v) => setModalState(() => tempProductType = 'industrial'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text('Objectif & Vertu', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Tous'),
+                            selected: tempGoal == null,
+                            onSelected: (v) => setModalState(() => tempGoal = null),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🌱 Pousse & Longueur'),
+                            selected: tempGoal == 'hair_growth',
+                            onSelected: (v) => setModalState(() => tempGoal = 'hair_growth'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('🛡️ Force Anti-Casse'),
+                            selected: tempGoal == 'anti_breakage',
+                            onSelected: (v) => setModalState(() => tempGoal = 'anti_breakage'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('💧 Hydratation'),
+                            selected: tempGoal == 'moisture',
+                            onSelected: (v) => setModalState(() => tempGoal = 'moisture'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('💆 Soin Apaisant'),
+                            selected: tempGoal == 'scalp_soothing',
+                            onSelected: (v) => setModalState(() => tempGoal = 'scalp_soothing'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('✨ Barrière Cutanée'),
+                            selected: tempGoal == 'skin_barrier',
+                            onSelected: (v) => setModalState(() => tempGoal = 'skin_barrier'),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Text(l10n.feedFilterRegion, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: Text(l10n.feedAllRegions),
+                            selected: tempRegion == null,
+                            onSelected: (v) => setModalState(() => tempRegion = null),
+                          ),
+                          ...regionNames.entries.map((e) => ChoiceChip(
+                            label: Text(e.value),
+                            selected: tempRegion == e.key,
+                            onSelected: (v) => setModalState(() => tempRegion = e.key),
+                          )),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(l10n.feedFilterMealType, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: Text(l10n.feedAllMealTypes),
+                            selected: tempMealType == null,
+                            onSelected: (v) => setModalState(() => tempMealType = null),
+                          ),
+                          ChoiceChip(
+                            label: Text(l10n.mealTypeBreakfast),
+                            selected: tempMealType == 'breakfast',
+                            onSelected: (v) => setModalState(() => tempMealType = 'breakfast'),
+                          ),
+                          ChoiceChip(
+                            label: Text(l10n.mealTypeLunch),
+                            selected: tempMealType == 'lunch',
+                            onSelected: (v) => setModalState(() => tempMealType = 'lunch'),
+                          ),
+                          ChoiceChip(
+                            label: Text(l10n.mealTypeDinner),
+                            selected: tempMealType == 'dinner',
+                            onSelected: (v) => setModalState(() => tempMealType = 'dinner'),
+                          ),
+                          ChoiceChip(
+                            label: Text(l10n.mealTypeSnack),
+                            selected: tempMealType == 'snack',
+                            onSelected: (v) => setModalState(() => tempMealType = 'snack'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(l10n.feedFilterCalories, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 8),
+                      RangeSlider(
+                        values: RangeValues(
+                          (tempMinCal ?? 0).toDouble(),
+                          (tempMaxCal ?? 800).toDouble(),
                         ),
-                        ...regionNames.entries.map((e) => ChoiceChip(
-                          label: Text(e.value),
-                          selected: tempRegion == e.key,
-                          onSelected: (v) => setModalState(() => tempRegion = e.key),
-                        )),
-                      ],
-                    ),
+                        min: 0,
+                        max: 800,
+                        divisions: 40,
+                        labels: RangeLabels(
+                          '${tempMinCal ?? 0} kcal/100g',
+                          '${tempMaxCal ?? '800+'} kcal/100g',
+                        ),
+                        activeColor: AkeliColors.primary,
+                        onChanged: (RangeValues values) {
+                          setModalState(() {
+                            tempMinCal = values.start.toInt();
+                            tempMaxCal = values.end.toInt();
+                            if (tempMinCal == 0) tempMinCal = null;
+                            if (tempMaxCal == 800) tempMaxCal = null;
+                          });
+                        },
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('${tempMinCal ?? 0} kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                          Text(tempMaxCal == null ? '800+ kcal/100g' : '$tempMaxCal kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     Text(l10n.feedFilterDifficulty, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
@@ -448,40 +629,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                           label: Text(l10n.difficultyHard),
                           selected: tempDiff == 'hard',
                           onSelected: (v) => setModalState(() => tempDiff = 'hard'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(l10n.feedFilterMealType, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        ChoiceChip(
-                          label: Text(l10n.feedAllMealTypes),
-                          selected: tempMealType == null,
-                          onSelected: (v) => setModalState(() => tempMealType = null),
-                        ),
-                        ChoiceChip(
-                          label: Text(l10n.mealTypeBreakfast),
-                          selected: tempMealType == 'breakfast',
-                          onSelected: (v) => setModalState(() => tempMealType = 'breakfast'),
-                        ),
-                        ChoiceChip(
-                          label: Text(l10n.mealTypeLunch),
-                          selected: tempMealType == 'lunch',
-                          onSelected: (v) => setModalState(() => tempMealType = 'lunch'),
-                        ),
-                        ChoiceChip(
-                          label: Text(l10n.mealTypeDinner),
-                          selected: tempMealType == 'dinner',
-                          onSelected: (v) => setModalState(() => tempMealType = 'dinner'),
-                        ),
-                        ChoiceChip(
-                          label: Text(l10n.mealTypeSnack),
-                          selected: tempMealType == 'snack',
-                          onSelected: (v) => setModalState(() => tempMealType = 'snack'),
                         ),
                       ],
                     ),
@@ -514,38 +661,6 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    Text(l10n.feedFilterCalories, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    RangeSlider(
-                      values: RangeValues(
-                        (tempMinCal ?? 0).toDouble(),
-                        (tempMaxCal ?? 800).toDouble(),
-                      ),
-                      min: 0,
-                      max: 800,
-                      divisions: 40,
-                      labels: RangeLabels(
-                        '${tempMinCal ?? 0} kcal/100g',
-                        '${tempMaxCal ?? '800+'} kcal/100g',
-                      ),
-                      activeColor: AkeliColors.primary,
-                      onChanged: (RangeValues values) {
-                        setModalState(() {
-                          tempMinCal = values.start.toInt();
-                          tempMaxCal = values.end.toInt();
-                          if (tempMinCal == 0) tempMinCal = null;
-                          if (tempMaxCal == 800) tempMaxCal = null;
-                        });
-                      },
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('${tempMinCal ?? 0} kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
-                        Text(tempMaxCal == null ? '800+ kcal/100g' : '$tempMaxCal kcal/100g', style: const TextStyle(fontSize: 12, color: AkeliColors.onSurfaceVariant)),
-                      ],
-                    ),
                     const SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
@@ -558,6 +673,9 @@ class _FeedPageState extends ConsumerState<FeedPage> {
                             _minCal = tempMinCal;
                             _maxCal = tempMaxCal;
                             _mealType = tempMealType;
+                            _productType = tempProductType;
+                            _routineCategory = tempCategory;
+                            _beautyGoal = tempGoal;
                             _resetRecipes();
                           });
                           Navigator.pop(context);

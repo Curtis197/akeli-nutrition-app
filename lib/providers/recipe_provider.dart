@@ -177,6 +177,9 @@ class FeedParams {
   final String? orderBy; // 'rating' | 'likes' | 'created_at' | null = personalized
   final String? mealType; // filter by meal_types array membership e.g. 'snack'
   final String? mode; // 'nutrition' | 'beauty'
+  final String? productType; // 'diy' | 'artisanal' | 'industrial'
+  final String? routineCategory; // 'hair' | 'scalp' | 'skin' | 'body'
+  final String? beautyGoal; // 'hair_growth' | 'anti_breakage' | 'moisture' | 'scalp_soothing' | 'skin_barrier' | 'skin_glow'
 
   const FeedParams({
     this.limit = 20,
@@ -189,6 +192,9 @@ class FeedParams {
     this.orderBy,
     this.mealType,
     this.mode,
+    this.productType,
+    this.routineCategory,
+    this.beautyGoal,
   });
 
   @override
@@ -204,11 +210,14 @@ class FeedParams {
           maxCal == other.maxCal &&
           orderBy == other.orderBy &&
           mealType == other.mealType &&
-          mode == other.mode;
+          mode == other.mode &&
+          productType == other.productType &&
+          routineCategory == other.routineCategory &&
+          beautyGoal == other.beautyGoal;
 
   @override
   int get hashCode =>
-      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, mealType, mode);
+      Object.hash(limit, excludeIds.length, regionId, difficulty, maxTimeMin, minCal, maxCal, orderBy, mealType, mode, productType, routineCategory, beautyGoal);
 }
 
 final feedProvider =
@@ -220,7 +229,7 @@ final feedProvider =
   final activeMode = params.mode ?? (appMode == AppMode.beauty ? 'beauty' : 'nutrition');
 
   appLogger.provider(
-      'feedProvider build() | userId: ${user?.id ?? "null"} | mode: $activeMode | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType}');
+      'feedProvider build() | userId: ${user?.id ?? "null"} | mode: $activeMode | locale: $locale | region: ${params.regionId} | difficulty: ${params.difficulty} | orderBy: ${params.orderBy} | mealType: ${params.mealType} | productType: ${params.productType} | category: ${params.routineCategory} | goal: ${params.beautyGoal}');
   ref.onDispose(() => appLogger.provider('feedProvider disposed'));
 
   if (user == null) {
@@ -242,6 +251,9 @@ final feedProvider =
     if (params.orderBy != null) 'p_order_by': params.orderBy,
     if (params.mealType != null) 'p_meal_type': params.mealType,
     'p_mode': activeMode,
+    if (params.productType != null) 'p_product_type': params.productType,
+    if (params.routineCategory != null) 'p_routine_category': params.routineCategory,
+    if (params.beautyGoal != null) 'p_beauty_goal': params.beautyGoal,
   };
 
   appLogger.db(

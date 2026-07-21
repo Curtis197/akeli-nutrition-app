@@ -123,7 +123,11 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
 
 > **Mandatory Policy**: Every subsequent action, schema change, RPC update, UI modification, or bug fix MUST be logged in this document with timestamps, files modified, and commit SHAs.
 
-### **Changelog Entry — July 21, 2026 (12:31 UTC)**
+### **Changelog Entry — July 21, 2026 (12:37 UTC)**
+- **Feed RPC Beauty Filter Parameters Migration**: Extended `generate_feed_personalized` RPC with `p_product_type`, `p_routine_category`, and `p_beauty_goal` parameters in migration `20260721000015_feed_beauty_filters.sql`.
+- **Dart Feed Provider (`recipe_provider.dart`)**: Extended `FeedParams` with `productType`, `routineCategory`, and `beautyGoal`.
+- **Mode-Aware Filter UI (`feed_page.dart`)**: Updated `_showCombinedFilterSheet` in `FeedPage` to render Beauty filter choices (Catégorie de Soin: Cheveux, Cuir Chevelu, Visage, Corps; Type de Formule: DIY, Artisanal, Commercial; Objectif: Pousse, Force Anti-Casse, Hydratation, Soin Apaisant, Barrière Cutanée).
+- **Verification**: Tested live via SQL query, **24 / 24 Pytest tests**, and **244 / 244 Flutter tests** passing 100%.
 - **Mode-Aware Beauty Shopping List Migration**: Added `beauty_plan_id` to `shopping_list` table and created `generate_beauty_shopping_list(p_beauty_plan_id uuid)` RPC in migration `20260721000014_beauty_shopping_list.sql`.
 - **Botanical Ingredient Aggregation**: Automatically aggregates powders (Chébé), plant oils (Nigella, Carrot), hydrosols, clays, and butters (Shea) across all 30-day routine recipes in the active Beauty Plan.
 - **Mode-Aware `ShoppingListNotifier`**: Updated `ShoppingListNotifier` in `meal_plan_provider.dart` to watch `currentModeProvider` and fetch/toggle items for `activeBeautyPlanProvider` in Beauty Mode.
