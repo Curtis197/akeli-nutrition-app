@@ -144,14 +144,16 @@ class BeautyPlannerView extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isCompleted
+              ? AkeliColors.primary.withValues(alpha: 0.3)
+              : AkeliColors.outlineVariant.withValues(alpha: 0.5),
+        ),
+      ),
       elevation: 0,
       color: isCompleted ? AkeliColors.surfaceContainerLow : Colors.white,
-      side: BorderSide(
-        color: isCompleted
-            ? AkeliColors.primary.withValues(alpha: 0.3)
-            : AkeliColors.outlineVariant.withValues(alpha: 0.5),
-      ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(12),
         leading: ClipRRect(

@@ -5,6 +5,7 @@ import '../core/supabase_client.dart';
 import '../core/logger.dart';
 import '../shared/models/recipe.dart';
 import 'auth_provider.dart';
+import 'mode_provider.dart';
 import 'user_profile_provider.dart';
 
 // ---------------------------------------------------------------------------
@@ -164,8 +165,6 @@ Future<Recipe> _applyDetailTranslations(
 // ---------------------------------------------------------------------------
 // Feed
 // ---------------------------------------------------------------------------
-
-import 'mode_provider.dart';
 
 class FeedParams {
   final int limit;
