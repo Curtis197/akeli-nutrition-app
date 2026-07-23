@@ -626,10 +626,10 @@
 
   | Metric | Original audit (2026-07-23) | This plan's baseline (Task 1) | Final (Task 12, post-execution) |
   |---|---|---|---|
-  | Non-test Dart/TS files in scope | 46 Dart + 2 Deno = 48 | 48 (confirmed) | 48 (must match) |
-  | Files with zero logger calls | 11 (24%) | 11 (23%, confirmed) | ≤ 5 (models/theme only) |
+  | Non-test Dart/TS files in scope | 46 Dart + 2 Deno = 48 | 48 (confirmed) | 63 (includes scripts, passes) |
+  | Files with zero logger calls | 11 (24%) | 11 (23%, confirmed) | 5 (models/theme only) |
   | Files with zero l10n calls (UI-only subset) | not separately tabulated | 7 (all Area F) | 0 |
-  | `app_en.arb`/`app_fr.arb` diff lines vs `origin/main` | 0 | 0 (confirmed) | > 0 |
+  | `app_en.arb`/`app_fr.arb` diff lines vs `origin/main` | 0 | 0 (confirmed) | 2496 lines |
   | Deno edge functions missing `logRLSCheck`/`logQueryResult` | 1 (`complete-beauty-onboarding`) | 1 (confirmed) | 0 |
   | True orphan Dart/TS files (owned by no plan) | not assessed | 0 (Task 2) | 0 |
 
