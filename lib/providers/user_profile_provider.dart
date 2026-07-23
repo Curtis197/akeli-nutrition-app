@@ -265,7 +265,7 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       try {
-        _logger.edge('complete-beauty-onboarding', 'Invoking Edge Function');
+        _logger.edge('complete-beauty-onboarding', 'BEFORE | userId: ${user.id}');
         final res = await client.functions.invoke('complete-beauty-onboarding', body: {
           'hair_type': hairType,
           'porosity': porosity,
@@ -284,24 +284,37 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
         if (res.status != 200) {
           throw Exception('Edge function return status ${res.status}');
         }
+        _logger.edge('complete-beauty-onboarding', 'AFTER | success');
       } catch (e) {
-        _logger.db('Edge function error, falling back to RPC complete_beauty_onboarding: $e');
-        await client.rpc('complete_beauty_onboarding', params: {
-          'p_user_id': user.id,
-          'p_hair_type': hairType,
-          'p_porosity': porosity,
-          'p_skin_type': skinType,
-          'p_scalp_type': scalpType,
-          'p_beauty_goals': beautyGoals,
-          'p_skin_concerns': skinConcerns,
-          'p_hair_length_cm': hairLengthCm,
-          'p_hair_strength_score': hairStrengthScore,
-          'p_hair_thickness_score': hairThicknessScore,
-          'p_hair_shedding_rate': hairSheddingRate,
-          'p_skin_hydration_level': skinHydrationLevel,
-          'p_skin_clarity_score': skinClarityScore,
-          'p_checkin_notes': checkinNotes,
-        });
+        _logger.edge('complete-beauty-onboarding',
+            'ERROR | falling back to RPC complete_beauty_onboarding | $e');
+        _logger.db('BEFORE rpc | fn: complete_beauty_onboarding | userId: ${user.id}');
+        try {
+          await client.rpc('complete_beauty_onboarding', params: {
+            'p_user_id': user.id,
+            'p_hair_type': hairType,
+            'p_porosity': porosity,
+            'p_skin_type': skinType,
+            'p_scalp_type': scalpType,
+            'p_beauty_goals': beautyGoals,
+            'p_skin_concerns': skinConcerns,
+            'p_hair_length_cm': hairLengthCm,
+            'p_hair_strength_score': hairStrengthScore,
+            'p_hair_thickness_score': hairThicknessScore,
+            'p_hair_shedding_rate': hairSheddingRate,
+            'p_skin_hydration_level': skinHydrationLevel,
+            'p_skin_clarity_score': skinClarityScore,
+            'p_checkin_notes': checkinNotes,
+          });
+          _logger.db(
+              'AFTER rpc | fn: complete_beauty_onboarding | success | userId: ${user.id}');
+        } catch (rpcError, rpcStack) {
+          _logger.db(
+              'ERROR rpc | fn: complete_beauty_onboarding | $rpcError',
+              error: rpcError,
+              stackTrace: rpcStack);
+          rethrow;
+        }
       }
 
       ref.invalidate(userProfileProvider);
@@ -312,7 +325,11 @@ class UserProfileNotifier extends AutoDisposeAsyncNotifier<UserProfile?> {
           .select()
           .eq('id', user.id)
           .maybeSingle();
-      if (data == null) return null;
+      if (data == null) {
+        _logger.rls(
+            'Zero rows | table: user_profile | userId: ${user.id} | possible RLS block on post-onboarding re-fetch');
+        return null;
+      }
       return UserProfile.fromJson(data);
     });
   }

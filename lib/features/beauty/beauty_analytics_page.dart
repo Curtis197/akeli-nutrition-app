@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/logger.dart';
-import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/beauty_plan_provider.dart';
 import '../../shared/models/beauty_log.dart';
@@ -17,14 +17,56 @@ class BeautyAnalyticsPage extends ConsumerStatefulWidget {
 }
 
 class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
-  String _selectedTimeframe = '30 Jours';
+  static const _timeframeIds = ['7d', '30d', '90d', 'all'];
+  String _selectedTimeframeId = '30d';
 
   static const Color _rosewood = Color(0xFF8A3B58);
   static const Color _gold = Color(0xFFD4AF37);
   static const Color _darkCardBg = Color(0xFF231821);
 
+  final _logger = appLogger;
+
+  String _timeframeLabel(AppLocalizations l10n, String id) {
+    switch (id) {
+      case '7d':
+        return l10n.beautyAnalyticsTimeframe7d;
+      case '30d':
+        return l10n.beautyAnalyticsTimeframe30d;
+      case '90d':
+        return l10n.beautyAnalyticsTimeframe90d;
+      case 'all':
+      default:
+        return l10n.beautyAnalyticsTimeframeAll;
+    }
+  }
+
+  /// Earliest `loggedAt` still included for [id], or `null` for "Tout"
+  /// (no filtering).
+  DateTime? _cutoffFor(String id) {
+    final now = DateTime.now();
+    switch (id) {
+      case '7d':
+        return now.subtract(const Duration(days: 7));
+      case '30d':
+        return now.subtract(const Duration(days: 30));
+      case '90d':
+        return now.subtract(const Duration(days: 90));
+      case 'all':
+      default:
+        return null;
+    }
+  }
+
+  List<BeautyLog> _filterLogsByTimeframe(List<BeautyLog> logs) {
+    final cutoff = _cutoffFor(_selectedTimeframeId);
+    if (cutoff == null) return logs;
+    return logs.where((log) => log.loggedAt.isAfter(cutoff)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _logger.provider('BeautyAnalyticsPage build()');
+    final l10n = AppLocalizations.of(context);
     final activePlanAsync = ref.watch(activeBeautyPlanProvider);
     final beautyLogsAsync = ref.watch(beautyLogsProvider);
 
@@ -38,7 +80,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: Text(
-          'Suivi Beauté & Rituals',
+          l10n.beautyAnalyticsTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -48,7 +90,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add_a_photo_outlined, color: _gold, size: 22),
-            tooltip: 'Nouveau Bilan Beauté',
+            tooltip: l10n.beautyAnalyticsNewCheckinTooltip,
             onPressed: () => _openCheckinSheet(context),
           ),
         ],
@@ -64,35 +106,36 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            _buildEditorialHeader(),
+            _buildEditorialHeader(l10n),
             const SizedBox(height: 16),
-            _buildTimeframeFilterPills(),
+            _buildTimeframeFilterPills(l10n),
             const SizedBox(height: 20),
-            
-            // 1. Ritual Adherence Metric Card
+
             activePlanAsync.when(
-              data: (plan) => _buildAdherenceCard(plan),
+              data: (plan) => _buildAdherenceCard(l10n, plan),
               loading: () => const Center(child: CircularProgressIndicator(color: _rosewood)),
-              error: (_, __) => _buildAdherenceCard(null),
+              error: (_, __) => _buildAdherenceCard(l10n, null),
             ),
             const SizedBox(height: 24),
 
-            // 2. Progression Logs Visualizer & Diagnostics
             beautyLogsAsync.when(
-              data: (logs) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHairProgressionSection(logs),
-                  const SizedBox(height: 24),
-                  _buildSkinProgressionSection(logs),
-                  const SizedBox(height: 28),
-                  _buildLogsHistoryTimeline(logs),
-                ],
-              ),
+              data: (logs) {
+                final filteredLogs = _filterLogsByTimeframe(logs);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHairProgressionSection(l10n, filteredLogs),
+                    const SizedBox(height: 24),
+                    _buildSkinProgressionSection(l10n, filteredLogs),
+                    const SizedBox(height: 28),
+                    _buildLogsHistoryTimeline(l10n, filteredLogs),
+                  ],
+                );
+              },
               loading: () => const Center(child: CircularProgressIndicator(color: _rosewood)),
               error: (err, _) => Center(
                 child: Text(
-                  'Erreur de chargement des bilans: $err',
+                  l10n.beautyAnalyticsLoadError(err.toString()),
                   style: GoogleFonts.nunito(color: Colors.white70),
                 ),
               ),
@@ -107,7 +150,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
         elevation: 6,
         icon: const Icon(Icons.edit_note_rounded, color: Colors.white),
         label: Text(
-          'Nouveau Bilan',
+          l10n.beautyAnalyticsNewCheckinFab,
           style: GoogleFonts.plusJakartaSans(
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -118,8 +161,12 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
   }
 
   void _openCheckinSheet(BuildContext context) async {
+    _logger.userAction('Check-in FAB tapped', screen: 'BeautyAnalyticsPage');
     final user = ref.read(currentUserProvider);
-    if (user == null) return;
+    if (user == null) {
+      _logger.auth('Check-in aborted | no authenticated user');
+      return;
+    }
 
     final checkinData = await BeautyCheckinSheet.show(
       context,
@@ -127,19 +174,27 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
 
     if (checkinData != null) {
-      await ref.read(addBeautyLogNotifierProvider.notifier).addLog(
-        hairLengthCm: (checkinData['hairLengthCm'] as num?)?.toDouble() ?? 15.0,
-        hairStrengthScore: (checkinData['hairStrengthScore'] as num?)?.toDouble() ?? 7.0,
-        hairThicknessScore: (checkinData['hairThicknessScore'] as num?)?.toDouble() ?? 7.0,
-        hairSheddingRate: checkinData['hairSheddingRate'] as String? ?? 'moderate',
-        skinHydrationLevel: (checkinData['skinHydrationLevel'] as num?)?.toDouble() ?? 7.0,
-        skinClarityScore: (checkinData['skinClarityScore'] as num?)?.toDouble() ?? 7.0,
-        checkinNotes: checkinData['checkinNotes'] as String?,
-      );
+      _logger.db('BEFORE | table: beauty_log | op: INSERT via addLog | userId: ${LogHelper.maskUuid(user.id)}');
+      try {
+        await ref.read(addBeautyLogNotifierProvider.notifier).addLog(
+              hairLengthCm: (checkinData['hairLengthCm'] as num?)?.toDouble() ?? 15.0,
+              hairStrengthScore: (checkinData['hairStrengthScore'] as num?)?.toDouble() ?? 7.0,
+              hairThicknessScore: (checkinData['hairThicknessScore'] as num?)?.toDouble() ?? 7.0,
+              hairSheddingRate: checkinData['hairSheddingRate'] as String? ?? 'moderate',
+              skinHydrationLevel: (checkinData['skinHydrationLevel'] as num?)?.toDouble() ?? 7.0,
+              skinClarityScore: (checkinData['skinClarityScore'] as num?)?.toDouble() ?? 7.0,
+              checkinNotes: checkinData['checkinNotes'] as String?,
+            );
+        _logger.db('AFTER | table: beauty_log | op: INSERT via addLog | success');
+      } catch (e, st) {
+        _logger.db('ERROR | addLog via BeautyAnalyticsPage | $e', error: e, stackTrace: st);
+      }
+    } else {
+      _logger.userAction('Check-in sheet dismissed without save', screen: 'BeautyAnalyticsPage');
     }
   }
 
-  Widget _buildEditorialHeader() {
+  Widget _buildEditorialHeader(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,7 +208,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                 border: Border.all(color: _rosewood.withOpacity(0.5)),
               ),
               child: Text(
-                'DIAGNOSTIC & SUIVI RITUEL',
+                l10n.beautyAnalyticsHeaderBadge,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
@@ -166,7 +221,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Tableau de Bord Beauté 👑',
+          l10n.beautyAnalyticsHeaderTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 24,
             fontWeight: FontWeight.w800,
@@ -175,7 +230,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Analysez votre régularité rituelle, la repousse capillaire et l\'évolution de votre teint.',
+          l10n.beautyAnalyticsHeaderSubtitle,
           style: GoogleFonts.nunito(
             fontSize: 13,
             color: Colors.white70,
@@ -186,13 +241,13 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildTimeframeFilterPills() {
-    final options = ['7 Jours', '30 Jours', '90 Jours', 'Tout'];
+  Widget _buildTimeframeFilterPills(AppLocalizations l10n) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: options.map((label) {
-          final isSelected = _selectedTimeframe == label;
+        children: _timeframeIds.map((id) {
+          final isSelected = _selectedTimeframeId == id;
+          final label = _timeframeLabel(l10n, id);
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: ChoiceChip(
@@ -200,7 +255,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
-                  setState(() => _selectedTimeframe = label);
+                  setState(() => _selectedTimeframeId = id);
                 }
               },
               selectedColor: _rosewood,
@@ -221,7 +276,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildAdherenceCard(BeautyPlan? plan) {
+  Widget _buildAdherenceCard(AppLocalizations l10n, BeautyPlan? plan) {
     int totalSlots = plan?.slots.length ?? 0;
     int completedSlots = plan?.slots.where((s) => s.isCompleted).length ?? 0;
     double percentage = totalSlots > 0 ? (completedSlots / totalSlots) * 100 : 0;
@@ -249,7 +304,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Assiduité du Rituel',
+                    l10n.beautyAnalyticsAdherenceLabel,
                     style: GoogleFonts.plusJakartaSans(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -269,7 +324,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '($completedSlots/$totalSlots soins)',
+                        l10n.beautyAnalyticsAdherenceFraction(completedSlots.toString(), totalSlots.toString()),
                         style: GoogleFonts.nunito(
                           fontSize: 12,
                           color: Colors.white54,
@@ -309,7 +364,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildHairProgressionSection(List<BeautyLog> logs) {
+  Widget _buildHairProgressionSection(AppLocalizations l10n, List<BeautyLog> logs) {
     final latestLog = logs.isNotEmpty ? logs.first : null;
     final initialLog = logs.isNotEmpty ? logs.last : null;
 
@@ -328,7 +383,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             const Icon(Icons.content_cut_rounded, color: _gold, size: 20),
             const SizedBox(width: 8),
             Text(
-              'Diagnostic Capillaire 👑',
+              l10n.beautyAnalyticsHairSectionTitle,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -342,9 +397,11 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
           children: [
             Expanded(
               child: _buildMetricTile(
-                title: 'Longueur',
-                value: '${currentLength.toStringAsFixed(1)} cm',
-                subtitle: growthDelta >= 0 ? '+${growthDelta.toStringAsFixed(1)} cm gagnés' : '${growthDelta.toStringAsFixed(1)} cm',
+                title: l10n.beautyAnalyticsHairLengthLabel,
+                value: l10n.beautyAnalyticsValueCm(currentLength.toStringAsFixed(1)),
+                subtitle: growthDelta >= 0
+                    ? l10n.beautyAnalyticsHairLengthGrowthPositive(growthDelta.toStringAsFixed(1))
+                    : l10n.beautyAnalyticsHairLengthGrowthNegative(growthDelta.toStringAsFixed(1)),
                 subtitleColor: growthDelta >= 0 ? Colors.greenAccent : Colors.orangeAccent,
                 icon: Icons.straighten_rounded,
               ),
@@ -352,9 +409,9 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricTile(
-                title: 'Force & Densité',
-                value: '${strengthScore.toStringAsFixed(0)}/10',
-                subtitle: 'Score de résistance',
+                title: l10n.beautyAnalyticsHairStrengthLabel,
+                value: l10n.beautyAnalyticsValueOutOfTen(strengthScore.toStringAsFixed(0)),
+                subtitle: l10n.beautyAnalyticsHairStrengthSubtitle,
                 subtitleColor: Colors.white60,
                 icon: Icons.fitness_center_rounded,
               ),
@@ -373,14 +430,14 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Niveau de Chute (Anti-Casse)',
+                l10n.beautyAnalyticsSheddingLabel,
                 style: GoogleFonts.nunito(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Colors.white.withOpacity(0.87),
                 ),
               ),
-              _buildSheddingBadge(sheddingRate),
+              _buildSheddingBadge(l10n, sheddingRate),
             ],
           ),
         ),
@@ -388,7 +445,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildSkinProgressionSection(List<BeautyLog> logs) {
+  Widget _buildSkinProgressionSection(AppLocalizations l10n, List<BeautyLog> logs) {
     final latestLog = logs.isNotEmpty ? logs.first : null;
 
     double hydrationLevel = latestLog?.skinHydrationLevel ?? 7.0;
@@ -402,7 +459,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             const Icon(Icons.wb_twilight_rounded, color: _gold, size: 20),
             const SizedBox(width: 8),
             Text(
-              'Diagnostic Cutané ✨',
+              l10n.beautyAnalyticsSkinSectionTitle,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -416,9 +473,9 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
           children: [
             Expanded(
               child: _buildMetricTile(
-                title: 'Hydratation Cutanée',
-                value: '${hydrationLevel.toStringAsFixed(0)}/10',
-                subtitle: 'Barrière hydrique',
+                title: l10n.beautyAnalyticsSkinHydrationLabel,
+                value: l10n.beautyAnalyticsValueOutOfTen(hydrationLevel.toStringAsFixed(0)),
+                subtitle: l10n.beautyAnalyticsSkinHydrationSubtitle,
                 subtitleColor: Colors.cyanAccent,
                 icon: Icons.water_drop_rounded,
               ),
@@ -426,9 +483,9 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildMetricTile(
-                title: 'Éclat & Teint',
-                value: '${clarityScore.toStringAsFixed(0)}/10',
-                subtitle: 'Clarification du grain',
+                title: l10n.beautyAnalyticsSkinClarityLabel,
+                value: l10n.beautyAnalyticsValueOutOfTen(clarityScore.toStringAsFixed(0)),
+                subtitle: l10n.beautyAnalyticsSkinClaritySubtitle,
                 subtitleColor: _gold,
                 icon: Icons.wb_sunny_rounded,
               ),
@@ -493,15 +550,15 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildSheddingBadge(String rate) {
-    String label = 'Modérée';
+  Widget _buildSheddingBadge(AppLocalizations l10n, String rate) {
+    String label = l10n.beautyAnalyticsSheddingModerate;
     Color color = Colors.orangeAccent;
 
     if (rate == 'low' || rate == 'Faible') {
-      label = 'Faible (Idéal)';
+      label = l10n.beautyAnalyticsSheddingLow;
       color = Colors.greenAccent;
     } else if (rate == 'high' || rate == 'Élevée') {
-      label = 'Élevée (Attention)';
+      label = l10n.beautyAnalyticsSheddingHigh;
       color = Colors.redAccent;
     }
 
@@ -523,7 +580,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildLogsHistoryTimeline(List<BeautyLog> logs) {
+  Widget _buildLogsHistoryTimeline(AppLocalizations l10n, List<BeautyLog> logs) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -531,7 +588,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Historique du Journal 📖',
+              l10n.beautyAnalyticsHistoryTitle,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -539,7 +596,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
               ),
             ),
             Text(
-              '${logs.length} bilans',
+              l10n.beautyAnalyticsHistoryCount(logs.length),
               style: GoogleFonts.nunito(
                 fontSize: 12,
                 color: Colors.white54,
@@ -557,7 +614,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
             ),
             child: Center(
               child: Text(
-                'Aucun bilan beauté enregistré pour l\'instant.',
+                l10n.beautyAnalyticsHistoryEmpty,
                 style: GoogleFonts.nunito(color: Colors.white60),
               ),
             ),
@@ -606,7 +663,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            'Bilan #${logs.length - index}',
+                            l10n.beautyAnalyticsHistoryEntryNumber((logs.length - index).toString()),
                             style: GoogleFonts.nunito(
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -621,10 +678,10 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                       spacing: 8,
                       runSpacing: 6,
                       children: [
-                        _buildChipTag('📏 ${log.hairLengthCm} cm'),
-                        _buildChipTag('💪 Force: ${log.hairStrengthScore.toStringAsFixed(0)}/10'),
-                        _buildChipTag('💧 Hydratation: ${log.skinHydrationLevel.toStringAsFixed(0)}/10'),
-                        _buildChipTag('✨ Éclat: ${log.skinClarityScore.toStringAsFixed(0)}/10'),
+                        _buildChipTag(l10n.beautyAnalyticsChipLength(log.hairLengthCm.toString())),
+                        _buildChipTag(l10n.beautyAnalyticsChipStrength(log.hairStrengthScore.toStringAsFixed(0))),
+                        _buildChipTag(l10n.beautyAnalyticsChipHydration(log.skinHydrationLevel.toStringAsFixed(0))),
+                        _buildChipTag(l10n.beautyAnalyticsChipClarity(log.skinClarityScore.toStringAsFixed(0))),
                       ],
                     ),
                     if (log.checkinNotes != null && log.checkinNotes!.isNotEmpty) ...[

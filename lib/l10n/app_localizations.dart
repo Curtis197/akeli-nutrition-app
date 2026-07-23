@@ -5384,6 +5384,1158 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Age must be at most 100'**
   String get onboardingValidationAgeMax;
+
+  /// No description provided for @beautyAnalyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty & Rituals Tracking'**
+  String get beautyAnalyticsTitle;
+
+  /// No description provided for @beautyAnalyticsNewCheckinTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'New Beauty Check-In'**
+  String get beautyAnalyticsNewCheckinTooltip;
+
+  /// No description provided for @beautyAnalyticsHeaderBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'DIAGNOSTIC & RITUAL TRACKING'**
+  String get beautyAnalyticsHeaderBadge;
+
+  /// No description provided for @beautyAnalyticsHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty Dashboard 👑'**
+  String get beautyAnalyticsHeaderTitle;
+
+  /// No description provided for @beautyAnalyticsHeaderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze your ritual consistency, hair growth and complexion evolution.'**
+  String get beautyAnalyticsHeaderSubtitle;
+
+  /// No description provided for @beautyAnalyticsTimeframe7d.
+  ///
+  /// In en, this message translates to:
+  /// **'7 Days'**
+  String get beautyAnalyticsTimeframe7d;
+
+  /// No description provided for @beautyAnalyticsTimeframe30d.
+  ///
+  /// In en, this message translates to:
+  /// **'30 Days'**
+  String get beautyAnalyticsTimeframe30d;
+
+  /// No description provided for @beautyAnalyticsTimeframe90d.
+  ///
+  /// In en, this message translates to:
+  /// **'90 Days'**
+  String get beautyAnalyticsTimeframe90d;
+
+  /// No description provided for @beautyAnalyticsTimeframeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get beautyAnalyticsTimeframeAll;
+
+  /// No description provided for @beautyAnalyticsNewCheckinFab.
+  ///
+  /// In en, this message translates to:
+  /// **'New Check-In'**
+  String get beautyAnalyticsNewCheckinFab;
+
+  /// No description provided for @beautyAnalyticsAdherenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual Adherence'**
+  String get beautyAnalyticsAdherenceLabel;
+
+  /// No description provided for @beautyAnalyticsAdherenceFraction.
+  ///
+  /// In en, this message translates to:
+  /// **'({completed}/{total} treatments)'**
+  String beautyAnalyticsAdherenceFraction(String completed, String total);
+
+  /// No description provided for @beautyAnalyticsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading check-ins: {error}'**
+  String beautyAnalyticsLoadError(String error);
+
+  /// No description provided for @beautyAnalyticsHairSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Diagnostic 👑'**
+  String get beautyAnalyticsHairSectionTitle;
+
+  /// No description provided for @beautyAnalyticsHairLengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Length'**
+  String get beautyAnalyticsHairLengthLabel;
+
+  /// No description provided for @beautyAnalyticsValueCm.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} cm'**
+  String beautyAnalyticsValueCm(String value);
+
+  /// No description provided for @beautyAnalyticsValueOutOfTen.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}/10'**
+  String beautyAnalyticsValueOutOfTen(String value);
+
+  /// No description provided for @beautyAnalyticsHairLengthGrowthPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'+{value} cm gained'**
+  String beautyAnalyticsHairLengthGrowthPositive(String value);
+
+  /// No description provided for @beautyAnalyticsHairLengthGrowthNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} cm'**
+  String beautyAnalyticsHairLengthGrowthNegative(String value);
+
+  /// No description provided for @beautyAnalyticsHairStrengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength & Density'**
+  String get beautyAnalyticsHairStrengthLabel;
+
+  /// No description provided for @beautyAnalyticsHairStrengthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance score'**
+  String get beautyAnalyticsHairStrengthSubtitle;
+
+  /// No description provided for @beautyAnalyticsSheddingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shedding Level (Anti-Breakage)'**
+  String get beautyAnalyticsSheddingLabel;
+
+  /// No description provided for @beautyAnalyticsSheddingModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get beautyAnalyticsSheddingModerate;
+
+  /// No description provided for @beautyAnalyticsSheddingLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low (Ideal)'**
+  String get beautyAnalyticsSheddingLow;
+
+  /// No description provided for @beautyAnalyticsSheddingHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High (Attention)'**
+  String get beautyAnalyticsSheddingHigh;
+
+  /// No description provided for @beautyAnalyticsSkinSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Diagnostic ✨'**
+  String get beautyAnalyticsSkinSectionTitle;
+
+  /// No description provided for @beautyAnalyticsSkinHydrationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Hydration'**
+  String get beautyAnalyticsSkinHydrationLabel;
+
+  /// No description provided for @beautyAnalyticsSkinHydrationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Moisture barrier'**
+  String get beautyAnalyticsSkinHydrationSubtitle;
+
+  /// No description provided for @beautyAnalyticsSkinClarityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Radiance & Complexion'**
+  String get beautyAnalyticsSkinClarityLabel;
+
+  /// No description provided for @beautyAnalyticsSkinClaritySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin clarity'**
+  String get beautyAnalyticsSkinClaritySubtitle;
+
+  /// No description provided for @beautyAnalyticsHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log History 📖'**
+  String get beautyAnalyticsHistoryTitle;
+
+  /// No description provided for @beautyAnalyticsHistoryCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} log} other{{count} logs}}'**
+  String beautyAnalyticsHistoryCount(int count);
+
+  /// No description provided for @beautyAnalyticsHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No beauty check-ins recorded yet.'**
+  String get beautyAnalyticsHistoryEmpty;
+
+  /// No description provided for @beautyAnalyticsHistoryEntryNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-In #{number}'**
+  String beautyAnalyticsHistoryEntryNumber(String number);
+
+  /// No description provided for @beautyAnalyticsChipLength.
+  ///
+  /// In en, this message translates to:
+  /// **'📏 {value} cm'**
+  String beautyAnalyticsChipLength(String value);
+
+  /// No description provided for @beautyAnalyticsChipStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 Strength: {value}/10'**
+  String beautyAnalyticsChipStrength(String value);
+
+  /// No description provided for @beautyAnalyticsChipHydration.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Hydration: {value}/10'**
+  String beautyAnalyticsChipHydration(String value);
+
+  /// No description provided for @beautyAnalyticsChipClarity.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Radiance: {value}/10'**
+  String beautyAnalyticsChipClarity(String value);
+
+  /// No description provided for @beautyOnboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Botanical Beauty Profile'**
+  String get beautyOnboardingTitle;
+
+  /// No description provided for @beautyOnboardingBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get beautyOnboardingBackButton;
+
+  /// No description provided for @beautyOnboardingNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Step ➔'**
+  String get beautyOnboardingNextButton;
+
+  /// No description provided for @beautyOnboardingSubmitButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Generate My 30-Day Plan ✨'**
+  String get beautyOnboardingSubmitButton;
+
+  /// No description provided for @beautyOnboardingStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'👑 Hair Fingerprint'**
+  String get beautyOnboardingStep1Title;
+
+  /// No description provided for @beautyOnboardingStep1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Define the precise composition and porosity of your hair to personalize your botanical care.'**
+  String get beautyOnboardingStep1Subtitle;
+
+  /// No description provided for @beautyOnboardingHairCompositionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Composition & Texture'**
+  String get beautyOnboardingHairCompositionLabel;
+
+  /// No description provided for @beautyOnboardingHairType4c.
+  ///
+  /// In en, this message translates to:
+  /// **'4C — Very Tight Coily (Z-Pattern, Strong Shrinkage)'**
+  String get beautyOnboardingHairType4c;
+
+  /// No description provided for @beautyOnboardingHairType4b.
+  ///
+  /// In en, this message translates to:
+  /// **'4B — Zigzag Coily (Defined Z-Shaped Curls)'**
+  String get beautyOnboardingHairType4b;
+
+  /// No description provided for @beautyOnboardingHairType4a.
+  ///
+  /// In en, this message translates to:
+  /// **'4A — S-Pattern Coily (Dense Spirals)'**
+  String get beautyOnboardingHairType4a;
+
+  /// No description provided for @beautyOnboardingHairType3c.
+  ///
+  /// In en, this message translates to:
+  /// **'3C — Dense Curly (Tight Spirals)'**
+  String get beautyOnboardingHairType3c;
+
+  /// No description provided for @beautyOnboardingHairType3b.
+  ///
+  /// In en, this message translates to:
+  /// **'3B — Tight Corkscrew Curls'**
+  String get beautyOnboardingHairType3b;
+
+  /// No description provided for @beautyOnboardingHairType3a.
+  ///
+  /// In en, this message translates to:
+  /// **'3A — Loose, Soft Curls'**
+  String get beautyOnboardingHairType3a;
+
+  /// No description provided for @beautyOnboardingHairType2c.
+  ///
+  /// In en, this message translates to:
+  /// **'2C — Thick Waves'**
+  String get beautyOnboardingHairType2c;
+
+  /// No description provided for @beautyOnboardingHairType2b.
+  ///
+  /// In en, this message translates to:
+  /// **'2B — Defined Waves'**
+  String get beautyOnboardingHairType2b;
+
+  /// No description provided for @beautyOnboardingHairType2a.
+  ///
+  /// In en, this message translates to:
+  /// **'2A — Light Waves'**
+  String get beautyOnboardingHairType2a;
+
+  /// No description provided for @beautyOnboardingHairType1c.
+  ///
+  /// In en, this message translates to:
+  /// **'1C — Thick Straight Hair'**
+  String get beautyOnboardingHairType1c;
+
+  /// No description provided for @beautyOnboardingHairType1b.
+  ///
+  /// In en, this message translates to:
+  /// **'1B — Medium Straight Hair'**
+  String get beautyOnboardingHairType1b;
+
+  /// No description provided for @beautyOnboardingHairType1a.
+  ///
+  /// In en, this message translates to:
+  /// **'1A — Very Fine Straight Hair'**
+  String get beautyOnboardingHairType1a;
+
+  /// No description provided for @beautyOnboardingHairTypeLocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Locks / Dreadlocks (Locked)'**
+  String get beautyOnboardingHairTypeLocks;
+
+  /// No description provided for @beautyOnboardingHairTypeTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Transitioning Hair (Post-Relaxer)'**
+  String get beautyOnboardingHairTypeTransition;
+
+  /// No description provided for @beautyOnboardingHairTypeProtective.
+  ///
+  /// In en, this message translates to:
+  /// **'Care Under Braids / Wig'**
+  String get beautyOnboardingHairTypeProtective;
+
+  /// No description provided for @beautyOnboardingPorosityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Porosity'**
+  String get beautyOnboardingPorosityLabel;
+
+  /// No description provided for @beautyOnboardingPorosityLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low (Closed cuticles)'**
+  String get beautyOnboardingPorosityLow;
+
+  /// No description provided for @beautyOnboardingPorosityMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium (Perfect balance)'**
+  String get beautyOnboardingPorosityMedium;
+
+  /// No description provided for @beautyOnboardingPorosityHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Highly Porous (Open cuticles)'**
+  String get beautyOnboardingPorosityHigh;
+
+  /// No description provided for @beautyOnboardingScalpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scalp Condition'**
+  String get beautyOnboardingScalpLabel;
+
+  /// No description provided for @beautyOnboardingScalpNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal / Balanced'**
+  String get beautyOnboardingScalpNormal;
+
+  /// No description provided for @beautyOnboardingScalpDry.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry & Itchy'**
+  String get beautyOnboardingScalpDry;
+
+  /// No description provided for @beautyOnboardingScalpOily.
+  ///
+  /// In en, this message translates to:
+  /// **'Oily / Dandruff'**
+  String get beautyOnboardingScalpOily;
+
+  /// No description provided for @beautyOnboardingScalpSensitive.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensitive / Irritated'**
+  String get beautyOnboardingScalpSensitive;
+
+  /// No description provided for @beautyOnboardingStep2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Deep Skin Diagnostic'**
+  String get beautyOnboardingStep2Title;
+
+  /// No description provided for @beautyOnboardingStep2Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze the overall typology and specific challenges of your skin (face & body).'**
+  String get beautyOnboardingStep2Subtitle;
+
+  /// No description provided for @beautyOnboardingSkinTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Composition & Typology'**
+  String get beautyOnboardingSkinTypeLabel;
+
+  /// No description provided for @beautyOnboardingSkinTypeMixte.
+  ///
+  /// In en, this message translates to:
+  /// **'Combination Skin (Shiny T-Zone, normal/dry cheeks)'**
+  String get beautyOnboardingSkinTypeMixte;
+
+  /// No description provided for @beautyOnboardingSkinTypeSeche.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry & Dehydrated Skin (Tightness & flaking)'**
+  String get beautyOnboardingSkinTypeSeche;
+
+  /// No description provided for @beautyOnboardingSkinTypeGrasse.
+  ///
+  /// In en, this message translates to:
+  /// **'Oily & Acne-Prone Skin (Excess sebum, enlarged pores)'**
+  String get beautyOnboardingSkinTypeGrasse;
+
+  /// No description provided for @beautyOnboardingSkinTypeSensible.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensitive & Reactive Skin (Redness, rosacea)'**
+  String get beautyOnboardingSkinTypeSensible;
+
+  /// No description provided for @beautyOnboardingSkinTypeHyperpigmentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Hyperpigmentation-Prone Skin (Dark spots, melasma)'**
+  String get beautyOnboardingSkinTypeHyperpigmentation;
+
+  /// No description provided for @beautyOnboardingSkinTypeMature.
+  ///
+  /// In en, this message translates to:
+  /// **'Mature Skin (Loss of firmness & expression lines)'**
+  String get beautyOnboardingSkinTypeMature;
+
+  /// No description provided for @beautyOnboardingSkinTypeNormale.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal / Balanced Skin'**
+  String get beautyOnboardingSkinTypeNormale;
+
+  /// No description provided for @beautyOnboardingSkinConcernsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Concerns (Face & Neckline)'**
+  String get beautyOnboardingSkinConcernsLabel;
+
+  /// No description provided for @beautyOnboardingConcernHyperpigmentation.
+  ///
+  /// In en, this message translates to:
+  /// **'🌖 Dark Spots & Uneven Tone'**
+  String get beautyOnboardingConcernHyperpigmentation;
+
+  /// No description provided for @beautyOnboardingConcernAcne.
+  ///
+  /// In en, this message translates to:
+  /// **'🌋 Blemishes & Imperfections'**
+  String get beautyOnboardingConcernAcne;
+
+  /// No description provided for @beautyOnboardingConcernDehydration.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Deep Dehydration & Loss of Radiance'**
+  String get beautyOnboardingConcernDehydration;
+
+  /// No description provided for @beautyOnboardingConcernBarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'🛡️ Weakened Skin Barrier & Sensitivity'**
+  String get beautyOnboardingConcernBarrier;
+
+  /// No description provided for @beautyOnboardingConcernSebum.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Excess Shine & Enlarged Pores'**
+  String get beautyOnboardingConcernSebum;
+
+  /// No description provided for @beautyOnboardingConcernAging.
+  ///
+  /// In en, this message translates to:
+  /// **'🌿 Loss of Elasticity & Expression Lines'**
+  String get beautyOnboardingConcernAging;
+
+  /// No description provided for @beautyOnboardingBodyProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Specifics'**
+  String get beautyOnboardingBodyProfileLabel;
+
+  /// No description provided for @beautyOnboardingBodyNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal / No Issues'**
+  String get beautyOnboardingBodyNormal;
+
+  /// No description provided for @beautyOnboardingBodyKeratose.
+  ///
+  /// In en, this message translates to:
+  /// **'Keratosis Pilaris (Goosebumps)'**
+  String get beautyOnboardingBodyKeratose;
+
+  /// No description provided for @beautyOnboardingBodyEczema.
+  ///
+  /// In en, this message translates to:
+  /// **'Eczema / Prone to Flare-ups'**
+  String get beautyOnboardingBodyEczema;
+
+  /// No description provided for @beautyOnboardingBodyVergetures.
+  ///
+  /// In en, this message translates to:
+  /// **'Stretch Mark Prevention'**
+  String get beautyOnboardingBodyVergetures;
+
+  /// No description provided for @beautyOnboardingBodyDrySkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Very Dry Body Skin (Crocodile)'**
+  String get beautyOnboardingBodyDrySkin;
+
+  /// No description provided for @beautyOnboardingStep3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'🌱 Beauty Goals & Priorities'**
+  String get beautyOnboardingStep3Title;
+
+  /// No description provided for @beautyOnboardingStep3Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your hair and skin priorities to calibrate your 30-day routine.'**
+  String get beautyOnboardingStep3Subtitle;
+
+  /// No description provided for @beautyOnboardingHairGoalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Goals 👑'**
+  String get beautyOnboardingHairGoalsLabel;
+
+  /// No description provided for @beautyOnboardingGoalHairGrowth.
+  ///
+  /// In en, this message translates to:
+  /// **'🌱 Growth, Density & Length'**
+  String get beautyOnboardingGoalHairGrowth;
+
+  /// No description provided for @beautyOnboardingGoalAntiBreakage.
+  ///
+  /// In en, this message translates to:
+  /// **'🛡️ Strength, Retention & Anti-Breakage'**
+  String get beautyOnboardingGoalAntiBreakage;
+
+  /// No description provided for @beautyOnboardingGoalHairMoisture.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Deep Hydration & Definition'**
+  String get beautyOnboardingGoalHairMoisture;
+
+  /// No description provided for @beautyOnboardingGoalScalpSoothing.
+  ///
+  /// In en, this message translates to:
+  /// **'💆 Scalp Balance & Soothing'**
+  String get beautyOnboardingGoalScalpSoothing;
+
+  /// No description provided for @beautyOnboardingSkinGoalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin & Complexion Goals ✨'**
+  String get beautyOnboardingSkinGoalsLabel;
+
+  /// No description provided for @beautyOnboardingGoalSkinGlow.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Radiance & Even Complexion'**
+  String get beautyOnboardingGoalSkinGlow;
+
+  /// No description provided for @beautyOnboardingGoalAntiSpot.
+  ///
+  /// In en, this message translates to:
+  /// **'🌖 Reducing Spots & Hyperpigmentation'**
+  String get beautyOnboardingGoalAntiSpot;
+
+  /// No description provided for @beautyOnboardingGoalSkinMoisture.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Hydration & Skin Suppleness'**
+  String get beautyOnboardingGoalSkinMoisture;
+
+  /// No description provided for @beautyOnboardingGoalAntiImperfection.
+  ///
+  /// In en, this message translates to:
+  /// **'🌋 Clarifying & Anti-Blemish'**
+  String get beautyOnboardingGoalAntiImperfection;
+
+  /// No description provided for @beautyOnboardingGoalSkinBarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'🛡️ Strengthening the Skin Barrier'**
+  String get beautyOnboardingGoalSkinBarrier;
+
+  /// No description provided for @beautyOnboardingStep4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 First Baseline Check-In (First Beauty Log)'**
+  String get beautyOnboardingStep4Title;
+
+  /// No description provided for @beautyOnboardingStep4Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your starting measurements and observations. This first log will serve as your baseline to measure your progress over 30 days.'**
+  String get beautyOnboardingStep4Subtitle;
+
+  /// No description provided for @beautyOnboardingHairLengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'📏 Current Hair Length'**
+  String get beautyOnboardingHairLengthLabel;
+
+  /// No description provided for @beautyOnboardingValueCm.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} cm'**
+  String beautyOnboardingValueCm(String value);
+
+  /// No description provided for @beautyOnboardingHairStrengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'💪 Hair Strength & Resistance'**
+  String get beautyOnboardingHairStrengthLabel;
+
+  /// No description provided for @beautyOnboardingValueOutOfTen.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}/10'**
+  String beautyOnboardingValueOutOfTen(String value);
+
+  /// No description provided for @beautyOnboardingSheddingRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 Current Shedding Rate'**
+  String get beautyOnboardingSheddingRateLabel;
+
+  /// No description provided for @beautyOnboardingSheddingLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get beautyOnboardingSheddingLow;
+
+  /// No description provided for @beautyOnboardingSheddingModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get beautyOnboardingSheddingModerate;
+
+  /// No description provided for @beautyOnboardingSheddingHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get beautyOnboardingSheddingHigh;
+
+  /// No description provided for @beautyOnboardingSkinHydrationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Skin Hydration Level'**
+  String get beautyOnboardingSkinHydrationLabel;
+
+  /// No description provided for @beautyOnboardingSkinClarityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Complexion Radiance & Clarity'**
+  String get beautyOnboardingSkinClarityLabel;
+
+  /// No description provided for @beautyOnboardingNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'📝 Initial Notes & Observations'**
+  String get beautyOnboardingNotesLabel;
+
+  /// No description provided for @beautyOnboardingNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes on the condition of your hair and skin...'**
+  String get beautyOnboardingNotesHint;
+
+  /// No description provided for @beautyOnboardingDefaultNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial beauty profile check-in'**
+  String get beautyOnboardingDefaultNotes;
+
+  /// No description provided for @beautyOnboardingSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'📋 Summary & Confirmation'**
+  String get beautyOnboardingSummaryTitle;
+
+  /// No description provided for @beautyOnboardingSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review your beauty profile summary before activating your personalized 30-day program.'**
+  String get beautyOnboardingSummarySubtitle;
+
+  /// No description provided for @beautyOnboardingSummaryHairCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'👑 Hair Profile'**
+  String get beautyOnboardingSummaryHairCardTitle;
+
+  /// No description provided for @beautyOnboardingSummaryHairTypeRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Texture / Type:'**
+  String get beautyOnboardingSummaryHairTypeRow;
+
+  /// No description provided for @beautyOnboardingSummaryPorosityRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Porosity:'**
+  String get beautyOnboardingSummaryPorosityRow;
+
+  /// No description provided for @beautyOnboardingSummaryPorosityLowValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get beautyOnboardingSummaryPorosityLowValue;
+
+  /// No description provided for @beautyOnboardingSummaryPorosityHighValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Porous'**
+  String get beautyOnboardingSummaryPorosityHighValue;
+
+  /// No description provided for @beautyOnboardingSummaryPorosityMediumValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get beautyOnboardingSummaryPorosityMediumValue;
+
+  /// No description provided for @beautyOnboardingSummaryScalpRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Scalp:'**
+  String get beautyOnboardingSummaryScalpRow;
+
+  /// No description provided for @beautyOnboardingSummaryScalpDryValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Dry'**
+  String get beautyOnboardingSummaryScalpDryValue;
+
+  /// No description provided for @beautyOnboardingSummaryScalpOilyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Oily'**
+  String get beautyOnboardingSummaryScalpOilyValue;
+
+  /// No description provided for @beautyOnboardingSummaryScalpSensitiveValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensitive'**
+  String get beautyOnboardingSummaryScalpSensitiveValue;
+
+  /// No description provided for @beautyOnboardingSummaryScalpNormalValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get beautyOnboardingSummaryScalpNormalValue;
+
+  /// No description provided for @beautyOnboardingSummarySkinCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Skin Diagnostic'**
+  String get beautyOnboardingSummarySkinCardTitle;
+
+  /// No description provided for @beautyOnboardingSummarySkinTypeRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Typology:'**
+  String get beautyOnboardingSummarySkinTypeRow;
+
+  /// No description provided for @beautyOnboardingSummaryConcernsRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Concerns:'**
+  String get beautyOnboardingSummaryConcernsRow;
+
+  /// No description provided for @beautyOnboardingSummaryConcernsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get beautyOnboardingSummaryConcernsNone;
+
+  /// No description provided for @beautyOnboardingSummaryBodyProfileRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Body Specifics:'**
+  String get beautyOnboardingSummaryBodyProfileRow;
+
+  /// No description provided for @beautyOnboardingSummaryGoalsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🌱 Selected Goals'**
+  String get beautyOnboardingSummaryGoalsCardTitle;
+
+  /// No description provided for @beautyOnboardingSummaryFirstLogCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'📊 First Check-In Measurements'**
+  String get beautyOnboardingSummaryFirstLogCardTitle;
+
+  /// No description provided for @beautyOnboardingSummaryHairLengthRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Length:'**
+  String get beautyOnboardingSummaryHairLengthRow;
+
+  /// No description provided for @beautyOnboardingSummaryHairStrengthRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Strength:'**
+  String get beautyOnboardingSummaryHairStrengthRow;
+
+  /// No description provided for @beautyOnboardingSummarySheddingRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Shedding Rate:'**
+  String get beautyOnboardingSummarySheddingRow;
+
+  /// No description provided for @beautyOnboardingSummarySkinHydrationRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Hydration:'**
+  String get beautyOnboardingSummarySkinHydrationRow;
+
+  /// No description provided for @beautyOnboardingSummaryClarityRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Complexion Radiance:'**
+  String get beautyOnboardingSummaryClarityRow;
+
+  /// No description provided for @beautyOnboardingSummaryNotesRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes:'**
+  String get beautyOnboardingSummaryNotesRow;
+
+  /// No description provided for @beautyOnboardingSummaryEditTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get beautyOnboardingSummaryEditTooltip;
+
+  /// No description provided for @beautyOnboardingSaveErrorSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'Error saving: {error}'**
+  String beautyOnboardingSaveErrorSnackbar(String error);
+
+  /// No description provided for @beautyCheckinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty Check-In & Evolution'**
+  String get beautyCheckinTitle;
+
+  /// No description provided for @beautyCheckinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your monthly hair length and skin barrier check-in.'**
+  String get beautyCheckinSubtitle;
+
+  /// No description provided for @beautyCheckinHairLengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Length: {value} cm'**
+  String beautyCheckinHairLengthLabel(String value);
+
+  /// No description provided for @beautyCheckinHairStrengthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Strength Score: {value} / 10'**
+  String beautyCheckinHairStrengthLabel(String value);
+
+  /// No description provided for @beautyCheckinHairThicknessLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Thickness Score: {value} / 10'**
+  String beautyCheckinHairThicknessLabel(String value);
+
+  /// No description provided for @beautyCheckinSkinHydrationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Hydration Level: {value} / 10'**
+  String beautyCheckinSkinHydrationLabel(String value);
+
+  /// No description provided for @beautyCheckinSkinClarityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin Clarity Score: {value} / 10'**
+  String beautyCheckinSkinClarityLabel(String value);
+
+  /// No description provided for @beautyCheckinNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in Journal Notes (Optional)'**
+  String get beautyCheckinNotesLabel;
+
+  /// No description provided for @beautyCheckinNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Hair feeling noticeably softer after Chébé mask!'**
+  String get beautyCheckinNotesHint;
+
+  /// No description provided for @beautyCheckinSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Progress Check-In'**
+  String get beautyCheckinSaveButton;
+
+  /// No description provided for @beautyCheckinSheddingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair Shedding Rate'**
+  String get beautyCheckinSheddingLabel;
+
+  /// No description provided for @beautyCheckinSheddingLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get beautyCheckinSheddingLow;
+
+  /// No description provided for @beautyCheckinSheddingModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get beautyCheckinSheddingModerate;
+
+  /// No description provided for @beautyCheckinSheddingHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get beautyCheckinSheddingHigh;
+
+  /// No description provided for @todayBeautyRoutinesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Rituals 👑'**
+  String get todayBeautyRoutinesTitle;
+
+  /// No description provided for @todayBeautyRoutinesPlanningLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan (30d)'**
+  String get todayBeautyRoutinesPlanningLink;
+
+  /// No description provided for @todayBeautyRoutinesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No rituals today'**
+  String get todayBeautyRoutinesEmptyTitle;
+
+  /// No description provided for @todayBeautyRoutinesEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate your monthly plan in the Routine tab.'**
+  String get todayBeautyRoutinesEmptySubtitle;
+
+  /// No description provided for @todayBeautyRoutinesRestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest day for your scalp & skin!'**
+  String get todayBeautyRoutinesRestDay;
+
+  /// No description provided for @todayBeautyRoutinesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading rituals: {error}'**
+  String todayBeautyRoutinesLoadError(String error);
+
+  /// No description provided for @todayBeautyRoutinesTierLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tier: {tier}'**
+  String todayBeautyRoutinesTierLabel(String tier);
+
+  /// No description provided for @todayBeautyRoutinesDefaultLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ritual'**
+  String get todayBeautyRoutinesDefaultLabel;
+
+  /// No description provided for @beautyPlannerLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading care plan: {error}'**
+  String beautyPlannerLoadError(String error);
+
+  /// No description provided for @beautyPlannerHeaderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Monthly Care Plan'**
+  String get beautyPlannerHeaderTitle;
+
+  /// No description provided for @beautyPlannerHeaderSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalized hair & skin care routines (30 days).'**
+  String get beautyPlannerHeaderSubtitle;
+
+  /// No description provided for @beautyPlannerDailySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'💧 Daily Care (Hydration)'**
+  String get beautyPlannerDailySectionTitle;
+
+  /// No description provided for @beautyPlannerWeeklySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'🌿 Weekly Care (Masks & Baths)'**
+  String get beautyPlannerWeeklySectionTitle;
+
+  /// No description provided for @beautyPlannerMonthlySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'✨ Monthly & Protein Care'**
+  String get beautyPlannerMonthlySectionTitle;
+
+  /// No description provided for @beautyPlannerSectionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} treatment} other{{count} treatments}}'**
+  String beautyPlannerSectionCount(int count);
+
+  /// No description provided for @beautyPlannerDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String beautyPlannerDayLabel(String day);
+
+  /// No description provided for @beautyPlannerEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Active Care Plan'**
+  String get beautyPlannerEmptyTitle;
+
+  /// No description provided for @beautyPlannerEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate your monthly hair and skin care routine tailored to your profile.'**
+  String get beautyPlannerEmptySubtitle;
+
+  /// No description provided for @beautyPlannerGenerateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate My Beauty Plan'**
+  String get beautyPlannerGenerateButton;
+
+  /// No description provided for @colorSetModalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize Color Theme'**
+  String get colorSetModalTitle;
+
+  /// No description provided for @colorSetModalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a Primary & Secondary color palette.'**
+  String get colorSetModalSubtitle;
+
+  /// No description provided for @colorSetModalPresetTealName.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal & Amber (Nutrition)'**
+  String get colorSetModalPresetTealName;
+
+  /// No description provided for @colorSetModalPresetTealDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced, healthy and energizing.'**
+  String get colorSetModalPresetTealDesc;
+
+  /// No description provided for @colorSetModalPresetRoseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Rose & Gold (Beauty)'**
+  String get colorSetModalPresetRoseName;
+
+  /// No description provided for @colorSetModalPresetRoseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Editorial luxury, organic care & radiance.'**
+  String get colorSetModalPresetRoseDesc;
+
+  /// No description provided for @colorSetModalPresetSageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Sage & Bronze (Botanical)'**
+  String get colorSetModalPresetSageName;
+
+  /// No description provided for @colorSetModalPresetSageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Ancestral plants & nature.'**
+  String get colorSetModalPresetSageDesc;
+
+  /// No description provided for @colorSetModalPresetTerracottaName.
+  ///
+  /// In en, this message translates to:
+  /// **'Terracotta & Clay (Sun)'**
+  String get colorSetModalPresetTerracottaName;
+
+  /// No description provided for @colorSetModalPresetTerracottaDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Earthy African tones & warmth.'**
+  String get colorSetModalPresetTerracottaDesc;
+
+  /// No description provided for @colorSetModalApplyButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply This Palette'**
+  String get colorSetModalApplyButton;
 }
 
 class _AppLocalizationsDelegate

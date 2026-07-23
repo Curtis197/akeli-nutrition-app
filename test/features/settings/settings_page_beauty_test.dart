@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:akeli/features/settings/settings_page.dart';
 import 'package:akeli/providers/mode_provider.dart';
 import 'package:akeli/providers/user_profile_provider.dart';
-import 'package:akeli/providers/auth_provider.dart';
 import 'package:akeli/core/locale_provider.dart';
 import 'package:akeli/shared/models/user_profile.dart';
 import 'package:akeli/l10n/app_localizations.dart';

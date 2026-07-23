@@ -9,7 +9,6 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/user_preferences_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import '../../shared/models/user_preferences.dart';
 import 'widgets/allergen_picker_widget.dart';
 import 'widgets/settings_widgets.dart';

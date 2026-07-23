@@ -1,5 +1,6 @@
 import 'package:akeli/features/beauty/beauty_onboarding_page.dart';
 import 'package:flutter/material.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -8,6 +9,9 @@ void main() {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('fr'),
           home: BeautyOnboardingPage(),
         ),
       ),

@@ -13,20 +13,11 @@ void main() {
         'hair_shedding_rate': 'low',
         'scalp_health_score': 9.0,
         'curl_retention_score': 8.5,
-        'porosity_level': 'high',
-        'protective_style_active': true,
         'skin_hydration_level': 8.0,
         'skin_clarity_score': 7.5,
-        'sebum_oil_level': 'balanced',
-        'acne_breakout_count': 1,
-        'skin_elasticity_score': 8.5,
-        'skin_redness_level': 'none',
-        'routine_compliance_pct': 92.5,
-        'routine_satisfaction_score': 9.0,
         'checkin_photo_urls': ['https://example.com/photo1.jpg'],
         'checkin_notes': 'Hair feeling stronger this month!',
         'logged_at': '2026-07-21T10:00:00Z',
-        'created_at': '2026-07-21T10:00:00Z',
       };
 
       final log = BeautyLog.fromJson(json);
@@ -37,8 +28,10 @@ void main() {
       expect(log.hairStrengthScore, equals(7.8));
       expect(log.hairThicknessScore, equals(8.2));
       expect(log.hairSheddingRate, equals('low'));
-      expect(log.protectiveStyleActive, isTrue);
-      expect(log.routineCompliancePct, equals(92.5));
+      expect(log.scalpHealthScore, equals(9.0));
+      expect(log.curlRetentionScore, equals(8.5));
+      expect(log.skinHydrationLevel, equals(8.0));
+      expect(log.skinClarityScore, equals(7.5));
       expect(log.checkinPhotoUrls, contains('https://example.com/photo1.jpg'));
     });
 
@@ -49,8 +42,11 @@ void main() {
         userId: 'user-789',
         hairLengthCm: 25.0,
         hairStrengthScore: 6.5,
+        hairThicknessScore: 7.0,
+        hairSheddingRate: 'moderate',
+        skinHydrationLevel: 7.0,
+        skinClarityScore: 7.0,
         loggedAt: now,
-        createdAt: now,
       );
 
       final json = log.toJson();

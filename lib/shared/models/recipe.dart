@@ -146,6 +146,16 @@ class Recipe {
     List<RecipeStep>? steps,
     double? estimatedCostPer100g,
     String? costCurrency,
+    String? mode,
+    String? beautyType,
+    String? beautySubType,
+    String? frequency,
+    String? suitableHairType,
+    String? skinTarget,
+    String? formulation,
+    bool? isPremadeProduct,
+    String? productType,
+    Map<String, double>? virtueWeights,
   }) {
     return Recipe(
       id: id,
@@ -186,6 +196,16 @@ class Recipe {
       fat100g: fat100g,
       estimatedCostPer100g: estimatedCostPer100g ?? this.estimatedCostPer100g,
       costCurrency: costCurrency ?? this.costCurrency,
+      mode: mode ?? this.mode,
+      beautyType: beautyType ?? this.beautyType,
+      beautySubType: beautySubType ?? this.beautySubType,
+      frequency: frequency ?? this.frequency,
+      suitableHairType: suitableHairType ?? this.suitableHairType,
+      skinTarget: skinTarget ?? this.skinTarget,
+      formulation: formulation ?? this.formulation,
+      isPremadeProduct: isPremadeProduct ?? this.isPremadeProduct,
+      productType: productType ?? this.productType,
+      virtueWeights: virtueWeights ?? this.virtueWeights,
       createdAt: createdAt,
     );
   }

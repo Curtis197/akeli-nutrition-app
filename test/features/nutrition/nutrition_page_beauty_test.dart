@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:akeli/features/nutrition/nutrition_page.dart';
 import 'package:akeli/providers/mode_provider.dart';
 import 'package:akeli/providers/user_profile_provider.dart';
-import 'package:akeli/providers/auth_provider.dart';
 import 'package:akeli/core/locale_provider.dart';
 import 'package:akeli/shared/models/user_profile.dart';
 import 'package:akeli/providers/beauty_plan_provider.dart';
@@ -12,7 +11,6 @@ import 'package:akeli/shared/models/beauty_log.dart';
 import 'package:akeli/shared/models/beauty_plan.dart';
 import 'package:akeli/providers/nutrition_provider.dart';
 import 'package:akeli/providers/nutrition_plan_provider.dart';
-import 'package:akeli/shared/models/nutrition_plan.dart';
 import 'package:akeli/l10n/app_localizations.dart';
 
 class FakeBeautyModeNotifier extends ModeNotifier {
@@ -52,7 +50,7 @@ void main() {
     startDate: DateTime(2026, 7, 1),
     endDate: DateTime(2026, 7, 31),
     createdAt: DateTime(2026, 7, 1),
-    slots: [
+    slots: const [
       BeautyPlanSlot(
         id: 'slot-1',
         planId: 'plan-1',

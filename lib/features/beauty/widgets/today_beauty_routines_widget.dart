@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/logger.dart';
 import '../../../core/router.dart';
 import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/beauty_plan_provider.dart';
 import '../../../shared/models/beauty_plan.dart';
 import '../../../shared/widgets/empty_state.dart';
 
 class TodayBeautyRoutinesWidget extends ConsumerWidget {
-  const TodayBeautyRoutinesWidget({super.key});
+  final DateTime Function() now;
+  static final _logger = appLogger;
+
+  const TodayBeautyRoutinesWidget({super.key, this.now = DateTime.now});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    _logger.provider('TodayBeautyRoutinesWidget build()');
+    final l10n = AppLocalizations.of(context);
     final beautyPlanAsync = ref.watch(activeBeautyPlanProvider);
 
     return Column(
@@ -23,7 +30,7 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Vos Rituels du Jour 👑',
+                l10n.todayBeautyRoutinesTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: AkeliColors.textPrimary,
@@ -34,19 +41,19 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
                 onPressed: () {
                   context.push(AkeliRoutes.mealPlanner);
                 },
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Planning (30j)',
-                      style: TextStyle(
+                      l10n.todayBeautyRoutinesPlanningLink,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: AkeliColors.primary,
                       ),
                     ),
-                    SizedBox(width: 4),
-                    Icon(Icons.chevron_right, size: 16, color: AkeliColors.primary),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.chevron_right, size: 16, color: AkeliColors.primary),
                   ],
                 ),
               ),
@@ -60,22 +67,22 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: EmptyState(
                   icon: Icons.spa_outlined,
-                  title: 'Aucun rituel aujourd\'hui',
-                  subtitle: 'Générez votre planning mensuel dans l\'onglet Routine.',
+                  title: l10n.todayBeautyRoutinesEmptyTitle,
+                  subtitle: l10n.todayBeautyRoutinesEmptySubtitle,
                 ),
               );
             }
 
-            final today = DateTime.now();
-            final todayDayNumber = today.day;
-            final todayDayOfWeek = today.weekday; // 1 = Mon, 7 = Sun
+            final today = now();
 
-            // Filter slots scheduled for today (by dayNumber or dayOfWeek fallback)
             final todaySlots = plan.slots.where((s) {
               if (s.dayNumber != null) {
-                return s.dayNumber == todayDayNumber;
+                final slotDate = plan.startDate.add(Duration(days: s.dayNumber! - 1));
+                return slotDate.year == today.year &&
+                    slotDate.month == today.month &&
+                    slotDate.day == today.day;
               }
-              return s.dayOfWeek == todayDayOfWeek;
+              return s.dayOfWeek == today.weekday;
             }).toList();
 
             if (todaySlots.isEmpty) {
@@ -86,14 +93,14 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
                   color: AkeliColors.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.check_circle_outline, color: AkeliColors.primary),
-                    SizedBox(width: 12),
+                    const Icon(Icons.check_circle_outline, color: AkeliColors.primary),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Journée de repos pour votre cuir chevelu & peau !',
-                        style: TextStyle(
+                        l10n.todayBeautyRoutinesRestDay,
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: AkeliColors.textSecondary,
@@ -113,7 +120,7 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
               separatorBuilder: (ctx, i) => const SizedBox(height: 8),
               itemBuilder: (ctx, index) {
                 final slot = todaySlots[index];
-                return _buildTodaySlotCard(context, ref, slot);
+                return _buildTodaySlotCard(context, ref, l10n, slot);
               },
             );
           },
@@ -124,7 +131,7 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
           error: (err, stack) => Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'Erreur lors du chargement des rituels : $err',
+              l10n.todayBeautyRoutinesLoadError(err.toString()),
               style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
           ),
@@ -134,7 +141,7 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
   }
 
   Widget _buildTodaySlotCard(
-      BuildContext context, WidgetRef ref, BeautyPlanSlot slot) {
+      BuildContext context, WidgetRef ref, AppLocalizations l10n, BeautyPlanSlot slot) {
     final isCompleted = slot.isCompleted;
     final recipe = slot.recipe;
 
@@ -196,7 +203,9 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                slot.frequencyTier != null ? 'Tier: ${slot.frequencyTier}' : 'Rituel',
+                slot.frequencyTier != null
+                    ? l10n.todayBeautyRoutinesTierLabel(slot.frequencyTier!)
+                    : l10n.todayBeautyRoutinesDefaultLabel,
                 style: const TextStyle(
                   fontSize: 11,
                   color: AkeliColors.textSecondary,
@@ -209,9 +218,20 @@ class TodayBeautyRoutinesWidget extends ConsumerWidget {
           value: isCompleted,
           activeColor: AkeliColors.primary,
           onChanged: (val) {
+            _logger.userAction(
+              'Beauty routine checkbox toggled',
+              screen: 'TodayBeautyRoutinesWidget',
+              metadata: {'slotId': slot.id, 'from': isCompleted, 'to': !isCompleted},
+            );
+            _logger.db('BEFORE | table: beauty_plan_slot | op: UPDATE is_completed | slotId: ${slot.id}');
             ref
                 .read(toggleBeautySlotNotifierProvider.notifier)
-                .toggleCompletion(slot.id, isCompleted);
+                .toggleCompletion(slot.id, isCompleted)
+                .then((_) {
+              _logger.db('AFTER | table: beauty_plan_slot | op: UPDATE is_completed | slotId: ${slot.id}');
+            }).catchError((e, st) {
+              _logger.db('ERROR | toggleCompletion via TodayBeautyRoutinesWidget | $e', error: e, stackTrace: st);
+            });
           },
         ),
         onTap: () {

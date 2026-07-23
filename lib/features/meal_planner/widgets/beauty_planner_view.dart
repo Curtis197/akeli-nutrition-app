@@ -1,33 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/logger.dart';
 import '../../../core/router.dart';
 import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/beauty_plan_provider.dart';
 import '../../../shared/models/beauty_plan.dart';
-import '../../../shared/widgets/empty_state.dart';
 
 class BeautyPlannerView extends ConsumerWidget {
+  static final _logger = appLogger;
+
   const BeautyPlannerView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    _logger.provider('BeautyPlannerView build()');
+    final l10n = AppLocalizations.of(context);
     final beautyPlanAsync = ref.watch(activeBeautyPlanProvider);
 
     return beautyPlanAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, _) => Center(
         child: Text(
-          'Erreur lors du chargement du plan de soin: $err',
+          l10n.beautyPlannerLoadError(err.toString()),
           style: const TextStyle(color: AkeliColors.error),
         ),
       ),
       data: (plan) {
         if (plan == null || plan.slots.isEmpty) {
-          return _buildEmptyBeautyState(context, ref);
+          return _buildEmptyBeautyState(context, ref, l10n);
         }
 
-        // Group slots by frequency_tier
         final dailySlots = plan.slots.where((s) => s.frequencyTier == 'daily').toList();
         final weeklySlots = plan.slots.where((s) => s.frequencyTier == '1x_week' || s.frequencyTier == '2x_week').toList();
         final monthlySlots = plan.slots.where((s) => s.frequencyTier == '2x_month' || s.frequencyTier == '1x_month' || s.frequencyTier == null).toList();
@@ -37,7 +41,6 @@ class BeautyPlannerView extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Summary Card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -53,12 +56,12 @@ class BeautyPlannerView extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      children: const [
-                        Icon(Icons.spa_rounded, color: Colors.white, size: 24),
-                        SizedBox(width: 8),
+                      children: [
+                        const Icon(Icons.spa_rounded, color: Colors.white, size: 24),
+                        const SizedBox(width: 8),
                         Text(
-                          'Mon Plan de Soins Mensuel',
-                          style: TextStyle(
+                          l10n.beautyPlannerHeaderTitle,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -68,7 +71,7 @@ class BeautyPlannerView extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Routines personnalisées de soins capillaires & cutanés (30 jours).',
+                      l10n.beautyPlannerHeaderSubtitle,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
@@ -79,27 +82,24 @@ class BeautyPlannerView extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
-              // 1. Daily Routines Section
               if (dailySlots.isNotEmpty) ...[
-                _buildSectionHeader(context, '💧 Soins Quotidiens (Hydratation)', dailySlots.length),
+                _buildSectionHeader(context, l10n, l10n.beautyPlannerDailySectionTitle, dailySlots.length),
                 const SizedBox(height: 12),
-                ...dailySlots.take(2).map((slot) => _buildBeautySlotCard(context, ref, slot)),
+                ...dailySlots.take(2).map((slot) => _buildBeautySlotCard(context, ref, l10n, slot)),
                 const SizedBox(height: 24),
               ],
 
-              // 2. Weekly Wash Day & Masks Section
               if (weeklySlots.isNotEmpty) ...[
-                _buildSectionHeader(context, '🌿 Soins Hebdomadaires (Masques & Bains)', weeklySlots.length),
+                _buildSectionHeader(context, l10n, l10n.beautyPlannerWeeklySectionTitle, weeklySlots.length),
                 const SizedBox(height: 12),
-                ...weeklySlots.take(4).map((slot) => _buildBeautySlotCard(context, ref, slot)),
+                ...weeklySlots.take(4).map((slot) => _buildBeautySlotCard(context, ref, l10n, slot)),
                 const SizedBox(height: 24),
               ],
 
-              // 3. Monthly Deep Detox & Check-in Section
               if (monthlySlots.isNotEmpty) ...[
-                _buildSectionHeader(context, '✨ Soins Mensuels & Proteine', monthlySlots.length),
+                _buildSectionHeader(context, l10n, l10n.beautyPlannerMonthlySectionTitle, monthlySlots.length),
                 const SizedBox(height: 12),
-                ...monthlySlots.take(3).map((slot) => _buildBeautySlotCard(context, ref, slot)),
+                ...monthlySlots.take(3).map((slot) => _buildBeautySlotCard(context, ref, l10n, slot)),
               ],
             ],
           ),
@@ -108,7 +108,7 @@ class BeautyPlannerView extends ConsumerWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, int count) {
+  Widget _buildSectionHeader(BuildContext context, AppLocalizations l10n, String title, int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -126,7 +126,7 @@ class BeautyPlannerView extends ConsumerWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            '$count soins',
+            l10n.beautyPlannerSectionCount(count),
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
@@ -138,7 +138,7 @@ class BeautyPlannerView extends ConsumerWidget {
     );
   }
 
-  Widget _buildBeautySlotCard(BuildContext context, WidgetRef ref, BeautyPlanSlot slot) {
+  Widget _buildBeautySlotCard(BuildContext context, WidgetRef ref, AppLocalizations l10n, BeautyPlanSlot slot) {
     final recipe = slot.recipe;
     final isCompleted = slot.isCompleted;
 
@@ -196,7 +196,7 @@ class BeautyPlannerView extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Jour ${slot.dayNumber ?? slot.dayOfWeek}',
+                l10n.beautyPlannerDayLabel((slot.dayNumber ?? slot.dayOfWeek).toString()),
                 style: const TextStyle(fontSize: 12, color: AkeliColors.textSecondary),
               ),
             ],
@@ -206,9 +206,20 @@ class BeautyPlannerView extends ConsumerWidget {
           value: isCompleted,
           activeColor: AkeliColors.primary,
           onChanged: (val) {
+            _logger.userAction(
+              'Beauty routine checkbox toggled',
+              screen: 'BeautyPlannerView',
+              metadata: {'slotId': slot.id, 'from': isCompleted, 'to': !isCompleted},
+            );
+            _logger.db('BEFORE | table: beauty_plan_slot | op: UPDATE is_completed | slotId: ${slot.id}');
             ref
                 .read(toggleBeautySlotNotifierProvider.notifier)
-                .toggleCompletion(slot.id, isCompleted);
+                .toggleCompletion(slot.id, isCompleted)
+                .then((_) {
+              _logger.db('AFTER | table: beauty_plan_slot | op: UPDATE is_completed | slotId: ${slot.id}');
+            }).catchError((e, st) {
+              _logger.db('ERROR | toggleCompletion via BeautyPlannerView | $e', error: e, stackTrace: st);
+            });
           },
         ),
         onTap: () {
@@ -220,7 +231,7 @@ class BeautyPlannerView extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyBeautyState(BuildContext context, WidgetRef ref) {
+  Widget _buildEmptyBeautyState(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -230,14 +241,14 @@ class BeautyPlannerView extends ConsumerWidget {
             const Icon(Icons.auto_awesome_rounded, size: 64, color: AkeliColors.primary),
             const SizedBox(height: 16),
             Text(
-              'Aucun Plan de Soin Actif',
+              l10n.beautyPlannerEmptyTitle,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Générez votre routine mensuelle de soins capillaires et cutanés adaptée à votre profil.',
+              l10n.beautyPlannerEmptySubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AkeliColors.textSecondary,
@@ -251,12 +262,18 @@ class BeautyPlannerView extends ConsumerWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               icon: const Icon(Icons.bolt, color: Colors.white),
-              label: const Text(
-                'Générer Mon Plan Beauté',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              label: Text(
+                l10n.beautyPlannerGenerateButton,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               onPressed: () {
-                ref.read(generateBeautyPlanNotifierProvider.notifier).generatePlan();
+                _logger.userAction('Générer Mon Plan Beauté tapped', screen: 'BeautyPlannerView');
+                _logger.db('BEFORE rpc | fn: generate_beauty_plan');
+                ref.read(generateBeautyPlanNotifierProvider.notifier).generatePlan().then((_) {
+                  _logger.db('AFTER rpc | fn: generate_beauty_plan | success');
+                }).catchError((e, st) {
+                  _logger.db('ERROR rpc | fn: generate_beauty_plan | $e', error: e, stackTrace: st);
+                });
               },
             ),
           ],

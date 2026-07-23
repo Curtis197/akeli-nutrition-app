@@ -10,7 +10,6 @@ import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import '../../l10n/app_localizations.dart';
 
 class SupportPage extends ConsumerStatefulWidget {

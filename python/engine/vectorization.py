@@ -29,6 +29,7 @@ Dimensions:
 from __future__ import annotations
 from datetime import datetime
 from typing import Optional
+import logging
 import numpy as np
 
 from .database import (
@@ -163,6 +164,9 @@ HAIR_TYPE_SPECTRUM = {
     "3A": 0.50, "3B": 0.60, "3C": 0.70,
     "4A": 0.80, "4B": 0.90, "4C": 1.00,
     "1": 0.10, "2": 0.30, "3": 0.60, "4": 0.90,
+    "LOCKS": 0.85,
+    "TRANSITION": 0.55,
+    "PROTECTIVE": 0.85,
 }
 
 POROSITY_SPECTRUM = {
@@ -180,6 +184,23 @@ SKIN_TYPE_SPECTRUM = {
     "acne": 1.00,
 }
 
+SCALP_TYPE_SPECTRUM = {
+    "dry": 0.10,
+    "normal": 0.50,
+    "oily": 0.90,
+    "flaky": 1.00,
+    "dandruff": 1.00,
+}
+
+# Attribute dims (inherent physical traits) — always amplified 2x; not a "goal" choice.
+AMPLIFIED_ATTRIBUTE_DIMS = (DIM_HAIR_TEXTURE, DIM_POROSITY, DIM_SKIN_TYPE)
+
+# Goal/virtue dims amplified 2x — currently 6 of the 18 total goal/virtue dims (31-48).
+# Expanding to the other 12 is a product decision, deliberately NOT made here (Finding #7).
+AMPLIFIED_GOAL_DIMS = (
+    GOAL_HAIR_GROWTH, GOAL_HAIR_ANTI_BREAKAGE, GOAL_HAIR_MOISTURE,
+    GOAL_SKIN_GLOW, GOAL_SKIN_BARRIER, GOAL_SKIN_SEBUM_ACNE,
+)
 
 def _normalize_l2(v: np.ndarray) -> np.ndarray:
     norm = np.linalg.norm(v)
@@ -233,12 +254,19 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
     if mode == "beauty":
         # ---- Inherent Attributes (27-30) ----
         hair_type = str(profile.get("hair_type") or "4C").upper()
-        vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM.get(hair_type, 0.90)
+        if hair_type not in HAIR_TYPE_SPECTRUM:
+            logging.getLogger("vectorization").warning(f"User {user_id}: hair_type '{hair_type}' not in HAIR_TYPE_SPECTRUM. Defaulting to 0.90")
+            vector[DIM_HAIR_TEXTURE] = 0.90
+        else:
+            vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM[hair_type]
 
-        porosity = str(profile.get("porosity") or "high").lower()
+        porosity = str(profile.get("porosity") or "medium").lower()
         vector[DIM_POROSITY] = POROSITY_SPECTRUM.get(porosity, 1.0)
 
-        skin_type = str(profile.get("skin_type") or "oily").lower()
+        scalp_type = str(profile.get("scalp_type") or "normal").lower()
+        vector[DIM_SCALP_TYPE] = SCALP_TYPE_SPECTRUM.get(scalp_type, 0.50)
+
+        skin_type = str(profile.get("skin_type") or "combination").lower()
         vector[DIM_SKIN_TYPE] = SKIN_TYPE_SPECTRUM.get(skin_type, 0.90)
 
         if profile.get("sensitive_scalp"):
@@ -294,13 +322,13 @@ def compute_user_vector(user_id: str, mode: str = "nutrition") -> Optional[np.nd
                 scalp_health = latest_log.get("scalp_health_score")
                 if scalp_health is not None and float(scalp_health) < 5.0:
                     vector[GOAL_SCALP_SOOTHING] = max(vector[GOAL_SCALP_SOOTHING], 1.0)
-        except Exception:
-            pass
+        except Exception as e:
+            logging.warning(
+                f"get_latest_beauty_log check-in boost skipped for user_id={user_id}: {e}"
+            )
 
         # Goal weight amplification
-        for dim in (DIM_HAIR_TEXTURE, DIM_POROSITY, DIM_SKIN_TYPE,
-                    GOAL_HAIR_GROWTH, GOAL_HAIR_ANTI_BREAKAGE, GOAL_HAIR_MOISTURE,
-                    GOAL_SKIN_GLOW, GOAL_SKIN_BARRIER, GOAL_SKIN_SEBUM_ACNE):
+        for dim in AMPLIFIED_ATTRIBUTE_DIMS + AMPLIFIED_GOAL_DIMS:
             vector[dim] *= 2.0
 
         return _normalize_l2(vector)
@@ -388,7 +416,11 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition", active_goals:
     if mode == "beauty" or recipe.get("mode") == "beauty":
         # ---- Inherent Attributes (27-30) ----
         suitable_hair = str(recipe.get("suitable_hair_type") or "4C").upper()
-        vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM.get(suitable_hair, 0.85)
+        if suitable_hair not in HAIR_TYPE_SPECTRUM:
+            logging.getLogger("vectorization").warning(f"Recipe {recipe_id}: suitable_hair_type '{suitable_hair}' not in HAIR_TYPE_SPECTRUM. Defaulting to 0.85")
+            vector[DIM_HAIR_TEXTURE] = 0.85
+        else:
+            vector[DIM_HAIR_TEXTURE] = HAIR_TYPE_SPECTRUM[suitable_hair]
 
         formulation = str(recipe.get("formulation") or "").lower()
         if formulation == "heavy_butter":
@@ -399,12 +431,17 @@ def compute_recipe_vector(recipe_id: str, mode: str = "nutrition", active_goals:
             vector[DIM_POROSITY] = 0.50
 
         skin_target = str(recipe.get("skin_target") or "").lower()
-        if skin_target in ("oily", "acne"):
-            vector[DIM_SKIN_TYPE] = 0.90
-        elif skin_target == "dry":
-            vector[DIM_SKIN_TYPE] = 0.10
+        vector[DIM_SKIN_TYPE] = SKIN_TYPE_SPECTRUM.get(skin_target, 0.50)
+
+        scalp_target = str(recipe.get("scalp_target") or "").lower()
+        if scalp_target in ("flaky", "dandruff"):
+            vector[DIM_SCALP_TYPE] = 1.00
+        elif scalp_target == "oily":
+            vector[DIM_SCALP_TYPE] = 0.90
+        elif scalp_target == "dry":
+            vector[DIM_SCALP_TYPE] = 0.10
         else:
-            vector[DIM_SKIN_TYPE] = 0.50
+            vector[DIM_SCALP_TYPE] = 0.50
 
         # ---- Remedy Continuous Virtue Weight Vectors (31-48) ----
         is_premade = bool(recipe.get("is_premade_product")) or str(recipe.get("product_type")).lower() in ("artisanal", "industrial")

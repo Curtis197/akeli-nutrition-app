@@ -12,7 +12,6 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import 'meal_planner_actions.dart';
 import 'rating_bottom_sheet.dart';
 import 'widgets/meal_planner_day_row.dart';

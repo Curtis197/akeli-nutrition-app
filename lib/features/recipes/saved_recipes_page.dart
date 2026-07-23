@@ -8,7 +8,6 @@ import '../../l10n/app_localizations.dart';
 import '../../providers/profile_tabs_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/akeli_recipe_card.dart';
 import 'domain/entities/recipe_tracking.dart';
 

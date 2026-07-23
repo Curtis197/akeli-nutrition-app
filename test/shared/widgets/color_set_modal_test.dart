@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:akeli/shared/widgets/color_set_modal.dart';
+import 'package:akeli/providers/color_set_provider.dart';
+
+class MockColorSetNotifier extends ColorSetNotifier {
+  @override
+  ColorSetPreset build() => ColorSetModal.presets.first;
+
+  @override
+  Future<void> selectPreset(ColorSetPreset preset) async {
+    state = preset;
+  }
+}
 
 void main() {
   group('ColorSetModal Widget Tests', () {
@@ -8,14 +21,22 @@ void main() {
       ColorSetPreset? selectedPreset;
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () async {
-                  selectedPreset = await ColorSetModal.show(context);
-                },
-                child: const Text('Open Color Selector'),
+        ProviderScope(
+          overrides: [
+            colorSetProvider.overrideWith(MockColorSetNotifier.new),
+          ],
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('fr'),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () async {
+                    selectedPreset = await ColorSetModal.show(context);
+                  },
+                  child: const Text('Open Color Selector'),
+                ),
               ),
             ),
           ),
@@ -40,7 +61,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(selectedPreset, isNotNull);
-      expect(selectedPreset!.name, equals('Rose & Gold (Beauty)'));
+      expect(selectedPreset!.id, equals('rose_beauty'));
       expect(selectedPreset!.primary, equals(const Color(0xFF8A3B58)));
     });
   });

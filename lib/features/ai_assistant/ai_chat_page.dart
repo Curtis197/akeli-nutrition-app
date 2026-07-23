@@ -6,7 +6,6 @@ import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 
 // ---------------------------------------------------------------------------
 // Model

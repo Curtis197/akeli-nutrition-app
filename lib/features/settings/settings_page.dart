@@ -75,11 +75,11 @@ class SettingsPage extends ConsumerWidget {
                   ),
                   Text(
                     l10n.settingsTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Plus Jakarta Sans',
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: AkeliColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -110,7 +110,7 @@ class SettingsPage extends ConsumerWidget {
                       decoration: BoxDecoration(
                         gradient: RadialGradient(
                           colors: [
-                            AkeliColors.primary.withValues(alpha: 0.15),
+                            Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
                             AkeliColors.surface.withValues(alpha: 0.8),
                             AkeliColors.tertiary.withValues(alpha: 0.05),
                           ],
@@ -134,15 +134,18 @@ class SettingsPage extends ConsumerWidget {
                           height: 120,
                           padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [AkeliColors.primary, AkeliColors.primaryContainer],
+                            gradient: LinearGradient(
+                              colors: [
+                                Theme.of(context).colorScheme.primary,
+                                Theme.of(context).colorScheme.primaryContainer,
+                              ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AkeliColors.primary.withValues(alpha: 0.2),
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -220,7 +223,7 @@ class SettingsPage extends ConsumerWidget {
                             icon: const Icon(Icons.edit_rounded, size: 20),
                             label: Text(l10n.settingsEdit, style: const TextStyle(fontWeight: FontWeight.bold)),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AkeliColors.primary,
+                              backgroundColor: Theme.of(context).colorScheme.primary,
                               foregroundColor: AkeliColors.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -459,9 +462,9 @@ class SettingsPage extends ConsumerWidget {
                                 },
                                 child: Text(
                                   l10n.settingsPrivacyPolicy,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: AkeliColors.primary,
+                                    color: Theme.of(context).colorScheme.primary,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -474,9 +477,9 @@ class SettingsPage extends ConsumerWidget {
                                 },
                                 child: Text(
                                   l10n.settingsTerms,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: AkeliColors.primary,
+                                    color: Theme.of(context).colorScheme.primary,
                                     decoration: TextDecoration.underline,
                                   ),
                                 ),
@@ -635,7 +638,7 @@ class _SwitchItem extends StatelessWidget {
           Expanded(
             child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: AkeliColors.onSurface)),
           ),
-          Switch(value: value, onChanged: onChanged, activeThumbColor: AkeliColors.primary),
+          Switch(value: value, onChanged: onChanged, activeThumbColor: Theme.of(context).colorScheme.primary),
         ],
       ),
     );
@@ -766,7 +769,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
               children: [
                 Text(
                   l10n.settingsEditProfile,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AkeliColors.primary, letterSpacing: -0.5),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary, letterSpacing: -0.5),
                 ),
                 const Spacer(),
                 Container(
@@ -826,7 +829,7 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: AkeliColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                           border: Border.all(color: AkeliColors.background, width: 2),
                         ),
@@ -904,10 +907,10 @@ class _EditProfileSheetState extends ConsumerState<_EditProfileSheet> {
               },
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 20),
-                backgroundColor: AkeliColors.primary,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                 elevation: 4,
-                shadowColor: AkeliColors.primary.withValues(alpha: 0.4),
+                shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4),
               ),
               child: _saving
                   ? const SizedBox(

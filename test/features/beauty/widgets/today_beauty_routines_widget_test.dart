@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:akeli/features/beauty/widgets/today_beauty_routines_widget.dart';
@@ -37,6 +38,9 @@ void main() {
             activeBeautyPlanProvider.overrideWith((ref) async => mockPlan),
           ],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('fr'),
             home: Scaffold(
               body: SingleChildScrollView(
                 child: TodayBeautyRoutinesWidget(),

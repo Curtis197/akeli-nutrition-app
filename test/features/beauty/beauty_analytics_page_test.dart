@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:akeli/features/beauty/beauty_analytics_page.dart';
@@ -40,7 +41,7 @@ void main() {
     startDate: DateTime(2026, 7, 1),
     endDate: DateTime(2026, 7, 31),
     createdAt: DateTime(2026, 7, 1),
-    slots: [
+    slots: const [
       BeautyPlanSlot(
         id: 'slot-1',
         planId: 'plan-1',
@@ -76,6 +77,9 @@ void main() {
           beautyLogsProvider.overrideWith((ref) async => testLogs),
         ],
         child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('fr'),
           home: BeautyAnalyticsPage(),
         ),
       ),

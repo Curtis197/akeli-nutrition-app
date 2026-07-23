@@ -16,6 +16,23 @@ def test_health_check():
 
 @patch("main.upsert_user_vector")
 @patch("main.compute_user_vector")
+def test_compute_user_vector_endpoint_beauty_mode(mock_compute, mock_upsert):
+    """/compute-user-vector must thread mode="beauty" through to compute_user_vector
+    end-to-end via the real FastAPI TestClient (Finding #11 — this path was never
+    exercised; only mocked-function unit assertions existed before)."""
+    mock_compute.return_value = np.zeros(VECTOR_DIM, dtype=np.float32)
+
+    response = client.post("/compute-user-vector", json={"user_id": "user_beauty_1", "mode": "beauty"})
+
+    assert response.status_code == 200
+    assert response.json()["user_id"] == "user_beauty_1"
+    assert response.json()["mode"] == "beauty"
+    assert response.json()["vector_computed"] is True
+    mock_compute.assert_called_once_with("user_beauty_1", mode="beauty")
+    mock_upsert.assert_called_once()
+
+@patch("main.upsert_user_vector")
+@patch("main.compute_user_vector")
 def test_compute_user_vector_endpoint_success(mock_compute, mock_upsert):
     # Setup mocks
     mock_compute.return_value = np.zeros(VECTOR_DIM, dtype=np.float32)
@@ -76,6 +93,7 @@ def test_nightly_batch_success(mock_run_batch):
     # Fastapi TestClient processes background tasks before returning
     mock_run_batch.assert_called_once()
 
+@patch("main.get_user_last_mode")
 @patch("main.finish_batch_run")
 @patch("main.start_batch_run")
 @patch("main.upsert_recipe_weight_impact")
@@ -96,10 +114,11 @@ def test_run_nightly_batch(
     mock_get_recipes, mock_comp_recipe, mock_up_recipe,
     mock_get_creators, mock_comp_creator, mock_get_creator_recipes, mock_up_creator,
     mock_get_weight_users, mock_comp_weight, mock_up_weight,
-    mock_start_run, mock_finish_run,
+    mock_start_run, mock_finish_run, mock_get_last_mode,
 ):
     mock_start_run.return_value = "run-123"
     mock_get_users.return_value = ["user1", "user2"]
+    mock_get_last_mode.side_effect = lambda uid: "beauty" if uid == "user1" else "nutrition"
     mock_comp_user.side_effect = [np.zeros(VECTOR_DIM), None] # Second user fails to generate vector
     
     mock_get_recipes.return_value = ["recipe1"]
@@ -113,6 +132,11 @@ def test_run_nightly_batch(
     
     assert mock_up_user.call_count == 1 # Only one successful vector
     assert mock_up_recipe.call_count == 1 # One successful vector
+    # Finding #1: each user's mode must be resolved via get_user_last_mode and
+    # threaded through to compute_user_vector — nightly batch must not silently
+    # default every user to mode="nutrition".
+    mock_comp_user.assert_any_call("user1", mode="beauty")
+    mock_comp_user.assert_any_call("user2", mode="nutrition")
     mock_start_run.assert_called_once()
     mock_finish_run.assert_called_once_with("run-123", "completed", {
         "user_vectors_updated": 1, "user_vectors_attempted": 2,
@@ -122,6 +146,7 @@ def test_run_nightly_batch(
     })
 
 
+@patch("main.get_user_last_mode")
 @patch("main.finish_batch_run")
 @patch("main.start_batch_run")
 @patch("main.log_batch_failure")
@@ -143,10 +168,11 @@ def test_run_nightly_batch_logs_failure_on_exception(
     mock_get_recipes, mock_comp_recipe, mock_up_recipe,
     mock_get_creators, mock_comp_creator, mock_get_creator_recipes, mock_up_creator,
     mock_get_weight_users, mock_comp_weight, mock_up_weight,
-    mock_log_failure, mock_start_run, mock_finish_run,
+    mock_log_failure, mock_start_run, mock_finish_run, mock_get_last_mode,
 ):
     mock_start_run.return_value = "run-456"
     mock_get_users.return_value = ["user1"]
+    mock_get_last_mode.return_value = "nutrition"
     mock_comp_user.side_effect = Exception("boom")
     mock_get_recipes.return_value = []
     mock_get_creators.return_value = []

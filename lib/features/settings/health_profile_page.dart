@@ -2,23 +2,17 @@
 
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../core/locale_provider.dart';
 import '../../core/logger.dart';
 import '../../core/theme.dart';
 import '../../core/unit_converter.dart';
-import '../../core/nutrition_input_bounds.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/health_profile_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
-import '../../providers/nutrition_targets_provider.dart' show remainingWeeksFromDate;
 import 'models/health_profile_model.dart';
-import 'widgets/intensity_badge.dart';
 import 'widgets/settings_widgets.dart';
 
 class HealthProfilePage extends ConsumerStatefulWidget {
@@ -236,9 +230,9 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
                             height: 24,
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
                           )
-                        : Text(
+                        : const Text(
                             'Enregistrer le Profil',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -269,7 +263,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
               const SettingsLabel('Type / Texture Capillaire'),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _hairTypes.contains(local.hairType) ? local.hairType : _hairTypes.first,
+                initialValue: _hairTypes.contains(local.hairType) ? local.hairType : _hairTypes.first,
                 dropdownColor: AkeliColors.surfaceContainerHighest,
                 style: const TextStyle(color: AkeliColors.onSurface, fontSize: 14),
                 decoration: InputDecoration(
@@ -312,7 +306,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
               const SizedBox(height: 16),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                activeColor: _gold,
+                activeThumbColor: _gold,
                 title: const Text('Cuir Chevelu Sensible / Réactif', style: TextStyle(color: AkeliColors.onSurface, fontSize: 14)),
                 subtitle: const Text('Tendance aux démangeaisons ou rougeurs', style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 12)),
                 value: local.sensitiveScalp ?? false,
@@ -336,7 +330,7 @@ class _HealthProfilePageState extends ConsumerState<HealthProfilePage> {
               const SettingsLabel('Typologie de Peau'),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: _skinTypologies.contains(local.skinType) ? local.skinType : _skinTypologies.first,
+                initialValue: _skinTypologies.contains(local.skinType) ? local.skinType : _skinTypologies.first,
                 dropdownColor: AkeliColors.surfaceContainerHighest,
                 style: const TextStyle(color: AkeliColors.onSurface, fontSize: 14),
                 decoration: InputDecoration(

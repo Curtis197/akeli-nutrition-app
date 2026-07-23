@@ -24,6 +24,7 @@ from engine.database import (
     start_batch_run,
     log_batch_failure,
     finish_batch_run,
+    get_user_last_mode,
 )
 
 app = FastAPI(
@@ -185,7 +186,8 @@ def run_nightly_batch():
 
         for user_id in active_users:
             try:
-                vector = compute_user_vector(user_id)
+                mode = get_user_last_mode(user_id)
+                vector = compute_user_vector(user_id, mode=mode)
                 if vector is not None:
                     upsert_user_vector(user_id, vector)
                     counts["user_vectors_updated"] += 1

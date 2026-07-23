@@ -6,7 +6,6 @@ import '../../../core/theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/meal_plan_provider.dart';
 import '../../../providers/mode_provider.dart';
-import '../../../widgets/mode_selector.dart';
 
 final _logger = appLogger;
 

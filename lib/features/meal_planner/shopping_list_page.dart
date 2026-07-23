@@ -8,7 +8,6 @@ import '../../core/locale_provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/shopping_row.dart';
 

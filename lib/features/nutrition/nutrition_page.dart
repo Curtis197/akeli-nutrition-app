@@ -19,7 +19,6 @@ import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/macro_card.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import 'widgets/journey/journey_tab.dart';
 import '../beauty/beauty_analytics_page.dart';
 

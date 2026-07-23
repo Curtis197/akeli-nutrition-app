@@ -2895,4 +2895,698 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get onboardingValidationAgeMax =>
       'L\'âge doit être d\'au plus 100 ans';
+
+  @override
+  String get beautyAnalyticsTitle => 'Suivi Beauté & Rituals';
+
+  @override
+  String get beautyAnalyticsNewCheckinTooltip => 'Nouveau Bilan Beauté';
+
+  @override
+  String get beautyAnalyticsHeaderBadge => 'DIAGNOSTIC & SUIVI RITUEL';
+
+  @override
+  String get beautyAnalyticsHeaderTitle => 'Tableau de Bord Beauté 👑';
+
+  @override
+  String get beautyAnalyticsHeaderSubtitle =>
+      'Analysez votre régularité rituelle, la repousse capillaire et l\'évolution de votre teint.';
+
+  @override
+  String get beautyAnalyticsTimeframe7d => '7 Jours';
+
+  @override
+  String get beautyAnalyticsTimeframe30d => '30 Jours';
+
+  @override
+  String get beautyAnalyticsTimeframe90d => '90 Jours';
+
+  @override
+  String get beautyAnalyticsTimeframeAll => 'Tout';
+
+  @override
+  String get beautyAnalyticsNewCheckinFab => 'Nouveau Bilan';
+
+  @override
+  String get beautyAnalyticsAdherenceLabel => 'Assiduité du Rituel';
+
+  @override
+  String beautyAnalyticsAdherenceFraction(String completed, String total) {
+    return '($completed/$total soins)';
+  }
+
+  @override
+  String beautyAnalyticsLoadError(String error) {
+    return 'Erreur de chargement des bilans: $error';
+  }
+
+  @override
+  String get beautyAnalyticsHairSectionTitle => 'Diagnostic Capillaire 👑';
+
+  @override
+  String get beautyAnalyticsHairLengthLabel => 'Longueur';
+
+  @override
+  String beautyAnalyticsValueCm(String value) {
+    return '$value cm';
+  }
+
+  @override
+  String beautyAnalyticsValueOutOfTen(String value) {
+    return '$value/10';
+  }
+
+  @override
+  String beautyAnalyticsHairLengthGrowthPositive(String value) {
+    return '+$value cm gagnés';
+  }
+
+  @override
+  String beautyAnalyticsHairLengthGrowthNegative(String value) {
+    return '$value cm';
+  }
+
+  @override
+  String get beautyAnalyticsHairStrengthLabel => 'Force & Densité';
+
+  @override
+  String get beautyAnalyticsHairStrengthSubtitle => 'Score de résistance';
+
+  @override
+  String get beautyAnalyticsSheddingLabel => 'Niveau de Chute (Anti-Casse)';
+
+  @override
+  String get beautyAnalyticsSheddingModerate => 'Modérée';
+
+  @override
+  String get beautyAnalyticsSheddingLow => 'Faible (Idéal)';
+
+  @override
+  String get beautyAnalyticsSheddingHigh => 'Élevée (Attention)';
+
+  @override
+  String get beautyAnalyticsSkinSectionTitle => 'Diagnostic Cutané ✨';
+
+  @override
+  String get beautyAnalyticsSkinHydrationLabel => 'Hydratation Cutanée';
+
+  @override
+  String get beautyAnalyticsSkinHydrationSubtitle => 'Barrière hydrique';
+
+  @override
+  String get beautyAnalyticsSkinClarityLabel => 'Éclat & Teint';
+
+  @override
+  String get beautyAnalyticsSkinClaritySubtitle => 'Clarification du grain';
+
+  @override
+  String get beautyAnalyticsHistoryTitle => 'Historique du Journal 📖';
+
+  @override
+  String beautyAnalyticsHistoryCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bilans',
+      one: '$count bilan',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get beautyAnalyticsHistoryEmpty =>
+      'Aucun bilan beauté enregistré pour l\'instant.';
+
+  @override
+  String beautyAnalyticsHistoryEntryNumber(String number) {
+    return 'Bilan #$number';
+  }
+
+  @override
+  String beautyAnalyticsChipLength(String value) {
+    return '📏 $value cm';
+  }
+
+  @override
+  String beautyAnalyticsChipStrength(String value) {
+    return '💪 Force: $value/10';
+  }
+
+  @override
+  String beautyAnalyticsChipHydration(String value) {
+    return '💧 Hydratation: $value/10';
+  }
+
+  @override
+  String beautyAnalyticsChipClarity(String value) {
+    return '✨ Éclat: $value/10';
+  }
+
+  @override
+  String get beautyOnboardingTitle => 'Profil Beauté Botanique';
+
+  @override
+  String get beautyOnboardingBackButton => 'Retour';
+
+  @override
+  String get beautyOnboardingNextButton => 'Étape Suivante ➔';
+
+  @override
+  String get beautyOnboardingSubmitButton =>
+      'Confirmer & Générer Mon Plan 30 Jours ✨';
+
+  @override
+  String get beautyOnboardingStep1Title => '👑 Empreinte Capillaire';
+
+  @override
+  String get beautyOnboardingStep1Subtitle =>
+      'Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos soins botaniques.';
+
+  @override
+  String get beautyOnboardingHairCompositionLabel =>
+      'Composition & Texture Capillaire';
+
+  @override
+  String get beautyOnboardingHairType4c =>
+      '4C — Crépu Très Serré (Trame en Z, Shrinkage fort)';
+
+  @override
+  String get beautyOnboardingHairType4b =>
+      '4B — Crépu Zigzag en Z (Boucles en Z définies)';
+
+  @override
+  String get beautyOnboardingHairType4a =>
+      '4A — Crépu Spirales en S (Spirales denses)';
+
+  @override
+  String get beautyOnboardingHairType3c =>
+      '3C — Boucles Frisées Denses (Spirales serrées)';
+
+  @override
+  String get beautyOnboardingHairType3b =>
+      '3B — Boucles Serrées en Tire-bouchon';
+
+  @override
+  String get beautyOnboardingHairType3a => '3A — Boucles Amples Souples';
+
+  @override
+  String get beautyOnboardingHairType2c => '2C — Ondulations Épaisses';
+
+  @override
+  String get beautyOnboardingHairType2b => '2B — Ondulations Définies';
+
+  @override
+  String get beautyOnboardingHairType2a => '2A — Ondulations Légères';
+
+  @override
+  String get beautyOnboardingHairType1c => '1C — Cheveux Lisses Épais';
+
+  @override
+  String get beautyOnboardingHairType1b => '1B — Cheveux Lisses Moyens';
+
+  @override
+  String get beautyOnboardingHairType1a => '1A — Cheveux Lisses Très Fins';
+
+  @override
+  String get beautyOnboardingHairTypeLocks =>
+      'Locks / Dreadlocks (Verrouillés)';
+
+  @override
+  String get beautyOnboardingHairTypeTransition =>
+      'Cheveux en Transition (Post-Défrisage)';
+
+  @override
+  String get beautyOnboardingHairTypeProtective =>
+      'Soin Sous Tresses / Perruque';
+
+  @override
+  String get beautyOnboardingPorosityLabel => 'Porosité des Cheveux';
+
+  @override
+  String get beautyOnboardingPorosityLow => 'Faible (Écailles fermées)';
+
+  @override
+  String get beautyOnboardingPorosityMedium => 'Moyenne (Équilibre parfait)';
+
+  @override
+  String get beautyOnboardingPorosityHigh =>
+      'Fortement Poreuse (Écailles ouvertes)';
+
+  @override
+  String get beautyOnboardingScalpLabel => 'État du Cuir Chevelu';
+
+  @override
+  String get beautyOnboardingScalpNormal => 'Normal / Équilibré';
+
+  @override
+  String get beautyOnboardingScalpDry => 'Sec & Démangeaisons';
+
+  @override
+  String get beautyOnboardingScalpOily => 'Gras / Pellicules';
+
+  @override
+  String get beautyOnboardingScalpSensitive => 'Sensible / Irrité';
+
+  @override
+  String get beautyOnboardingStep2Title => '✨ Diagnostic Cutané Profond';
+
+  @override
+  String get beautyOnboardingStep2Subtitle =>
+      'Analysez la typologie globale et les défis spécifiques de votre peau (visage & corps).';
+
+  @override
+  String get beautyOnboardingSkinTypeLabel => 'Composition & Typologie Cutanée';
+
+  @override
+  String get beautyOnboardingSkinTypeMixte =>
+      'Peau Mixte (Zone T brillante, joues normales/sèches)';
+
+  @override
+  String get beautyOnboardingSkinTypeSeche =>
+      'Peau Sèche & Déshydratée (Tiraillements & desquamation)';
+
+  @override
+  String get beautyOnboardingSkinTypeGrasse =>
+      'Peau Grasse & Acnéique (Excès de sébum, pores dilatés)';
+
+  @override
+  String get beautyOnboardingSkinTypeSensible =>
+      'Peau Sensible & Réactive (Rougeurs, rosacée)';
+
+  @override
+  String get beautyOnboardingSkinTypeHyperpigmentation =>
+      'Peau Sujette à l\'Hyperpigmentation (Taches sombres, mélasma)';
+
+  @override
+  String get beautyOnboardingSkinTypeMature =>
+      'Peau Mature (Perte de fermeté & rides d\'expression)';
+
+  @override
+  String get beautyOnboardingSkinTypeNormale => 'Peau Normale / Équilibrée';
+
+  @override
+  String get beautyOnboardingSkinConcernsLabel =>
+      'Préoccupations Cutanées (Visage & Décolleté)';
+
+  @override
+  String get beautyOnboardingConcernHyperpigmentation =>
+      '🌖 Taches Sombres & Teint Irrégulier';
+
+  @override
+  String get beautyOnboardingConcernAcne => '🌋 Boutons & Imperfections';
+
+  @override
+  String get beautyOnboardingConcernDehydration =>
+      '💧 Déshydratation Profonde & Perte d\'Éclat';
+
+  @override
+  String get beautyOnboardingConcernBarrier =>
+      '🛡️ Barrière Cutanée Fragilisée & Sensibilité';
+
+  @override
+  String get beautyOnboardingConcernSebum =>
+      '✨ Brillance Excessive & Pores Dilatés';
+
+  @override
+  String get beautyOnboardingConcernAging =>
+      '🌿 Perte d\'Élasticité & Rides d\'Expression';
+
+  @override
+  String get beautyOnboardingBodyProfileLabel => 'Particularités du Corps';
+
+  @override
+  String get beautyOnboardingBodyNormal => 'Normal / Sans Problème';
+
+  @override
+  String get beautyOnboardingBodyKeratose => 'Kératose Pilaire (Peau de poule)';
+
+  @override
+  String get beautyOnboardingBodyEczema => 'Eczéma / Sujet aux Poussées';
+
+  @override
+  String get beautyOnboardingBodyVergetures => 'Prévention Vergetures';
+
+  @override
+  String get beautyOnboardingBodyDrySkin =>
+      'Peau du Corps Très Sèche (Crocodile)';
+
+  @override
+  String get beautyOnboardingStep3Title => '🌱 Objectifs Beauté & Priorités';
+
+  @override
+  String get beautyOnboardingStep3Subtitle =>
+      'Sélectionnez vos priorités capillaires et cutanées pour calibrer votre routine sur 30 jours.';
+
+  @override
+  String get beautyOnboardingHairGoalsLabel => 'Objectifs Capillaires 👑';
+
+  @override
+  String get beautyOnboardingGoalHairGrowth => '🌱 Pousse, Densité & Longueur';
+
+  @override
+  String get beautyOnboardingGoalAntiBreakage =>
+      '🛡️ Force, Retention & Anti-Casse';
+
+  @override
+  String get beautyOnboardingGoalHairMoisture =>
+      '💧 Hydratation Profonde & Définition';
+
+  @override
+  String get beautyOnboardingGoalScalpSoothing =>
+      '💆 Équilibre & Apaisement du Cuir Chevelu';
+
+  @override
+  String get beautyOnboardingSkinGoalsLabel => 'Objectifs Cutanés & Teint ✨';
+
+  @override
+  String get beautyOnboardingGoalSkinGlow =>
+      '✨ Éclat du Teint & Teint Uniforme';
+
+  @override
+  String get beautyOnboardingGoalAntiSpot =>
+      '🌖 Atténuation des Taches & Hyperpigmentation';
+
+  @override
+  String get beautyOnboardingGoalSkinMoisture =>
+      '💧 Hydratation & Souplesse Cutanée';
+
+  @override
+  String get beautyOnboardingGoalAntiImperfection =>
+      '🌋 Clarification & Anti-Imperfections';
+
+  @override
+  String get beautyOnboardingGoalSkinBarrier =>
+      '🛡️ Renforcement de la Barrière Cutanée';
+
+  @override
+  String get beautyOnboardingStep4Title =>
+      '📊 Premier Bilan Initial (First Beauty Log)';
+
+  @override
+  String get beautyOnboardingStep4Subtitle =>
+      'Saisissez vos mesures et observations de départ. Ce premier journal servira de point de référence pour mesurer vos progrès au fil des 30 jours.';
+
+  @override
+  String get beautyOnboardingHairLengthLabel =>
+      '📏 Longueur Actuelle des Cheveux';
+
+  @override
+  String beautyOnboardingValueCm(String value) {
+    return '$value cm';
+  }
+
+  @override
+  String get beautyOnboardingHairStrengthLabel =>
+      '💪 Force & Résistance Capillaire';
+
+  @override
+  String beautyOnboardingValueOutOfTen(String value) {
+    return '$value/10';
+  }
+
+  @override
+  String get beautyOnboardingSheddingRateLabel => '📊 Taux de Chute Actuel';
+
+  @override
+  String get beautyOnboardingSheddingLow => 'Faible';
+
+  @override
+  String get beautyOnboardingSheddingModerate => 'Modéré';
+
+  @override
+  String get beautyOnboardingSheddingHigh => 'Élevé';
+
+  @override
+  String get beautyOnboardingSkinHydrationLabel =>
+      '💧 Niveau d\'Hydratation de la Peau';
+
+  @override
+  String get beautyOnboardingSkinClarityLabel => '✨ Éclat & Clarté du Teint';
+
+  @override
+  String get beautyOnboardingNotesLabel => '📝 Notes Initiales & Observations';
+
+  @override
+  String get beautyOnboardingNotesHint =>
+      'Notes sur l\'état de vos cheveux et de votre peau...';
+
+  @override
+  String get beautyOnboardingDefaultNotes => 'Bilan initial du profil beauté';
+
+  @override
+  String get beautyOnboardingSummaryTitle => '📋 Résumé & Confirmation';
+
+  @override
+  String get beautyOnboardingSummarySubtitle =>
+      'Vérifiez la synthèse de votre profil beauté avant d\'activer votre programme personnalisé 30 jours.';
+
+  @override
+  String get beautyOnboardingSummaryHairCardTitle => '👑 Profil Capillaire';
+
+  @override
+  String get beautyOnboardingSummaryHairTypeRow => 'Texture / Type:';
+
+  @override
+  String get beautyOnboardingSummaryPorosityRow => 'Porosité:';
+
+  @override
+  String get beautyOnboardingSummaryPorosityLowValue => 'Faible';
+
+  @override
+  String get beautyOnboardingSummaryPorosityHighValue => 'Poreuse';
+
+  @override
+  String get beautyOnboardingSummaryPorosityMediumValue => 'Moyenne';
+
+  @override
+  String get beautyOnboardingSummaryScalpRow => 'Cuir Chevelu:';
+
+  @override
+  String get beautyOnboardingSummaryScalpDryValue => 'Sec';
+
+  @override
+  String get beautyOnboardingSummaryScalpOilyValue => 'Gras';
+
+  @override
+  String get beautyOnboardingSummaryScalpSensitiveValue => 'Sensible';
+
+  @override
+  String get beautyOnboardingSummaryScalpNormalValue => 'Normal';
+
+  @override
+  String get beautyOnboardingSummarySkinCardTitle => '✨ Diagnostic Cutané';
+
+  @override
+  String get beautyOnboardingSummarySkinTypeRow => 'Typologie:';
+
+  @override
+  String get beautyOnboardingSummaryConcernsRow => 'Préoccupations:';
+
+  @override
+  String get beautyOnboardingSummaryConcernsNone => 'Aucune';
+
+  @override
+  String get beautyOnboardingSummaryBodyProfileRow => 'Particularité Corps:';
+
+  @override
+  String get beautyOnboardingSummaryGoalsCardTitle =>
+      '🌱 Objectifs Sélectionnés';
+
+  @override
+  String get beautyOnboardingSummaryFirstLogCardTitle =>
+      '📊 Mesures du Premier Bilan';
+
+  @override
+  String get beautyOnboardingSummaryHairLengthRow => 'Longueur Cheveux:';
+
+  @override
+  String get beautyOnboardingSummaryHairStrengthRow => 'Force Capillaire:';
+
+  @override
+  String get beautyOnboardingSummarySheddingRow => 'Taux de Chute:';
+
+  @override
+  String get beautyOnboardingSummarySkinHydrationRow => 'Hydratation Peau:';
+
+  @override
+  String get beautyOnboardingSummaryClarityRow => 'Éclat Teint:';
+
+  @override
+  String get beautyOnboardingSummaryNotesRow => 'Notes:';
+
+  @override
+  String get beautyOnboardingSummaryEditTooltip => 'Modifier';
+
+  @override
+  String beautyOnboardingSaveErrorSnackbar(String error) {
+    return 'Erreur lors de la sauvegarde: $error';
+  }
+
+  @override
+  String get beautyCheckinTitle => 'Bilan Beauté & Évolution';
+
+  @override
+  String get beautyCheckinSubtitle =>
+      'Enregistrez votre bilan mensuel de longueur de cheveux et de barrière cutanée.';
+
+  @override
+  String beautyCheckinHairLengthLabel(String value) {
+    return 'Longueur des Cheveux : $value cm';
+  }
+
+  @override
+  String beautyCheckinHairStrengthLabel(String value) {
+    return 'Score de Force Capillaire : $value / 10';
+  }
+
+  @override
+  String beautyCheckinHairThicknessLabel(String value) {
+    return 'Score d\'Épaisseur Capillaire : $value / 10';
+  }
+
+  @override
+  String beautyCheckinSkinHydrationLabel(String value) {
+    return 'Niveau d\'Hydratation de la Peau : $value / 10';
+  }
+
+  @override
+  String beautyCheckinSkinClarityLabel(String value) {
+    return 'Score de Clarté de la Peau : $value / 10';
+  }
+
+  @override
+  String get beautyCheckinNotesLabel => 'Notes du Journal de Bilan (Optionnel)';
+
+  @override
+  String get beautyCheckinNotesHint =>
+      'ex. Cheveux nettement plus doux après un masque au Chébé !';
+
+  @override
+  String get beautyCheckinSaveButton => 'Enregistrer le Bilan';
+
+  @override
+  String get beautyCheckinSheddingLabel => 'Taux de Chute des Cheveux';
+
+  @override
+  String get beautyCheckinSheddingLow => 'Faible';
+
+  @override
+  String get beautyCheckinSheddingModerate => 'Modéré';
+
+  @override
+  String get beautyCheckinSheddingHigh => 'Élevé';
+
+  @override
+  String get todayBeautyRoutinesTitle => 'Vos Rituels du Jour 👑';
+
+  @override
+  String get todayBeautyRoutinesPlanningLink => 'Planning (30j)';
+
+  @override
+  String get todayBeautyRoutinesEmptyTitle => 'Aucun rituel aujourd\'hui';
+
+  @override
+  String get todayBeautyRoutinesEmptySubtitle =>
+      'Générez votre planning mensuel dans l\'onglet Routine.';
+
+  @override
+  String get todayBeautyRoutinesRestDay =>
+      'Journée de repos pour votre cuir chevelu & peau !';
+
+  @override
+  String todayBeautyRoutinesLoadError(String error) {
+    return 'Erreur lors du chargement des rituels : $error';
+  }
+
+  @override
+  String todayBeautyRoutinesTierLabel(String tier) {
+    return 'Tier: $tier';
+  }
+
+  @override
+  String get todayBeautyRoutinesDefaultLabel => 'Rituel';
+
+  @override
+  String beautyPlannerLoadError(String error) {
+    return 'Erreur lors du chargement du plan de soin: $error';
+  }
+
+  @override
+  String get beautyPlannerHeaderTitle => 'Mon Plan de Soins Mensuel';
+
+  @override
+  String get beautyPlannerHeaderSubtitle =>
+      'Routines personnalisées de soins capillaires & cutanés (30 jours).';
+
+  @override
+  String get beautyPlannerDailySectionTitle =>
+      '💧 Soins Quotidiens (Hydratation)';
+
+  @override
+  String get beautyPlannerWeeklySectionTitle =>
+      '🌿 Soins Hebdomadaires (Masques & Bains)';
+
+  @override
+  String get beautyPlannerMonthlySectionTitle => '✨ Soins Mensuels & Proteine';
+
+  @override
+  String beautyPlannerSectionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count soins',
+      one: '$count soin',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String beautyPlannerDayLabel(String day) {
+    return 'Jour $day';
+  }
+
+  @override
+  String get beautyPlannerEmptyTitle => 'Aucun Plan de Soin Actif';
+
+  @override
+  String get beautyPlannerEmptySubtitle =>
+      'Générez votre routine mensuelle de soins capillaires et cutanés adaptée à votre profil.';
+
+  @override
+  String get beautyPlannerGenerateButton => 'Générer Mon Plan Beauté';
+
+  @override
+  String get colorSetModalTitle => 'Personnaliser le Thème de Couleurs';
+
+  @override
+  String get colorSetModalSubtitle =>
+      'Sélectionnez une palette de couleurs Primaire & Secondaire.';
+
+  @override
+  String get colorSetModalPresetTealName => 'Teal & Amber (Nutrition)';
+
+  @override
+  String get colorSetModalPresetTealDesc => 'Équilibré, sain et énergisant.';
+
+  @override
+  String get colorSetModalPresetRoseName => 'Rose & Gold (Beauty)';
+
+  @override
+  String get colorSetModalPresetRoseDesc => 'Luxe éditorial, soin bio & éclat.';
+
+  @override
+  String get colorSetModalPresetSageName => 'Sage & Bronze (Botanique)';
+
+  @override
+  String get colorSetModalPresetSageDesc => 'Plantes ancestrales & nature.';
+
+  @override
+  String get colorSetModalPresetTerracottaName => 'Terracotta & Clay (Soleil)';
+
+  @override
+  String get colorSetModalPresetTerracottaDesc =>
+      'Tonalité terre d\'Afrique & chaleur.';
+
+  @override
+  String get colorSetModalApplyButton => 'Appliquer cette Palette';
 }

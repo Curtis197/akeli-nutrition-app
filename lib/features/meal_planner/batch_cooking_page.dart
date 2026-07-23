@@ -8,7 +8,6 @@ import '../../core/theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/meal_plan_provider.dart';
 import '../../providers/mode_provider.dart';
-import '../../widgets/mode_selector.dart';
 import '../../shared/models/meal_plan.dart';
 
 class BatchCookingPage extends ConsumerWidget {

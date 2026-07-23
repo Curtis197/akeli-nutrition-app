@@ -31,7 +31,7 @@ This document logs the complete technical implementation of **Akeli Beauty Mode*
   Index         Attribute / Goal                                Scale & Meaning
   ─────────────────────────────────────────────────────────────────────────────────────────────
   [0 - 26]      Culinary & Dietary Subspace                    Macros, satiety, speed, 13 cuisine regions
-  [27]          DIM_HAIR_TEXTURE                               Continuous Spectrum: 1A-1C=0.10 ... 4C=1.00
+  [27]          DIM_HAIR_TEXTURE                               Continuous Spectrum: 1A=0.10, 1B=0.10, 1C=0.15, 2A=0.25, 2B=0.30, 2C=0.40, 3A=0.50, 3B=0.60, 3C=0.70, 4A=0.80, 4B=0.90, 4C=1.00, Locks=0.85, Transition=0.55, Protective=0.85
   [28]          DIM_POROSITY                                   Continuous Spectrum: Low=0.20, Med=0.50, High=1.00
   [29]          DIM_SCALP_TYPE                                 Continuous Spectrum: Dry=0.10 ... Flaky=1.00
   [30]          DIM_SKIN_TYPE                                  Continuous Spectrum: Dry=0.10 ... Acne=1.00

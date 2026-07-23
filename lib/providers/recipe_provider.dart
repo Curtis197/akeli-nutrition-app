@@ -239,6 +239,11 @@ final feedProvider =
 
   final client = ref.watch(supabaseClientProvider);
 
+  final isBeautyActive = activeMode == 'beauty';
+  final effectiveProductType = isBeautyActive ? params.productType : null;
+  final effectiveRoutineCategory = isBeautyActive ? params.routineCategory : null;
+  final effectiveBeautyGoal = isBeautyActive ? params.beautyGoal : null;
+
   final rpcParams = {
     'p_user_id': user.id,
     'p_limit': params.limit,
@@ -251,9 +256,9 @@ final feedProvider =
     if (params.orderBy != null) 'p_order_by': params.orderBy,
     if (params.mealType != null) 'p_meal_type': params.mealType,
     'p_mode': activeMode,
-    if (params.productType != null) 'p_product_type': params.productType,
-    if (params.routineCategory != null) 'p_routine_category': params.routineCategory,
-    if (params.beautyGoal != null) 'p_beauty_goal': params.beautyGoal,
+    if (effectiveProductType != null) 'p_product_type': effectiveProductType,
+    if (effectiveRoutineCategory != null) 'p_routine_category': effectiveRoutineCategory,
+    if (effectiveBeautyGoal != null) 'p_beauty_goal': effectiveBeautyGoal,
   };
 
   appLogger.db(

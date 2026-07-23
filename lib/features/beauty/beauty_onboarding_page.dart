@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
+import '../../l10n/app_localizations.dart';
 import '../../providers/user_profile_provider.dart';
 
 class BeautyOnboardingPage extends ConsumerStatefulWidget {
@@ -40,11 +41,31 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
   // Step 4: First Beauty Log Check-in Baseline
   double _hairLengthCm = 15.0;
   double _hairStrengthScore = 7.0;
-  double _hairThicknessScore = 7.0;
+  final double _hairThicknessScore = 7.0;
   String _hairSheddingRate = 'moderate';
   double _skinHydrationLevel = 7.0;
   double _skinClarityScore = 7.0;
-  final _notesCtrl = TextEditingController(text: 'Bilan initial du profil beauté');
+  late final TextEditingController _notesCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    // Default notes text is set in didChangeDependencies once l10n is
+    // available (AppLocalizations.of(context) cannot be called from
+    // initState).
+    _notesCtrl = TextEditingController();
+  }
+
+  bool _defaultNotesApplied = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_defaultNotesApplied) {
+      _notesCtrl.text = AppLocalizations.of(context).beautyOnboardingDefaultNotes;
+      _defaultNotesApplied = true;
+    }
+  }
 
   @override
   void dispose() {
@@ -52,16 +73,52 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     super.dispose();
   }
 
+  String _porositySummaryValue(AppLocalizations l10n) {
+    switch (_porosity) {
+      case 'low':
+        return l10n.beautyOnboardingSummaryPorosityLowValue;
+      case 'high':
+        return l10n.beautyOnboardingSummaryPorosityHighValue;
+      default:
+        return l10n.beautyOnboardingSummaryPorosityMediumValue;
+    }
+  }
+
+  String _scalpSummaryValue(AppLocalizations l10n) {
+    switch (_scalpType) {
+      case 'dry':
+        return l10n.beautyOnboardingSummaryScalpDryValue;
+      case 'oily':
+        return l10n.beautyOnboardingSummaryScalpOilyValue;
+      case 'sensitive':
+        return l10n.beautyOnboardingSummaryScalpSensitiveValue;
+      default:
+        return l10n.beautyOnboardingSummaryScalpNormalValue;
+    }
+  }
+
+  String _sheddingRateLabel(AppLocalizations l10n, String rate) {
+    switch (rate) {
+      case 'low':
+        return l10n.beautyOnboardingSheddingLow;
+      case 'high':
+        return l10n.beautyOnboardingSheddingHigh;
+      default:
+        return l10n.beautyOnboardingSheddingModerate;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _logger.provider('BeautyOnboardingPage build() | step: $_currentStep');
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: BeautyOnboardingPage.beautyBackground,
       appBar: AppBar(
-        title: const Text(
-          'Profil Beauté Botanique',
-          style: TextStyle(
+        title: Text(
+          l10n.beautyOnboardingTitle,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontFamily: 'Plus Jakarta Sans',
             color: BeautyOnboardingPage.beautyPrimary,
@@ -75,7 +132,6 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Indicator Header (5 Steps)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Row(
@@ -99,10 +155,9 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
-                child: _buildStepContent(),
+                child: _buildStepContent(l10n),
               ),
             ),
-            // Bottom Action Bar
             Padding(
               padding: const EdgeInsets.all(24),
               child: Row(
@@ -116,7 +171,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Retour'),
+                      child: Text(l10n.beautyOnboardingBackButton),
                     ),
                     const SizedBox(width: 12),
                   ],
@@ -136,9 +191,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
                               child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                             )
                           : Text(
-                              _currentStep == 4
-                                  ? 'Confirmer & Générer Mon Plan 30 Jours ✨'
-                                  : 'Étape Suivante ➔',
+                              _currentStep == 4 ? l10n.beautyOnboardingSubmitButton : l10n.beautyOnboardingNextButton,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                     ),
@@ -152,29 +205,29 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     );
   }
 
-  Widget _buildStepContent() {
+  Widget _buildStepContent(AppLocalizations l10n) {
     switch (_currentStep) {
       case 0:
-        return _buildStep1Hair();
+        return _buildStep1Hair(l10n);
       case 1:
-        return _buildStep2Skin();
+        return _buildStep2Skin(l10n);
       case 2:
-        return _buildStep3Goals();
+        return _buildStep3Goals(l10n);
       case 3:
-        return _buildStep4FirstLog();
+        return _buildStep4FirstLog(l10n);
       case 4:
-        return _buildStep5Summary();
+        return _buildStep5Summary(l10n);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildStep1Hair() {
+  Widget _buildStep1Hair(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '👑 Empreinte Capillaire',
+          l10n.beautyOnboardingStep1Title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -182,17 +235,17 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos soins botaniques.',
+          l10n.beautyOnboardingStep1Subtitle,
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Composition & Texture Capillaire',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingHairCompositionLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: _hairType,
+          initialValue: _hairType,
           decoration: InputDecoration(
             filled: true,
             fillColor: BeautyOnboardingPage.beautySurfaceHigh,
@@ -209,68 +262,68 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           icon: const Icon(Icons.keyboard_arrow_down, color: BeautyOnboardingPage.beautyPrimary),
           dropdownColor: Colors.white,
           isExpanded: true,
-          items: const [
-            DropdownMenuItem(value: '4C', child: Text('4C — Crépu Très Serré (Trame en Z, Shrinkage fort)')),
-            DropdownMenuItem(value: '4B', child: Text('4B — Crépu Zigzag en Z (Boucles en Z définies)')),
-            DropdownMenuItem(value: '4A', child: Text('4A — Crépu Spirales en S (Spirales denses)')),
-            DropdownMenuItem(value: '3C', child: Text('3C — Boucles Frisées Denses (Spirales serrées)')),
-            DropdownMenuItem(value: '3B', child: Text('3B — Boucles Serrées en Tire-bouchon')),
-            DropdownMenuItem(value: '3A', child: Text('3A — Boucles Amples Souples')),
-            DropdownMenuItem(value: '2C', child: Text('2C — Ondulations Épaisses')),
-            DropdownMenuItem(value: '2B', child: Text('2B — Ondulations Définies')),
-            DropdownMenuItem(value: '2A', child: Text('2A — Ondulations Légères')),
-            DropdownMenuItem(value: '1C', child: Text('1C — Cheveux Lisses Épais')),
-            DropdownMenuItem(value: '1B', child: Text('1B — Cheveux Lisses Moyens')),
-            DropdownMenuItem(value: '1A', child: Text('1A — Cheveux Lisses Très Fins')),
-            DropdownMenuItem(value: 'Locks', child: Text('Locks / Dreadlocks (Verrouillés)')),
-            DropdownMenuItem(value: 'Transition', child: Text('Cheveux en Transition (Post-Défrisage)')),
-            DropdownMenuItem(value: 'Protective', child: Text('Soin Sous Tresses / Perruque')),
+          items: [
+            DropdownMenuItem(value: '4C', child: Text(l10n.beautyOnboardingHairType4c)),
+            DropdownMenuItem(value: '4B', child: Text(l10n.beautyOnboardingHairType4b)),
+            DropdownMenuItem(value: '4A', child: Text(l10n.beautyOnboardingHairType4a)),
+            DropdownMenuItem(value: '3C', child: Text(l10n.beautyOnboardingHairType3c)),
+            DropdownMenuItem(value: '3B', child: Text(l10n.beautyOnboardingHairType3b)),
+            DropdownMenuItem(value: '3A', child: Text(l10n.beautyOnboardingHairType3a)),
+            DropdownMenuItem(value: '2C', child: Text(l10n.beautyOnboardingHairType2c)),
+            DropdownMenuItem(value: '2B', child: Text(l10n.beautyOnboardingHairType2b)),
+            DropdownMenuItem(value: '2A', child: Text(l10n.beautyOnboardingHairType2a)),
+            DropdownMenuItem(value: '1C', child: Text(l10n.beautyOnboardingHairType1c)),
+            DropdownMenuItem(value: '1B', child: Text(l10n.beautyOnboardingHairType1b)),
+            DropdownMenuItem(value: '1A', child: Text(l10n.beautyOnboardingHairType1a)),
+            DropdownMenuItem(value: 'Locks', child: Text(l10n.beautyOnboardingHairTypeLocks)),
+            DropdownMenuItem(value: 'Transition', child: Text(l10n.beautyOnboardingHairTypeTransition)),
+            DropdownMenuItem(value: 'Protective', child: Text(l10n.beautyOnboardingHairTypeProtective)),
           ],
           onChanged: (val) {
             if (val != null) setState(() => _hairType = val);
           },
         ),
         const SizedBox(height: 28),
-        const Text(
-          'Porosité des Cheveux',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingPorosityLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           children: [
-            _buildSelectableChip('Faible (Écailles fermées)', 'low', _porosity, (val) => setState(() => _porosity = val)),
-            _buildSelectableChip('Moyenne (Équilibre parfait)', 'medium', _porosity, (val) => setState(() => _porosity = val)),
-            _buildSelectableChip('Fortement Poreuse (Écailles ouvertes)', 'high', _porosity, (val) => setState(() => _porosity = val)),
+            _buildSelectableChip(l10n.beautyOnboardingPorosityLow, 'low', _porosity, (val) => setState(() => _porosity = val)),
+            _buildSelectableChip(l10n.beautyOnboardingPorosityMedium, 'medium', _porosity, (val) => setState(() => _porosity = val)),
+            _buildSelectableChip(l10n.beautyOnboardingPorosityHigh, 'high', _porosity, (val) => setState(() => _porosity = val)),
           ],
         ),
         const SizedBox(height: 28),
-        const Text(
-          'État du Cuir Chevelu',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingScalpLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           children: [
-            _buildSelectableChip('Normal / Équilibré', 'normal', _scalpType, (val) => setState(() => _scalpType = val)),
-            _buildSelectableChip('Sec & Démangeaisons', 'dry', _scalpType, (val) => setState(() => _scalpType = val)),
-            _buildSelectableChip('Gras / Pellicules', 'oily', _scalpType, (val) => setState(() => _scalpType = val)),
-            _buildSelectableChip('Sensible / Irrité', 'sensitive', _scalpType, (val) => setState(() => _scalpType = val)),
+            _buildSelectableChip(l10n.beautyOnboardingScalpNormal, 'normal', _scalpType, (val) => setState(() => _scalpType = val)),
+            _buildSelectableChip(l10n.beautyOnboardingScalpDry, 'dry', _scalpType, (val) => setState(() => _scalpType = val)),
+            _buildSelectableChip(l10n.beautyOnboardingScalpOily, 'oily', _scalpType, (val) => setState(() => _scalpType = val)),
+            _buildSelectableChip(l10n.beautyOnboardingScalpSensitive, 'sensitive', _scalpType, (val) => setState(() => _scalpType = val)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildStep2Skin() {
+  Widget _buildStep2Skin(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '✨ Diagnostic Cutané Profond',
+          l10n.beautyOnboardingStep2Title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -278,17 +331,17 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Analysez la typologie globale et les défis spécifiques de votre peau (visage & corps).',
+          l10n.beautyOnboardingStep2Subtitle,
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Composition & Typologie Cutanée',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingSkinTypeLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String>(
-          value: _skinType,
+          initialValue: _skinType,
           decoration: InputDecoration(
             filled: true,
             fillColor: BeautyOnboardingPage.beautySurfaceHigh,
@@ -305,58 +358,58 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
           icon: const Icon(Icons.keyboard_arrow_down, color: BeautyOnboardingPage.beautyPrimary),
           dropdownColor: Colors.white,
           isExpanded: true,
-          items: const [
-            DropdownMenuItem(value: 'mixte_t', child: Text('Peau Mixte (Zone T brillante, joues normales/sèches)')),
-            DropdownMenuItem(value: 'seche_deshydratee', child: Text('Peau Sèche & Déshydratée (Tiraillements & desquamation)')),
-            DropdownMenuItem(value: 'grasse_acneique', child: Text('Peau Grasse & Acnéique (Excès de sébum, pores dilatés)')),
-            DropdownMenuItem(value: 'sensible_reactive', child: Text('Peau Sensible & Réactive (Rougeurs, rosacée)')),
-            DropdownMenuItem(value: 'hypermentee', child: Text('Peau Sujette à l\'Hyperpigmentation (Taches sombres, mélasma)')),
-            DropdownMenuItem(value: 'mature', child: Text('Peau Mature (Perte de fermeté & rides d\'expression)')),
-            DropdownMenuItem(value: 'normale', child: Text('Peau Normale / Équilibrée')),
+          items: [
+            DropdownMenuItem(value: 'mixte_t', child: Text(l10n.beautyOnboardingSkinTypeMixte)),
+            DropdownMenuItem(value: 'seche_deshydratee', child: Text(l10n.beautyOnboardingSkinTypeSeche)),
+            DropdownMenuItem(value: 'grasse_acneique', child: Text(l10n.beautyOnboardingSkinTypeGrasse)),
+            DropdownMenuItem(value: 'sensible_reactive', child: Text(l10n.beautyOnboardingSkinTypeSensible)),
+            DropdownMenuItem(value: 'hypermentee', child: Text(l10n.beautyOnboardingSkinTypeHyperpigmentation)),
+            DropdownMenuItem(value: 'mature', child: Text(l10n.beautyOnboardingSkinTypeMature)),
+            DropdownMenuItem(value: 'normale', child: Text(l10n.beautyOnboardingSkinTypeNormale)),
           ],
           onChanged: (val) {
             if (val != null) setState(() => _skinType = val);
           },
         ),
         const SizedBox(height: 28),
-        const Text(
-          'Préoccupations Cutanées (Visage & Décolleté)',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingSkinConcernsLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        _buildSkinConcernCheckbox('🌖 Taches Sombres & Teint Irrégulier', 'hyperpigmentation'),
-        _buildSkinConcernCheckbox('🌋 Boutons & Imperfections', 'acne_imperfections'),
-        _buildSkinConcernCheckbox('💧 Déshydratation Profonde & Perte d\'Éclat', 'dehydration'),
-        _buildSkinConcernCheckbox('🛡️ Barrière Cutanée Fragilisée & Sensibilité', 'barrier_damage'),
-        _buildSkinConcernCheckbox('✨ Brillance Excessive & Pores Dilatés', 'excess_sebum'),
-        _buildSkinConcernCheckbox('🌿 Perte d\'Élasticité & Rides d\'Expression', 'aging_elasticity'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernHyperpigmentation, 'hyperpigmentation'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernAcne, 'acne_imperfections'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernDehydration, 'dehydration'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernBarrier, 'barrier_damage'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernSebum, 'excess_sebum'),
+        _buildSkinConcernCheckbox(l10n.beautyOnboardingConcernAging, 'aging_elasticity'),
         const SizedBox(height: 28),
-        const Text(
-          'Particularités du Corps',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingBodyProfileLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
           runSpacing: 10,
           children: [
-            _buildSelectableChip('Normal / Sans Problème', 'normal', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
-            _buildSelectableChip('Kératose Pilaire (Peau de poule)', 'keratose', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
-            _buildSelectableChip('Eczéma / Sujet aux Poussées', 'eczema', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
-            _buildSelectableChip('Prévention Vergetures', 'vergetures', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
-            _buildSelectableChip('Peau du Corps Très Sèche (Crocodile)', 'corps_sec', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip(l10n.beautyOnboardingBodyNormal, 'normal', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip(l10n.beautyOnboardingBodyKeratose, 'keratose', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip(l10n.beautyOnboardingBodyEczema, 'eczema', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip(l10n.beautyOnboardingBodyVergetures, 'vergetures', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
+            _buildSelectableChip(l10n.beautyOnboardingBodyDrySkin, 'corps_sec', _bodySkinProfile, (val) => setState(() => _bodySkinProfile = val)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildStep3Goals() {
+  Widget _buildStep3Goals(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '🌱 Objectifs Beauté & Priorités',
+          l10n.beautyOnboardingStep3Title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -364,41 +417,41 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Sélectionnez vos priorités capillaires et cutanées pour calibrer votre routine sur 30 jours.',
+          l10n.beautyOnboardingStep3Subtitle,
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
-        const Text(
-          'Objectifs Capillaires 👑',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingHairGoalsLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        _buildGoalCheckbox('🌱 Pousse, Densité & Longueur', 'hair_growth'),
-        _buildGoalCheckbox('🛡️ Force, Retention & Anti-Casse', 'anti_breakage'),
-        _buildGoalCheckbox('💧 Hydratation Profonde & Définition', 'hair_moisture'),
-        _buildGoalCheckbox('💆 Équilibre & Apaisement du Cuir Chevelu', 'scalp_soothing'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalHairGrowth, 'hair_growth'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalAntiBreakage, 'anti_breakage'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalHairMoisture, 'hair_moisture'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalScalpSoothing, 'scalp_soothing'),
 
         const SizedBox(height: 28),
-        const Text(
-          'Objectifs Cutanés & Teint ✨',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
+        Text(
+          l10n.beautyOnboardingSkinGoalsLabel,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: BeautyOnboardingPage.beautyPrimary),
         ),
         const SizedBox(height: 12),
-        _buildGoalCheckbox('✨ Éclat du Teint & Teint Uniforme', 'skin_glow'),
-        _buildGoalCheckbox('🌖 Atténuation des Taches & Hyperpigmentation', 'skin_anti_spot'),
-        _buildGoalCheckbox('💧 Hydratation & Souplesse Cutanée', 'skin_moisture'),
-        _buildGoalCheckbox('🌋 Clarification & Anti-Imperfections', 'skin_anti_imperfection'),
-        _buildGoalCheckbox('🛡️ Renforcement de la Barrière Cutanée', 'skin_barrier'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalSkinGlow, 'skin_glow'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalAntiSpot, 'skin_anti_spot'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalSkinMoisture, 'skin_moisture'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalAntiImperfection, 'skin_anti_imperfection'),
+        _buildGoalCheckbox(l10n.beautyOnboardingGoalSkinBarrier, 'skin_barrier'),
       ],
     );
   }
 
-  Widget _buildStep4FirstLog() {
+  Widget _buildStep4FirstLog(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '📊 Premier Bilan Initial (First Beauty Log)',
+          l10n.beautyOnboardingStep4Title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -406,17 +459,19 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Saisissez vos mesures et observations de départ. Ce premier journal servira de point de référence pour mesurer vos progrès au fil des 30 jours.',
+          l10n.beautyOnboardingStep4Subtitle,
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
-        
-        // Hair Length Slider
+
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('📏 Longueur Actuelle des Cheveux', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            Text('${_hairLengthCm.toInt()} cm', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+            Text(l10n.beautyOnboardingHairLengthLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              l10n.beautyOnboardingValueCm(_hairLengthCm.toInt().toString()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary),
+            ),
           ],
         ),
         Slider(
@@ -429,12 +484,14 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
 
         const SizedBox(height: 20),
-        // Hair Strength Score Slider
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('💪 Force & Résistance Capillaire', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            Text('${_hairStrengthScore.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+            Text(l10n.beautyOnboardingHairStrengthLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              l10n.beautyOnboardingValueOutOfTen(_hairStrengthScore.toInt().toString()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary),
+            ),
           ],
         ),
         Slider(
@@ -447,25 +504,26 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
 
         const SizedBox(height: 20),
-        // Hair Shedding Rate
-        const Text('📊 Taux de Chute Actuel', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        Text(l10n.beautyOnboardingSheddingRateLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
         const SizedBox(height: 8),
         Wrap(
           spacing: 10,
           children: [
-            _buildSelectableChip('Faible', 'low', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
-            _buildSelectableChip('Modéré', 'moderate', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
-            _buildSelectableChip('Élevé', 'high', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+            _buildSelectableChip(l10n.beautyOnboardingSheddingLow, 'low', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+            _buildSelectableChip(l10n.beautyOnboardingSheddingModerate, 'moderate', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
+            _buildSelectableChip(l10n.beautyOnboardingSheddingHigh, 'high', _hairSheddingRate, (val) => setState(() => _hairSheddingRate = val)),
           ],
         ),
 
         const SizedBox(height: 20),
-        // Skin Hydration Level Slider
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('💧 Niveau d\'Hydratation de la Peau', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            Text('${_skinHydrationLevel.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+            Text(l10n.beautyOnboardingSkinHydrationLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              l10n.beautyOnboardingValueOutOfTen(_skinHydrationLevel.toInt().toString()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary),
+            ),
           ],
         ),
         Slider(
@@ -478,12 +536,14 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
 
         const SizedBox(height: 20),
-        // Skin Clarity Score Slider
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('✨ Éclat & Clarté du Teint', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            Text('${_skinClarityScore.toInt()}/10', style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary)),
+            Text(l10n.beautyOnboardingSkinClarityLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            Text(
+              l10n.beautyOnboardingValueOutOfTen(_skinClarityScore.toInt().toString()),
+              style: const TextStyle(fontWeight: FontWeight.bold, color: BeautyOnboardingPage.beautyPrimary),
+            ),
           ],
         ),
         Slider(
@@ -496,13 +556,13 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
 
         const SizedBox(height: 24),
-        const Text('📝 Notes Initiales & Observations', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        Text(l10n.beautyOnboardingNotesLabel, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
         const SizedBox(height: 8),
         TextField(
           controller: _notesCtrl,
           maxLines: 3,
           decoration: InputDecoration(
-            hintText: 'Notes sur l\'état de vos cheveux et de votre peau...',
+            hintText: l10n.beautyOnboardingNotesHint,
             filled: true,
             fillColor: BeautyOnboardingPage.beautySurfaceHigh,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
@@ -512,12 +572,12 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
     );
   }
 
-  Widget _buildStep5Summary() {
+  Widget _buildStep5Summary(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '📋 Résumé & Confirmation',
+          l10n.beautyOnboardingSummaryTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: BeautyOnboardingPage.beautyPrimary,
@@ -525,38 +585,41 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Vérifiez la synthèse de votre profil beauté avant d\'activer votre programme personnalisé 30 jours.',
+          l10n.beautyOnboardingSummarySubtitle,
           style: TextStyle(color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8), height: 1.4),
         ),
         const SizedBox(height: 24),
 
-        // Card 1: Hair Profile Summary
         _buildSummaryCard(
-          title: '👑 Profil Capillaire',
+          l10n,
+          title: l10n.beautyOnboardingSummaryHairCardTitle,
           onEdit: () => setState(() => _currentStep = 0),
           children: [
-            _buildSummaryRow('Texture / Type:', _hairType),
-            _buildSummaryRow('Porosité:', _porosity == 'low' ? 'Faible' : _porosity == 'high' ? 'Poreuse' : 'Moyenne'),
-            _buildSummaryRow('Cuir Chevelu:', _scalpType == 'dry' ? 'Sec' : _scalpType == 'oily' ? 'Gras' : _scalpType == 'sensitive' ? 'Sensible' : 'Normal'),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryHairTypeRow, _hairType),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryPorosityRow, _porositySummaryValue(l10n)),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryScalpRow, _scalpSummaryValue(l10n)),
           ],
         ),
 
         const SizedBox(height: 16),
-        // Card 2: Skin Diagnostic Summary
         _buildSummaryCard(
-          title: '✨ Diagnostic Cutané',
+          l10n,
+          title: l10n.beautyOnboardingSummarySkinCardTitle,
           onEdit: () => setState(() => _currentStep = 1),
           children: [
-            _buildSummaryRow('Typologie:', _skinType.replaceAll('_', ' ').toUpperCase()),
-            _buildSummaryRow('Préoccupations:', _skinConcerns.isEmpty ? 'Aucune' : _skinConcerns.join(', ')),
-            _buildSummaryRow('Particularité Corps:', _bodySkinProfile),
+            _buildSummaryRow(l10n.beautyOnboardingSummarySkinTypeRow, _skinType.replaceAll('_', ' ').toUpperCase()),
+            _buildSummaryRow(
+              l10n.beautyOnboardingSummaryConcernsRow,
+              _skinConcerns.isEmpty ? l10n.beautyOnboardingSummaryConcernsNone : _skinConcerns.join(', '),
+            ),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryBodyProfileRow, _bodySkinProfile),
           ],
         ),
 
         const SizedBox(height: 16),
-        // Card 3: Beauty Goals Summary
         _buildSummaryCard(
-          title: '🌱 Objectifs Sélectionnés',
+          l10n,
+          title: l10n.beautyOnboardingSummaryGoalsCardTitle,
           onEdit: () => setState(() => _currentStep = 2),
           children: [
             Wrap(
@@ -574,24 +637,29 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
         ),
 
         const SizedBox(height: 16),
-        // Card 4: First Log Summary
         _buildSummaryCard(
-          title: '📊 Mesures du Premier Bilan',
+          l10n,
+          title: l10n.beautyOnboardingSummaryFirstLogCardTitle,
           onEdit: () => setState(() => _currentStep = 3),
           children: [
-            _buildSummaryRow('Longueur Cheveux:', '${_hairLengthCm.toInt()} cm'),
-            _buildSummaryRow('Force Capillaire:', '${_hairStrengthScore.toInt()}/10'),
-            _buildSummaryRow('Taux de Chute:', _hairSheddingRate),
-            _buildSummaryRow('Hydratation Peau:', '${_skinHydrationLevel.toInt()}/10'),
-            _buildSummaryRow('Éclat Teint:', '${_skinClarityScore.toInt()}/10'),
-            if (_notesCtrl.text.isNotEmpty) _buildSummaryRow('Notes:', _notesCtrl.text),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryHairLengthRow, l10n.beautyOnboardingValueCm(_hairLengthCm.toInt().toString())),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryHairStrengthRow, l10n.beautyOnboardingValueOutOfTen(_hairStrengthScore.toInt().toString())),
+            _buildSummaryRow(l10n.beautyOnboardingSummarySheddingRow, _sheddingRateLabel(l10n, _hairSheddingRate)),
+            _buildSummaryRow(l10n.beautyOnboardingSummarySkinHydrationRow, l10n.beautyOnboardingValueOutOfTen(_skinHydrationLevel.toInt().toString())),
+            _buildSummaryRow(l10n.beautyOnboardingSummaryClarityRow, l10n.beautyOnboardingValueOutOfTen(_skinClarityScore.toInt().toString())),
+            if (_notesCtrl.text.isNotEmpty) _buildSummaryRow(l10n.beautyOnboardingSummaryNotesRow, _notesCtrl.text),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildSummaryCard({required String title, required VoidCallback onEdit, required List<Widget> children}) {
+  Widget _buildSummaryCard(
+    AppLocalizations l10n, {
+    required String title,
+    required VoidCallback onEdit,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -618,7 +686,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
               IconButton(
                 icon: const Icon(Icons.edit_outlined, size: 18, color: BeautyOnboardingPage.beautyPrimary),
                 onPressed: onEdit,
-                tooltip: 'Modifier',
+                tooltip: l10n.beautyOnboardingSummaryEditTooltip,
               ),
             ],
           ),
@@ -635,7 +703,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
+          Text(label, style: const TextStyle(color: AkeliColors.onSurfaceVariant, fontSize: 14)),
           Flexible(
             child: Text(
               value,
@@ -733,7 +801,7 @@ class _BeautyOnboardingPageState extends ConsumerState<BeautyOnboardingPage> {
       _logger.db('ERROR | completeBeautyOnboarding failed | $e', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de la sauvegarde: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).beautyOnboardingSaveErrorSnackbar(e.toString()))),
         );
       }
     } finally {

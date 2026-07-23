@@ -30,7 +30,7 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                     uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
                     uhp.target_weight_kg, uhp.activity_level,
                     uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time,
-                    uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp,
+                    uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp, uhp.scalp_type,
                     uhp.beauty_goals, uhp.preferred_actives,
                     ARRAY_AGG(DISTINCT ug.goal_type) FILTER (WHERE ug.goal_type IS NOT NULL) AS goals,
                     ARRAY_AGG(DISTINCT udr.restriction) FILTER (WHERE udr.restriction IS NOT NULL) AS restrictions,
@@ -43,7 +43,7 @@ def get_user_health_profile(user_id: str) -> Optional[dict]:
                 GROUP BY uhp.sex, uhp.birth_date, uhp.height_cm, uhp.weight_kg,
                          uhp.target_weight_kg, uhp.activity_level,
                          uhp.weight_goal, uhp.muscle_goal, uhp.cooking_time,
-                         uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp,
+                         uhp.hair_type, uhp.porosity, uhp.skin_type, uhp.sensitive_scalp, uhp.scalp_type,
                          uhp.beauty_goals, uhp.preferred_actives
             """, (user_id,))
             row = cur.fetchone()
@@ -126,8 +126,51 @@ def get_active_users(days: int = 7) -> list[str]:
                 UNION
                 SELECT DISTINCT user_id FROM daily_nutrition_log
                 WHERE date >= %s::date
-            """, (since, since))
+                UNION
+                SELECT DISTINCT user_id FROM beauty_log
+                WHERE logged_at >= %s
+            """, (since, since, since))
             return [row[0] for row in cur.fetchall()]
+
+
+def get_user_last_mode(user_id: str) -> str:
+    """
+    Détermine le dernier mode actif ('nutrition' ou 'beauty') d'un utilisateur.
+    Un utilisateur qui n'a jamais complété l'onboarding beauté
+    (user_profile.beauty_onboarding_done = false/NULL) est toujours 'nutrition'.
+    Sinon, on compare l'horodatage de sa dernière activité beauté
+    (MAX(beauty_log.logged_at)) à celui de sa dernière activité nutrition
+    (GREATEST des MAX de meal_consumption.consumed_at et daily_nutrition_log.date) —
+    le mode le plus récemment actif l'emporte.
+    """
+    with get_conn() as conn:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT COALESCE(beauty_onboarding_done, false) AS beauty_onboarding_done
+                FROM user_profile
+                WHERE id = %s
+            """, (user_id,))
+            profile_row = cur.fetchone()
+            if not profile_row or not profile_row["beauty_onboarding_done"]:
+                return "nutrition"
+
+            cur.execute("""
+                SELECT
+                    (SELECT MAX(logged_at) FROM beauty_log WHERE user_id = %s) AS last_beauty,
+                    GREATEST(
+                        (SELECT MAX(consumed_at) FROM meal_consumption WHERE user_id = %s),
+                        (SELECT MAX(date) FROM daily_nutrition_log WHERE user_id = %s)::timestamptz
+                    ) AS last_nutrition
+            """, (user_id, user_id, user_id))
+            activity_row = cur.fetchone()
+            last_beauty = activity_row["last_beauty"] if activity_row else None
+            last_nutrition = activity_row["last_nutrition"] if activity_row else None
+
+            if last_beauty is None:
+                return "nutrition"
+            if last_nutrition is None:
+                return "beauty"
+            return "beauty" if last_beauty > last_nutrition else "nutrition"
 
 
 # ---------------------------------------------------------------------------

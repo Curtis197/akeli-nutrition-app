@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:akeli/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:akeli/features/meal_planner/widgets/beauty_planner_view.dart';
@@ -14,6 +15,9 @@ void main() {
             activeBeautyPlanProvider.overrideWith((ref) => Future.value(null)),
           ],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('fr'),
             home: Scaffold(
               body: BeautyPlannerView(),
             ),
@@ -34,7 +38,7 @@ void main() {
         startDate: DateTime(2026, 8, 1),
         endDate: DateTime(2026, 8, 31),
         createdAt: DateTime.now(),
-        slots: [
+        slots: const [
           BeautyPlanSlot(
             id: 'slot-1',
             planId: 'plan-1',
@@ -54,6 +58,9 @@ void main() {
             activeBeautyPlanProvider.overrideWith((ref) => Future.value(mockPlan)),
           ],
           child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('fr'),
             home: Scaffold(
               body: BeautyPlannerView(),
             ),

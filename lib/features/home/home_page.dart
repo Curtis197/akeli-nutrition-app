@@ -23,7 +23,6 @@ import '../../shared/widgets/meal_card.dart';
 import '../../shared/widgets/progress_circle.dart';
 import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/shopping_row.dart';
-import '../../core/sdui/widgets/dynamic_layout_page.dart';
 import '../../providers/mode_provider.dart';
 import '../beauty/widgets/today_beauty_routines_widget.dart';
 import 'home_creator_chip.dart';
@@ -72,6 +71,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final currentMode = ref.watch(currentModeProvider);
     final isBeautyMode = currentMode == AppMode.beauty;
+    final accentColor = getAppModeColor(currentMode);
 
     final l10n = AppLocalizations.of(context);
     final localeState = ref.watch(localeProvider);
@@ -345,7 +345,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   style: GoogleFonts.inter(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: AkeliColors.primary,
+                                    color: accentColor,
                                   ),
                                 ),
                               ],
@@ -380,7 +380,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: AkeliSectionHeader(
                   title: l10n.homeTodayMeals,
-                  color: AkeliColors.primary,
+                  color: accentColor,
                 ),
               ),
               const SizedBox(height: 12),
@@ -697,7 +697,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: AkeliSectionHeader(
                         title: l10n.homeCreatorsForYou,
-                        color: AkeliColors.primary,
+                        color: accentColor,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -761,7 +761,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AkeliColors.primary,
+                      backgroundColor: accentColor,
                       foregroundColor: AkeliColors.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -829,18 +829,18 @@ class _FilterChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             color: isActive
-                ? AkeliColors.primary
+                ? Theme.of(context).colorScheme.primary
                 : AkeliColors.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(AkeliRadius.pill),
             border: Border.all(
               color: isActive
-                  ? AkeliColors.primary
+                  ? Theme.of(context).colorScheme.primary
                   : AkeliColors.outline.withValues(alpha: 0.2),
             ),
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: AkeliColors.primary.withValues(alpha: 0.2),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
