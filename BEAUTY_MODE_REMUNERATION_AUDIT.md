@@ -1,140 +1,73 @@
 # Beauty Mode Remuneration & Database Audit
 
-## ✅ Business Logic Verification
+> Rewritten 2026-07-23 to describe the system as actually shipped. The
+> previous version of this document described an abandoned tokenized
+> pool/fan-allocation model (`beauty_care_logs`, `fan_allocations`,
+> migration `20240103000001_fix_beauty_remuneration_and_fan_mode.sql`) that
+> was never the live implementation and does not match any migration
+> filename that has ever existed in this repository. See
+> `docs/superpowers/plans/2026-07-23-beauty-fix-c-revenue-community.md`
+> for the audit that surfaced this discrepancy and the fixes applied
+> alongside this rewrite.
 
-### 1. Fixed Subscription Model (Confirmed)
-- **Price**: 3€/month fixed for ALL beauty users
-- **Split**: 
-  - 2€ → Platform
-  - 1€ → Creator Economy (split between Pool & Direct)
+## Shipped model: `revenue_value = 1 / N` proportional plan-slot payout
 
-### 2. Two Creator Revenue Streams
+- **Migrations:** `supabase/migrations/20260721000012_beauty_plan_slot_revenue_value.sql`
+  (adds `beauty_plan_slot.revenue_value`, computed by `generate_beauty_plan`
+  as `1 / total_slots_in_plan` once a plan is generated) and
+  `supabase/migrations/20260721000013_beauty_payouts_revenue_value.sql`
+  (creator payout aggregation).
+- **Mechanism:** every slot in a user's monthly beauty plan is worth an
+  equal fraction (`1 / N`) of a fixed 1.00€ (100 cents) creator pool per
+  plan. When the user marks a slot `is_completed = true`, that slot's
+  `revenue_value` counts toward its recipe's creator.
+- **Aggregation:** `calculate_creator_payouts(target_month, plan_revenue_cents)`
+  sums `revenue_value` across all completed slots for each creator in a
+  given month, converts the sum to cents (`ROUND(points * plan_revenue_cents)`),
+  and upserts the result into `creator_monthly_payouts.pool_earnings_cents`.
+- **Reporting RPCs:** `get_creator_beauty_revenue_share` and
+  `get_creator_beauty_payout_breakdown` recompute the same points/cents math
+  on demand for a single creator (dashboard display); both are now
+  authorization-gated to the creator's own `auth.uid()`
+  (see `docs/superpowers/plans/2026-07-23-beauty-fix-c-revenue-community.md`,
+  Task 3). `get_platform_retained_beauty_revenue` computes the
+  platform-retained remainder across all plans for a month and is now
+  restricted to `service_role` only (same plan, Task 3).
 
-#### A. Standard Mode (Tokenized Pool)
-- **Mechanism**: All standard subs contribute 1€ to a global pool
-- **Distribution**: Creators share pool based on usage tokens
-- **Formula**: `Creator Earnings = (Creator Tokens / Total Tokens) × Total Pool`
-- **User Action**: Toggle care completion → Earns 1 token for their creator
-- **Cost to User**: Fixed 3€ (no per-care charge)
+## Fan-mode revenue is NOT computed by the beauty payout engine
 
-#### B. Fan Mode (Direct Allocation)
-- **Mechanism**: User selects ONE creator to support directly
-- **Distribution**: 1€ goes 100% to chosen creator
-- **Formula**: `Creator Earnings = Count(Active Fans) × 1€`
-- **User Action**: Select creator in Fan Mode UI
-- **Cost to User**: Fixed 3€ (same price, different allocation)
+Earlier drafts of `calculate_creator_payouts` additionally counted active
+`fan_subscription` rows into a `fan_earnings_cents` column. This was removed
+(`docs/superpowers/plans/2026-07-23-beauty-fix-c-revenue-community.md`, Task 2):
+Nutrition's existing `supabase/functions/compute-monthly-revenue` edge
+function already recognizes every active `fan_subscription` row as revenue
+into `creator_balance.balance`, once per creator per month. Counting the
+same rows again in the beauty payout engine would double-count the same
+euro. Fan-mode revenue for creators — beauty or nutrition — is
+authoritatively tracked by `compute-monthly-revenue` /
+`creator_balance` / `creator_revenue_log` only.
+`creator_monthly_payouts.fan_earnings_cents` remains in the schema for
+backward compatibility but is never written by `calculate_creator_payouts`
+and should be treated as always `0`.
 
----
+## Automation
 
-## 🗄️ Database Implementation Status
+`calculate_creator_payouts` is invoked monthly by the
+`compute-monthly-beauty-revenue` edge function (mirrors
+`compute-monthly-revenue`'s internal-secret-gated cron pattern), registered
+via `supabase/migrations/20260722110300_register_compute_monthly_beauty_revenue_cron.sql`.
+Before this, the function existed in the schema but was never called by
+anything in production
+(`docs/superpowers/plans/2026-07-23-beauty-fix-c-revenue-community.md`, Task 4).
 
-### New Migration File Created
-**Path**: `/workspace/supabase/migrations/20240103000001_fix_beauty_remuneration_and_fan_mode.sql`
+## Known out-of-scope legacy artifacts
 
-### Tables Created:
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `beauty_plans` | Static plan definitions (3€) | `price_cents=300`, `creator_share_cents=100` |
-| `user_beauty_subscriptions` | Track user active subs | `status`, `period_start/end` |
-| `fan_allocations` | **Fan Mode Direct 1€** | `user_id`, `creator_id`, `amount_cents=100` |
-| `beauty_care_logs` | **Standard Mode Tokens** | `creator_id`, `tokens_earned=1`, `completed_at` |
-| `creator_monthly_payouts` | Calculated earnings snapshot | `pool_earnings`, `fan_earnings`, `total` |
-
-### SQL Functions Implemented:
-
-#### 1. `log_beauty_care(routine_creator_id, routine_ref_id)`
-- **Purpose**: Called when user toggles "Care Completed" in Flutter app
-- **Action**: Inserts row into `beauty_care_logs` with `tokens_earned=1`
-- **Security**: `SECURITY DEFINER` (runs as admin to bypass RLS for insert)
-- **Usage in Flutter**:
-  ```dart
-  await supabase.rpc('log_beauty_care', params: {
-    'routine_creator_id': creatorId,
-    'routine_ref_id': routineId,
-  });
-  ```
-
-#### 2. `calculate_creator_payouts(target_month)`
-- **Purpose**: Monthly cron job to calculate final earnings
-- **Logic**:
-  1. Counts total tokens in `beauty_care_logs` for the month
-  2. Calculates each creator's % share of the pool
-  3. Counts active `fan_allocations` for direct 1€ earnings
-  4. Upserts result into `creator_monthly_payouts`
-- **Trigger**: Run manually or via pg_cron at month-end
-
----
-
-## 🔄 User Flow: Toggle Care Completion
-
-### Scenario: Standard Mode User
-1. User opens Beauty Mode → Views "Morning Routine" by Creator A
-2. User completes routine → Toggles switch "Done"
-3. Flutter calls `log_beauty_care(creatorId: A, routineId: 123)`
-4. SQL inserts: `(user_id, creator_id=A, tokens=1, completed_at=NOW())`
-5. **Result**: Creator A gets +1 token towards monthly pool share
-6. **No immediate payment**: Accumulates for end-of-month calculation
-
-### Scenario: Fan Mode User
-1. User subscribes to Fan Mode → Selects Creator B as favorite
-2. System creates `fan_allocations` row: `(user_id, creator_id=B, amount=100)`
-3. User completes routines (optional, no financial impact on allocation)
-4. **Result**: Creator B gets guaranteed 1€ from this user at month-end
-5. **Calculation**: `COUNT(fan_allocations WHERE creator_id=B) × 100 cents`
-
----
-
-## 🔐 Security & RLS Policies
-
-| Table | Read Policy | Write Policy |
-|-------|-------------|--------------|
-| `beauty_care_logs` | User sees own; Creator sees their content | User can only log own care |
-| `fan_allocations` | User sees own; Creator sees incoming fans | System/Admin manages (via RPC) |
-| `creator_monthly_payouts` | Creator sees own only | System/Admin only (calculated) |
-
----
-
-## 📊 Comparison: Nutrition vs. Beauty Remuneration
-
-| Feature | Nutrition Mode | Beauty Mode (Standard) | Beauty Mode (Fan) |
-|---------|---------------|------------------------|-------------------|
-| **Sub Price** | 3€ fixed | 3€ fixed | 3€ fixed |
-| **Creator Share** | 1/90€ per meal (~0.011€) | Pool Share (% of tokens) | 1€ direct per fan |
-| **Trigger** | Meal log completion | Care log completion | Fan selection |
-| **Volatility** | Predictable (fixed rate) | Variable (depends on total tokens) | Predictable (1€ × fans) |
-| **Max Earnings** | Unlimited (based on logs) | Capped by pool size | Unlimited (based on fans) |
-
----
-
-## ✅ Implementation Checklist
-
-### Database (Supabase)
-- [x] Create migration file `20240103000001_fix_beauty_remuneration_and_fan_mode.sql`
-- [ ] **ACTION REQUIRED**: Run SQL in Supabase Dashboard
-- [ ] Verify tables created: `beauty_plans`, `fan_allocations`, `beauty_care_logs`
-- [ ] Test function: `SELECT log_beauty_care('...', '...');`
-
-### Flutter Integration
-- [ ] Create `BeautySubscriptionService` (check sub status, fan allocation)
-- [ ] Create `BeautyLogService` (call `log_beauty_care` RPC on toggle)
-- [ ] Update UI: Add "Fan Mode" selector (choose creator)
-- [ ] Update UI: Show "Care Completed" toggle → triggers RPC
-- [ ] Add Creator Dashboard: Show "Pool Earnings" vs "Fan Earnings"
-
-### Testing Scenarios
-1. **Standard Flow**: User logs 10 cares → Verify 10 tokens in DB
-2. **Fan Flow**: User allocates to Creator X → Verify 1€ in `fan_earnings`
-3. **Mixed Flow**: Creator has 5 fans + 100 tokens → Verify correct split
-4. **Month-End**: Run `calculate_creator_payouts` → Verify payout row created
-
----
-
-## 🚀 Next Steps
-
-1. **Run Migration**: Execute SQL file in Supabase
-2. **Flutter RPC Wrapper**: Create Dart service to call `log_beauty_care`
-3. **UI Toggle**: Connect "Complete Care" button to RPC call
-4. **Fan Selector**: Build UI for users to choose creator allocation
-5. **Dashboard**: Display earnings breakdown (Pool vs Fan) for creators
-
-**Status**: Database schema ready. Pending Flutter integration and SQL execution.
+`supabase/migrations/20260521000003_fix_beauty_remuneration_and_fan_mode.sql`
+created an earlier, abandoned schema (`beauty_plans`,
+`user_beauty_subscriptions`, `fan_allocations`, `beauty_care_logs`) and a
+now-dropped 1-arg `calculate_creator_payouts(date)` overload (dropped by
+`20260722110400_drop_legacy_calculate_creator_payouts_overload.sql`). Those
+dead tables are confirmed unreferenced anywhere in `lib/` or
+`supabase/functions/` and are left in place, untouched, as an accepted
+cleanup item for a future migration — dropping them is out of scope for
+this document's audit and for the 2026-07-23 fix plan.
