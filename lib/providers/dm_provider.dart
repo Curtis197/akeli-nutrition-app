@@ -1204,8 +1204,9 @@ class BrowseGroupsParams {
   final String? regionId;
   final String? language;
   final String? topic;
+  final String? mode;
 
-  const BrowseGroupsParams({this.userId, this.regionId, this.language, this.topic});
+  const BrowseGroupsParams({this.userId, this.regionId, this.language, this.topic, this.mode});
 
   @override
   bool operator ==(Object other) =>
@@ -1215,10 +1216,12 @@ class BrowseGroupsParams {
           userId == other.userId &&
           regionId == other.regionId &&
           language == other.language &&
-          topic == other.topic;
+          topic == other.topic &&
+          mode == other.mode;
 
   @override
-  int get hashCode => userId.hashCode ^ regionId.hashCode ^ language.hashCode ^ topic.hashCode;
+  int get hashCode =>
+      userId.hashCode ^ regionId.hashCode ^ language.hashCode ^ topic.hashCode ^ mode.hashCode;
 }
 
 final browseGroupsProvider = FutureProvider.autoDispose
@@ -1228,28 +1231,34 @@ final browseGroupsProvider = FutureProvider.autoDispose
   ref.onDispose(() => logger.provider('browseGroupsProvider disposed'));
 
   final client = ref.watch(supabaseClientProvider);
-  
+  // Finding #7 fix: resolve the effective mode from params.mode if the
+  // caller set one explicitly, otherwise from the globally active mode.
+  // This fixes browse_groups_page.dart's call site (which never sets
+  // `mode` today) with no change needed to that file.
+  final effectiveMode = params.mode ?? ref.watch(currentModeProvider).name;
+
   final hasFilters = params.regionId != null || params.language != null || params.topic != null;
 
   try {
     if (!hasFilters && params.userId != null) {
       // Path 1: Personalized RPC
-      logger.db('BEFORE | RPC: generate_groups_personalized');
+      logger.db('BEFORE | RPC: generate_groups_personalized | mode: $effectiveMode');
       try {
         final rpcResult = await client
             .rpc('generate_groups_personalized', params: {
               'p_user_id': params.userId,
               'p_limit': 50,
+              'p_mode': effectiveMode,
             }) as List<dynamic>;
 
         logger.db('AFTER | RPC: generate_groups_personalized | rows: ${rpcResult.length}');
-        
+
         if (rpcResult.isNotEmpty) {
           final groupIds = rpcResult
               .cast<Map<String, dynamic>>()
               .map((r) => r['group_id'] as String)
               .toList();
-          
+
           logger.db('BEFORE | table: v_community_group | op: SELECT public IN');
           final groupsData = await client
               .from('v_community_group')
@@ -1274,12 +1283,14 @@ final browseGroupsProvider = FutureProvider.autoDispose
       }
     }
 
-    // Path 2 or Fallback: Direct query
-    logger.db('BEFORE | table: v_community_group | op: SELECT public (direct)');
+    // Path 2 or Fallback: Direct query — also mode-scoped (Finding #7:
+    // this direct/fallback path previously had no mode filter at all).
+    logger.db('BEFORE | table: v_community_group | op: SELECT public (direct) | mode: $effectiveMode');
     var query = client
         .from('v_community_group')
         .select('id, name, description, member_count, max_members, region_code, language, topic, creator_id, cover_url')
-        .eq('is_public', true);
+        .eq('is_public', true)
+        .eq('app_mode', effectiveMode);
 
     if (params.regionId != null) query = query.eq('region_code', params.regionId!);
     if (params.language != null) query = query.eq('language', params.language!);
