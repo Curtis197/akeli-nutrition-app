@@ -7,6 +7,7 @@ import '../../core/router.dart';
 import '../../core/supabase_client.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/mode_provider.dart';
 import '../../providers/user_profile_provider.dart';
 import '../../shared/widgets/akeli_gradient_button.dart';
 import 'onboarding_data.dart';

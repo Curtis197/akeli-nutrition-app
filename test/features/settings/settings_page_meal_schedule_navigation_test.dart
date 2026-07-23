@@ -72,6 +72,24 @@ Widget _appUnderTest(AppMode mode) {
 }
 
 void main() {
+  // SettingsPage's menu list is taller than the default 800x600 test
+  // viewport. ensureVisible() scrolls the target into the scrollable's
+  // viewport, but the resulting on-screen offset can still land under a
+  // non-hit-testable overlay near the scroll boundary. Using a tall virtual
+  // window avoids needing to scroll at all, which is the reliable fix.
+  setUp(() async {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.platformDispatcher.views.first
+      ..physicalSize = const Size(800, 2400)
+      ..devicePixelRatio = 1.0;
+  });
+
+  tearDown(() {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.platformDispatcher.views.first.resetPhysicalSize();
+    binding.platformDispatcher.views.first.resetDevicePixelRatio();
+  });
+
   testWidgets(
       'tapping the meal-schedule settings item in Beauty mode navigates to the meal-planner route, not mealSchedule',
       (tester) async {

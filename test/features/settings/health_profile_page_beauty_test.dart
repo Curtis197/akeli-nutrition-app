@@ -45,6 +45,7 @@ void main() {
           localeProvider.overrideWith(FakeLocaleNotifier.new),
         ],
         child: const MaterialApp(
+          locale: Locale('fr'),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: HealthProfilePage(),
