@@ -1,0 +1,14 @@
+-- Migration: 20260722110400_drop_legacy_calculate_creator_payouts_overload.sql
+-- Finding #5 (Area C, High): drops the stale 1-arg
+-- calculate_creator_payouts(date) overload from
+-- 20260521000003_fix_beauty_remuneration_and_fan_mode.sql, which operated
+-- on the dead beauty_care_logs / fan_allocations tables (confirmed
+-- unreferenced anywhere in lib/ or supabase/functions/). The real, current
+-- 2-arg overload calculate_creator_payouts(date, integer) from
+-- 20260721000013 (fixed by 20260722110100) is untouched by this
+-- migration.
+--
+-- Out of scope (see this plan's Coverage Checklist): the dead tables
+-- themselves — beauty_plans, user_beauty_subscriptions, fan_allocations,
+-- beauty_care_logs — are intentionally left in place, untouched.
+DROP FUNCTION IF EXISTS calculate_creator_payouts(DATE);
