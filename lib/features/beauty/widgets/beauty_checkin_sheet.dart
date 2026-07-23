@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../../core/logger.dart';
 import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BeautyCheckinSheet extends StatefulWidget {
   final String userId;
   final double? initialHairLengthCm;
   final double? initialHairStrengthScore;
+  final double? initialHairThicknessScore;
   final double? initialSkinHydrationLevel;
+  final double? initialSkinClarityScore;
   final Function(Map<String, dynamic> checkinData)? onSubmit;
 
   const BeautyCheckinSheet({
@@ -13,7 +17,9 @@ class BeautyCheckinSheet extends StatefulWidget {
     required this.userId,
     this.initialHairLengthCm,
     this.initialHairStrengthScore,
+    this.initialHairThicknessScore,
     this.initialSkinHydrationLevel,
+    this.initialSkinClarityScore,
     this.onSubmit,
   });
 
@@ -22,7 +28,9 @@ class BeautyCheckinSheet extends StatefulWidget {
     required String userId,
     double? initialHairLengthCm,
     double? initialHairStrengthScore,
+    double? initialHairThicknessScore,
     double? initialSkinHydrationLevel,
+    double? initialSkinClarityScore,
   }) {
     return showModalBottomSheet<Map<String, dynamic>>(
       context: context,
@@ -32,7 +40,9 @@ class BeautyCheckinSheet extends StatefulWidget {
         userId: userId,
         initialHairLengthCm: initialHairLengthCm,
         initialHairStrengthScore: initialHairStrengthScore,
+        initialHairThicknessScore: initialHairThicknessScore,
         initialSkinHydrationLevel: initialSkinHydrationLevel,
+        initialSkinClarityScore: initialSkinClarityScore,
       ),
     );
   }
@@ -42,9 +52,12 @@ class BeautyCheckinSheet extends StatefulWidget {
 }
 
 class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
+  final _logger = appLogger;
   late double _hairLengthCm;
   late double _hairStrengthScore;
+  late double _hairThicknessScore;
   late double _skinHydrationLevel;
+  late double _skinClarityScore;
   String _hairSheddingRate = 'normal';
   final _notesController = TextEditingController();
 
@@ -53,7 +66,9 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
     super.initState();
     _hairLengthCm = widget.initialHairLengthCm ?? 20.0;
     _hairStrengthScore = widget.initialHairStrengthScore ?? 7.0;
+    _hairThicknessScore = widget.initialHairThicknessScore ?? 7.0;
     _skinHydrationLevel = widget.initialSkinHydrationLevel ?? 7.0;
+    _skinClarityScore = widget.initialSkinClarityScore ?? 7.0;
   }
 
   @override
@@ -63,23 +78,53 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
   }
 
   void _handleSave() {
+    _logger.userAction('Save Progress Check-In tapped', screen: 'BeautyCheckinSheet', metadata: {
+      'hairLengthCm': _hairLengthCm,
+      'hairStrengthScore': _hairStrengthScore,
+      'hairThicknessScore': _hairThicknessScore,
+      'skinHydrationLevel': _skinHydrationLevel,
+      'skinClarityScore': _skinClarityScore,
+      'hairSheddingRate': _hairSheddingRate,
+    });
     final payload = <String, dynamic>{
-      'user_id': widget.userId,
-      'hair_length_cm': _hairLengthCm,
-      'hair_strength_score': _hairStrengthScore,
-      'skin_hydration_level': _skinHydrationLevel,
-      'hair_shedding_rate': _hairSheddingRate,
-      'checkin_notes': _notesController.text.trim(),
-      'logged_at': DateTime.now().toIso8601String(),
+      'userId': widget.userId,
+      'hairLengthCm': _hairLengthCm,
+      'hairStrengthScore': _hairStrengthScore,
+      'hairThicknessScore': _hairThicknessScore,
+      'skinHydrationLevel': _skinHydrationLevel,
+      'skinClarityScore': _skinClarityScore,
+      'hairSheddingRate': _hairSheddingRate,
+      'checkinNotes': _notesController.text.trim(),
+      'loggedAt': DateTime.now().toIso8601String(),
     };
+    _logger.provider('BeautyCheckinSheet payload built | keys: ${payload.keys.join(', ')}');
     if (widget.onSubmit != null) {
       widget.onSubmit!(payload);
     }
     Navigator.of(context).pop(payload);
   }
 
+  Widget _buildSheddingChip(String label, String value) {
+    final isSelected = _hairSheddingRate == value;
+    return ChoiceChip(
+      key: Key('shedding_rate_chip_$value'),
+      label: Text(label),
+      selected: isSelected,
+      selectedColor: AkeliColors.primary,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : AkeliColors.textPrimary,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      onSelected: (_) {
+        _logger.userAction('Shedding rate chip selected', screen: 'BeautyCheckinSheet', metadata: {'value': value});
+        setState(() => _hairSheddingRate = value);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Container(
@@ -110,7 +155,7 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Beauty Check-In & Evolution',
+              l10n.beautyCheckinTitle,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: AkeliColors.textPrimary,
@@ -118,19 +163,19 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Record your monthly hair length and skin barrier check-in.',
+              l10n.beautyCheckinSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AkeliColors.textSecondary,
                   ),
             ),
             const SizedBox(height: 24),
 
-            // 1. Hair Length (cm) Slider
             Text(
-              'Hair Length: ${_hairLengthCm.toStringAsFixed(1)} cm',
+              l10n.beautyCheckinHairLengthLabel(_hairLengthCm.toStringAsFixed(1)),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             Slider(
+              key: const Key('hair_length_slider'),
               value: _hairLengthCm,
               min: 2.0,
               max: 100.0,
@@ -140,12 +185,12 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 16),
 
-            // 2. Hair Strength Score (1-10) Slider
             Text(
-              'Hair Strength Score: ${_hairStrengthScore.toStringAsFixed(1)} / 10',
+              l10n.beautyCheckinHairStrengthLabel(_hairStrengthScore.toStringAsFixed(1)),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             Slider(
+              key: const Key('hair_strength_slider'),
               value: _hairStrengthScore,
               min: 1.0,
               max: 10.0,
@@ -155,12 +200,27 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 16),
 
-            // 3. Skin Hydration Level (1-10) Slider
             Text(
-              'Skin Hydration Level: ${_skinHydrationLevel.toStringAsFixed(1)} / 10',
+              l10n.beautyCheckinHairThicknessLabel(_hairThicknessScore.toStringAsFixed(1)),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             Slider(
+              key: const Key('hair_thickness_slider'),
+              value: _hairThicknessScore,
+              min: 1.0,
+              max: 10.0,
+              divisions: 18,
+              activeColor: AkeliColors.accentAmber,
+              onChanged: (val) => setState(() => _hairThicknessScore = val),
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              l10n.beautyCheckinSkinHydrationLabel(_skinHydrationLevel.toStringAsFixed(1)),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            Slider(
+              key: const Key('skin_hydration_slider'),
               value: _skinHydrationLevel,
               min: 1.0,
               max: 10.0,
@@ -170,12 +230,41 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 16),
 
-            // 4. Notes input
+            Text(
+              l10n.beautyCheckinSkinClarityLabel(_skinClarityScore.toStringAsFixed(1)),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            Slider(
+              key: const Key('skin_clarity_slider'),
+              value: _skinClarityScore,
+              min: 1.0,
+              max: 10.0,
+              divisions: 18,
+              activeColor: AkeliColors.primaryContainer,
+              onChanged: (val) => setState(() => _skinClarityScore = val),
+            ),
+            const SizedBox(height: 16),
+
+            Text(
+              l10n.beautyCheckinSheddingLabel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                _buildSheddingChip(l10n.beautyCheckinSheddingLow, 'low'),
+                _buildSheddingChip(l10n.beautyCheckinSheddingModerate, 'moderate'),
+                _buildSheddingChip(l10n.beautyCheckinSheddingHigh, 'high'),
+              ],
+            ),
+            const SizedBox(height: 16),
+
             TextField(
               controller: _notesController,
               decoration: InputDecoration(
-                labelText: 'Check-in Journal Notes (Optional)',
-                hintText: 'e.g. Hair feeling noticeably softer after Chébé mask!',
+                labelText: l10n.beautyCheckinNotesLabel,
+                hintText: l10n.beautyCheckinNotesHint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -184,7 +273,6 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
             ),
             const SizedBox(height: 24),
 
-            // Save Action Button
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -197,9 +285,9 @@ class _BeautyCheckinSheetState extends State<BeautyCheckinSheet> {
                   ),
                 ),
                 onPressed: _handleSave,
-                child: const Text(
-                  'Save Progress Check-In',
-                  style: TextStyle(
+                child: Text(
+                  l10n.beautyCheckinSaveButton,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
