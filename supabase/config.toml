@@ -46,6 +46,9 @@ verify_jwt = false
 [functions.compute-monthly-revenue]
 verify_jwt = false
 
+[functions.compute-monthly-beauty-revenue]
+verify_jwt = false
+
 [functions.send-push-notification]
 verify_jwt = false
 
