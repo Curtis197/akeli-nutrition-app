@@ -369,7 +369,7 @@ class NutritionPlanPageState extends ConsumerState<NutritionPlanPage> {
     final l10n = AppLocalizations.of(context);
     final appMode = ref.watch(currentModeProvider);
     final isBeauty = appMode == AppMode.beauty;
-    final title = isBeauty ? 'Mon Programme de Soins & Routines' : l10n.nutritionPlanTitle;
+    final title = isBeauty ? l10n.nutritionPlanBeautyTitle : l10n.nutritionPlanTitle;
     final isUs = ref.watch(localeProvider).isUsLocale;
     final totalMacros = _proteinPct + _carbPct + _fatPct;
     final isValidMacros = (totalMacros - 100).abs() <= 1.0;

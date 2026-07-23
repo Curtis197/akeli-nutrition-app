@@ -303,7 +303,7 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: currentMode == AppMode.beauty ? Icons.face_retouching_natural_outlined : Icons.monitor_heart_outlined,
-                          label: currentMode == AppMode.beauty ? 'Diagnostic Cheveux & Peau' : l10n.settingsHealthGoals,
+                          label: currentMode == AppMode.beauty ? l10n.settingsDiagnosticCheveuxPeau : l10n.settingsHealthGoals,
                           onTap: () {
                             appLogger.userAction('Health profile menu tapped', screen: 'SettingsPage');
                             context.push(AkeliRoutes.healthProfile);
@@ -311,10 +311,15 @@ class SettingsPage extends ConsumerWidget {
                         ),
                         _MenuItem(
                           icon: currentMode == AppMode.beauty ? Icons.calendar_month_outlined : Icons.restaurant_outlined,
-                          label: currentMode == AppMode.beauty ? 'Planification des Soins' : l10n.mealScheduleTitle,
+                          label: currentMode == AppMode.beauty ? l10n.settingsPlanificationSoins : l10n.mealScheduleTitle,
                           onTap: () {
-                            appLogger.userAction('Meal schedule settings tapped', screen: 'SettingsPage');
-                            context.push(AkeliRoutes.mealSchedule);
+                            if (currentMode == AppMode.beauty) {
+                              appLogger.userAction('Beauty routine planner settings tapped', screen: 'SettingsPage');
+                              context.push(AkeliRoutes.mealPlanner);
+                            } else {
+                              appLogger.userAction('Meal schedule settings tapped', screen: 'SettingsPage');
+                              context.push(AkeliRoutes.mealSchedule);
+                            }
                           },
                         ),
                       ],
@@ -325,7 +330,7 @@ class SettingsPage extends ConsumerWidget {
                       items: [
                         _MenuItem(
                           icon: getAppModeIcon(ref.watch(currentModeProvider)),
-                          label: 'Mode d\'application (SDUI)',
+                          label: l10n.settingsModeApplication,
                           trailing: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
@@ -336,7 +341,7 @@ class SettingsPage extends ConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  ref.watch(currentModeProvider).displayName,
+                                  ref.watch(currentModeProvider).getLocalizedName(context),
                                   style: TextStyle(
                                     color: getAppModeColor(ref.watch(currentModeProvider)),
                                     fontWeight: FontWeight.bold,

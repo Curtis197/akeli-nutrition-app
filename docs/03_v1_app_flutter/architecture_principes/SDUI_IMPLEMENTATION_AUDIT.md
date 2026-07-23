@@ -5,6 +5,18 @@
 
 ---
 
+> **2026-07-23 verification addendum (Beauty Mode branch review, Area G):**
+> Re-checked against the current `sdui` branch. The assessment below is
+> **still accurate today** — SDUI infrastructure is implemented but not yet
+> wired into any route; Beauty/Nutrition mode switching is currently
+> handled via native widget branching (e.g. `NutritionPage` swaps to
+> `BeautyAnalyticsPage`), not SDUI. The one place this document is
+> misleading is the Conclusion's "production-ready" language — that refers
+> only to the internal service code (`layout_cache_service.dart`,
+> `layout_fetch_service.dart`, `widget_factory.dart`,
+> `dynamic_layout_page.dart`), not to the app being ready to ship on SDUI.
+> See `docs/superpowers/plans/2026-07-23-beauty-fix-g-core-infra.md` Task 2.
+
 ## Executive Summary
 
 The core SDUI architecture for mode switching is **80% implemented**. All foundational services are in place and production-ready. However, integration with the main app flow (HomePage, navigation, Beauty page creation) remains incomplete.

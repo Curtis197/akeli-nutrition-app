@@ -94,6 +94,15 @@ void main() {
     expect(find.text('+3.0 cm gagnés'), findsOneWidget);
     expect(find.text('9/10'), findsOneWidget);
     expect(find.text('Super pousse ce mois-ci!'), findsOneWidget);
+
+    // The baseline log is dated 32 days before "today" (2026-06-21 vs.
+    // 2026-07-23) — outside the default 30-day timeframe filter, so the
+    // history timeline correctly excludes it until "Tout" is selected. This
+    // matches real usage: a user's onboarding baseline check-in is almost
+    // always older than 30 days by the time there's meaningful history.
+    expect(find.text('Bilan initial'), findsNothing);
+    await tester.tap(find.text('Tout'));
+    await tester.pumpAndSettle();
     expect(find.text('Bilan initial'), findsOneWidget);
   });
 }

@@ -1,18 +1,15 @@
 {
   "@@locale": "fr",
-
   "appTitle": "Akeli",
   "appVersion": "Akeli V1.0",
   "notificationSeeLabel": "Voir",
   "notificationDefaultTitle": "Nouvelle notification",
-
   "navHome": "Accueil",
   "navMeals": "Repas",
   "navRecipes": "Recettes",
   "navCommunity": "Communauté",
   "tooltipSettings": "Paramètres",
   "tooltipNotifications": "Notifications",
-
   "authWelcome": "Bienvenue sur Akeli",
   "authSignUp": "S'inscrire",
   "authLogIn": "Se connecter",
@@ -52,11 +49,9 @@
   "authErrorPasswordShort": "Le mot de passe doit contenir au moins 8 caractères.",
   "authErrorEmailNotConfirmed": "Veuillez confirmer votre adresse email avant de vous connecter.",
   "authErrorGeneric": "Une erreur est survenue. Réessayez.",
-
   "authOrDivider": "ou",
   "authContinueWithGoogle": "Continuer avec Google",
   "authErrorGoogleSignIn": "Connexion Google échouée. Réessayez.",
-
   "homeGreeting": "Bonjour, {name} !",
   "homeGreetingFallback": "Bonjour !",
   "homeWelcomeBack": "Heureux de vous revoir.",
@@ -79,7 +74,6 @@
   "homeErrorGeneric": "Erreur : {error}",
   "homeCreatorsForYou": "Créateurs pour vous",
   "homeCreateRecipe": "Créez et partagez vos propre recette",
-
   "feedTitle": "Découvrir",
   "feedSearchHint": "Rechercher des recettes...",
   "feedTabRecipes": "Recettes",
@@ -108,7 +102,6 @@
   "feedAddedToMealPlan": "Ajouté au plan",
   "feedSwapRecipe": "Échanger",
   "feedSwapDone": "Recette échangée",
-
   "recipeDetailIngredients": "Ingrédients",
   "recipeDetailInstructions": "Instructions",
   "recipeDetailNutrition": "Informations nutritionnelles",
@@ -139,7 +132,6 @@
   "recipeDetailAddedToMealPlan": "Ajouté à votre plan",
   "recipeDetailErrorAddPlan": "Erreur lors de l'ajout au plan",
   "recipeDetailBy": "par",
-
   "profileTitle": "Profil",
   "profileDefaultName": "Utilisateur",
   "profileLoadError": "Erreur : {error}",
@@ -164,7 +156,6 @@
   "profileCloseConversationContent": "Vous quitterez cette conversation. L'autre utilisateur gardera son historique.",
   "profileConversationClosed": "Conversation fermée",
   "profileCloseError": "Erreur lors de la fermeture",
-
   "settingsTitle": "Paramètres",
   "settingsEdit": "Modifier",
   "settingsPremium": "Premium",
@@ -195,7 +186,6 @@
   "settingsDescriptionHint": "Parlez-nous un peu de vous...",
   "settingsSave": "Enregistrer",
   "settingsAvatarError": "Erreur : {error}",
-
   "mealPlannerTitle": "Vos repas",
   "plannerViewToggleWeek": "Semaine",
   "plannerViewToggleDay": "Jour",
@@ -207,12 +197,10 @@
   "mealPlannerGenerate": "Générer mon plan",
   "mealPlannerError": "Erreur : {error}",
   "mealPlannerConsumptionError": "Impossible de mettre à jour. Réessayez.",
-
   "mealTypeBreakfast": "Petit-déjeuner",
   "mealTypeLunch": "Déjeuner",
   "mealTypeDinner": "Dîner",
   "mealTypeSnack": "Collation",
-
   "nutritionTitle": "Nutrition",
   "nutritionTabToday": "Aujourd'hui",
   "nutritionTabWeek": "Semaine",
@@ -244,7 +232,6 @@
   "nutritionProgressPercentage": "{pct}% de l'objectif",
   "nutritionAddFirstWeight": "Ajoutez votre premier relevé de poids pour commencer le suivi.",
   "nutritionLogAnotherWeight": "Enregistrez un autre poids pour voir votre tendance.",
-
   "communityTitle": "Communauté",
   "communityMyGroups": "Mes groupes",
   "communityPrivateGroups": "Privés",
@@ -261,14 +248,12 @@
   "communityGroupImageError": "Erreur lors de la sélection de l'image",
   "communityGeneralChannel": "Général",
   "communitySending": "Envoi en cours…",
-
   "cookingModeTitle": "Mode Cuisine",
   "cookingModeStep": "Étape {step} sur {total}",
   "cookingModeIngredients": "Ingrédients",
   "cookingModeTimer": "Minuteur",
   "cookingModeComplete": "Recette terminée !",
   "cookingModeStart": "Commencer la cuisson",
-
   "dietPlanTitle": "Plan diététique",
   "dietPlanNoPlan": "Aucun plan diététique",
   "dietPlanCalorieGoal": "Objectif calorique",
@@ -277,25 +262,21 @@
   "dietPlanFatGoal": "Objectif lipides",
   "dietPlanWeeks": "Durée (semaines)",
   "dietPlanActivity": "Niveau d'activité",
-
   "shoppingListTitle": "Liste de courses",
   "shoppingListEmpty": "Votre liste de courses est vide",
   "shoppingListItems": "{count, plural, one{{count} article} other{{count} articles}}",
   "shoppingListAll": "Tous",
   "shoppingListChecked": "Coché",
   "shoppingListRemaining": "Restants",
-
   "notificationsTitle": "Notifications",
   "notificationsEmpty": "Aucune notification",
   "notificationsMarkAllRead": "Tout marquer comme lu",
-
   "accountTitle": "Mon compte",
   "accountEmail": "Email",
   "accountDeleteAccount": "Supprimer le compte",
   "accountDeleteConfirmTitle": "Supprimer le compte",
   "accountDeleteConfirmContent": "Cette action est irréversible. Toutes vos données seront supprimées.",
   "accountChangePassword": "Changer le mot de passe",
-
   "accountInfoSection": "INFORMATIONS",
   "accountPasswordSection": "MOT DE PASSE",
   "accountCurrentPassword": "Mot de passe actuel",
@@ -311,7 +292,6 @@
   "accountErrorInvalidPassword": "Mot de passe actuel incorrect.",
   "accountErrorTooManyRequests": "Trop de tentatives. Veuillez patienter.",
   "accountErrorGeneric": "Une erreur est survenue. Veuillez réessayer.",
-
   "healthProfileTitle": "Santé & Objectifs",
   "healthProfileAge": "Âge",
   "healthProfileWeight": "Poids (kg)",
@@ -323,7 +303,6 @@
   "healthProfileSave": "Enregistrer",
   "healthProfileSaved": "Profil santé enregistré",
   "healthProfileError": "Erreur lors de l'enregistrement",
-
   "healthParamsSection": "PARAMÈTRES DE SANTÉ",
   "healthSex": "Sexe",
   "healthBirthDate": "Date de naissance",
@@ -365,7 +344,6 @@
   "notifDmLabel": "Demandes de conversation",
   "notifDmSubtitle": "Nouvelles demandes de connexion",
   "notifLoadError": "Impossible de charger les préférences.",
-
   "preferencesTitle": "Préférences",
   "preferencesDiet": "Régime",
   "preferencesAllergens": "Allergies & Intolérances",
@@ -373,7 +351,6 @@
   "preferencesSave": "Enregistrer",
   "preferencesSaved": "Préférences enregistrées",
   "preferencesError": "Erreur lors de l'enregistrement",
-
   "preferencesMealPlanSection": "PLAN DE REPAS",
   "preferencesMealPlanFromFavorites": "Générer depuis les favoris",
   "preferencesMealPlanFromFavoritesDesc": "Utiliser uniquement vos recettes enregistrées",
@@ -399,50 +376,39 @@
   "preferencesNoMeat": "Sans viande",
   "preferencesNoGluten": "Sans gluten",
   "preferencesNoLactose": "Sans lactose",
-
   "notificationSettingsTitle": "Notifications",
   "notificationSettingsMealReminders": "Rappels repas",
   "notificationSettingsNewRecipes": "Nouvelles recettes",
   "notificationSettingsCommunity": "Communauté",
   "notificationSettingsSave": "Enregistrer",
-
   "savedRecipesTitle": "Recettes Sauvegardées",
   "savedRecipesEmpty": "Aucune recette sauvegardée",
   "savedRecipesEmptySubtitle": "Sauvegardez des recettes pour les retrouver facilement",
-
   "fanModeTitle": "Mode Fan",
   "fanModeSubscribe": "S'abonner",
   "fanModeUnsubscribe": "Se désabonner",
   "fanModeMyCreators": "Mes créateurs",
   "fanModeNoCreators": "Aucun créateur suivi",
-
   "subscriptionTitle": "Passer Premium",
   "subscriptionSubtitle": "Déverrouillez toutes les fonctionnalités",
   "subscriptionMonthly": "Mensuel",
   "subscriptionAnnual": "Annuel",
   "subscriptionSubscribe": "S'abonner",
-
   "referralTitle": "Parrainer un ami",
   "referralCopyCode": "Copier le code",
   "referralCodeCopied": "Code copié !",
-
   "supportTitle": "Aide & FAQ",
-
   "aiAssistantTitle": "Assistant IA",
   "aiAssistantPlaceholder": "Posez-moi une question sur la nutrition...",
   "aiAssistantSend": "Envoyer",
-
   "batchCookingTitle": "Cuisine en lot",
   "batchCookingEmpty": "Aucune session de cuisine en lot",
-
   "ratingTitle": "Évaluer ce repas",
   "ratingSubmit": "Valider",
   "ratingSkip": "Passer",
-
   "journeyTitle": "Mon Parcours",
   "journeyStreak": "{count, plural, one{{count} jour de suite} other{{count} jours de suite}}",
   "journeyNoData": "Commencez votre parcours aujourd'hui",
-
   "commonCancel": "Annuler",
   "commonOk": "OK",
   "commonSave": "Enregistrer",
@@ -458,11 +424,9 @@
   "commonSkip": "Passer",
   "commonYes": "Oui",
   "commonNo": "Non",
-
   "difficultyEasy": "Facile",
   "difficultyMedium": "Moyen",
   "difficultyHard": "Difficile",
-
   "dietVegetarian": "Végétarien",
   "dietVegan": "Végétalien",
   "dietPescatarian": "Pescétarien",
@@ -472,20 +436,16 @@
   "dietLactoseFree": "Sans lactose",
   "dietNutFree": "Sans noix",
   "dietNoPork": "Sans porc",
-
   "languageSelectorTitle": "Choisir la langue",
   "languageEnglish": "English",
   "languageFrench": "Français",
-
   "onboardingValidationConsent": "Veuillez accepter les deux conditions pour continuer.",
   "onboardingValidationName": "Veuillez entrer votre prénom pour continuer.",
   "onboardingValidationTargetWeight": "Veuillez entrer votre poids cible pour continuer.",
   "onboardingSubmitSyncError": "Erreur de synchronisation. Vos données peuvent être complétées depuis votre profil.",
-
   "onboardingLanguageTitle": "Choisir votre langue",
   "onboardingLanguageSubtitle": "Veuillez sélectionner la langue de l'interface.",
   "onboardingLanguageSectionLabel": "LANGUE",
-
   "onboardingWelcome": "Bienvenue sur Akeli",
   "onboardingConsentSubtitle": "Avant de plonger dans l'expérience, prenons un instant pour clarifier la protection de votre vie privée.",
   "onboardingConsentDataTitle": "Données collectées",
@@ -522,17 +482,22 @@
   "onboardingSummaryMacroValue": "{grams}g ({pct}%)",
   "@onboardingSummaryMacroValue": {
     "placeholders": {
-      "grams": { "type": "String" },
-      "pct": { "type": "String" }
+      "grams": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
     }
   },
   "onboardingSummaryBatchPortions": "Jusqu'à {count} portions par session",
   "@onboardingSummaryBatchPortions": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "feedSortBestRated": "Mieux noté",
   "feedSortPopular": "Populaire",
   "feedSortNewest": "Plus récent",
@@ -543,7 +508,6 @@
   "unitKilograms": "KILOGRAMMES",
   "unitPounds": "LIVRES",
   "feedFilterTimeMax": "< {min} min",
-
   "onboardingStep": "Étape {current} sur {total}",
   "onboardingBack": "Précédent",
   "onboardingNext": "Suivant",
@@ -588,7 +552,6 @@
   "onboardingDietLactoseFreeDesc": "Exclure les produits laitiers",
   "onboardingRegionsTitle": "Inspirations Régionales",
   "onboardingRegionsSubtitle": "Sélectionnez votre région de prédilection pour des recommandations ciblées.",
-
   "mealDetailNotFound": "Repas introuvable",
   "mealDetailConsumed": "Repas consommé",
   "mealDetailMarkConsumed": "Marquer comme consommé",
@@ -601,14 +564,12 @@
   "mealDetailViewFullRecipe": "Voir la recette complète",
   "mealDetailBatchPrep": "Préparation batch",
   "mealDetailBatchSession": "Session de cuisine batch",
-
   "recipeDetailTotalRecipe": "Recette totale",
   "recipeDetailPerServing": "Par portion",
   "recipeDetailReviews": "Avis",
   "recipeDetailRatingTaste": "Goût",
   "recipeDetailRatingEase": "Facilité",
   "recipeDetailRatingSatiety": "Satiété",
-
   "batchCookingThisWeek": "Cette semaine",
   "batchCookingOngoing": "Vos préparations en cours",
   "batchCookingNoSessionsTitle": "Aucune session cette semaine",
@@ -618,7 +579,6 @@
   "batchDetailPortionsUsed": "Portions utilisées",
   "batchDetailPortionsUsedCount": "{count} utilisées",
   "batchDetailStartCooking": "Commencer la cuisson",
-
   "commonAdd": "Ajouter",
   "mealPlannerAddSnack": "Ajouter une collation",
   "mealPlannerAddAnotherSnack": "Ajouter une autre collation",
@@ -626,7 +586,6 @@
   "snackPickerEstimatedQty": "Quantité estimée",
   "snackPickerPersonal": "Collation personnelle",
   "snackPickerNoResults": "Aucune recette trouvée",
-
   "fanModeLoadError": "Erreur de chargement",
   "fanModeCreatorsTitle": "Créateurs à soutenir",
   "fanModeCreatorsSubtitle": "Votre créateur dominant est mis en avant.",
@@ -660,7 +619,6 @@
   "fanModeEngagementExternalCount": "9 recettes externes",
   "fanModeEngagementPerMonth": " par mois.",
   "fanModeDefaultCreator": "votre créateur",
-
   "commonLoadError": "Erreur de chargement",
   "commonGenericError": "Une erreur est survenue. Veuillez réessayer.",
   "groupDetailTitle": "Détail du groupe",
@@ -689,11 +647,9 @@
   "groupDetailInviteCount": "Inviter ({count})",
   "groupDetailPrivateMessage": "Message privé",
   "groupDetailExcludeFromGroup": "Exclure du groupe",
-
   "allergenPickerHint": "Ex: arachides, noix...",
   "allergenPickerAdd": "Ajouter \"{query}\"",
   "allergenPickerSuggestionSent": "Suggestion envoyée pour révision.",
-
   "ingredientDetailOptional": "Optionnel",
   "ingredientDetailTagHighProtein": "Riche en protéines",
   "ingredientDetailTagLowFat": "Pauvre en graisses",
@@ -702,29 +658,24 @@
   "ingredientDetailTagHardToFindEu": "Difficile à trouver en Europe",
   "ingredientDetailNutritionTitle": "Valeurs nutritives (pour 100g)",
   "ingredientDetailEnergy": "Énergie",
-
   "cookingSessionTitle": "Session de cuisine",
   "cookingSessionSubtitle": "Organisez vos repas de la semaine",
   "cookingSessionComingSoon": "Bientôt disponible",
   "cookingSessionComingSoonDesc": "Cette fonctionnalité sera disponible dans une prochaine mise à jour",
   "cookingSessionGotIt": "Compris",
-
   "journeyCalendarLegendAll": "Tous",
   "journeyCalendarLegendPartial": "Partiel",
   "journeyCalendarLegendNone": "Aucun",
-
   "journeySummaryDays": "Jours de parcours",
   "journeySummaryTracked": "Jours suivis",
   "journeySummaryMeals": "Repas consommés",
   "journeySummaryConsistency": "Régularité",
-
   "journeyGoalsWeight": "⚖️  Poids",
   "journeyGoalsCalories": "🎯  Calories",
   "journeyGoalsProtein": "💪  Protéines",
   "journeyGoalsCarbs": "🌾  Glucides",
   "journeyGoalsFat": "🥑  Lipides",
   "journeyGoalsCalorieHitSubtitle": "Vous avez atteint votre objectif calorique {pct}% des jours logués.",
-
   "subscriptionMyTitle": "Mon abonnement",
   "subscriptionActiveTitle": "Abonnement actif",
   "subscriptionPremiumBadge": "Akeli Premium",
@@ -746,7 +697,6 @@
   "subscriptionRenewalDate": "Prochain renouvellement : {date}",
   "subscriptionPlatformIos": "Abonnement via App Store",
   "subscriptionPlatformAndroid": "Abonnement via Google Play",
-
   "journalingNewEntry": "Nouvelle entrée",
   "journalingNewEntrySubtitle": "Notez votre expérience culinaire",
   "journalingPhotos": "Photos",
@@ -759,7 +709,6 @@
   "journalingSaveEntry": "Enregistrer l'entrée",
   "journalingEntrySaved": "Entrée enregistrée avec succès!",
   "journalingSaveError": "Erreur lors de l'enregistrement",
-
   "aiAssistantOnline": "En ligne",
   "aiAssistantNewConversation": "Nouvelle conversation",
   "aiAssistantToday": "AUJOURD'HUI",
@@ -772,7 +721,6 @@
   "aiAssistantSuggestion2": "Quel est mon apport calorique recommandé ?",
   "aiAssistantSuggestion3": "Comment perdre du poids avec la cuisine africaine ?",
   "aiAssistantSuggestion4": "Donne-moi une recette pour ce soir.",
-
   "referralCodeLabel": "Votre code de parrainage",
   "referralReferreeCount": "{count, plural, one{{count} filleul} other{{count} filleuls}}",
   "referralShareTitle": "Partagez l'Oasis",
@@ -782,7 +730,6 @@
   "referralNewCodeLabel": "Nouveau code",
   "referralNewCodeHint": "Entrez un nouveau code",
   "referralCodeUpdated": "Code mis à jour avec succès!",
-
   "supportHeaderTitle": "Comment pouvons-nous vous aider?",
   "supportHeaderSubtitle": "Notre équipe est là pour répondre à vos questions",
   "supportSubjectLabel": "Sujet",
@@ -800,7 +747,6 @@
   "supportMessageSent": "Message envoyé avec succès!",
   "supportSendError": "Erreur lors de l'envoi. Veuillez réessayer.",
   "supportChangeScreenshot": "Changer la capture",
-
   "savedRecipesEligibilityNotLoggedIn": "Non connecté",
   "savedRecipesEligibilityNoData": "Aucune donnée trouvée",
   "savedRecipesEligibilityTitle": "Générer avec vos favoris",
@@ -811,7 +757,6 @@
   "savedRecipesEligibilityEnabled": "Activé",
   "savedRecipesEligibilityBlocked": "Bloqué : vous devez atteindre {target} recettes pour chaque catégorie ci-dessus.",
   "savedRecipesEligibilityShortfallToast": "{mealType} : enregistrez {needed} recette(s) de plus (actuellement {saved}/{target})",
-
   "legalPrivacyTitle": "Politique de Confidentialité",
   "legalPrivacyHeroTitle": "Vos données sont protégées",
   "legalPrivacyHeroSubtitle": "Nous nous engageons à protéger votre vie privée conformément au RGPD",
@@ -843,7 +788,6 @@
   "legalPrivacyDpoEmail": "dpo@akeli.app",
   "legalPrivacyDpoDesc": "Notre délégué à la protection des données répond sous 48h ouvrées à toute demande concernant vos données personnelles.",
   "legalPrivacyVersion": "Version 1.0 • Dernière mise à jour: Janvier 2026",
-
   "legalTermsTitle": "Conditions Générales",
   "legalTermsHeroTitle": "Bienvenue sur Akeli",
   "legalTermsHeroSubtitle": "En utilisant notre application, vous acceptez ces conditions",
@@ -862,7 +806,6 @@
   "legalTermsContactTitle": "Contact",
   "legalTermsContactEmail": "legal@akeli.app",
   "legalTermsVersion": "Version 1.0 • Dernière mise à jour: Janvier 2026",
-
   "mealScheduleTitle": "Planning des repas",
   "@mealScheduleTitle": {},
   "mealScheduleSubtitle": "Définissez les repas que vous souhaitez chaque jour",
@@ -873,7 +816,11 @@
   "@mealScheduleSave": {},
   "mealScheduleCalorieTotal": "{total}% des calories journalières",
   "@mealScheduleCalorieTotal": {
-    "placeholders": { "total": { "type": "String" } }
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
   },
   "mealScheduleCalorieTotalError": "Le total doit être égal à 100%",
   "@mealScheduleCalorieTotalError": {},
@@ -945,8 +892,12 @@
   "nutritionPlanBmrTdeeLabel": "BMR : {bmr} kcal  |  TDEE : {tdee} kcal",
   "@nutritionPlanBmrTdeeLabel": {
     "placeholders": {
-      "bmr": { "type": "String" },
-      "tdee": { "type": "String" }
+      "bmr": {
+        "type": "String"
+      },
+      "tdee": {
+        "type": "String"
+      }
     }
   },
   "nutritionPlanMacrosSection": "2. Macros",
@@ -960,7 +911,9 @@
   "nutritionPlanSaveError": "Erreur lors de la sauvegarde : {error}",
   "@nutritionPlanSaveError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "nutritionToday": "Aujourd'hui",
@@ -990,7 +943,9 @@
   "dietPlanError": "Erreur: {error}",
   "@dietPlanError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "dietPlanWeightEvolution": "ÉVOLUTION DU POIDS",
@@ -1042,13 +997,17 @@
   "onboardingGoalPaceLoss": "Vitesse de perte : {pace} kg/semaine",
   "@onboardingGoalPaceLoss": {
     "placeholders": {
-      "pace": { "type": "String" }
+      "pace": {
+        "type": "String"
+      }
     }
   },
   "onboardingGoalPaceGain": "Vitesse de gain : {pace} kg/semaine",
   "@onboardingGoalPaceGain": {
     "placeholders": {
-      "pace": { "type": "String" }
+      "pace": {
+        "type": "String"
+      }
     }
   },
   "onboardingWarningUnderweightTarget": "Avertissement : Le poids cible conduit à un IMC inférieur à 18,5",
@@ -1068,446 +1027,678 @@
   "onboardingValidationAgeMin": "L'âge doit être d'au moins 15 ans",
   "@onboardingValidationAgeMin": {},
   "onboardingValidationAgeMax": "L'âge doit être d'au plus 100 ans",
-      "onboardingValidationAgeMax": "L'âge doit être d'au plus 100 ans",
-    "@onboardingValidationAgeMax": {},
-
-    "beautyAnalyticsTitle": "Suivi Beauté & Rituals",
-    "@beautyAnalyticsTitle": {},
-    "beautyAnalyticsNewCheckinTooltip": "Nouveau Bilan Beauté",
-    "@beautyAnalyticsNewCheckinTooltip": {},
-    "beautyAnalyticsHeaderBadge": "DIAGNOSTIC & SUIVI RITUEL",
-    "@beautyAnalyticsHeaderBadge": {},
-    "beautyAnalyticsHeaderTitle": "Tableau de Bord Beauté 👑",
-    "@beautyAnalyticsHeaderTitle": {},
-    "beautyAnalyticsHeaderSubtitle": "Analysez votre régularité rituelle, la repousse capillaire et l'évolution de votre teint.",
-    "@beautyAnalyticsHeaderSubtitle": {},
-    "beautyAnalyticsTimeframe7d": "7 Jours",
-    "@beautyAnalyticsTimeframe7d": {},
-    "beautyAnalyticsTimeframe30d": "30 Jours",
-    "@beautyAnalyticsTimeframe30d": {},
-    "beautyAnalyticsTimeframe90d": "90 Jours",
-    "@beautyAnalyticsTimeframe90d": {},
-    "beautyAnalyticsTimeframeAll": "Tout",
-    "@beautyAnalyticsTimeframeAll": {},
-    "beautyAnalyticsNewCheckinFab": "Nouveau Bilan",
-    "@beautyAnalyticsNewCheckinFab": {},
-    "beautyAnalyticsAdherenceLabel": "Assiduité du Rituel",
-    "@beautyAnalyticsAdherenceLabel": {},
-    "beautyAnalyticsAdherenceFraction": "({completed}/{total} soins)",
-    "@beautyAnalyticsAdherenceFraction": {
-      "placeholders": { "completed": { "type": "String" }, "total": { "type": "String" } }
-    },
-    "beautyAnalyticsLoadError": "Erreur de chargement des bilans: {error}",
-    "@beautyAnalyticsLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "beautyAnalyticsHairSectionTitle": "Diagnostic Capillaire 👑",
-    "@beautyAnalyticsHairSectionTitle": {},
-    "beautyAnalyticsHairLengthLabel": "Longueur",
-    "@beautyAnalyticsHairLengthLabel": {},
-    "beautyAnalyticsValueCm": "{value} cm",
-    "@beautyAnalyticsValueCm": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsValueOutOfTen": "{value}/10",
-    "@beautyAnalyticsValueOutOfTen": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairLengthGrowthPositive": "+{value} cm gagnés",
-    "@beautyAnalyticsHairLengthGrowthPositive": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairLengthGrowthNegative": "{value} cm",
-    "@beautyAnalyticsHairLengthGrowthNegative": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairStrengthLabel": "Force & Densité",
-    "@beautyAnalyticsHairStrengthLabel": {},
-    "beautyAnalyticsHairStrengthSubtitle": "Score de résistance",
-    "@beautyAnalyticsHairStrengthSubtitle": {},
-    "beautyAnalyticsSheddingLabel": "Niveau de Chute (Anti-Casse)",
-    "@beautyAnalyticsSheddingLabel": {},
-    "beautyAnalyticsSheddingModerate": "Modérée",
-    "@beautyAnalyticsSheddingModerate": {},
-    "beautyAnalyticsSheddingLow": "Faible (Idéal)",
-    "@beautyAnalyticsSheddingLow": {},
-    "beautyAnalyticsSheddingHigh": "Élevée (Attention)",
-    "@beautyAnalyticsSheddingHigh": {},
-    "beautyAnalyticsSkinSectionTitle": "Diagnostic Cutané ✨",
-    "@beautyAnalyticsSkinSectionTitle": {},
-    "beautyAnalyticsSkinHydrationLabel": "Hydratation Cutanée",
-    "@beautyAnalyticsSkinHydrationLabel": {},
-    "beautyAnalyticsSkinHydrationSubtitle": "Barrière hydrique",
-    "@beautyAnalyticsSkinHydrationSubtitle": {},
-    "beautyAnalyticsSkinClarityLabel": "Éclat & Teint",
-    "@beautyAnalyticsSkinClarityLabel": {},
-    "beautyAnalyticsSkinClaritySubtitle": "Clarification du grain",
-    "@beautyAnalyticsSkinClaritySubtitle": {},
-    "beautyAnalyticsHistoryTitle": "Historique du Journal 📖",
-    "@beautyAnalyticsHistoryTitle": {},
-    "beautyAnalyticsHistoryCount": "{count, plural, one{{count} bilan} other{{count} bilans}}",
-    "@beautyAnalyticsHistoryCount": {
-      "placeholders": { "count": { "type": "int" } }
-    },
-    "beautyAnalyticsHistoryEmpty": "Aucun bilan beauté enregistré pour l'instant.",
-    "@beautyAnalyticsHistoryEmpty": {},
-    "beautyAnalyticsHistoryEntryNumber": "Bilan #{number}",
-    "@beautyAnalyticsHistoryEntryNumber": {
-      "placeholders": { "number": { "type": "String" } }
-    },
-    "beautyAnalyticsChipLength": "📏 {value} cm",
-    "@beautyAnalyticsChipLength": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipStrength": "💪 Force: {value}/10",
-    "@beautyAnalyticsChipStrength": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipHydration": "💧 Hydratation: {value}/10",
-    "@beautyAnalyticsChipHydration": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipClarity": "✨ Éclat: {value}/10",
-    "@beautyAnalyticsChipClarity": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-
-    "beautyOnboardingTitle": "Profil Beauté Botanique",
-    "@beautyOnboardingTitle": {},
-    "beautyOnboardingBackButton": "Retour",
-    "@beautyOnboardingBackButton": {},
-    "beautyOnboardingNextButton": "Étape Suivante ➔",
-    "@beautyOnboardingNextButton": {},
-    "beautyOnboardingSubmitButton": "Confirmer & Générer Mon Plan 30 Jours ✨",
-    "@beautyOnboardingSubmitButton": {},
-    "beautyOnboardingStep1Title": "👑 Empreinte Capillaire",
-    "@beautyOnboardingStep1Title": {},
-    "beautyOnboardingStep1Subtitle": "Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos soins botaniques.",
-    "@beautyOnboardingStep1Subtitle": {},
-    "beautyOnboardingHairCompositionLabel": "Composition & Texture Capillaire",
-    "@beautyOnboardingHairCompositionLabel": {},
-    "beautyOnboardingHairType4c": "4C — Crépu Très Serré (Trame en Z, Shrinkage fort)",
-    "@beautyOnboardingHairType4c": {},
-    "beautyOnboardingHairType4b": "4B — Crépu Zigzag en Z (Boucles en Z définies)",
-    "@beautyOnboardingHairType4b": {},
-    "beautyOnboardingHairType4a": "4A — Crépu Spirales en S (Spirales denses)",
-    "@beautyOnboardingHairType4a": {},
-    "beautyOnboardingHairType3c": "3C — Boucles Frisées Denses (Spirales serrées)",
-    "@beautyOnboardingHairType3c": {},
-    "beautyOnboardingHairType3b": "3B — Boucles Serrées en Tire-bouchon",
-    "@beautyOnboardingHairType3b": {},
-    "beautyOnboardingHairType3a": "3A — Boucles Amples Souples",
-    "@beautyOnboardingHairType3a": {},
-    "beautyOnboardingHairType2c": "2C — Ondulations Épaisses",
-    "@beautyOnboardingHairType2c": {},
-    "beautyOnboardingHairType2b": "2B — Ondulations Définies",
-    "@beautyOnboardingHairType2b": {},
-    "beautyOnboardingHairType2a": "2A — Ondulations Légères",
-    "@beautyOnboardingHairType2a": {},
-    "beautyOnboardingHairType1c": "1C — Cheveux Lisses Épais",
-    "@beautyOnboardingHairType1c": {},
-    "beautyOnboardingHairType1b": "1B — Cheveux Lisses Moyens",
-    "@beautyOnboardingHairType1b": {},
-    "beautyOnboardingHairType1a": "1A — Cheveux Lisses Très Fins",
-    "@beautyOnboardingHairType1a": {},
-    "beautyOnboardingHairTypeLocks": "Locks / Dreadlocks (Verrouillés)",
-    "@beautyOnboardingHairTypeLocks": {},
-    "beautyOnboardingHairTypeTransition": "Cheveux en Transition (Post-Défrisage)",
-    "@beautyOnboardingHairTypeTransition": {},
-    "beautyOnboardingHairTypeProtective": "Soin Sous Tresses / Perruque",
-    "@beautyOnboardingHairTypeProtective": {},
-    "beautyOnboardingPorosityLabel": "Porosité des Cheveux",
-    "@beautyOnboardingPorosityLabel": {},
-    "beautyOnboardingPorosityLow": "Faible (Écailles fermées)",
-    "@beautyOnboardingPorosityLow": {},
-    "beautyOnboardingPorosityMedium": "Moyenne (Équilibre parfait)",
-    "@beautyOnboardingPorosityMedium": {},
-    "beautyOnboardingPorosityHigh": "Fortement Poreuse (Écailles ouvertes)",
-    "@beautyOnboardingPorosityHigh": {},
-    "beautyOnboardingScalpLabel": "État du Cuir Chevelu",
-    "@beautyOnboardingScalpLabel": {},
-    "beautyOnboardingScalpNormal": "Normal / Équilibré",
-    "@beautyOnboardingScalpNormal": {},
-    "beautyOnboardingScalpDry": "Sec & Démangeaisons",
-    "@beautyOnboardingScalpDry": {},
-    "beautyOnboardingScalpOily": "Gras / Pellicules",
-    "@beautyOnboardingScalpOily": {},
-    "beautyOnboardingScalpSensitive": "Sensible / Irrité",
-    "@beautyOnboardingScalpSensitive": {},
-    "beautyOnboardingStep2Title": "✨ Diagnostic Cutané Profond",
-    "@beautyOnboardingStep2Title": {},
-    "beautyOnboardingStep2Subtitle": "Analysez la typologie globale et les défis spécifiques de votre peau (visage & corps).",
-    "@beautyOnboardingStep2Subtitle": {},
-    "beautyOnboardingSkinTypeLabel": "Composition & Typologie Cutanée",
-    "@beautyOnboardingSkinTypeLabel": {},
-    "beautyOnboardingSkinTypeMixte": "Peau Mixte (Zone T brillante, joues normales/sèches)",
-    "@beautyOnboardingSkinTypeMixte": {},
-    "beautyOnboardingSkinTypeSeche": "Peau Sèche & Déshydratée (Tiraillements & desquamation)",
-    "@beautyOnboardingSkinTypeSeche": {},
-    "beautyOnboardingSkinTypeGrasse": "Peau Grasse & Acnéique (Excès de sébum, pores dilatés)",
-    "@beautyOnboardingSkinTypeGrasse": {},
-    "beautyOnboardingSkinTypeSensible": "Peau Sensible & Réactive (Rougeurs, rosacée)",
-    "@beautyOnboardingSkinTypeSensible": {},
-    "beautyOnboardingSkinTypeHyperpigmentation": "Peau Sujette à l'Hyperpigmentation (Taches sombres, mélasma)",
-    "@beautyOnboardingSkinTypeHyperpigmentation": {},
-    "beautyOnboardingSkinTypeMature": "Peau Mature (Perte de fermeté & rides d'expression)",
-    "@beautyOnboardingSkinTypeMature": {},
-    "beautyOnboardingSkinTypeNormale": "Peau Normale / Équilibrée",
-    "@beautyOnboardingSkinTypeNormale": {},
-    "beautyOnboardingSkinConcernsLabel": "Préoccupations Cutanées (Visage & Décolleté)",
-    "@beautyOnboardingSkinConcernsLabel": {},
-    "beautyOnboardingConcernHyperpigmentation": "🌖 Taches Sombres & Teint Irrégulier",
-    "@beautyOnboardingConcernHyperpigmentation": {},
-    "beautyOnboardingConcernAcne": "🌋 Boutons & Imperfections",
-    "@beautyOnboardingConcernAcne": {},
-    "beautyOnboardingConcernDehydration": "💧 Déshydratation Profonde & Perte d'Éclat",
-    "@beautyOnboardingConcernDehydration": {},
-    "beautyOnboardingConcernBarrier": "🛡️ Barrière Cutanée Fragilisée & Sensibilité",
-    "@beautyOnboardingConcernBarrier": {},
-    "beautyOnboardingConcernSebum": "✨ Brillance Excessive & Pores Dilatés",
-    "@beautyOnboardingConcernSebum": {},
-    "beautyOnboardingConcernAging": "🌿 Perte d'Élasticité & Rides d'Expression",
-    "@beautyOnboardingConcernAging": {},
-    "beautyOnboardingBodyProfileLabel": "Particularités du Corps",
-    "@beautyOnboardingBodyProfileLabel": {},
-    "beautyOnboardingBodyNormal": "Normal / Sans Problème",
-    "@beautyOnboardingBodyNormal": {},
-    "beautyOnboardingBodyKeratose": "Kératose Pilaire (Peau de poule)",
-    "@beautyOnboardingBodyKeratose": {},
-    "beautyOnboardingBodyEczema": "Eczéma / Sujet aux Poussées",
-    "@beautyOnboardingBodyEczema": {},
-    "beautyOnboardingBodyVergetures": "Prévention Vergetures",
-    "@beautyOnboardingBodyVergetures": {},
-    "beautyOnboardingBodyDrySkin": "Peau du Corps Très Sèche (Crocodile)",
-    "@beautyOnboardingBodyDrySkin": {},
-    "beautyOnboardingStep3Title": "🌱 Objectifs Beauté & Priorités",
-    "@beautyOnboardingStep3Title": {},
-    "beautyOnboardingStep3Subtitle": "Sélectionnez vos priorités capillaires et cutanées pour calibrer votre routine sur 30 jours.",
-    "@beautyOnboardingStep3Subtitle": {},
-    "beautyOnboardingHairGoalsLabel": "Objectifs Capillaires 👑",
-    "@beautyOnboardingHairGoalsLabel": {},
-    "beautyOnboardingGoalHairGrowth": "🌱 Pousse, Densité & Longueur",
-    "@beautyOnboardingGoalHairGrowth": {},
-    "beautyOnboardingGoalAntiBreakage": "🛡️ Force, Retention & Anti-Casse",
-    "@beautyOnboardingGoalAntiBreakage": {},
-    "beautyOnboardingGoalHairMoisture": "💧 Hydratation Profonde & Définition",
-    "@beautyOnboardingGoalHairMoisture": {},
-    "beautyOnboardingGoalScalpSoothing": "💆 Équilibre & Apaisement du Cuir Chevelu",
-    "@beautyOnboardingGoalScalpSoothing": {},
-    "beautyOnboardingSkinGoalsLabel": "Objectifs Cutanés & Teint ✨",
-    "@beautyOnboardingSkinGoalsLabel": {},
-    "beautyOnboardingGoalSkinGlow": "✨ Éclat du Teint & Teint Uniforme",
-    "@beautyOnboardingGoalSkinGlow": {},
-    "beautyOnboardingGoalAntiSpot": "🌖 Atténuation des Taches & Hyperpigmentation",
-    "@beautyOnboardingGoalAntiSpot": {},
-    "beautyOnboardingGoalSkinMoisture": "💧 Hydratation & Souplesse Cutanée",
-    "@beautyOnboardingGoalSkinMoisture": {},
-    "beautyOnboardingGoalAntiImperfection": "🌋 Clarification & Anti-Imperfections",
-    "@beautyOnboardingGoalAntiImperfection": {},
-    "beautyOnboardingGoalSkinBarrier": "🛡️ Renforcement de la Barrière Cutanée",
-    "@beautyOnboardingGoalSkinBarrier": {},
-    "beautyOnboardingStep4Title": "📊 Premier Bilan Initial (First Beauty Log)",
-    "@beautyOnboardingStep4Title": {},
-    "beautyOnboardingStep4Subtitle": "Saisissez vos mesures et observations de départ. Ce premier journal servira de point de référence pour mesurer vos progrès au fil des 30 jours.",
-    "@beautyOnboardingStep4Subtitle": {},
-    "beautyOnboardingHairLengthLabel": "📏 Longueur Actuelle des Cheveux",
-    "@beautyOnboardingHairLengthLabel": {},
-    "beautyOnboardingValueCm": "{value} cm",
-    "@beautyOnboardingValueCm": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyOnboardingHairStrengthLabel": "💪 Force & Résistance Capillaire",
-    "@beautyOnboardingHairStrengthLabel": {},
-    "beautyOnboardingValueOutOfTen": "{value}/10",
-    "@beautyOnboardingValueOutOfTen": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyOnboardingSheddingRateLabel": "📊 Taux de Chute Actuel",
-    "@beautyOnboardingSheddingRateLabel": {},
-    "beautyOnboardingSheddingLow": "Faible",
-    "@beautyOnboardingSheddingLow": {},
-    "beautyOnboardingSheddingModerate": "Modéré",
-    "@beautyOnboardingSheddingModerate": {},
-    "beautyOnboardingSheddingHigh": "Élevé",
-    "@beautyOnboardingSheddingHigh": {},
-    "beautyOnboardingSkinHydrationLabel": "💧 Niveau d'Hydratation de la Peau",
-    "@beautyOnboardingSkinHydrationLabel": {},
-    "beautyOnboardingSkinClarityLabel": "✨ Éclat & Clarté du Teint",
-    "@beautyOnboardingSkinClarityLabel": {},
-    "beautyOnboardingNotesLabel": "📝 Notes Initiales & Observations",
-    "@beautyOnboardingNotesLabel": {},
-    "beautyOnboardingNotesHint": "Notes sur l'état de vos cheveux et de votre peau...",
-    "@beautyOnboardingNotesHint": {},
-    "beautyOnboardingDefaultNotes": "Bilan initial du profil beauté",
-    "@beautyOnboardingDefaultNotes": {},
-    "beautyOnboardingSummaryTitle": "📋 Résumé & Confirmation",
-    "@beautyOnboardingSummaryTitle": {},
-    "beautyOnboardingSummarySubtitle": "Vérifiez la synthèse de votre profil beauté avant d'activer votre programme personnalisé 30 jours.",
-    "@beautyOnboardingSummarySubtitle": {},
-    "beautyOnboardingSummaryHairCardTitle": "👑 Profil Capillaire",
-    "@beautyOnboardingSummaryHairCardTitle": {},
-    "beautyOnboardingSummaryHairTypeRow": "Texture / Type:",
-    "@beautyOnboardingSummaryHairTypeRow": {},
-    "beautyOnboardingSummaryPorosityRow": "Porosité:",
-    "@beautyOnboardingSummaryPorosityRow": {},
-    "beautyOnboardingSummaryPorosityLowValue": "Faible",
-    "@beautyOnboardingSummaryPorosityLowValue": {},
-    "beautyOnboardingSummaryPorosityHighValue": "Poreuse",
-    "@beautyOnboardingSummaryPorosityHighValue": {},
-    "beautyOnboardingSummaryPorosityMediumValue": "Moyenne",
-    "@beautyOnboardingSummaryPorosityMediumValue": {},
-    "beautyOnboardingSummaryScalpRow": "Cuir Chevelu:",
-    "@beautyOnboardingSummaryScalpRow": {},
-    "beautyOnboardingSummaryScalpDryValue": "Sec",
-    "@beautyOnboardingSummaryScalpDryValue": {},
-    "beautyOnboardingSummaryScalpOilyValue": "Gras",
-    "@beautyOnboardingSummaryScalpOilyValue": {},
-    "beautyOnboardingSummaryScalpSensitiveValue": "Sensible",
-    "@beautyOnboardingSummaryScalpSensitiveValue": {},
-    "beautyOnboardingSummaryScalpNormalValue": "Normal",
-    "@beautyOnboardingSummaryScalpNormalValue": {},
-    "beautyOnboardingSummarySkinCardTitle": "✨ Diagnostic Cutané",
-    "@beautyOnboardingSummarySkinCardTitle": {},
-    "beautyOnboardingSummarySkinTypeRow": "Typologie:",
-    "@beautyOnboardingSummarySkinTypeRow": {},
-    "beautyOnboardingSummaryConcernsRow": "Préoccupations:",
-    "@beautyOnboardingSummaryConcernsRow": {},
-    "beautyOnboardingSummaryConcernsNone": "Aucune",
-    "@beautyOnboardingSummaryConcernsNone": {},
-    "beautyOnboardingSummaryBodyProfileRow": "Particularité Corps:",
-    "@beautyOnboardingSummaryBodyProfileRow": {},
-    "beautyOnboardingSummaryGoalsCardTitle": "🌱 Objectifs Sélectionnés",
-    "@beautyOnboardingSummaryGoalsCardTitle": {},
-    "beautyOnboardingSummaryFirstLogCardTitle": "📊 Mesures du Premier Bilan",
-    "@beautyOnboardingSummaryFirstLogCardTitle": {},
-    "beautyOnboardingSummaryHairLengthRow": "Longueur Cheveux:",
-    "@beautyOnboardingSummaryHairLengthRow": {},
-    "beautyOnboardingSummaryHairStrengthRow": "Force Capillaire:",
-    "@beautyOnboardingSummaryHairStrengthRow": {},
-    "beautyOnboardingSummarySheddingRow": "Taux de Chute:",
-    "@beautyOnboardingSummarySheddingRow": {},
-    "beautyOnboardingSummarySkinHydrationRow": "Hydratation Peau:",
-    "@beautyOnboardingSummarySkinHydrationRow": {},
-    "beautyOnboardingSummaryClarityRow": "Éclat Teint:",
-    "@beautyOnboardingSummaryClarityRow": {},
-    "beautyOnboardingSummaryNotesRow": "Notes:",
-    "@beautyOnboardingSummaryNotesRow": {},
-    "beautyOnboardingSummaryEditTooltip": "Modifier",
-    "@beautyOnboardingSummaryEditTooltip": {},
-    "beautyOnboardingSaveErrorSnackbar": "Erreur lors de la sauvegarde: {error}",
-    "@beautyOnboardingSaveErrorSnackbar": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-
-    "beautyCheckinTitle": "Bilan Beauté & Évolution",
-    "@beautyCheckinTitle": {},
-    "beautyCheckinSubtitle": "Enregistrez votre bilan mensuel de longueur de cheveux et de barrière cutanée.",
-    "@beautyCheckinSubtitle": {},
-    "beautyCheckinHairLengthLabel": "Longueur des Cheveux : {value} cm",
-    "@beautyCheckinHairLengthLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinHairStrengthLabel": "Score de Force Capillaire : {value} / 10",
-    "@beautyCheckinHairStrengthLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinHairThicknessLabel": "Score d'Épaisseur Capillaire : {value} / 10",
-    "@beautyCheckinHairThicknessLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinSkinHydrationLabel": "Niveau d'Hydratation de la Peau : {value} / 10",
-    "@beautyCheckinSkinHydrationLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinSkinClarityLabel": "Score de Clarté de la Peau : {value} / 10",
-    "@beautyCheckinSkinClarityLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinNotesLabel": "Notes du Journal de Bilan (Optionnel)",
-    "@beautyCheckinNotesLabel": {},
-    "beautyCheckinNotesHint": "ex. Cheveux nettement plus doux après un masque au Chébé !",
-    "@beautyCheckinNotesHint": {},
-    "beautyCheckinSaveButton": "Enregistrer le Bilan",
-    "@beautyCheckinSaveButton": {},
-    "beautyCheckinSheddingLabel": "Taux de Chute des Cheveux",
-    "@beautyCheckinSheddingLabel": {},
-    "beautyCheckinSheddingLow": "Faible",
-    "@beautyCheckinSheddingLow": {},
-    "beautyCheckinSheddingModerate": "Modéré",
-    "@beautyCheckinSheddingModerate": {},
-    "beautyCheckinSheddingHigh": "Élevé",
-    "@beautyCheckinSheddingHigh": {},
-
-    "todayBeautyRoutinesTitle": "Vos Rituels du Jour 👑",
-    "@todayBeautyRoutinesTitle": {},
-    "todayBeautyRoutinesPlanningLink": "Planning (30j)",
-    "@todayBeautyRoutinesPlanningLink": {},
-    "todayBeautyRoutinesEmptyTitle": "Aucun rituel aujourd'hui",
-    "@todayBeautyRoutinesEmptyTitle": {},
-    "todayBeautyRoutinesEmptySubtitle": "Générez votre planning mensuel dans l'onglet Routine.",
-    "@todayBeautyRoutinesEmptySubtitle": {},
-    "todayBeautyRoutinesRestDay": "Journée de repos pour votre cuir chevelu & peau !",
-    "@todayBeautyRoutinesRestDay": {},
-    "todayBeautyRoutinesLoadError": "Erreur lors du chargement des rituels : {error}",
-    "@todayBeautyRoutinesLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "todayBeautyRoutinesTierLabel": "Tier: {tier}",
-    "@todayBeautyRoutinesTierLabel": {
-      "placeholders": { "tier": { "type": "String" } }
-    },
-    "todayBeautyRoutinesDefaultLabel": "Rituel",
-    "@todayBeautyRoutinesDefaultLabel": {},
-
-    "beautyPlannerLoadError": "Erreur lors du chargement du plan de soin: {error}",
-    "@beautyPlannerLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "beautyPlannerHeaderTitle": "Mon Plan de Soins Mensuel",
-    "@beautyPlannerHeaderTitle": {},
-    "beautyPlannerHeaderSubtitle": "Routines personnalisées de soins capillaires & cutanés (30 jours).",
-    "@beautyPlannerHeaderSubtitle": {},
-    "beautyPlannerDailySectionTitle": "💧 Soins Quotidiens (Hydratation)",
-    "@beautyPlannerDailySectionTitle": {},
-    "beautyPlannerWeeklySectionTitle": "🌿 Soins Hebdomadaires (Masques & Bains)",
-    "@beautyPlannerWeeklySectionTitle": {},
-    "beautyPlannerMonthlySectionTitle": "✨ Soins Mensuels & Proteine",
-    "@beautyPlannerMonthlySectionTitle": {},
-    "beautyPlannerSectionCount": "{count, plural, one{{count} soin} other{{count} soins}}",
-    "@beautyPlannerSectionCount": {
-      "placeholders": { "count": { "type": "int" } }
-    },
-    "beautyPlannerDayLabel": "Jour {day}",
-    "@beautyPlannerDayLabel": {
-      "placeholders": { "day": { "type": "String" } }
-    },
-    "beautyPlannerEmptyTitle": "Aucun Plan de Soin Actif",
-    "@beautyPlannerEmptyTitle": {},
-    "beautyPlannerEmptySubtitle": "Générez votre routine mensuelle de soins capillaires et cutanés adaptée à votre profil.",
-    "@beautyPlannerEmptySubtitle": {},
-    "beautyPlannerGenerateButton": "Générer Mon Plan Beauté",
-    "@beautyPlannerGenerateButton": {},
-
-    "colorSetModalTitle": "Personnaliser le Thème de Couleurs",
-    "@colorSetModalTitle": {},
-    "colorSetModalSubtitle": "Sélectionnez une palette de couleurs Primaire & Secondaire.",
-    "@colorSetModalSubtitle": {},
-    "colorSetModalPresetTealName": "Teal & Amber (Nutrition)",
-    "@colorSetModalPresetTealName": {},
-    "colorSetModalPresetTealDesc": "Équilibré, sain et énergisant.",
-    "@colorSetModalPresetTealDesc": {},
-    "colorSetModalPresetRoseName": "Rose & Gold (Beauty)",
-    "@colorSetModalPresetRoseName": {},
-    "colorSetModalPresetRoseDesc": "Luxe éditorial, soin bio & éclat.",
-    "@colorSetModalPresetRoseDesc": {},
-    "colorSetModalPresetSageName": "Sage & Bronze (Botanique)",
-    "@colorSetModalPresetSageName": {},
-    "colorSetModalPresetSageDesc": "Plantes ancestrales & nature.",
-    "@colorSetModalPresetSageDesc": {},
-    "colorSetModalPresetTerracottaName": "Terracotta & Clay (Soleil)",
-    "@colorSetModalPresetTerracottaName": {},
-    "colorSetModalPresetTerracottaDesc": "Tonalité terre d'Afrique & chaleur.",
-    "@colorSetModalPresetTerracottaDesc": {},
-    "colorSetModalApplyButton": "Appliquer cette Palette",
-    "@colorSetModalApplyButton": {}
+  "@onboardingValidationAgeMax": {},
+  "beautyAnalyticsTitle": "Suivi Beauté & Rituals",
+  "@beautyAnalyticsTitle": {},
+  "beautyAnalyticsNewCheckinTooltip": "Nouveau Bilan Beauté",
+  "@beautyAnalyticsNewCheckinTooltip": {},
+  "beautyAnalyticsHeaderBadge": "DIAGNOSTIC & SUIVI RITUEL",
+  "@beautyAnalyticsHeaderBadge": {},
+  "beautyAnalyticsHeaderTitle": "Tableau de Bord Beauté 👑",
+  "@beautyAnalyticsHeaderTitle": {},
+  "beautyAnalyticsHeaderSubtitle": "Analysez votre régularité rituelle, la repousse capillaire et l'évolution de votre teint.",
+  "@beautyAnalyticsHeaderSubtitle": {},
+  "beautyAnalyticsTimeframe7d": "7 Jours",
+  "@beautyAnalyticsTimeframe7d": {},
+  "beautyAnalyticsTimeframe30d": "30 Jours",
+  "@beautyAnalyticsTimeframe30d": {},
+  "beautyAnalyticsTimeframe90d": "90 Jours",
+  "@beautyAnalyticsTimeframe90d": {},
+  "beautyAnalyticsTimeframeAll": "Tout",
+  "@beautyAnalyticsTimeframeAll": {},
+  "beautyAnalyticsNewCheckinFab": "Nouveau Bilan",
+  "@beautyAnalyticsNewCheckinFab": {},
+  "beautyAnalyticsAdherenceLabel": "Assiduité du Rituel",
+  "@beautyAnalyticsAdherenceLabel": {},
+  "beautyAnalyticsAdherenceFraction": "({completed}/{total} soins)",
+  "@beautyAnalyticsAdherenceFraction": {
+    "placeholders": {
+      "completed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsLoadError": "Erreur de chargement des bilans: {error}",
+  "@beautyAnalyticsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairSectionTitle": "Diagnostic Capillaire 👑",
+  "@beautyAnalyticsHairSectionTitle": {},
+  "beautyAnalyticsHairLengthLabel": "Longueur",
+  "@beautyAnalyticsHairLengthLabel": {},
+  "beautyAnalyticsValueCm": "{value} cm",
+  "@beautyAnalyticsValueCm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsValueOutOfTen": "{value}/10",
+  "@beautyAnalyticsValueOutOfTen": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairLengthGrowthPositive": "+{value} cm gagnés",
+  "@beautyAnalyticsHairLengthGrowthPositive": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairLengthGrowthNegative": "{value} cm",
+  "@beautyAnalyticsHairLengthGrowthNegative": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairStrengthLabel": "Force & Densité",
+  "@beautyAnalyticsHairStrengthLabel": {},
+  "beautyAnalyticsHairStrengthSubtitle": "Score de résistance",
+  "@beautyAnalyticsHairStrengthSubtitle": {},
+  "beautyAnalyticsSheddingLabel": "Niveau de Chute (Anti-Casse)",
+  "@beautyAnalyticsSheddingLabel": {},
+  "beautyAnalyticsSheddingModerate": "Modérée",
+  "@beautyAnalyticsSheddingModerate": {},
+  "beautyAnalyticsSheddingLow": "Faible (Idéal)",
+  "@beautyAnalyticsSheddingLow": {},
+  "beautyAnalyticsSheddingHigh": "Élevée (Attention)",
+  "@beautyAnalyticsSheddingHigh": {},
+  "beautyAnalyticsSkinSectionTitle": "Diagnostic Cutané ✨",
+  "@beautyAnalyticsSkinSectionTitle": {},
+  "beautyAnalyticsSkinHydrationLabel": "Hydratation Cutanée",
+  "@beautyAnalyticsSkinHydrationLabel": {},
+  "beautyAnalyticsSkinHydrationSubtitle": "Barrière hydrique",
+  "@beautyAnalyticsSkinHydrationSubtitle": {},
+  "beautyAnalyticsSkinClarityLabel": "Éclat & Teint",
+  "@beautyAnalyticsSkinClarityLabel": {},
+  "beautyAnalyticsSkinClaritySubtitle": "Clarification du grain",
+  "@beautyAnalyticsSkinClaritySubtitle": {},
+  "beautyAnalyticsHistoryTitle": "Historique du Journal 📖",
+  "@beautyAnalyticsHistoryTitle": {},
+  "beautyAnalyticsHistoryCount": "{count, plural, one{{count} bilan} other{{count} bilans}}",
+  "@beautyAnalyticsHistoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beautyAnalyticsHistoryEmpty": "Aucun bilan beauté enregistré pour l'instant.",
+  "@beautyAnalyticsHistoryEmpty": {},
+  "beautyAnalyticsHistoryEntryNumber": "Bilan #{number}",
+  "@beautyAnalyticsHistoryEntryNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipLength": "📏 {value} cm",
+  "@beautyAnalyticsChipLength": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipStrength": "💪 Force: {value}/10",
+  "@beautyAnalyticsChipStrength": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipHydration": "💧 Hydratation: {value}/10",
+  "@beautyAnalyticsChipHydration": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipClarity": "✨ Éclat: {value}/10",
+  "@beautyAnalyticsChipClarity": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingTitle": "Profil Beauté Botanique",
+  "@beautyOnboardingTitle": {},
+  "beautyOnboardingBackButton": "Retour",
+  "@beautyOnboardingBackButton": {},
+  "beautyOnboardingNextButton": "Étape Suivante ➔",
+  "@beautyOnboardingNextButton": {},
+  "beautyOnboardingSubmitButton": "Confirmer & Générer Mon Plan 30 Jours ✨",
+  "@beautyOnboardingSubmitButton": {},
+  "beautyOnboardingStep1Title": "👑 Empreinte Capillaire",
+  "@beautyOnboardingStep1Title": {},
+  "beautyOnboardingStep1Subtitle": "Définissez la composition précise et la porosité de vos cheveux pour personnaliser vos soins botaniques.",
+  "@beautyOnboardingStep1Subtitle": {},
+  "beautyOnboardingHairCompositionLabel": "Composition & Texture Capillaire",
+  "@beautyOnboardingHairCompositionLabel": {},
+  "beautyOnboardingHairType4c": "4C — Crépu Très Serré (Trame en Z, Shrinkage fort)",
+  "@beautyOnboardingHairType4c": {},
+  "beautyOnboardingHairType4b": "4B — Crépu Zigzag en Z (Boucles en Z définies)",
+  "@beautyOnboardingHairType4b": {},
+  "beautyOnboardingHairType4a": "4A — Crépu Spirales en S (Spirales denses)",
+  "@beautyOnboardingHairType4a": {},
+  "beautyOnboardingHairType3c": "3C — Boucles Frisées Denses (Spirales serrées)",
+  "@beautyOnboardingHairType3c": {},
+  "beautyOnboardingHairType3b": "3B — Boucles Serrées en Tire-bouchon",
+  "@beautyOnboardingHairType3b": {},
+  "beautyOnboardingHairType3a": "3A — Boucles Amples Souples",
+  "@beautyOnboardingHairType3a": {},
+  "beautyOnboardingHairType2c": "2C — Ondulations Épaisses",
+  "@beautyOnboardingHairType2c": {},
+  "beautyOnboardingHairType2b": "2B — Ondulations Définies",
+  "@beautyOnboardingHairType2b": {},
+  "beautyOnboardingHairType2a": "2A — Ondulations Légères",
+  "@beautyOnboardingHairType2a": {},
+  "beautyOnboardingHairType1c": "1C — Cheveux Lisses Épais",
+  "@beautyOnboardingHairType1c": {},
+  "beautyOnboardingHairType1b": "1B — Cheveux Lisses Moyens",
+  "@beautyOnboardingHairType1b": {},
+  "beautyOnboardingHairType1a": "1A — Cheveux Lisses Très Fins",
+  "@beautyOnboardingHairType1a": {},
+  "beautyOnboardingHairTypeLocks": "Locks / Dreadlocks (Verrouillés)",
+  "@beautyOnboardingHairTypeLocks": {},
+  "beautyOnboardingHairTypeTransition": "Cheveux en Transition (Post-Défrisage)",
+  "@beautyOnboardingHairTypeTransition": {},
+  "beautyOnboardingHairTypeProtective": "Soin Sous Tresses / Perruque",
+  "@beautyOnboardingHairTypeProtective": {},
+  "beautyOnboardingPorosityLabel": "Porosité des Cheveux",
+  "@beautyOnboardingPorosityLabel": {},
+  "beautyOnboardingPorosityLow": "Faible (Écailles fermées)",
+  "@beautyOnboardingPorosityLow": {},
+  "beautyOnboardingPorosityMedium": "Moyenne (Équilibre parfait)",
+  "@beautyOnboardingPorosityMedium": {},
+  "beautyOnboardingPorosityHigh": "Fortement Poreuse (Écailles ouvertes)",
+  "@beautyOnboardingPorosityHigh": {},
+  "beautyOnboardingScalpLabel": "État du Cuir Chevelu",
+  "@beautyOnboardingScalpLabel": {},
+  "beautyOnboardingScalpNormal": "Normal / Équilibré",
+  "@beautyOnboardingScalpNormal": {},
+  "beautyOnboardingScalpDry": "Sec & Démangeaisons",
+  "@beautyOnboardingScalpDry": {},
+  "beautyOnboardingScalpOily": "Gras / Pellicules",
+  "@beautyOnboardingScalpOily": {},
+  "beautyOnboardingScalpSensitive": "Sensible / Irrité",
+  "@beautyOnboardingScalpSensitive": {},
+  "beautyOnboardingStep2Title": "✨ Diagnostic Cutané Profond",
+  "@beautyOnboardingStep2Title": {},
+  "beautyOnboardingStep2Subtitle": "Analysez la typologie globale et les défis spécifiques de votre peau (visage & corps).",
+  "@beautyOnboardingStep2Subtitle": {},
+  "beautyOnboardingSkinTypeLabel": "Composition & Typologie Cutanée",
+  "@beautyOnboardingSkinTypeLabel": {},
+  "beautyOnboardingSkinTypeMixte": "Peau Mixte (Zone T brillante, joues normales/sèches)",
+  "@beautyOnboardingSkinTypeMixte": {},
+  "beautyOnboardingSkinTypeSeche": "Peau Sèche & Déshydratée (Tiraillements & desquamation)",
+  "@beautyOnboardingSkinTypeSeche": {},
+  "beautyOnboardingSkinTypeGrasse": "Peau Grasse & Acnéique (Excès de sébum, pores dilatés)",
+  "@beautyOnboardingSkinTypeGrasse": {},
+  "beautyOnboardingSkinTypeSensible": "Peau Sensible & Réactive (Rougeurs, rosacée)",
+  "@beautyOnboardingSkinTypeSensible": {},
+  "beautyOnboardingSkinTypeHyperpigmentation": "Peau Sujette à l'Hyperpigmentation (Taches sombres, mélasma)",
+  "@beautyOnboardingSkinTypeHyperpigmentation": {},
+  "beautyOnboardingSkinTypeMature": "Peau Mature (Perte de fermeté & rides d'expression)",
+  "@beautyOnboardingSkinTypeMature": {},
+  "beautyOnboardingSkinTypeNormale": "Peau Normale / Équilibrée",
+  "@beautyOnboardingSkinTypeNormale": {},
+  "beautyOnboardingSkinConcernsLabel": "Préoccupations Cutanées (Visage & Décolleté)",
+  "@beautyOnboardingSkinConcernsLabel": {},
+  "beautyOnboardingConcernHyperpigmentation": "🌖 Taches Sombres & Teint Irrégulier",
+  "@beautyOnboardingConcernHyperpigmentation": {},
+  "beautyOnboardingConcernAcne": "🌋 Boutons & Imperfections",
+  "@beautyOnboardingConcernAcne": {},
+  "beautyOnboardingConcernDehydration": "💧 Déshydratation Profonde & Perte d'Éclat",
+  "@beautyOnboardingConcernDehydration": {},
+  "beautyOnboardingConcernBarrier": "🛡️ Barrière Cutanée Fragilisée & Sensibilité",
+  "@beautyOnboardingConcernBarrier": {},
+  "beautyOnboardingConcernSebum": "✨ Brillance Excessive & Pores Dilatés",
+  "@beautyOnboardingConcernSebum": {},
+  "beautyOnboardingConcernAging": "🌿 Perte d'Élasticité & Rides d'Expression",
+  "@beautyOnboardingConcernAging": {},
+  "beautyOnboardingBodyProfileLabel": "Particularités du Corps",
+  "@beautyOnboardingBodyProfileLabel": {},
+  "beautyOnboardingBodyNormal": "Normal / Sans Problème",
+  "@beautyOnboardingBodyNormal": {},
+  "beautyOnboardingBodyKeratose": "Kératose Pilaire (Peau de poule)",
+  "@beautyOnboardingBodyKeratose": {},
+  "beautyOnboardingBodyEczema": "Eczéma / Sujet aux Poussées",
+  "@beautyOnboardingBodyEczema": {},
+  "beautyOnboardingBodyVergetures": "Prévention Vergetures",
+  "@beautyOnboardingBodyVergetures": {},
+  "beautyOnboardingBodyDrySkin": "Peau du Corps Très Sèche (Crocodile)",
+  "@beautyOnboardingBodyDrySkin": {},
+  "beautyOnboardingStep3Title": "🌱 Objectifs Beauté & Priorités",
+  "@beautyOnboardingStep3Title": {},
+  "beautyOnboardingStep3Subtitle": "Sélectionnez vos priorités capillaires et cutanées pour calibrer votre routine sur 30 jours.",
+  "@beautyOnboardingStep3Subtitle": {},
+  "beautyOnboardingHairGoalsLabel": "Objectifs Capillaires 👑",
+  "@beautyOnboardingHairGoalsLabel": {},
+  "beautyOnboardingGoalHairGrowth": "🌱 Pousse, Densité & Longueur",
+  "@beautyOnboardingGoalHairGrowth": {},
+  "beautyOnboardingGoalAntiBreakage": "🛡️ Force, Retention & Anti-Casse",
+  "@beautyOnboardingGoalAntiBreakage": {},
+  "beautyOnboardingGoalHairMoisture": "💧 Hydratation Profonde & Définition",
+  "@beautyOnboardingGoalHairMoisture": {},
+  "beautyOnboardingGoalScalpSoothing": "💆 Équilibre & Apaisement du Cuir Chevelu",
+  "@beautyOnboardingGoalScalpSoothing": {},
+  "beautyOnboardingSkinGoalsLabel": "Objectifs Cutanés & Teint ✨",
+  "@beautyOnboardingSkinGoalsLabel": {},
+  "beautyOnboardingGoalSkinGlow": "✨ Éclat du Teint & Teint Uniforme",
+  "@beautyOnboardingGoalSkinGlow": {},
+  "beautyOnboardingGoalAntiSpot": "🌖 Atténuation des Taches & Hyperpigmentation",
+  "@beautyOnboardingGoalAntiSpot": {},
+  "beautyOnboardingGoalSkinMoisture": "💧 Hydratation & Souplesse Cutanée",
+  "@beautyOnboardingGoalSkinMoisture": {},
+  "beautyOnboardingGoalAntiImperfection": "🌋 Clarification & Anti-Imperfections",
+  "@beautyOnboardingGoalAntiImperfection": {},
+  "beautyOnboardingGoalSkinBarrier": "🛡️ Renforcement de la Barrière Cutanée",
+  "@beautyOnboardingGoalSkinBarrier": {},
+  "beautyOnboardingStep4Title": "📊 Premier Bilan Initial (First Beauty Log)",
+  "@beautyOnboardingStep4Title": {},
+  "beautyOnboardingStep4Subtitle": "Saisissez vos mesures et observations de départ. Ce premier journal servira de point de référence pour mesurer vos progrès au fil des 30 jours.",
+  "@beautyOnboardingStep4Subtitle": {},
+  "beautyOnboardingHairLengthLabel": "📏 Longueur Actuelle des Cheveux",
+  "@beautyOnboardingHairLengthLabel": {},
+  "beautyOnboardingValueCm": "{value} cm",
+  "@beautyOnboardingValueCm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingHairStrengthLabel": "💪 Force & Résistance Capillaire",
+  "@beautyOnboardingHairStrengthLabel": {},
+  "beautyOnboardingValueOutOfTen": "{value}/10",
+  "@beautyOnboardingValueOutOfTen": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingSheddingRateLabel": "📊 Taux de Chute Actuel",
+  "@beautyOnboardingSheddingRateLabel": {},
+  "beautyOnboardingSheddingLow": "Faible",
+  "@beautyOnboardingSheddingLow": {},
+  "beautyOnboardingSheddingModerate": "Modéré",
+  "@beautyOnboardingSheddingModerate": {},
+  "beautyOnboardingSheddingHigh": "Élevé",
+  "@beautyOnboardingSheddingHigh": {},
+  "beautyOnboardingSkinHydrationLabel": "💧 Niveau d'Hydratation de la Peau",
+  "@beautyOnboardingSkinHydrationLabel": {},
+  "beautyOnboardingSkinClarityLabel": "✨ Éclat & Clarté du Teint",
+  "@beautyOnboardingSkinClarityLabel": {},
+  "beautyOnboardingNotesLabel": "📝 Notes Initiales & Observations",
+  "@beautyOnboardingNotesLabel": {},
+  "beautyOnboardingNotesHint": "Notes sur l'état de vos cheveux et de votre peau...",
+  "@beautyOnboardingNotesHint": {},
+  "beautyOnboardingDefaultNotes": "Bilan initial du profil beauté",
+  "@beautyOnboardingDefaultNotes": {},
+  "beautyOnboardingSummaryTitle": "📋 Résumé & Confirmation",
+  "@beautyOnboardingSummaryTitle": {},
+  "beautyOnboardingSummarySubtitle": "Vérifiez la synthèse de votre profil beauté avant d'activer votre programme personnalisé 30 jours.",
+  "@beautyOnboardingSummarySubtitle": {},
+  "beautyOnboardingSummaryHairCardTitle": "👑 Profil Capillaire",
+  "@beautyOnboardingSummaryHairCardTitle": {},
+  "beautyOnboardingSummaryHairTypeRow": "Texture / Type:",
+  "@beautyOnboardingSummaryHairTypeRow": {},
+  "beautyOnboardingSummaryPorosityRow": "Porosité:",
+  "@beautyOnboardingSummaryPorosityRow": {},
+  "beautyOnboardingSummaryPorosityLowValue": "Faible",
+  "@beautyOnboardingSummaryPorosityLowValue": {},
+  "beautyOnboardingSummaryPorosityHighValue": "Poreuse",
+  "@beautyOnboardingSummaryPorosityHighValue": {},
+  "beautyOnboardingSummaryPorosityMediumValue": "Moyenne",
+  "@beautyOnboardingSummaryPorosityMediumValue": {},
+  "beautyOnboardingSummaryScalpRow": "Cuir Chevelu:",
+  "@beautyOnboardingSummaryScalpRow": {},
+  "beautyOnboardingSummaryScalpDryValue": "Sec",
+  "@beautyOnboardingSummaryScalpDryValue": {},
+  "beautyOnboardingSummaryScalpOilyValue": "Gras",
+  "@beautyOnboardingSummaryScalpOilyValue": {},
+  "beautyOnboardingSummaryScalpSensitiveValue": "Sensible",
+  "@beautyOnboardingSummaryScalpSensitiveValue": {},
+  "beautyOnboardingSummaryScalpNormalValue": "Normal",
+  "@beautyOnboardingSummaryScalpNormalValue": {},
+  "beautyOnboardingSummarySkinCardTitle": "✨ Diagnostic Cutané",
+  "@beautyOnboardingSummarySkinCardTitle": {},
+  "beautyOnboardingSummarySkinTypeRow": "Typologie:",
+  "@beautyOnboardingSummarySkinTypeRow": {},
+  "beautyOnboardingSummaryConcernsRow": "Préoccupations:",
+  "@beautyOnboardingSummaryConcernsRow": {},
+  "beautyOnboardingSummaryConcernsNone": "Aucune",
+  "@beautyOnboardingSummaryConcernsNone": {},
+  "beautyOnboardingSummaryBodyProfileRow": "Particularité Corps:",
+  "@beautyOnboardingSummaryBodyProfileRow": {},
+  "beautyOnboardingSummaryGoalsCardTitle": "🌱 Objectifs Sélectionnés",
+  "@beautyOnboardingSummaryGoalsCardTitle": {},
+  "beautyOnboardingSummaryFirstLogCardTitle": "📊 Mesures du Premier Bilan",
+  "@beautyOnboardingSummaryFirstLogCardTitle": {},
+  "beautyOnboardingSummaryHairLengthRow": "Longueur Cheveux:",
+  "@beautyOnboardingSummaryHairLengthRow": {},
+  "beautyOnboardingSummaryHairStrengthRow": "Force Capillaire:",
+  "@beautyOnboardingSummaryHairStrengthRow": {},
+  "beautyOnboardingSummarySheddingRow": "Taux de Chute:",
+  "@beautyOnboardingSummarySheddingRow": {},
+  "beautyOnboardingSummarySkinHydrationRow": "Hydratation Peau:",
+  "@beautyOnboardingSummarySkinHydrationRow": {},
+  "beautyOnboardingSummaryClarityRow": "Éclat Teint:",
+  "@beautyOnboardingSummaryClarityRow": {},
+  "beautyOnboardingSummaryNotesRow": "Notes:",
+  "@beautyOnboardingSummaryNotesRow": {},
+  "beautyOnboardingSummaryEditTooltip": "Modifier",
+  "@beautyOnboardingSummaryEditTooltip": {},
+  "beautyOnboardingSaveErrorSnackbar": "Erreur lors de la sauvegarde: {error}",
+  "@beautyOnboardingSaveErrorSnackbar": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinTitle": "Bilan Beauté & Évolution",
+  "@beautyCheckinTitle": {},
+  "beautyCheckinSubtitle": "Enregistrez votre bilan mensuel de longueur de cheveux et de barrière cutanée.",
+  "@beautyCheckinSubtitle": {},
+  "beautyCheckinHairLengthLabel": "Longueur des Cheveux : {value} cm",
+  "@beautyCheckinHairLengthLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinHairStrengthLabel": "Score de Force Capillaire : {value} / 10",
+  "@beautyCheckinHairStrengthLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinHairThicknessLabel": "Score d'Épaisseur Capillaire : {value} / 10",
+  "@beautyCheckinHairThicknessLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinSkinHydrationLabel": "Niveau d'Hydratation de la Peau : {value} / 10",
+  "@beautyCheckinSkinHydrationLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinSkinClarityLabel": "Score de Clarté de la Peau : {value} / 10",
+  "@beautyCheckinSkinClarityLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinNotesLabel": "Notes du Journal de Bilan (Optionnel)",
+  "@beautyCheckinNotesLabel": {},
+  "beautyCheckinNotesHint": "ex. Cheveux nettement plus doux après un masque au Chébé !",
+  "@beautyCheckinNotesHint": {},
+  "beautyCheckinSaveButton": "Enregistrer le Bilan",
+  "@beautyCheckinSaveButton": {},
+  "beautyCheckinSheddingLabel": "Taux de Chute des Cheveux",
+  "@beautyCheckinSheddingLabel": {},
+  "beautyCheckinSheddingLow": "Faible",
+  "@beautyCheckinSheddingLow": {},
+  "beautyCheckinSheddingModerate": "Modéré",
+  "@beautyCheckinSheddingModerate": {},
+  "beautyCheckinSheddingHigh": "Élevé",
+  "@beautyCheckinSheddingHigh": {},
+  "todayBeautyRoutinesTitle": "Vos Rituels du Jour 👑",
+  "@todayBeautyRoutinesTitle": {},
+  "todayBeautyRoutinesPlanningLink": "Planning (30j)",
+  "@todayBeautyRoutinesPlanningLink": {},
+  "todayBeautyRoutinesEmptyTitle": "Aucun rituel aujourd'hui",
+  "@todayBeautyRoutinesEmptyTitle": {},
+  "todayBeautyRoutinesEmptySubtitle": "Générez votre planning mensuel dans l'onglet Routine.",
+  "@todayBeautyRoutinesEmptySubtitle": {},
+  "todayBeautyRoutinesRestDay": "Journée de repos pour votre cuir chevelu & peau !",
+  "@todayBeautyRoutinesRestDay": {},
+  "todayBeautyRoutinesLoadError": "Erreur lors du chargement des rituels : {error}",
+  "@todayBeautyRoutinesLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBeautyRoutinesTierLabel": "Tier: {tier}",
+  "@todayBeautyRoutinesTierLabel": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBeautyRoutinesDefaultLabel": "Rituel",
+  "@todayBeautyRoutinesDefaultLabel": {},
+  "beautyPlannerLoadError": "Erreur lors du chargement du plan de soin: {error}",
+  "@beautyPlannerLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyPlannerHeaderTitle": "Mon Plan de Soins Mensuel",
+  "@beautyPlannerHeaderTitle": {},
+  "beautyPlannerHeaderSubtitle": "Routines personnalisées de soins capillaires & cutanés (30 jours).",
+  "@beautyPlannerHeaderSubtitle": {},
+  "beautyPlannerDailySectionTitle": "💧 Soins Quotidiens (Hydratation)",
+  "@beautyPlannerDailySectionTitle": {},
+  "beautyPlannerWeeklySectionTitle": "🌿 Soins Hebdomadaires (Masques & Bains)",
+  "@beautyPlannerWeeklySectionTitle": {},
+  "beautyPlannerMonthlySectionTitle": "✨ Soins Mensuels & Proteine",
+  "@beautyPlannerMonthlySectionTitle": {},
+  "beautyPlannerSectionCount": "{count, plural, one{{count} soin} other{{count} soins}}",
+  "@beautyPlannerSectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beautyPlannerDayLabel": "Jour {day}",
+  "@beautyPlannerDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyPlannerEmptyTitle": "Aucun Plan de Soin Actif",
+  "@beautyPlannerEmptyTitle": {},
+  "beautyPlannerEmptySubtitle": "Générez votre routine mensuelle de soins capillaires et cutanés adaptée à votre profil.",
+  "@beautyPlannerEmptySubtitle": {},
+  "beautyPlannerGenerateButton": "Générer Mon Plan Beauté",
+  "@beautyPlannerGenerateButton": {},
+  "colorSetModalTitle": "Personnaliser le Thème de Couleurs",
+  "@colorSetModalTitle": {},
+  "colorSetModalSubtitle": "Sélectionnez une palette de couleurs Primaire & Secondaire.",
+  "@colorSetModalSubtitle": {},
+  "colorSetModalPresetTealName": "Teal & Amber (Nutrition)",
+  "@colorSetModalPresetTealName": {},
+  "colorSetModalPresetTealDesc": "Équilibré, sain et énergisant.",
+  "@colorSetModalPresetTealDesc": {},
+  "colorSetModalPresetRoseName": "Rose & Gold (Beauty)",
+  "@colorSetModalPresetRoseName": {},
+  "colorSetModalPresetRoseDesc": "Luxe éditorial, soin bio & éclat.",
+  "@colorSetModalPresetRoseDesc": {},
+  "colorSetModalPresetSageName": "Sage & Bronze (Botanique)",
+  "@colorSetModalPresetSageName": {},
+  "colorSetModalPresetSageDesc": "Plantes ancestrales & nature.",
+  "@colorSetModalPresetSageDesc": {},
+  "colorSetModalPresetTerracottaName": "Terracotta & Clay (Soleil)",
+  "@colorSetModalPresetTerracottaName": {},
+  "colorSetModalPresetTerracottaDesc": "Tonalité terre d'Afrique & chaleur.",
+  "@colorSetModalPresetTerracottaDesc": {},
+  "colorSetModalApplyButton": "Appliquer cette Palette",
+  "@colorSetModalApplyButton": {},
+  "mainShellTabRoutines": "Routines",
+  "@mainShellTabRoutines": {},
+  "mainShellTabRemedies": "Remèdes",
+  "@mainShellTabRemedies": {},
+  "sduiErrorTitle": "Impossible de charger la mise en page",
+  "@sduiErrorTitle": {},
+  "sduiUnknownError": "Erreur inconnue",
+  "@sduiUnknownError": {},
+  "sduiRetryButton": "Réessayer",
+  "@sduiRetryButton": {},
+  "sduiEmptyTitle": "Aucun contenu pour le mode {mode}",
+  "@sduiEmptyTitle": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "sduiEmptySubtitle": "Revenez plus tard pour les mises à jour",
+  "@sduiEmptySubtitle": {},
+  "modeSelectorTitle": "Mode d'application (SDUI)",
+  "@modeSelectorTitle": {},
+  "modeSelectorSubtitle": "Basculer entre Nutrition et Beauté",
+  "@modeSelectorSubtitle": {},
+  "modeSelectorSwitched": "Passé en mode {mode}",
+  "@modeSelectorSwitched": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modeDescNutrition": "Planification de repas, macros et recettes adaptées",
+  "@modeDescNutrition": {},
+  "modeDescBeauty": "Routines soins peau & cheveux, remèdes traditionnels",
+  "@modeDescBeauty": {},
+  "modeDescHealth": "Suivi paramètres de santé, poids et constantes",
+  "@modeDescHealth": {},
+  "modeDescSport": "Programmes d'entraînement et suivi d'activité",
+  "@modeDescSport": {},
+  "modeDescFamily": "Gestion de la nutrition et des repas familiaux",
+  "@modeDescFamily": {},
+  "closeButton": "Fermer",
+  "@closeButton": {},
+  "modeNameNutrition": "Nutrition",
+  "@modeNameNutrition": {},
+  "modeNameBeauty": "Beauté",
+  "@modeNameBeauty": {},
+  "modeNameHealth": "Santé",
+  "@modeNameHealth": {},
+  "modeNameSport": "Sport",
+  "@modeNameSport": {},
+  "modeNameFamily": "Famille",
+  "@modeNameFamily": {},
+  "settingsDiagnosticCheveuxPeau": "Diagnostic Cheveux & Peau",
+  "@settingsDiagnosticCheveuxPeau": {},
+  "settingsPlanificationSoins": "Planification des Soins",
+  "@settingsPlanificationSoins": {},
+  "settingsModeApplication": "Mode d'application (SDUI)",
+  "@settingsModeApplication": {},
+  "healthProfileSensitiveScalpTitle": "Cuir Chevelu Sensible / Réactif",
+  "@healthProfileSensitiveScalpTitle": {},
+  "healthProfileSensitiveScalpSubtitle": "Tendance aux démangeaisons ou rougeurs",
+  "@healthProfileSensitiveScalpSubtitle": {},
+  "healthProfileSaveSuccess": "Profil enregistré avec succès !",
+  "@healthProfileSaveSuccess": {},
+  "healthProfileSaveError": "Erreur lors de l'enregistrement",
+  "@healthProfileSaveError": {},
+  "aiAssistantBeautyTitle": "Assistant Beauté & Soins IA",
+  "@aiAssistantBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion1": "Quelle est la meilleure routine hydratante pour cheveux 4C ?",
+  "@aiAssistantBeautySuggestion1": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion2": "Comment utiliser le beurre de karité brut contre l'acné et les taches ?",
+  "@aiAssistantBeautySuggestion2": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion3": "Quels actifs naturels favorisent la pousse et stoppent la casse ?",
+  "@aiAssistantBeautySuggestion3": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion4": "Propose-moi un masque fait maison apaisant pour cuir chevelu.",
+  "@aiAssistantBeautySuggestion4": {
+    "description": "Added for Beauty mode"
+  },
+  "nutritionPlanBeautyTitle": "Mon Programme de Soins & Routines",
+  "@nutritionPlanBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "supportBeautyTitle": "Support Beauté & Soins",
+  "@supportBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "communityPublicGroup": "Groupe public",
+  "@communityPublicGroup": {
+    "description": "Added for community sweep"
+  },
+  "communityError": "Erreur: {error}",
+  "@communityError": {
+    "description": "Error message with error details",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "communityMembersCount": "{count} membres",
+  "@communityMembersCount": {
+    "description": "Number of members in a group",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "communityRefuseError": "Erreur lors du refus",
+  "@communityRefuseError": {
+    "description": "Added for community sweep"
+  },
+  "communityRefuse": "Refuser",
+  "@communityRefuse": {
+    "description": "Added for community sweep"
+  },
+  "communityAcceptError": "Erreur lors de l'acceptation",
+  "@communityAcceptError": {
+    "description": "Added for community sweep"
+  },
+  "communityAccept": "Accepter",
+  "@communityAccept": {
+    "description": "Added for community sweep"
+  }
 }

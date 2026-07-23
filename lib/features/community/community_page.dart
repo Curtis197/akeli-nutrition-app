@@ -356,7 +356,7 @@ class _CreateGroupSheetState extends ConsumerState<_CreateGroupSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Groupe public'),
+                Text(AppLocalizations.of(context).communityPublicGroup),
                 Switch(
                   value: _isPublic,
                   onChanged: (val) {
@@ -407,7 +407,7 @@ class _GroupesTab extends ConsumerWidget {
 
     return groupsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Erreur: $err')),
+      error: (err, _) => Center(child: Text(AppLocalizations.of(context).communityError(err.toString()))),
       data: (groups) {
         if (groups.isEmpty) {
           return Center(
@@ -600,7 +600,7 @@ class _ToutItem {
           ),
           title: Text(name),
         subtitle:
-            Text('${(g['member_count'] as int?) ?? 0} membres'),
+            Text(AppLocalizations.of(context).communityMembersCount((g['member_count'] as int?) ?? 0)),
         onTap: () {
           appLogger.userAction('Group tile tapped', screen: 'CommunityPage',
               metadata: {'groupId': g['id']});
@@ -774,7 +774,7 @@ class _RequestCard extends StatelessWidget {
                 }
               }
             },
-            child: const Text('Refuser'),
+            child: Text(AppLocalizations.of(context).communityRefuse),
           ),
           const SizedBox(width: AkeliSpacing.xs),
           FilledButton(
@@ -798,7 +798,7 @@ class _RequestCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: AkeliSpacing.md, vertical: AkeliSpacing.sm),
             ),
-            child: const Text('Accepter'),
+            child: Text(AppLocalizations.of(context).communityAccept),
           ),
         ],
       ),

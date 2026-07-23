@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:akeli/core/logger.dart';
+import '../l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
@@ -31,6 +33,23 @@ extension AppModeExtension on AppMode {
         return 'Famille';
     }
   }
+
+  String getLocalizedName(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    switch (this) {
+      case AppMode.nutrition:
+        return l10n.modeNameNutrition;
+      case AppMode.beauty:
+        return l10n.modeNameBeauty;
+      case AppMode.health:
+        return l10n.modeNameHealth;
+      case AppMode.sport:
+        return l10n.modeNameSport;
+      case AppMode.family:
+        return l10n.modeNameFamily;
+    }
+  }
+
 
   String get iconData {
     switch (this) {

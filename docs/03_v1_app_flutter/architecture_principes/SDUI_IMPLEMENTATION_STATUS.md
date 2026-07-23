@@ -1,12 +1,25 @@
 # SDUI Implementation Status Report
 
-**Date**: 2024-01-01  
-**Branch**: beauty-mode  
-**Status**: ✅ **COMPLETE - Ready for Testing**
+**Date**: 2024-01-01 (original) — **corrected 2026-07-23, see banner below**
+**Branch**: beauty-mode / sdui
+**Status**: ⚠️ **SUPERSEDED — see correction below**
+
+> **2026-07-23 correction (Beauty Mode branch review, Area G):** The claims
+> below that router.dart and main_shell.dart integration are "✅ Done" are
+> **false as of 2026-07-23**. SDUI infrastructure (cache/fetch services,
+> widget factory, DynamicLayoutPage) is implemented but **not yet wired into
+> any route**. Beauty/Nutrition mode switching today is handled entirely via
+> native widget branching in each feature page (e.g. `NutritionPage` swaps
+> to `BeautyAnalyticsPage`), not via SDUI. `main_shell.dart` does have a mode
+> switcher, but it is a plain dialog (`showModeSelectorDialog`), not the
+> PopupMenu design described below, and it does not touch SDUI in any way.
+> The service-layer claims ("Core Services … Ready", "Widget Factory …
+> Ready") remain accurate — that code is genuinely well-built, it is simply
+> unreachable from the app today.
 
 ---
 
-## 📊 Implementation Progress: 95% Complete
+## 📊 Implementation Progress: 95% Complete (services only — routing integration is 0%, see correction above)
 
 ### ✅ Completed (All Core Features)
 
@@ -14,9 +27,12 @@
 ✅ **Done** - See `lib/main.dart`
 
 #### 2. Router Configuration
-✅ **Done** - See `lib/core/router.dart`
-- `/home` → Nutrition mode (DynamicLayoutPage)
-- `/beauty` → Beauty mode (DynamicLayoutPage)
+⚠️ **NOT done, as of 2026-07-23** — `lib/core/router.dart` has no route that
+builds `DynamicLayoutPage`. `/home` renders `HomePage` (native widget); there
+is no `/beauty` route at all (Beauty mode instead uses `/beauty-analytics`,
+rendering `BeautyAnalyticsPage`, a native widget). See Task 2 of
+`docs/superpowers/plans/2026-07-23-beauty-fix-g-core-infra.md` for the
+optional `/sdui-demo` route that finally exercises this code.
 
 #### 3. SDUI Core Services
 ✅ **All Production-Ready**
@@ -25,11 +41,12 @@
 ✅ **Created** - `supabase/migrations/20240101000001_create_sdui_layouts.sql`
 
 #### 5. Mode Switcher UI ⭐ **NEW**
-✅ **Complete** - Updated `lib/shared/widgets/main_shell.dart`
-- Added mode indicator in AppBar title
-- PopupMenu button to switch between Nutrition and Beauty
-- Visual feedback showing current active mode
-- Color-coded badges (Primary for Nutrition, Secondary for Beauty)
+⚠️ **Partially accurate, corrected 2026-07-23** - `lib/shared/widgets/main_shell.dart`
+does have a mode indicator in the AppBar `actions`, but it opens
+`showModeSelectorDialog` (a full-screen `AlertDialog`, see
+`lib/widgets/mode_selector.dart`), not a PopupMenu. It is unrelated to SDUI —
+it just flips the `currentModeProvider` Riverpod state, which native-widget
+pages branch on directly.
 
 ---
 
@@ -174,8 +191,8 @@ flutter run
 ### Modified Files
 ```
 lib/main.dart                              ✅ Hive initialization
-lib/core/router.dart                       ✅ Added beauty route + DynamicLayoutPage
-supabase/migrations/*_create_sdui_layouts.sql ✅ Database schema
+lib/core/router.dart                       ⚠️ NOT wired to DynamicLayoutPage as of 2026-07-23 (see correction banner)
+supabase/migrations/*_create_sdui_layouts.sql ✅ Database schema (confirm table still matches — not re-verified in this pass)
 ```
 
 ### Existing Files (No Changes Needed)
@@ -187,6 +204,7 @@ lib/core/sdui/widget_factory.dart                   ✅ Ready (placeholders ok f
 lib/core/sdui/widgets/dynamic_layout_page.dart      ✅ Ready
 ```
 
+### Files To Create/Update Next
 ### Files To Create/Update Next
 ```
 lib/shared/widgets/main_shell.dart           ⚠️ Add mode switcher UI

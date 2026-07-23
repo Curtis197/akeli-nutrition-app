@@ -16,6 +16,7 @@ import 'core/logger.dart';
 import 'core/notification_handler.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/mode_provider.dart';
+import 'providers/color_set_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -131,12 +132,16 @@ class AkeliApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final locale = ref.watch(localeProvider);
     final currentMode = ref.watch(currentModeProvider);
+    final colorSet = ref.watch(colorSetProvider);
+    
+    // Only apply the custom color set when in Beauty mode to preserve Nutrition's default teal
+    final themeColor = currentMode == AppMode.beauty ? colorSet.primary : null;
 
     return MaterialApp.router(
       title: 'Akeli',
       debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(currentMode),
-      darkTheme: buildDarkTheme(currentMode),
+      theme: buildLightTheme(currentMode, themeColor),
+      darkTheme: buildDarkTheme(currentMode, themeColor),
       themeMode: ThemeMode.system,
       locale: locale,
       supportedLocales: LocaleNotifier.supportedLocales,

@@ -53,20 +53,25 @@ class SavedRecipesPage extends ConsumerWidget {
           ),
         ),
         data: (recipes) {
-          if (recipes.isEmpty) {
-            return Center(
-              child: Text(
-                emptySubtitle,
-                style: const TextStyle(color: AkeliColors.outline, fontSize: 16),
-              ),
-            );
-          }
-          return ListView.separated(
-            padding: const EdgeInsets.all(16),
-            itemCount: recipes.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final recipe = recipes[index];
+            // Client-side mode filter — stopgap until userSavedRecipesProvider
+            // (lib/providers/profile_tabs_provider.dart) filters server-side.
+            final modeFilteredRecipes = recipes
+                .where((recipe) => recipe.mode == (isBeauty ? 'beauty' : 'nutrition'))
+                .toList();
+            if (modeFilteredRecipes.isEmpty) {
+              return Center(
+                child: Text(
+                  emptySubtitle,
+                  style: const TextStyle(color: AkeliColors.outline, fontSize: 16),
+                ),
+              );
+            }
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: modeFilteredRecipes.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final recipe = modeFilteredRecipes[index];
               return AkeliRecipeCard(
                 title: recipe.title,
                 calories100g: recipe.calories100g?.round(),

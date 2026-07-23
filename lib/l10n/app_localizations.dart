@@ -6536,6 +6536,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply This Palette'**
   String get colorSetModalApplyButton;
+
+  /// No description provided for @mainShellTabRoutines.
+  ///
+  /// In en, this message translates to:
+  /// **'Routines'**
+  String get mainShellTabRoutines;
+
+  /// No description provided for @mainShellTabRemedies.
+  ///
+  /// In en, this message translates to:
+  /// **'Remedies'**
+  String get mainShellTabRemedies;
+
+  /// No description provided for @sduiErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load layout'**
+  String get sduiErrorTitle;
+
+  /// No description provided for @sduiUnknownError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown error'**
+  String get sduiUnknownError;
+
+  /// No description provided for @sduiRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get sduiRetryButton;
+
+  /// No description provided for @sduiEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No content for {mode} mode'**
+  String sduiEmptyTitle(String mode);
+
+  /// No description provided for @sduiEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check back later for updates'**
+  String get sduiEmptySubtitle;
+
+  /// No description provided for @modeSelectorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Mode (SDUI)'**
+  String get modeSelectorTitle;
+
+  /// No description provided for @modeSelectorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch between Nutrition and Beauty'**
+  String get modeSelectorSubtitle;
+
+  /// No description provided for @modeSelectorSwitched.
+  ///
+  /// In en, this message translates to:
+  /// **'Switched to {mode} mode'**
+  String modeSelectorSwitched(String mode);
+
+  /// No description provided for @modeDescNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal planning, macros, and adapted recipes'**
+  String get modeDescNutrition;
+
+  /// No description provided for @modeDescBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin & hair care routines, traditional remedies'**
+  String get modeDescBeauty;
+
+  /// No description provided for @modeDescHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health metrics tracking, weight and vitals'**
+  String get modeDescHealth;
+
+  /// No description provided for @modeDescSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout programs and activity tracking'**
+  String get modeDescSport;
+
+  /// No description provided for @modeDescFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family nutrition and meal management'**
+  String get modeDescFamily;
+
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeButton;
+
+  /// No description provided for @modeNameNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get modeNameNutrition;
+
+  /// No description provided for @modeNameBeauty.
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty'**
+  String get modeNameBeauty;
+
+  /// No description provided for @modeNameHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get modeNameHealth;
+
+  /// No description provided for @modeNameSport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get modeNameSport;
+
+  /// No description provided for @modeNameFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get modeNameFamily;
+
+  /// No description provided for @settingsDiagnosticCheveuxPeau.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair & Skin Diagnostic'**
+  String get settingsDiagnosticCheveuxPeau;
+
+  /// No description provided for @settingsPlanificationSoins.
+  ///
+  /// In en, this message translates to:
+  /// **'Care Planning'**
+  String get settingsPlanificationSoins;
+
+  /// No description provided for @settingsModeApplication.
+  ///
+  /// In en, this message translates to:
+  /// **'App Mode (SDUI)'**
+  String get settingsModeApplication;
+
+  /// No description provided for @healthProfileSensitiveScalpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sensitive / Reactive Scalp'**
+  String get healthProfileSensitiveScalpTitle;
+
+  /// No description provided for @healthProfileSensitiveScalpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Prone to itching or redness'**
+  String get healthProfileSensitiveScalpSubtitle;
+
+  /// No description provided for @healthProfileSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved successfully!'**
+  String get healthProfileSaveSuccess;
+
+  /// No description provided for @healthProfileSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while saving'**
+  String get healthProfileSaveError;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'AI Beauty & Care Assistant'**
+  String get aiAssistantBeautyTitle;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'What is the best moisturizing routine for 4C hair?'**
+  String get aiAssistantBeautySuggestion1;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'How to use raw shea butter against acne and dark spots?'**
+  String get aiAssistantBeautySuggestion2;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'Which natural ingredients promote hair growth and stop breakage?'**
+  String get aiAssistantBeautySuggestion3;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'Suggest a homemade soothing scalp mask.'**
+  String get aiAssistantBeautySuggestion4;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'My Care & Routine Program'**
+  String get nutritionPlanBeautyTitle;
+
+  /// Added for Beauty mode
+  ///
+  /// In en, this message translates to:
+  /// **'Beauty & Care Support'**
+  String get supportBeautyTitle;
+
+  /// Added for community sweep
+  ///
+  /// In en, this message translates to:
+  /// **'Public group'**
+  String get communityPublicGroup;
+
+  /// Error message with error details
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String communityError(String error);
+
+  /// Number of members in a group
+  ///
+  /// In en, this message translates to:
+  /// **'{count} members'**
+  String communityMembersCount(int count);
+
+  /// Added for community sweep
+  ///
+  /// In en, this message translates to:
+  /// **'Error while refusing'**
+  String get communityRefuseError;
+
+  /// Added for community sweep
+  ///
+  /// In en, this message translates to:
+  /// **'Refuse'**
+  String get communityRefuse;
+
+  /// Added for community sweep
+  ///
+  /// In en, this message translates to:
+  /// **'Error while accepting'**
+  String get communityAcceptError;
+
+  /// Added for community sweep
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get communityAccept;
 }
 
 class _AppLocalizationsDelegate

@@ -64,12 +64,14 @@ class AiChatNotifier extends AutoDisposeNotifier<List<ChatMessage>> {
     state = [...state, userMsg, loadingMsg];
 
     final client = ref.read(supabaseClientProvider);
+    final currentMode = ref.read(currentModeProvider);
     final body = <String, dynamic>{
       'message': content.trim(),
       if (_conversationId != null) 'conversation_id': _conversationId,
+      'mode': currentMode.name,
     };
 
-    appLogger.edge('ai-assistant-chat', 'BEFORE | conversationId: ${_conversationId ?? "new"} | messageLength: ${content.trim().length}');
+    appLogger.edge('ai-assistant-chat', 'BEFORE | mode: ${currentMode.name} | conversationId: ${_conversationId ?? "new"} | messageLength: ${content.trim().length}');
 
     try {
       final result = await client.functions.invoke(
@@ -207,7 +209,7 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          ref.watch(currentModeProvider) == AppMode.beauty ? 'Assistant Beauté & Soins IA' : l10n.aiAssistantTitle,
+                          ref.watch(currentModeProvider) == AppMode.beauty ? l10n.aiAssistantBeautyTitle : l10n.aiAssistantTitle,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AkeliColors.onSurface, letterSpacing: -0.5),
                         ),
                         Text(
@@ -246,10 +248,10 @@ class _AiChatPageState extends ConsumerState<AiChatPage> {
                   },
                   suggestions: ref.watch(currentModeProvider) == AppMode.beauty
                       ? [
-                          'Quelle est la meilleure routine hydratante pour cheveux 4C ?',
-                          'Comment utiliser le beurre de karité brut contre l\'acné et les taches ?',
-                          'Quels actifs naturels favorisent la pousse et stoppent la casse ?',
-                          'Propose-moi un masque fait maison apaisant pour cuir chevelu.',
+                          l10n.aiAssistantBeautySuggestion1,
+                          l10n.aiAssistantBeautySuggestion2,
+                          l10n.aiAssistantBeautySuggestion3,
+                          l10n.aiAssistantBeautySuggestion4,
                         ]
                       : [
                           l10n.aiAssistantSuggestion1,

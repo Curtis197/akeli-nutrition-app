@@ -180,7 +180,7 @@ class _SupportPageState extends ConsumerState<SupportPage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          ref.watch(currentModeProvider) == AppMode.beauty ? 'Support Beauté & Soins' : l10n.supportTitle,
+          ref.watch(currentModeProvider) == AppMode.beauty ? l10n.supportBeautyTitle : l10n.supportTitle,
           style: GoogleFonts.plusJakartaSans(
             fontSize: 20,
             fontWeight: FontWeight.w600,

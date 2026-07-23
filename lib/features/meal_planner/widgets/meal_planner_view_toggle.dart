@@ -47,9 +47,6 @@ class MealPlannerViewToggle extends ConsumerWidget {
               const Key('planner-view-toggle-day'), accentColor),
           _segment(l10n.plannerViewToggleWeek, PlannerViewMode.week,
               const Key('planner-view-toggle-week'), accentColor),
-          if (isBeauty)
-            _segment('Mois 🗓️', PlannerViewMode.month,
-                const Key('planner-view-toggle-month'), accentColor),
         ],
       ),
     );

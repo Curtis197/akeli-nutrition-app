@@ -3528,4 +3528,144 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colorSetModalApplyButton => 'Apply This Palette';
+
+  @override
+  String get mainShellTabRoutines => 'Routines';
+
+  @override
+  String get mainShellTabRemedies => 'Remedies';
+
+  @override
+  String get sduiErrorTitle => 'Unable to load layout';
+
+  @override
+  String get sduiUnknownError => 'Unknown error';
+
+  @override
+  String get sduiRetryButton => 'Try Again';
+
+  @override
+  String sduiEmptyTitle(String mode) {
+    return 'No content for $mode mode';
+  }
+
+  @override
+  String get sduiEmptySubtitle => 'Check back later for updates';
+
+  @override
+  String get modeSelectorTitle => 'App Mode (SDUI)';
+
+  @override
+  String get modeSelectorSubtitle => 'Switch between Nutrition and Beauty';
+
+  @override
+  String modeSelectorSwitched(String mode) {
+    return 'Switched to $mode mode';
+  }
+
+  @override
+  String get modeDescNutrition => 'Meal planning, macros, and adapted recipes';
+
+  @override
+  String get modeDescBeauty =>
+      'Skin & hair care routines, traditional remedies';
+
+  @override
+  String get modeDescHealth => 'Health metrics tracking, weight and vitals';
+
+  @override
+  String get modeDescSport => 'Workout programs and activity tracking';
+
+  @override
+  String get modeDescFamily => 'Family nutrition and meal management';
+
+  @override
+  String get closeButton => 'Close';
+
+  @override
+  String get modeNameNutrition => 'Nutrition';
+
+  @override
+  String get modeNameBeauty => 'Beauty';
+
+  @override
+  String get modeNameHealth => 'Health';
+
+  @override
+  String get modeNameSport => 'Sport';
+
+  @override
+  String get modeNameFamily => 'Family';
+
+  @override
+  String get settingsDiagnosticCheveuxPeau => 'Hair & Skin Diagnostic';
+
+  @override
+  String get settingsPlanificationSoins => 'Care Planning';
+
+  @override
+  String get settingsModeApplication => 'App Mode (SDUI)';
+
+  @override
+  String get healthProfileSensitiveScalpTitle => 'Sensitive / Reactive Scalp';
+
+  @override
+  String get healthProfileSensitiveScalpSubtitle =>
+      'Prone to itching or redness';
+
+  @override
+  String get healthProfileSaveSuccess => 'Profile saved successfully!';
+
+  @override
+  String get healthProfileSaveError => 'Error while saving';
+
+  @override
+  String get aiAssistantBeautyTitle => 'AI Beauty & Care Assistant';
+
+  @override
+  String get aiAssistantBeautySuggestion1 =>
+      'What is the best moisturizing routine for 4C hair?';
+
+  @override
+  String get aiAssistantBeautySuggestion2 =>
+      'How to use raw shea butter against acne and dark spots?';
+
+  @override
+  String get aiAssistantBeautySuggestion3 =>
+      'Which natural ingredients promote hair growth and stop breakage?';
+
+  @override
+  String get aiAssistantBeautySuggestion4 =>
+      'Suggest a homemade soothing scalp mask.';
+
+  @override
+  String get nutritionPlanBeautyTitle => 'My Care & Routine Program';
+
+  @override
+  String get supportBeautyTitle => 'Beauty & Care Support';
+
+  @override
+  String get communityPublicGroup => 'Public group';
+
+  @override
+  String communityError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String communityMembersCount(int count) {
+    return '$count members';
+  }
+
+  @override
+  String get communityRefuseError => 'Error while refusing';
+
+  @override
+  String get communityRefuse => 'Refuse';
+
+  @override
+  String get communityAcceptError => 'Error while accepting';
+
+  @override
+  String get communityAccept => 'Accept';
 }

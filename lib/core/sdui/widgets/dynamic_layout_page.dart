@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:akeli/core/logger.dart';
 import '../services/layout_fetch_service.dart';
 import '../../../providers/mode_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../widgets/widget_factory.dart';
 
 final _logger = appLogger;
@@ -158,6 +159,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   }
 
   Widget _buildErrorView() {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -166,13 +168,13 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
           children: [
             const Icon(Icons.cloud_off_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text(
-              'Unable to load layout',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.sduiErrorTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'Unknown error',
+              _errorMessage ?? l10n.sduiUnknownError,
               style: const TextStyle(color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -180,7 +182,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
             ElevatedButton.icon(
               onPressed: _retry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(l10n.sduiRetryButton),
             ),
           ],
         ),
@@ -189,6 +191,7 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
   }
 
   Widget _buildEmptyView() {
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -198,13 +201,13 @@ class _DynamicLayoutPageState extends ConsumerState<DynamicLayoutPage> {
             const Icon(Icons.view_quilt_outlined, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              'No content for ${widget.mode} mode',
+              l10n.sduiEmptyTitle(widget.mode),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Check back later for updates',
-              style: TextStyle(color: Colors.grey),
+            Text(
+              l10n.sduiEmptySubtitle,
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),

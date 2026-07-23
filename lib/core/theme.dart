@@ -115,7 +115,8 @@ abstract class AkeliElevation {
   static const double high = 8;
 }
 
-Color getAppModeColor(AppMode mode) {
+Color getAppModeColor(AppMode mode, {Color? customPrimary}) {
+  if (customPrimary != null) return customPrimary;
   switch (mode) {
     case AppMode.nutrition:
       return const Color(0xFF00504A);
@@ -134,8 +135,8 @@ Color getAppModeColor(AppMode mode) {
 // THEME BUILDER
 // ---------------------------------------------------------------------------
 
-ThemeData buildLightTheme([AppMode mode = AppMode.nutrition]) {
-  final primaryColor = getAppModeColor(mode);
+ThemeData buildLightTheme([AppMode mode = AppMode.nutrition, Color? customPrimary]) {
+  final primaryColor = getAppModeColor(mode, customPrimary: customPrimary);
   final colorScheme = ColorScheme.fromSeed(
     seedColor: primaryColor,
     primary: primaryColor,
@@ -270,8 +271,8 @@ ThemeData buildLightTheme([AppMode mode = AppMode.nutrition]) {
   );
 }
 
-ThemeData buildDarkTheme([AppMode mode = AppMode.nutrition]) {
-  final primaryColor = getAppModeColor(mode);
+ThemeData buildDarkTheme([AppMode mode = AppMode.nutrition, Color? customPrimary]) {
+  final primaryColor = getAppModeColor(mode, customPrimary: customPrimary);
   final colorScheme = ColorScheme.fromSeed(
     seedColor: primaryColor,
     primary: primaryColor,
@@ -306,6 +307,93 @@ ThemeData buildDarkTheme([AppMode mode = AppMode.nutrition]) {
         borderRadius: BorderRadius.circular(AkeliRadius.md),
       ),
       margin: EdgeInsets.zero,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryColor,
+        side: BorderSide(color: primaryColor, width: 1.5),
+        minimumSize: const Size(double.infinity, 52),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        ),
+        textStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AkeliColors.surfaceDark,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AkeliSpacing.md,
+        vertical: AkeliSpacing.md,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: BorderSide(
+            color: primaryColor.withValues(alpha: 0.4), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: const BorderSide(color: AkeliColors.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.md),
+        borderSide: const BorderSide(color: AkeliColors.error, width: 2),
+      ),
+      labelStyle: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: AkeliColors.textSecondaryDark,
+          letterSpacing: 0.08),
+      hintStyle: GoogleFonts.inter(color: AkeliColors.textSecondaryDark),
+    ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: AkeliColors.surfaceDark,
+      selectedItemColor: primaryColor,
+      unselectedItemColor: AkeliColors.textSecondaryDark,
+      type: BottomNavigationBarType.fixed,
+      elevation: AkeliElevation.high,
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AkeliColors.backgroundDark,
+      selectedColor: primaryColor.withValues(alpha: 0.15),
+      labelStyle: GoogleFonts.inter(fontSize: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AkeliRadius.pill),
+        side: const BorderSide(color: Color(0xFF33334D)),
+      ),
+    ),
+    dividerTheme: const DividerThemeData(
+      color: Color(0xFF33334D),
+      thickness: 1,
+      space: 0,
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: primaryColor,
     ),
   );
 }

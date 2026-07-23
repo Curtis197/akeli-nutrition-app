@@ -3589,4 +3589,146 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get colorSetModalApplyButton => 'Appliquer cette Palette';
+
+  @override
+  String get mainShellTabRoutines => 'Routines';
+
+  @override
+  String get mainShellTabRemedies => 'Remèdes';
+
+  @override
+  String get sduiErrorTitle => 'Impossible de charger la mise en page';
+
+  @override
+  String get sduiUnknownError => 'Erreur inconnue';
+
+  @override
+  String get sduiRetryButton => 'Réessayer';
+
+  @override
+  String sduiEmptyTitle(String mode) {
+    return 'Aucun contenu pour le mode $mode';
+  }
+
+  @override
+  String get sduiEmptySubtitle => 'Revenez plus tard pour les mises à jour';
+
+  @override
+  String get modeSelectorTitle => 'Mode d\'application (SDUI)';
+
+  @override
+  String get modeSelectorSubtitle => 'Basculer entre Nutrition et Beauté';
+
+  @override
+  String modeSelectorSwitched(String mode) {
+    return 'Passé en mode $mode';
+  }
+
+  @override
+  String get modeDescNutrition =>
+      'Planification de repas, macros et recettes adaptées';
+
+  @override
+  String get modeDescBeauty =>
+      'Routines soins peau & cheveux, remèdes traditionnels';
+
+  @override
+  String get modeDescHealth => 'Suivi paramètres de santé, poids et constantes';
+
+  @override
+  String get modeDescSport => 'Programmes d\'entraînement et suivi d\'activité';
+
+  @override
+  String get modeDescFamily => 'Gestion de la nutrition et des repas familiaux';
+
+  @override
+  String get closeButton => 'Fermer';
+
+  @override
+  String get modeNameNutrition => 'Nutrition';
+
+  @override
+  String get modeNameBeauty => 'Beauté';
+
+  @override
+  String get modeNameHealth => 'Santé';
+
+  @override
+  String get modeNameSport => 'Sport';
+
+  @override
+  String get modeNameFamily => 'Famille';
+
+  @override
+  String get settingsDiagnosticCheveuxPeau => 'Diagnostic Cheveux & Peau';
+
+  @override
+  String get settingsPlanificationSoins => 'Planification des Soins';
+
+  @override
+  String get settingsModeApplication => 'Mode d\'application (SDUI)';
+
+  @override
+  String get healthProfileSensitiveScalpTitle =>
+      'Cuir Chevelu Sensible / Réactif';
+
+  @override
+  String get healthProfileSensitiveScalpSubtitle =>
+      'Tendance aux démangeaisons ou rougeurs';
+
+  @override
+  String get healthProfileSaveSuccess => 'Profil enregistré avec succès !';
+
+  @override
+  String get healthProfileSaveError => 'Erreur lors de l\'enregistrement';
+
+  @override
+  String get aiAssistantBeautyTitle => 'Assistant Beauté & Soins IA';
+
+  @override
+  String get aiAssistantBeautySuggestion1 =>
+      'Quelle est la meilleure routine hydratante pour cheveux 4C ?';
+
+  @override
+  String get aiAssistantBeautySuggestion2 =>
+      'Comment utiliser le beurre de karité brut contre l\'acné et les taches ?';
+
+  @override
+  String get aiAssistantBeautySuggestion3 =>
+      'Quels actifs naturels favorisent la pousse et stoppent la casse ?';
+
+  @override
+  String get aiAssistantBeautySuggestion4 =>
+      'Propose-moi un masque fait maison apaisant pour cuir chevelu.';
+
+  @override
+  String get nutritionPlanBeautyTitle => 'Mon Programme de Soins & Routines';
+
+  @override
+  String get supportBeautyTitle => 'Support Beauté & Soins';
+
+  @override
+  String get communityPublicGroup => 'Groupe public';
+
+  @override
+  String communityError(String error) {
+    return 'Erreur: $error';
+  }
+
+  @override
+  String communityMembersCount(int count) {
+    return '$count membres';
+  }
+
+  @override
+  String get communityRefuseError => 'Erreur lors du refus';
+
+  @override
+  String get communityRefuse => 'Refuser';
+
+  @override
+  String get communityAcceptError => 'Erreur lors de l\'acceptation';
+
+  @override
+  String get communityAccept => 'Accepter';
 }

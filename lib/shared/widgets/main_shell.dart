@@ -10,7 +10,17 @@ import '../../providers/notifications_provider.dart';
 import '../../providers/mode_provider.dart';
 import '../../widgets/mode_selector.dart';
 import '../../shared/widgets/avatar.dart';
+import '../../core/logger.dart';
 import '../../l10n/app_localizations.dart';
+
+final _logger = appLogger;
+
+/// Pure, testable tab-label computation — see test/shared/widgets/main_shell_test.dart.
+List<String> mainShellTabLabels(AppLocalizations l10n, bool isBeauty) {
+  return isBeauty
+      ? [l10n.navHome, l10n.mainShellTabRoutines, l10n.mainShellTabRemedies, l10n.navCommunity]
+      : [l10n.navHome, l10n.navMeals, l10n.navRecipes, l10n.navCommunity];
+}
 
 class MainShell extends ConsumerWidget {
   final Widget child;
@@ -43,9 +53,8 @@ class MainShell extends ConsumerWidget {
     final isBeauty = mode == AppMode.beauty;
     final modeColor = getAppModeColor(mode);
 
-    final tabLabels = isBeauty
-        ? [l10n.navHome, 'Routines', 'Remèdes', l10n.navCommunity]
-        : [l10n.navHome, l10n.navMeals, l10n.navRecipes, l10n.navCommunity];
+    _logger.provider('MainShell build() | mode: ${mode.name} | isBeauty: $isBeauty');
+    final tabLabels = mainShellTabLabels(l10n, isBeauty);
 
     final currentTabs = isBeauty
         ? const [
@@ -93,7 +102,10 @@ class MainShell extends ConsumerWidget {
               final icon = getAppModeIcon(mode);
 
               return GestureDetector(
-                onTap: () => showModeSelectorDialog(context, ref),
+                onTap: () {
+                  _logger.userAction('Mode switcher tapped', screen: 'MainShell');
+                  showModeSelectorDialog(context, ref);
+                },
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -108,7 +120,7 @@ class MainShell extends ConsumerWidget {
                       Icon(icon, size: 16, color: color),
                       const SizedBox(width: 4),
                       Text(
-                        mode.displayName,
+                        mode.getLocalizedName(context),
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.bold,

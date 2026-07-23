@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:akeli/core/sdui/widgets/dynamic_layout_page.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
@@ -105,6 +106,109 @@ abstract class AkeliRoutes {
   static String groupChatPath(String id) => "/group/$id";
   static String groupDetailPath(String id) => "/group/$id/detail";
   static const resetPassword = "/reset-password";
+  static const sduiDemo = '/sdui-demo';
+}
+
+// ---------------------------------------------------------------------------
+// Redirect logic — pure function, unit-testable without Riverpod/Supabase.
+// See test/core/router_redirect_test.dart.
+//
+// Routes that gate on Beauty-mode onboarding regardless of the user's
+// currently-selected AppMode (Finding #3 — deep links / bookmarks / browser
+// back-forward on the web target must not bypass the gate just because
+// currentMode happens to be nutrition).
+// ---------------------------------------------------------------------------
+const _beautyGatedRoutes = <String>{
+  AkeliRoutes.beautyAnalytics,
+};
+
+/// Computes the GoRouter redirect target for the current navigation state, or
+/// `null` if no redirect is needed.
+///
+/// Exposed (not private) so it can be unit-tested directly — see
+/// test/core/router_redirect_test.dart — without needing to spin up
+/// Supabase, Riverpod, or a real GoRouter.
+///
+/// IMPORTANT — mutual exclusivity: the nutrition-onboarding gate and the
+/// beauty-onboarding gate are evaluated as a single if/else-if chain, never
+/// as independent sequential ifs. Two independent ifs is what caused
+/// Finding #1's infinite redirect loop: a user with onboardingDone == false
+/// AND beautyOnboardingDone == false AND currentMode == AppMode.beauty
+/// would be bounced from /onboarding -> /onboarding/beauty (by the old
+/// third if) and then immediately back from /onboarding/beauty ->
+/// /onboarding (by the old first if), forever — go_router's own loop
+/// detection turns that into a thrown GoException.
+String? computeAkeliRedirect({
+  required bool isAuthenticated,
+  required bool isRecovery,
+  required String currentPath,
+  required bool hasProfile,
+  required bool onboardingDone,
+  required bool beautyOnboardingDone,
+  required AppMode currentMode,
+}) {
+  final isOnAuthPage = currentPath == AkeliRoutes.auth;
+  final isOnResetPassword = currentPath == AkeliRoutes.resetPassword;
+  final isOnOnboarding = currentPath == AkeliRoutes.onboarding;
+  final isOnBeautyOnboarding = currentPath == AkeliRoutes.beautyOnboarding;
+  final isOnPrivacyOrTerms =
+      currentPath == AkeliRoutes.privacyPolicy || currentPath == AkeliRoutes.termsOfService;
+  final isOnBeautyGatedRoute = _beautyGatedRoutes.contains(currentPath);
+
+  if (isRecovery && !isOnResetPassword) {
+    return AkeliRoutes.resetPassword;
+  }
+
+  if (!isAuthenticated && !isOnAuthPage && !isOnResetPassword) {
+    return AkeliRoutes.auth;
+  }
+
+  if (isAuthenticated && isOnAuthPage) {
+    return AkeliRoutes.home;
+  }
+
+  if (isAuthenticated && hasProfile) {
+    // Privacy Policy / Terms of Service must always be reachable, regardless
+    // of which onboarding stage the user is stuck on.
+    if (isOnPrivacyOrTerms) {
+      return null;
+    }
+
+    // --- Nutrition onboarding gate (always evaluated first) -----------------
+    if (!onboardingDone) {
+      if (!isOnOnboarding) {
+        return AkeliRoutes.onboarding;
+      }
+      // Already on the nutrition onboarding page — stop here. Do NOT fall
+      // through to the beauty gate below; that fall-through is exactly what
+      // caused Finding #1's infinite loop.
+      return null;
+    }
+
+    if (isOnOnboarding) {
+      // Nutrition onboarding is done but the user is still viewing that page.
+      return AkeliRoutes.home;
+    }
+
+    // --- Beauty onboarding gate (only reached once nutrition onboarding is
+    // confirmed done) — keyed on EITHER the active mode OR the destination
+    // route, so a user can't dodge it by switching currentMode to nutrition
+    // and deep-linking straight into a beauty-gated route (Finding #3). ------
+    final needsBeautyOnboarding =
+        (currentMode == AppMode.beauty || isOnBeautyGatedRoute) && !beautyOnboardingDone;
+    if (needsBeautyOnboarding) {
+      if (!isOnBeautyOnboarding) {
+        return AkeliRoutes.beautyOnboarding;
+      }
+      return null;
+    }
+
+    if (beautyOnboardingDone && isOnBeautyOnboarding) {
+      return AkeliRoutes.home;
+    }
+  }
+
+  return null;
 }
 
 // RouterNotifier — triggers GoRouter refresh on auth state changes
@@ -149,10 +253,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isAuth = user != null;
       final profileAsync = ref.read(userProfileProvider);
       final profile = profileAsync.valueOrNull;
+      final currentMode = ref.read(currentModeProvider);
 
-      final isOnAuthPage = state.uri.path == AkeliRoutes.auth;
-      final isOnOnboarding = state.uri.path == AkeliRoutes.onboarding;
-      final isOnBeautyOnboarding = state.uri.path == AkeliRoutes.beautyOnboarding;
+      final authState = ref.read(authStreamProvider).valueOrNull;
+      final isRecovery = authState?.event == AuthChangeEvent.passwordRecovery;
 
       appLogger.navigation(
         state.uri.path,
@@ -160,60 +264,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         reason: 'redirect check | isAuth: $isAuth | hasProfile: ${profile != null}',
       );
 
-      final isOnResetPassword = state.uri.path == AkeliRoutes.resetPassword;
-      final authState = ref.read(authStreamProvider).valueOrNull;
-      final isRecovery = authState?.event == AuthChangeEvent.passwordRecovery;
+      final target = computeAkeliRedirect(
+        isAuthenticated: isAuth,
+        isRecovery: isRecovery,
+        currentPath: state.uri.path,
+        hasProfile: profile != null,
+        onboardingDone: profile?.onboardingDone ?? false,
+        beautyOnboardingDone: profile?.beautyOnboardingDone ?? false,
+        currentMode: currentMode,
+      );
 
-      if (isRecovery && !isOnResetPassword) {
-        appLogger.navigation(state.uri.path, AkeliRoutes.resetPassword, reason: 'password recovery event → redirect to reset password page');
-        return AkeliRoutes.resetPassword;
+      if (target != null) {
+        appLogger.navigation(state.uri.path, target, reason: 'computeAkeliRedirect');
       }
 
-      if (!isAuth && !isOnAuthPage && !isOnResetPassword) {
-        appLogger.navigation(state.uri.path, AkeliRoutes.auth, reason: 'unauthenticated → redirect to auth');
-        return AkeliRoutes.auth;
-      }
-      
-      if (isAuth && isOnAuthPage) {
-        // If just authenticated, default to home. Once profile loads, we'll redirect to onboarding if needed.
-        appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'already authenticated → redirect to home');
-        return AkeliRoutes.home;
-      }
-
-      if (isAuth) {
-        if (profile != null) {
-          final currentMode = ref.read(currentModeProvider);
-
-          if (!profile.onboardingDone && !isOnOnboarding) {
-            final path = state.uri.path;
-            if (path == AkeliRoutes.privacyPolicy || path == AkeliRoutes.termsOfService) {
-              return null;
-            }
-            appLogger.navigation(state.uri.path, AkeliRoutes.onboarding, reason: 'onboarding not done → redirect to onboarding');
-            return AkeliRoutes.onboarding;
-          }
-          if (profile.onboardingDone && isOnOnboarding) {
-            appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'onboarding already done → redirect to home');
-            return AkeliRoutes.home;
-          }
-
-          // Beauty Mode Onboarding Check
-          if (currentMode == AppMode.beauty && !profile.beautyOnboardingDone && !isOnBeautyOnboarding) {
-            final path = state.uri.path;
-            if (path == AkeliRoutes.privacyPolicy || path == AkeliRoutes.termsOfService) {
-              return null;
-            }
-            appLogger.navigation(state.uri.path, AkeliRoutes.beautyOnboarding, reason: 'beauty onboarding not done → redirect to beauty onboarding');
-            return AkeliRoutes.beautyOnboarding;
-          }
-          if (profile.beautyOnboardingDone && isOnBeautyOnboarding) {
-            appLogger.navigation(state.uri.path, AkeliRoutes.home, reason: 'beauty onboarding already done → redirect to home');
-            return AkeliRoutes.home;
-          }
-        }
-      }
-      
-      return null;
+      return target;
     },
     routes: [
       GoRoute(
@@ -231,10 +296,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AkeliRoutes.resetPassword,
         builder: (context, state) => const ResetPasswordPage(),
-      ),
-      GoRoute(
-        path: AkeliRoutes.onboarding,
-        builder: (context, state) => const OnboardingPage(),
       ),
       GoRoute(
         path: AkeliRoutes.recipeDetail,
@@ -435,6 +496,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AkeliRoutes.home,
             builder: (context, state) => const HomePage(),
+          ),
+
+          GoRoute(
+            path: AkeliRoutes.sduiDemo,
+            builder: (context, state) => const DynamicLayoutPage(mode: 'nutrition'),
           ),
           GoRoute(
             path: AkeliRoutes.mealPlanner,

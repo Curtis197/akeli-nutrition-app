@@ -124,7 +124,7 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHairProgressionSection(l10n, filteredLogs),
+                    _buildHairProgressionSection(l10n, filteredLogs, logs),
                     const SizedBox(height: 24),
                     _buildSkinProgressionSection(l10n, filteredLogs),
                     const SizedBox(height: 28),
@@ -364,9 +364,16 @@ class _BeautyAnalyticsPageState extends ConsumerState<BeautyAnalyticsPage> {
     );
   }
 
-  Widget _buildHairProgressionSection(AppLocalizations l10n, List<BeautyLog> logs) {
+  // `logs` is timeframe-filtered (for the "latest" snapshot values below);
+  // `allLogs` is the full, unfiltered history. The growth-since-baseline
+  // delta must always compare against the true first-ever log, not just
+  // whatever's left inside the selected timeframe window — a user's
+  // baseline check-in from onboarding is almost always older than any
+  // timeframe chip (7J/30J/90J), so filtering it out would silently zero
+  // out this metric for most real users.
+  Widget _buildHairProgressionSection(AppLocalizations l10n, List<BeautyLog> logs, List<BeautyLog> allLogs) {
     final latestLog = logs.isNotEmpty ? logs.first : null;
-    final initialLog = logs.isNotEmpty ? logs.last : null;
+    final initialLog = allLogs.isNotEmpty ? allLogs.last : null;
 
     double currentLength = latestLog?.hairLengthCm ?? 15.0;
     double initialLength = initialLog?.hairLengthCm ?? 15.0;

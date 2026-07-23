@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/logger.dart';
 import '../core/theme.dart';
 import '../providers/mode_provider.dart';
+import '../l10n/app_localizations.dart';
 
 final _logger = appLogger;
 
@@ -23,18 +24,19 @@ IconData getAppModeIcon(AppMode mode) {
 }
 
 /// Helper to get description for each AppMode
-String getAppModeDescription(AppMode mode) {
+String getAppModeDescription(BuildContext context, AppMode mode) {
+  final l10n = AppLocalizations.of(context);
   switch (mode) {
     case AppMode.nutrition:
-      return 'Planification de repas, macros et recettes adaptées';
+      return l10n.modeDescNutrition;
     case AppMode.beauty:
-      return 'Routines soins peau & cheveux, remèdes traditionnels';
+      return l10n.modeDescBeauty;
     case AppMode.health:
-      return 'Suivi paramètres de santé, poids et constantes';
+      return l10n.modeDescHealth;
     case AppMode.sport:
-      return 'Programmes d\'entraînement et suivi d\'activité';
+      return l10n.modeDescSport;
     case AppMode.family:
-      return 'Gestion de la nutrition et des repas familiaux';
+      return l10n.modeDescFamily;
   }
 }
 
@@ -53,20 +55,20 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AkeliColors.primary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.dashboard_customize_rounded,
-                color: AkeliColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 24,
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Mode d\'application (SDUI)',
-                style: TextStyle(
+                AppLocalizations.of(context).modeSelectorTitle,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AkeliColors.onSurface,
@@ -109,7 +111,7 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
                   title: Row(
                     children: [
                       Text(
-                        mode.displayName,
+                        mode.getLocalizedName(context),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -137,7 +139,7 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
                     ],
                   ),
                   subtitle: Text(
-                    getAppModeDescription(mode),
+                    getAppModeDescription(context, mode),
                     style: TextStyle(
                       fontSize: 12,
                       color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8),
@@ -158,7 +160,7 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
                           children: [
                             Icon(icon, color: Colors.white, size: 20),
                             const SizedBox(width: 10),
-                            Text('Passé en mode ${mode.displayName}'),
+                            Text(AppLocalizations.of(context).modeSelectorSwitched(mode.getLocalizedName(context))),
                           ],
                         ),
                         backgroundColor: color,
@@ -175,7 +177,7 @@ Future<void> showModeSelectorDialog(BuildContext context, WidgetRef ref) async {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Fermer', style: TextStyle(color: AkeliColors.onSurfaceVariant)),
+            child: Text(AppLocalizations.of(context).closeButton, style: const TextStyle(color: AkeliColors.onSurfaceVariant)),
           ),
         ],
       );
@@ -202,16 +204,16 @@ class ModeSelectorTile extends ConsumerWidget {
         ),
         child: Icon(icon, color: color, size: 22),
       ),
-      title: const Text(
-        'Mode d\'application (SDUI)',
-        style: TextStyle(
+      title: Text(
+        AppLocalizations.of(context).modeSelectorTitle,
+        style: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 15,
           color: AkeliColors.onSurface,
         ),
       ),
       subtitle: Text(
-        'Basculer entre Nutrition et Beauté',
+        AppLocalizations.of(context).modeSelectorSubtitle,
         style: TextStyle(
           fontSize: 12,
           color: AkeliColors.onSurfaceVariant.withValues(alpha: 0.8),
@@ -228,7 +230,7 @@ class ModeSelectorTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              currentMode.displayName,
+              currentMode.getLocalizedName(context),
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,

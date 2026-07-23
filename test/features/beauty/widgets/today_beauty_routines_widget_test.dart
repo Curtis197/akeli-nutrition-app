@@ -22,7 +22,10 @@ void main() {
             id: 'slot-today-1',
             planId: 'plan-1',
             dayOfWeek: now.weekday,
-            dayNumber: now.day,
+            // dayNumber is a plan-relative offset from startDate (day 1 =
+            // startDate itself), not the calendar day-of-month — startDate
+            // is `now` above, so day 1 is today.
+            dayNumber: 1,
             routineCategory: 'hair',
             stepStage: 'Soin Hydratant Matinal',
             frequencyTier: 'daily',

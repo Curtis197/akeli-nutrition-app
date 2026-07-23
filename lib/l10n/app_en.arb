@@ -1,96 +1,65 @@
 {
   "@@locale": "en",
-
   "appTitle": "Akeli",
   "@appTitle": {},
-
   "appVersion": "Akeli V1.0",
   "@appVersion": {},
-
   "notificationSeeLabel": "View",
   "@notificationSeeLabel": {},
-
   "notificationDefaultTitle": "New Notification",
   "@notificationDefaultTitle": {},
-
   "navHome": "Home",
   "@navHome": {},
-
   "navMeals": "Meals",
   "@navMeals": {},
-
   "navRecipes": "Recipes",
   "@navRecipes": {},
-
   "navCommunity": "Community",
   "@navCommunity": {},
-
   "tooltipSettings": "Settings",
   "@tooltipSettings": {},
-
   "tooltipNotifications": "Notifications",
   "@tooltipNotifications": {},
-
   "authWelcome": "Welcome to Akeli",
   "@authWelcome": {},
-
   "authSignUp": "Sign Up",
   "@authSignUp": {},
-
   "authLogIn": "Log In",
   "@authLogIn": {},
-
   "authCreateAccount": "Create your account",
   "@authCreateAccount": {},
-
   "authJoinCommunity": "Join the Akeli community",
   "@authJoinCommunity": {},
-
   "authEmailPlaceholder": "Enter your email",
   "@authEmailPlaceholder": {},
-
   "authEmailRequired": "Email required",
   "@authEmailRequired": {},
-
   "authEmailInvalid": "Invalid email",
   "@authEmailInvalid": {},
-
   "authPasswordCreate": "Create a password",
   "@authPasswordCreate": {},
-
   "authPasswordRequired": "Password required",
   "@authPasswordRequired": {},
-
   "authPasswordMinLength": "Minimum 8 characters",
   "@authPasswordMinLength": {},
-
   "authConfirmPassword": "Confirm your password",
   "@authConfirmPassword": {},
-
   "authPasswordMismatch": "Passwords do not match",
   "@authPasswordMismatch": {},
-
   "authGetStarted": "Get Started",
   "@authGetStarted": {},
-
   "authWelcomeBack": "Welcome back!",
   "@authWelcomeBack": {},
-
   "authSignInToAccount": "Sign in to your account",
   "@authSignInToAccount": {},
-
   "authEmailField": "Email",
   "@authEmailField": {},
-
   "authPasswordField": "Password",
   "@authPasswordField": {},
-
   "authPasswordReset": "Password reset — coming soon",
   "@authPasswordReset": {},
-
   "authForgotPassword": "Forgot password?",
   "@authForgotPassword": {},
-
   "resetPasswordTitle": "Reset your password",
   "@resetPasswordTitle": {},
   "resetPasswordNewHint": "New Password",
@@ -109,7 +78,6 @@
   "@resetPasswordSubmit": {},
   "resetPasswordSuccess": "Password updated successfully!",
   "@resetPasswordSuccess": {},
-
   "authForgotDialogTitle": "Reset Password",
   "@authForgotDialogTitle": {},
   "authForgotDialogBody": "Enter your email address to receive a password reset link.",
@@ -124,2333 +92,1726 @@
       }
     }
   },
-
   "authSignIn": "Sign In",
   "@authSignIn": {},
-
   "authErrorInvalidCredentials": "Incorrect email or password.",
   "@authErrorInvalidCredentials": {},
-
   "authErrorEmailInUse": "This email is already in use.",
   "@authErrorEmailInUse": {},
-
   "authErrorPasswordShort": "Password must be at least 8 characters.",
   "@authErrorPasswordShort": {},
-
   "authErrorEmailNotConfirmed": "Please confirm your email address before signing in.",
   "@authErrorEmailNotConfirmed": {},
-
   "authErrorGeneric": "An error occurred. Please try again.",
   "@authErrorGeneric": {},
-
   "authOrDivider": "or",
   "@authOrDivider": {},
-
   "authContinueWithGoogle": "Continue with Google",
   "@authContinueWithGoogle": {},
-
   "authErrorGoogleSignIn": "Google Sign-In failed. Please try again.",
   "@authErrorGoogleSignIn": {},
-
   "homeGreeting": "Hello, {name}!",
   "@homeGreeting": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "homeGreetingFallback": "Hello!",
   "@homeGreetingFallback": {},
-
   "homeWelcomeBack": "Happy to see you again.",
   "@homeWelcomeBack": {},
-
   "homeWeightLabel": "Weight",
   "@homeWeightLabel": {},
-
   "homeWeightCurrent": "Current Weight",
   "@homeWeightCurrent": {},
-
   "homeCaloriesLabel": "Calories",
   "@homeCaloriesLabel": {},
-
   "homeViewProgress": "View my progress →",
   "@homeViewProgress": {},
-
   "homeTodayMeals": "Today's Meals",
   "@homeTodayMeals": {},
-
   "homeNoMealsToday": "No meals planned for today.",
   "@homeNoMealsToday": {},
-
   "homeMealDefault": "Meal",
   "@homeMealDefault": {},
-
   "homeMealUpdateError": "Unable to update meal. Try again.",
   "@homeMealUpdateError": {},
-
   "homeShoppingList": "Shopping List",
   "@homeShoppingList": {},
-
   "homeViewAll": "View All",
   "@homeViewAll": {},
-
   "homeFilterAll": "All",
   "@homeFilterAll": {},
-
   "homeFilterToBuy": "To Buy",
   "@homeFilterToBuy": {},
-
   "homeFilterBought": "Already Bought",
   "@homeFilterBought": {},
-
   "homeNoItemsFound": "No items found",
   "@homeNoItemsFound": {},
-
   "homeRecommendedRecipes": "Recommended Recipes",
   "@homeRecommendedRecipes": {},
-
   "homeNoRecipes": "No recipes available.",
   "@homeNoRecipes": {},
-
   "homeErrorGeneric": "Error: {error}",
   "@homeErrorGeneric": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "homeCreatorsForYou": "Creators for You",
   "@homeCreatorsForYou": {},
-
   "homeCreateRecipe": "Create and share your own recipe",
   "@homeCreateRecipe": {},
-
   "feedTitle": "Discover",
   "@feedTitle": {},
-
   "feedSearchHint": "Search recipes...",
   "@feedSearchHint": {},
-
   "feedTabRecipes": "Recipes",
   "@feedTabRecipes": {},
-
   "feedTabCreators": "Creators",
   "@feedTabCreators": {},
-
   "feedNoResults": "No results found",
   "@feedNoResults": {},
-
   "feedNoResultsSubtitle": "Try different search terms or filters",
   "@feedNoResultsSubtitle": {},
-
   "feedEmptyTitle": "No recipes yet",
   "@feedEmptyTitle": {},
-
   "feedFilters": "Filters",
   "@feedFilters": {},
-
   "feedFilterRegion": "Region",
   "@feedFilterRegion": {},
-
   "feedFilterDifficulty": "Difficulty",
   "@feedFilterDifficulty": {},
-
   "feedFilterTime": "Max Time",
   "@feedFilterTime": {},
-
   "feedFilterMealType": "Meal Type",
   "@feedFilterMealType": {},
-
   "feedFilterCalories": "Calories",
   "@feedFilterCalories": {},
-
   "feedSortBy": "Sort by",
   "@feedSortBy": {},
-
   "feedAllRegions": "All regions",
   "@feedAllRegions": {},
-
   "feedAllDifficulties": "All difficulties",
   "@feedAllDifficulties": {},
-
   "feedAllMealTypes": "All types",
   "@feedAllMealTypes": {},
-
   "feedApplyFilters": "Apply",
   "@feedApplyFilters": {},
-
   "feedResetFilters": "Reset",
   "@feedResetFilters": {},
-
   "feedLoadMore": "Load more",
   "@feedLoadMore": {},
-
   "feedCreatorSearch": "Search creators...",
   "@feedCreatorSearch": {},
-
   "feedCreatorSpecialty": "Specialty",
   "@feedCreatorSpecialty": {},
-
   "feedAllSpecialties": "All specialties",
   "@feedAllSpecialties": {},
-
   "feedNoCreators": "No creators found",
   "@feedNoCreators": {},
-
   "feedAddToMealPlan": "Add to Meal Plan",
   "@feedAddToMealPlan": {},
-
   "feedAddedToMealPlan": "Added to meal plan",
   "@feedAddedToMealPlan": {},
-
   "feedSwapRecipe": "Swap",
   "@feedSwapRecipe": {},
-
   "feedSwapDone": "Recipe swapped",
   "@feedSwapDone": {},
-
   "recipeDetailIngredients": "Ingredients",
   "@recipeDetailIngredients": {},
-
   "recipeDetailInstructions": "Instructions",
   "@recipeDetailInstructions": {},
-
   "recipeDetailNutrition": "Nutrition Info",
   "@recipeDetailNutrition": {},
-
   "recipeDetailPrepTime": "Prep Time",
   "@recipeDetailPrepTime": {},
-
   "recipeDetailCookTime": "Cook Time",
   "@recipeDetailCookTime": {},
-
   "recipeDetailServings": "Servings",
   "@recipeDetailServings": {},
-
   "recipeDetailDifficulty": "Difficulty",
   "@recipeDetailDifficulty": {},
-
   "recipeDetailCalories": "Calories",
   "@recipeDetailCalories": {},
-
   "recipeDetailProtein": "Protein",
   "@recipeDetailProtein": {},
-
   "recipeDetailCarbs": "Carbs",
   "@recipeDetailCarbs": {},
-
   "recipeDetailFat": "Fat",
   "@recipeDetailFat": {},
-
   "recipeDetailSave": "Save",
   "@recipeDetailSave": {},
-
   "recipeDetailSaved": "Saved",
   "@recipeDetailSaved": {},
-
   "recipeDetailLike": "Like",
   "@recipeDetailLike": {},
-
   "recipeDetailShare": "Share",
   "@recipeDetailShare": {},
-
   "recipeDetailComments": "Comments",
   "@recipeDetailComments": {},
-
   "recipeDetailNoComments": "No comments yet",
   "@recipeDetailNoComments": {},
-
   "recipeDetailAddComment": "Add a comment...",
   "@recipeDetailAddComment": {},
-
   "recipeDetailSendComment": "Send",
   "@recipeDetailSendComment": {},
-
   "recipeDetailLoadError": "Error loading recipe",
   "@recipeDetailLoadError": {},
-
   "recipeDetailMin": "min",
   "@recipeDetailMin": {},
-
   "recipeDetailPer100g": "per 100g",
   "@recipeDetailPer100g": {},
-
   "recipeDetailStepLabel": "Step {step}",
   "@recipeDetailStepLabel": {
-    "placeholders": { "step": { "type": "int" } }
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
   },
-
   "recipeDetailRegion": "Region",
   "@recipeDetailRegion": {},
-
   "recipeDetailTags": "Tags",
   "@recipeDetailTags": {},
-
   "recipeDetailVideoTitle": "Recipe Video",
   "@recipeDetailVideoTitle": {},
-
   "recipeDetailAddToMealPlan": "Add to Meal Plan",
   "@recipeDetailAddToMealPlan": {},
-
   "recipeDetailAddedToMealPlan": "Added to your meal plan",
   "@recipeDetailAddedToMealPlan": {},
-
   "recipeDetailErrorAddPlan": "Error adding to meal plan",
   "@recipeDetailErrorAddPlan": {},
-
   "recipeDetailBy": "by",
   "@recipeDetailBy": {},
-
   "profileTitle": "Profile",
   "@profileTitle": {},
-
   "profileDefaultName": "User",
   "@profileDefaultName": {},
-
   "profileLoadError": "Error: {error}",
   "@profileLoadError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "profilePrivateTitle": "This profile is private",
   "@profilePrivateTitle": {},
-
   "profilePrivateMessage": "Send a message to connect.",
   "@profilePrivateMessage": {},
-
   "profileTabRecipes": "Recipes",
   "@profileTabRecipes": {},
-
   "profileTabComments": "Comments",
   "@profileTabComments": {},
-
   "profileTabGroups": "Groups",
   "@profileTabGroups": {},
-
   "profileLoadError2": "Loading error",
   "@profileLoadError2": {},
-
   "profileNoLikedRecipes": "No liked recipes",
   "@profileNoLikedRecipes": {},
-
   "profileNoComments": "No comments",
   "@profileNoComments": {},
-
   "profileNoGroups": "No groups",
   "@profileNoGroups": {},
-
   "profileUnknownRecipe": "Unknown recipe",
   "@profileUnknownRecipe": {},
-
   "profileGroupDefault": "Group",
   "@profileGroupDefault": {},
-
   "profileMemberCount": "{count, plural, one{{count} member} other{{count} members}}",
   "@profileMemberCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "profileStartConversation": "Start a conversation",
   "@profileStartConversation": {},
-
   "profileMessageSent": "Request sent",
   "@profileMessageSent": {},
-
   "profileMessageError": "Error sending request",
   "@profileMessageError": {},
-
   "profilePending": "Pending",
   "@profilePending": {},
-
   "profileMessage": "Message",
   "@profileMessage": {},
-
   "profileCloseConversationTitle": "Close conversation?",
   "@profileCloseConversationTitle": {},
-
   "profileCloseConversationContent": "You will leave this conversation. The other user will keep their history.",
   "@profileCloseConversationContent": {},
-
   "profileConversationClosed": "Conversation closed",
   "@profileConversationClosed": {},
-
   "profileCloseError": "Error closing conversation",
   "@profileCloseError": {},
-
   "settingsTitle": "Settings",
   "@settingsTitle": {},
-
   "settingsEdit": "Edit",
   "@settingsEdit": {},
-
   "settingsPremium": "Premium",
   "@settingsPremium": {},
-
   "settingsSectionMenu": "Menu",
   "@settingsSectionMenu": {},
-
   "settingsNutritionTracking": "Nutrition Tracking",
   "@settingsNutritionTracking": {},
-
   "settingsSavedRecipes": "Saved Recipes",
   "@settingsSavedRecipes": {},
-
   "settingsAccount": "My Account",
   "@settingsAccount": {},
-
   "settingsFanMode": "Fan Mode",
   "@settingsFanMode": {},
-
   "settingsPreferences": "Preferences",
   "@settingsPreferences": {},
-
   "settingsHealthGoals": "Health & Goals",
   "@settingsHealthGoals": {},
-
   "settingsSectionApp": "Application",
   "@settingsSectionApp": {},
-
   "settingsNotifications": "Notifications",
   "@settingsNotifications": {},
-
   "settingsLanguage": "Language",
   "@settingsLanguage": {},
-
   "settingsLanguageCurrent": "English",
   "@settingsLanguageCurrent": {},
-
   "settingsSectionPrivacy": "Privacy",
   "@settingsSectionPrivacy": {},
-
   "settingsPrivateProfile": "Private Profile",
   "@settingsPrivateProfile": {},
-
   "settingsSectionSupport": "Support",
   "@settingsSectionSupport": {},
-
   "settingsHelpFaq": "Help & FAQ",
   "@settingsHelpFaq": {},
-
   "settingsPrivacyPolicy": "Privacy Policy",
   "@settingsPrivacyPolicy": {},
-
   "settingsTerms": "Terms of Use",
   "@settingsTerms": {},
-
   "settingsSignOut": "Sign Out",
   "@settingsSignOut": {},
-
   "settingsSignOutTitle": "Sign Out",
   "@settingsSignOutTitle": {},
-
   "settingsSignOutConfirm": "Are you sure you want to sign out?",
   "@settingsSignOutConfirm": {},
-
   "settingsSignOutConfirmBtn": "Sign Out",
   "@settingsSignOutConfirmBtn": {},
-
   "settingsEditProfile": "Edit Profile",
   "@settingsEditProfile": {},
-
   "settingsName": "Name",
   "@settingsName": {},
-
   "settingsDescription": "Description",
   "@settingsDescription": {},
-
   "settingsDescriptionHint": "Tell us a bit about yourself...",
   "@settingsDescriptionHint": {},
-
   "settingsSave": "Save",
   "@settingsSave": {},
-
   "settingsAvatarError": "Error: {error}",
   "@settingsAvatarError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "mealPlannerTitle": "Your Meals",
   "@mealPlannerTitle": {},
-
   "plannerViewToggleWeek": "Week",
   "@plannerViewToggleWeek": {},
-
   "plannerViewToggleDay": "Day",
   "@plannerViewToggleDay": {},
-
   "mealPlannerViewDietPlan": "View my diet plan",
   "@mealPlannerViewDietPlan": {},
-
   "mealPlannerViewShoppingList": "View my shopping list",
   "@mealPlannerViewShoppingList": {},
-
   "mealPlannerViewBatchCooking": "Batch cooking",
   "@mealPlannerViewBatchCooking": {},
-
   "mealPlannerEmpty": "No meal plan yet",
   "@mealPlannerEmpty": {},
-
   "mealPlannerEmptySubtitle": "Generate a personalized plan",
   "@mealPlannerEmptySubtitle": {},
-
   "mealPlannerGenerate": "Generate my plan",
   "@mealPlannerGenerate": {},
-
   "mealPlannerError": "Error: {error}",
   "@mealPlannerError": {
-    "placeholders": { "error": { "type": "String" } }
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "mealPlannerConsumptionError": "Unable to update. Try again.",
   "@mealPlannerConsumptionError": {},
-
   "mealTypeBreakfast": "Breakfast",
   "@mealTypeBreakfast": {},
-
   "mealTypeLunch": "Lunch",
   "@mealTypeLunch": {},
-
   "mealTypeDinner": "Dinner",
   "@mealTypeDinner": {},
-
   "mealTypeSnack": "Snack",
   "@mealTypeSnack": {},
-
   "nutritionTitle": "Nutrition",
   "@nutritionTitle": {},
-
   "nutritionTabToday": "Today",
   "@nutritionTabToday": {},
-
   "nutritionTabWeek": "Week",
   "@nutritionTabWeek": {},
-
   "nutritionTabJourney": "Journey",
   "@nutritionTabJourney": {},
-
   "nutritionCalories": "Calories",
   "@nutritionCalories": {},
-
   "nutritionProtein": "Protein",
   "@nutritionProtein": {},
-
   "nutritionCarbs": "Carbs",
   "@nutritionCarbs": {},
-
   "nutritionFat": "Fat",
   "@nutritionFat": {},
-
   "nutritionNoData": "No nutrition data today",
   "@nutritionNoData": {},
-
   "nutritionNoPlan": "No nutrition plan",
   "@nutritionNoPlan": {},
-
   "nutritionGoal": "Goal",
   "@nutritionGoal": {},
-
   "nutritionConsumed": "Consumed",
   "@nutritionConsumed": {},
-
   "nutritionRemaining": "Remaining",
   "@nutritionRemaining": {},
-
   "nutritionWeightTracking": "Weight Tracking",
   "@nutritionWeightTracking": {},
-
   "nutritionCurrentWeight": "Current weight",
   "@nutritionCurrentWeight": {},
-
   "nutritionTargetWeight": "Target weight",
   "@nutritionTargetWeight": {},
-
   "nutritionAddWeight": "Log Weight",
   "@nutritionAddWeight": {},
-
   "nutritionWeightAdded": "Weight logged",
   "@nutritionWeightAdded": {},
-
   "nutritionHydration": "Hydration",
   "@nutritionHydration": {},
-
   "nutritionMyWeight": "My Weight",
   "@nutritionMyWeight": {},
-
   "nutritionNewRecord": "New Log",
   "@nutritionNewRecord": {},
-
   "nutritionConsumedMeals": "Consumed meals",
   "@nutritionConsumedMeals": {},
-
   "nutritionTargetAchieved": "{count, plural, =0{You didn't reach your goals this week.} one{You reached your goals {count} time this week.} other{You reached your goals {count} times this week.}}",
   "@nutritionTargetAchieved": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "nutritionSummary": "SUMMARY",
   "@nutritionSummary": {},
-
   "nutritionAvgKcal": "avg. kcal",
   "@nutritionAvgKcal": {},
-
   "nutritionWeightVariation": "weight change",
   "@nutritionWeightVariation": {},
-
   "nutritionEveryDay": "EVERY DAY",
   "@nutritionEveryDay": {},
-
   "nutritionWeightLabel": "Weight",
   "@nutritionWeightLabel": {},
-
   "nutritionProgressPercentage": "{pct}% of goal",
   "@nutritionProgressPercentage": {
-    "placeholders": { "pct": { "type": "int" } }
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
   },
-
   "nutritionAddFirstWeight": "Add your first weight log to start tracking.",
   "@nutritionAddFirstWeight": {},
-
   "nutritionLogAnotherWeight": "Log another weight to see your trend.",
   "@nutritionLogAnotherWeight": {},
-
   "communityTitle": "Community",
   "@communityTitle": {},
-
   "communityMyGroups": "My Groups",
   "@communityMyGroups": {},
-
   "communityPrivateGroups": "Private",
   "@communityPrivateGroups": {},
-
   "communityPublicGroups": "Public",
   "@communityPublicGroups": {},
-
   "communityDiscoverGroups": "Discover Groups",
   "@communityDiscoverGroups": {},
-
   "communityNoGroups": "No groups yet",
   "@communityNoGroups": {},
-
   "communityCreateGroup": "Create",
   "@communityCreateGroup": {},
-
   "communityJoinSuccess": "Group joined successfully",
   "@communityJoinSuccess": {},
-
   "communityJoinError": "Error joining group",
   "@communityJoinError": {},
-
   "communityRegionFilter": "Region",
   "@communityRegionFilter": {},
-
   "communityAllRegions": "All regions",
   "@communityAllRegions": {},
-
   "communityRegionError": "Region error",
   "@communityRegionError": {},
-
   "communityNoCriteria": "No groups match these criteria.",
   "@communityNoCriteria": {},
-
   "communityGroupImageError": "Error selecting image",
   "@communityGroupImageError": {},
-
   "communityGeneralChannel": "General",
   "@communityGeneralChannel": {},
-
   "communitySending": "Sending…",
   "@communitySending": {},
-
   "cookingModeTitle": "Cooking Mode",
   "@cookingModeTitle": {},
-
   "cookingModeStep": "Step {step} of {total}",
   "@cookingModeStep": {
     "placeholders": {
-      "step": { "type": "int" },
-      "total": { "type": "int" }
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "cookingModeIngredients": "Ingredients",
   "@cookingModeIngredients": {},
-
   "cookingModeTimer": "Timer",
   "@cookingModeTimer": {},
-
   "cookingModeComplete": "Recipe complete!",
   "@cookingModeComplete": {},
-
   "cookingModeStart": "Start Cooking",
   "@cookingModeStart": {},
-
   "dietPlanTitle": "Diet Plan",
   "@dietPlanTitle": {},
-
   "dietPlanNoPlan": "No diet plan",
   "@dietPlanNoPlan": {},
-
   "dietPlanCalorieGoal": "Calorie Goal",
   "@dietPlanCalorieGoal": {},
-
   "dietPlanProteinGoal": "Protein Goal",
   "@dietPlanProteinGoal": {},
-
   "dietPlanCarbGoal": "Carb Goal",
   "@dietPlanCarbGoal": {},
-
   "dietPlanFatGoal": "Fat Goal",
   "@dietPlanFatGoal": {},
-
   "dietPlanWeeks": "Duration (weeks)",
   "@dietPlanWeeks": {},
-
   "dietPlanActivity": "Activity Level",
   "@dietPlanActivity": {},
-
   "shoppingListTitle": "Shopping List",
   "@shoppingListTitle": {},
-
   "shoppingListEmpty": "Your shopping list is empty",
   "@shoppingListEmpty": {},
-
   "shoppingListItems": "{count, plural, one{{count} item} other{{count} items}}",
   "@shoppingListItems": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "shoppingListAll": "All",
   "@shoppingListAll": {},
-
   "shoppingListChecked": "Checked",
   "@shoppingListChecked": {},
-
   "shoppingListRemaining": "Remaining",
   "@shoppingListRemaining": {},
-
   "notificationsTitle": "Notifications",
   "@notificationsTitle": {},
-
   "notificationsEmpty": "No notifications",
   "@notificationsEmpty": {},
-
   "notificationsMarkAllRead": "Mark all as read",
   "@notificationsMarkAllRead": {},
-
   "accountTitle": "My Account",
   "@accountTitle": {},
-
   "accountEmail": "Email",
   "@accountEmail": {},
-
   "accountDeleteAccount": "Delete account",
   "@accountDeleteAccount": {},
-
   "accountDeleteConfirmTitle": "Delete account",
   "@accountDeleteConfirmTitle": {},
-
   "accountDeleteConfirmContent": "This action is irreversible. All your data will be deleted.",
   "@accountDeleteConfirmContent": {},
-
   "accountChangePassword": "Change password",
   "@accountChangePassword": {},
-
   "accountInfoSection": "INFORMATION",
   "@accountInfoSection": {},
-
   "accountPasswordSection": "PASSWORD",
   "@accountPasswordSection": {},
-
   "accountCurrentPassword": "Current password",
   "@accountCurrentPassword": {},
-
   "accountNewPassword": "New password",
   "@accountNewPassword": {},
-
   "accountConfirmPassword": "Confirm password",
   "@accountConfirmPassword": {},
-
   "accountUpdatePassword": "Update",
   "@accountUpdatePassword": {},
-
   "accountDangerZone": "DANGER ZONE",
   "@accountDangerZone": {},
-
   "accountPasswordRequired": "Please fill in all fields.",
   "@accountPasswordRequired": {},
-
   "accountPasswordTooShort": "Password must be at least 8 characters.",
   "@accountPasswordTooShort": {},
-
   "accountPasswordMismatch": "Passwords don't match.",
   "@accountPasswordMismatch": {},
-
   "accountPasswordUpdated": "Password updated successfully.",
   "@accountPasswordUpdated": {},
-
   "accountDeleteError": "Error deleting account. Please try again.",
   "@accountDeleteError": {},
-
   "accountErrorInvalidPassword": "Incorrect current password.",
   "@accountErrorInvalidPassword": {},
-
   "accountErrorTooManyRequests": "Too many attempts. Please wait.",
   "@accountErrorTooManyRequests": {},
-
   "accountErrorGeneric": "An error occurred. Please try again.",
   "@accountErrorGeneric": {},
-
   "healthProfileTitle": "Health & Goals",
   "@healthProfileTitle": {},
-
   "healthProfileAge": "Age",
   "@healthProfileAge": {},
-
   "healthProfileWeight": "Weight (kg)",
   "@healthProfileWeight": {},
-
   "healthProfileHeight": "Height (cm)",
   "@healthProfileHeight": {},
-
   "healthProfileGender": "Gender",
   "@healthProfileGender": {},
-
   "healthProfileActivity": "Activity Level",
   "@healthProfileActivity": {},
-
   "healthProfileGoal": "Goal",
   "@healthProfileGoal": {},
-
   "healthProfileTargetWeight": "Target Weight (kg)",
   "@healthProfileTargetWeight": {},
-
   "healthProfileSave": "Save",
   "@healthProfileSave": {},
-
   "healthProfileSaved": "Health profile saved",
   "@healthProfileSaved": {},
-
   "healthProfileError": "Error saving",
   "@healthProfileError": {},
-
   "healthParamsSection": "HEALTH PARAMETERS",
   "@healthParamsSection": {},
-
   "healthSex": "Sex",
   "@healthSex": {},
-
   "healthBirthDate": "Date of birth",
   "@healthBirthDate": {},
-
   "healthBirthDateEmpty": "Not set",
   "@healthBirthDateEmpty": {},
-
   "healthHeight": "Height",
   "@healthHeight": {},
-
   "healthCurrentWeight": "Current weight",
   "@healthCurrentWeight": {},
-
   "healthTargetWeight": "Target weight",
   "@healthTargetWeight": {},
-
   "healthActivityLevel": "Activity level",
   "@healthActivityLevel": {},
-
   "healthGoalSection": "GOAL",
   "@healthGoalSection": {},
-
   "healthGoalType": "Goal type",
   "@healthGoalType": {},
-
   "healthWeightGoal": "Weight goal",
   "@healthWeightGoal": {},
-
   "healthMuscleGoal": "Muscle goal",
   "@healthMuscleGoal": {},
-
   "healthTargetDuration": "Target duration",
   "@healthTargetDuration": {},
-
   "healthWeeks": "{count} weeks",
   "@healthWeeks": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "healthWeeksShort": "{count} wks",
   "@healthWeeksShort": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "healthActivitySedentary": "Sedentary",
   "@healthActivitySedentary": {},
-
   "healthActivityLight": "Lightly active",
   "@healthActivityLight": {},
-
   "healthActivityModerate": "Moderately active",
   "@healthActivityModerate": {},
-
   "healthActivityActive": "Active",
   "@healthActivityActive": {},
-
   "healthActivityVeryActive": "Very active",
   "@healthActivityVeryActive": {},
-
   "healthGoalWeightLoss": "Weight loss",
   "@healthGoalWeightLoss": {},
-
   "healthGoalMuscleGain": "Muscle gain",
   "@healthGoalMuscleGain": {},
-
   "healthGoalMaintenance": "Maintenance",
   "@healthGoalMaintenance": {},
-
   "healthGoalHealth": "Health",
   "@healthGoalHealth": {},
-
   "healthGoalPerformance": "Performance",
   "@healthGoalPerformance": {},
-
   "healthGoalLose": "Lose",
   "@healthGoalLose": {},
-
   "healthGoalMaintain": "Maintain",
   "@healthGoalMaintain": {},
-
   "healthGoalGain": "Gain",
   "@healthGoalGain": {},
-
   "healthSexMale": "Male",
   "@healthSexMale": {},
-
   "healthSexFemale": "Female",
   "@healthSexFemale": {},
-
   "healthSexOther": "Other",
   "@healthSexOther": {},
-
   "notifSettingsIntro": "Configure your preferences to stay connected without feeling overwhelmed.",
   "@notifSettingsIntro": {},
-
   "notifPushLabel": "Push Notifications",
   "@notifPushLabel": {},
-
   "notifPushSubtitle": "Receive notifications on your device",
   "@notifPushSubtitle": {},
-
   "notifChatLabel": "Chat",
   "@notifChatLabel": {},
-
   "notifChatSubtitle": "Messages and conversations",
   "@notifChatSubtitle": {},
-
   "notifMealLabel": "Meal reminders",
   "@notifMealLabel": {},
-
   "notifMealSubtitle": "Scheduled meal times",
   "@notifMealSubtitle": {},
-
   "notifDmLabel": "Conversation requests",
   "@notifDmLabel": {},
-
   "notifDmSubtitle": "New connection requests",
   "@notifDmSubtitle": {},
-
   "notifLoadError": "Unable to load preferences.",
   "@notifLoadError": {},
-
   "preferencesTitle": "Preferences",
   "@preferencesTitle": {},
-
   "preferencesDiet": "Diet",
   "@preferencesDiet": {},
-
   "preferencesAllergens": "Allergens & Intolerances",
   "@preferencesAllergens": {},
-
   "preferencesFavoriteRegions": "Favorite Regions",
   "@preferencesFavoriteRegions": {},
-
   "preferencesSave": "Save",
   "@preferencesSave": {},
-
   "preferencesSaved": "Preferences saved",
   "@preferencesSaved": {},
-
   "preferencesError": "Error saving preferences",
   "@preferencesError": {},
-
   "preferencesMealPlanSection": "MEAL PLAN",
   "@preferencesMealPlanSection": {},
-
   "preferencesMealPlanFromFavorites": "Generate from favorites",
   "@preferencesMealPlanFromFavorites": {},
-
   "preferencesMealPlanFromFavoritesDesc": "Only use your saved recipes",
   "@preferencesMealPlanFromFavoritesDesc": {},
-
   "preferencesCookingSection": "COOKING",
   "@preferencesCookingSection": {},
-
   "preferencesCookingTimeLabel": "Preparation time",
   "@preferencesCookingTimeLabel": {},
-
   "preferencesCookingTimeQuick": "Quick (< 30 min)",
   "@preferencesCookingTimeQuick": {},
-
   "preferencesCookingTimeMedium": "Medium (30–60 min)",
   "@preferencesCookingTimeMedium": {},
-
   "preferencesCookingTimeAny": "No preference",
   "@preferencesCookingTimeAny": {},
-
   "preferencesBatchCookingLabel": "Batch cooking",
   "@preferencesBatchCookingLabel": {},
-
   "preferencesBatchCookingDesc": "Prepare several meals at once",
   "@preferencesBatchCookingDesc": {},
-
   "preferencesBatchCookingDetail": "Cook in bulk for the week",
   "@preferencesBatchCookingDetail": {},
-
   "preferencesBatchPortions": "Max portions per session",
   "@preferencesBatchPortions": {},
-
   "preferencesCuisineSection": "CUISINE REGION",
   "@preferencesCuisineSection": {},
-
   "preferencesRegionWestAfrica": "West Africa",
   "@preferencesRegionWestAfrica": {},
-
   "preferencesRegionEastAfrica": "East Africa",
   "@preferencesRegionEastAfrica": {},
-
   "preferencesRegionNorthAfrica": "North Africa",
   "@preferencesRegionNorthAfrica": {},
-
   "preferencesRegionCentralAfrica": "Central Africa",
   "@preferencesRegionCentralAfrica": {},
-
   "preferencesRegionSouthAfrica": "South Africa",
   "@preferencesRegionSouthAfrica": {},
-
   "preferencesRegionCaribbean": "Caribbean",
   "@preferencesRegionCaribbean": {},
-
   "preferencesRegionWestern": "Western",
   "@preferencesRegionWestern": {},
-
   "preferencesDietSection": "DIETARY RESTRICTIONS",
   "@preferencesDietSection": {},
-
   "preferencesNoPork": "No pork",
   "@preferencesNoPork": {},
-
   "preferencesNoMeat": "No meat",
   "@preferencesNoMeat": {},
-
   "preferencesNoGluten": "No gluten",
   "@preferencesNoGluten": {},
-
   "preferencesNoLactose": "No lactose",
   "@preferencesNoLactose": {},
-
   "notificationSettingsTitle": "Notifications",
   "@notificationSettingsTitle": {},
-
   "notificationSettingsMealReminders": "Meal Reminders",
   "@notificationSettingsMealReminders": {},
-
   "notificationSettingsNewRecipes": "New Recipes",
   "@notificationSettingsNewRecipes": {},
-
   "notificationSettingsCommunity": "Community",
   "@notificationSettingsCommunity": {},
-
   "notificationSettingsSave": "Save",
   "@notificationSettingsSave": {},
-
   "savedRecipesTitle": "Saved Recipes",
   "@savedRecipesTitle": {},
-
   "savedRecipesEmpty": "No saved recipes yet",
   "@savedRecipesEmpty": {},
-
   "savedRecipesEmptySubtitle": "Save recipes to find them easily",
   "@savedRecipesEmptySubtitle": {},
-
   "fanModeTitle": "Fan Mode",
   "@fanModeTitle": {},
-
   "fanModeSubscribe": "Subscribe",
   "@fanModeSubscribe": {},
-
   "fanModeUnsubscribe": "Unsubscribe",
   "@fanModeUnsubscribe": {},
-
   "fanModeMyCreators": "My Creators",
   "@fanModeMyCreators": {},
-
   "fanModeNoCreators": "No creators followed yet",
   "@fanModeNoCreators": {},
-
   "subscriptionTitle": "Go Premium",
   "@subscriptionTitle": {},
-
   "subscriptionSubtitle": "Unlock all features",
   "@subscriptionSubtitle": {},
-
   "subscriptionMonthly": "Monthly",
   "@subscriptionMonthly": {},
-
   "subscriptionAnnual": "Annual",
   "@subscriptionAnnual": {},
-
   "subscriptionSubscribe": "Subscribe",
   "@subscriptionSubscribe": {},
-
   "referralTitle": "Refer a Friend",
   "@referralTitle": {},
-
   "referralCopyCode": "Copy Code",
   "@referralCopyCode": {},
-
   "referralCodeCopied": "Code copied!",
   "@referralCodeCopied": {},
-
   "supportTitle": "Help & FAQ",
   "@supportTitle": {},
-
   "aiAssistantTitle": "AI Assistant",
   "@aiAssistantTitle": {},
-
   "aiAssistantPlaceholder": "Ask me anything about nutrition...",
   "@aiAssistantPlaceholder": {},
-
   "aiAssistantSend": "Send",
   "@aiAssistantSend": {},
-
   "batchCookingTitle": "Batch Cooking",
   "@batchCookingTitle": {},
-
   "batchCookingEmpty": "No batch cooking sessions",
   "@batchCookingEmpty": {},
-
   "ratingTitle": "Rate this meal",
   "@ratingTitle": {},
-
   "ratingSubmit": "Submit",
   "@ratingSubmit": {},
-
   "ratingSkip": "Skip",
   "@ratingSkip": {},
-
   "journeyTitle": "My Journey",
   "@journeyTitle": {},
-
   "journeyStreak": "{count, plural, one{{count} day streak} other{{count} day streak}}",
   "@journeyStreak": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "journeyNoData": "Start your journey today",
   "@journeyNoData": {},
-
   "commonCancel": "Cancel",
   "@commonCancel": {},
-
   "commonOk": "OK",
   "@commonOk": {},
-
   "commonSave": "Save",
   "@commonSave": {},
-
   "commonDelete": "Delete",
   "@commonDelete": {},
-
   "commonEdit": "Edit",
   "@commonEdit": {},
-
   "commonClose": "Close",
   "@commonClose": {},
-
   "commonRetry": "Retry",
   "@commonRetry": {},
-
   "commonLoading": "Loading...",
   "@commonLoading": {},
-
   "commonError": "Error",
   "@commonError": {},
-
   "commonSuccess": "Success",
   "@commonSuccess": {},
-
   "commonNext": "Next",
   "@commonNext": {},
-
   "commonPrevious": "Previous",
   "@commonPrevious": {},
-
   "commonSkip": "Skip",
   "@commonSkip": {},
-
   "commonYes": "Yes",
   "@commonYes": {},
-
   "commonNo": "No",
   "@commonNo": {},
-
   "difficultyEasy": "Easy",
   "@difficultyEasy": {},
-
   "difficultyMedium": "Medium",
   "@difficultyMedium": {},
-
   "difficultyHard": "Hard",
   "@difficultyHard": {},
-
   "dietVegetarian": "Vegetarian",
   "@dietVegetarian": {},
-
   "dietVegan": "Vegan",
   "@dietVegan": {},
-
   "dietPescatarian": "Pescatarian",
   "@dietPescatarian": {},
-
   "dietHalal": "Halal",
   "@dietHalal": {},
-
   "dietKosher": "Kosher",
   "@dietKosher": {},
-
   "dietGlutenFree": "Gluten Free",
   "@dietGlutenFree": {},
-
   "dietLactoseFree": "Lactose Free",
   "@dietLactoseFree": {},
-
   "dietNutFree": "Nut Free",
   "@dietNutFree": {},
-
   "dietNoPork": "Pork Free",
   "@dietNoPork": {},
-
   "languageSelectorTitle": "Choose Language",
   "@languageSelectorTitle": {},
-
   "languageEnglish": "English",
   "@languageEnglish": {},
-
   "languageFrench": "Français",
   "@languageFrench": {},
-
   "onboardingValidationConsent": "Please accept both conditions to continue.",
   "@onboardingValidationConsent": {},
-
   "onboardingValidationName": "Please enter your first name to continue.",
   "@onboardingValidationName": {},
-
   "onboardingValidationTargetWeight": "Please enter your target weight to continue.",
   "@onboardingValidationTargetWeight": {},
-
   "onboardingSubmitSyncError": "Sync error. Your data may be completed from your profile.",
   "@onboardingSubmitSyncError": {},
-
   "onboardingLanguageTitle": "Choose your language",
   "@onboardingLanguageTitle": {},
-
   "onboardingLanguageSubtitle": "Please select your interface language.",
   "@onboardingLanguageSubtitle": {},
-
   "onboardingLanguageSectionLabel": "LANGUAGE",
   "@onboardingLanguageSectionLabel": {},
-
   "onboardingWelcome": "Welcome to Akeli",
   "@onboardingWelcome": {},
-
   "onboardingConsentSubtitle": "Before diving into the experience, let's take a moment to clarify how we protect your privacy.",
   "@onboardingConsentSubtitle": {},
-
   "onboardingConsentDataTitle": "Data collected",
   "@onboardingConsentDataTitle": {},
-
   "onboardingConsentDataIdentityTitle": "Identity and contact:",
   "@onboardingConsentDataIdentityTitle": {},
-
   "onboardingConsentDataIdentityDesc": "Name, first name and email address to secure your account.",
   "@onboardingConsentDataIdentityDesc": {},
-
   "onboardingConsentDataUsageTitle": "App usage:",
   "@onboardingConsentDataUsageTitle": {},
-
   "onboardingConsentDataUsageDesc": "Anonymous statistics to improve your daily experience.",
   "@onboardingConsentDataUsageDesc": {},
-
   "onboardingConsentRightsTitle": "Your rights",
   "@onboardingConsentRightsTitle": {},
-
   "onboardingConsentRightsAccessTitle": "Full access:",
   "@onboardingConsentRightsAccessTitle": {},
-
   "onboardingConsentRightsAccessDesc": "View, edit or export your data at any time from settings.",
   "@onboardingConsentRightsAccessDesc": {},
-
   "onboardingConsentRightsForgetTitle": "Right to be forgotten:",
   "@onboardingConsentRightsForgetTitle": {},
-
   "onboardingConsentRightsForgetDesc": "Permanent deletion of your account and data upon simple request.",
   "@onboardingConsentRightsForgetDesc": {},
-
   "onboardingConsentPrivacyPre": "I accept the ",
   "@onboardingConsentPrivacyPre": {},
-
   "onboardingConsentPrivacyPost": " and confirm I have read the information regarding the processing of my personal data (GDPR).",
   "@onboardingConsentPrivacyPost": {},
-
   "onboardingConsentCguPre": "I accept the ",
   "@onboardingConsentCguPre": {},
-
   "onboardingConsentCguLink": "Terms of Service (ToS)",
   "@onboardingConsentCguLink": {},
-
   "onboardingConsentCguPost": " from Akeli.",
   "@onboardingConsentCguPost": {},
-
   "onboardingSubtitle": "Let's personalize your experience",
   "@onboardingSubtitle": {},
-
   "onboardingAge": "What is your age?",
   "@onboardingAge": {},
-
   "onboardingEstimatedDeadline": "ESTIMATED DEADLINE",
   "@onboardingEstimatedDeadline": {},
-
   "onboardingBatchPrepMeals": "Prepare several meals at once",
   "@onboardingBatchPrepMeals": {},
-
   "onboardingBatchCookWeek": "Cook in bulk for the week",
   "@onboardingBatchCookWeek": {},
-
   "onboardingPreferences": "Your Preferences",
   "@onboardingPreferences": {},
-
   "onboardingPreferencesSubtitle": "Let's personalize your culinary experience.",
   "@onboardingPreferencesSubtitle": {},
-
   "onboardingDietLabel": "Dietary Preferences",
   "@onboardingDietLabel": {},
-
   "onboardingAllergens": "Allergies & Intolerances",
   "@onboardingAllergens": {},
-
   "onboardingAllergensHint": "Add ingredients to avoid.",
   "@onboardingAllergensHint": {},
-
   "onboardingSummary": "Summary",
   "@onboardingSummary": {},
-
   "onboardingSummarySubtitle": "Your profile is ready. Let's check the details before we begin.",
   "@onboardingSummarySubtitle": {},
-
   "onboardingDietaryPreferences": "Dietary Preferences",
   "@onboardingDietaryPreferences": {},
-
   "onboardingSummaryNamePlaceholder": "Your name",
   "@onboardingSummaryNamePlaceholder": {},
-
   "onboardingSummaryAge": "{age} years",
   "@onboardingSummaryAge": {
     "placeholders": {
-      "age": { "type": "int" }
+      "age": {
+        "type": "int"
+      }
     }
   },
-
   "onboardingSummaryNotSet": "Not set",
   "@onboardingSummaryNotSet": {},
-
   "onboardingSummaryMacroValue": "{grams}g ({pct}%)",
   "@onboardingSummaryMacroValue": {
     "placeholders": {
-      "grams": { "type": "String" },
-      "pct": { "type": "String" }
+      "grams": {
+        "type": "String"
+      },
+      "pct": {
+        "type": "String"
+      }
     }
   },
-
   "onboardingSummaryBatchPortions": "Up to {count} portions per session",
   "@onboardingSummaryBatchPortions": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "feedSortBestRated": "Best rated",
   "@feedSortBestRated": {},
-
   "feedSortPopular": "Most popular",
   "@feedSortPopular": {},
-
   "feedSortNewest": "Newest",
   "@feedSortNewest": {},
-
   "feedSortRelevance": "Relevance",
   "@feedSortRelevance": {},
-
   "feedSortMostFans": "Most fans",
   "@feedSortMostFans": {},
-
   "feedSortMostRecipes": "Most recipes",
   "@feedSortMostRecipes": {},
-
   "feedSortCustom": "Custom",
   "@feedSortCustom": {},
-
   "unitKilograms": "KILOGRAMS",
   "@unitKilograms": {},
-
   "unitPounds": "POUNDS",
   "@unitPounds": {},
-
   "feedFilterTimeMax": "< {min} min",
   "@feedFilterTimeMax": {
-    "placeholders": { "min": { "type": "int" } }
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
   },
-
   "onboardingStep": "Step {current} of {total}",
   "@onboardingStep": {
     "placeholders": {
-      "current": { "type": "int" },
-      "total": { "type": "int" }
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
-
   "onboardingBack": "Back",
   "@onboardingBack": {},
-
   "onboardingNext": "Next",
   "@onboardingNext": {},
-
   "onboardingFinish": "Get Started",
   "@onboardingFinish": {},
-
   "onboardingProfileTitle": "Your Profile",
   "@onboardingProfileTitle": {},
-
   "onboardingProfileNameQuestion": "What should we call you?",
   "@onboardingProfileNameQuestion": {},
-
   "onboardingDisplayNameHint": "How should we call you?",
   "@onboardingDisplayNameHint": {},
-
   "onboardingProfileAgeSuffix": "yrs",
   "@onboardingProfileAgeSuffix": {},
-
   "onboardingProfileSexLabel": "Biological sex",
   "@onboardingProfileSexLabel": {},
-
   "onboardingProfileWeightLabel": "Weight",
   "@onboardingProfileWeightLabel": {},
-
   "onboardingActivityTitle": "Activity Level",
   "@onboardingActivityTitle": {},
-
   "onboardingActivitySedentaryDesc": "Office job, little to no daily exercise.",
   "@onboardingActivitySedentaryDesc": {},
-
   "onboardingActivityLightDesc": "1-3 days/week of light exercise.",
   "@onboardingActivityLightDesc": {},
-
   "onboardingActivityModerateDesc": "3-5 days/week.",
   "@onboardingActivityModerateDesc": {},
-
   "onboardingActivityActiveDesc": "6-7 days/week.",
   "@onboardingActivityActiveDesc": {},
-
   "onboardingGoalsTitle": "Your Goals",
   "@onboardingGoalsTitle": {},
-
   "onboardingGoalsSubtitle": "Let's define together what you want to achieve.",
   "@onboardingGoalsSubtitle": {},
-
   "onboardingGoalsWeightSectionLabel": "WEIGHT GOAL",
   "@onboardingGoalsWeightSectionLabel": {},
-
   "onboardingGoalsWeightLoss": "Lose weight",
   "@onboardingGoalsWeightLoss": {},
-
   "onboardingGoalsWeightMaintain": "Maintain my weight",
   "@onboardingGoalsWeightMaintain": {},
-
   "onboardingGoalsWeightGain": "Gain weight",
   "@onboardingGoalsWeightGain": {},
-
   "onboardingGoalsMuscleSectionLabel": "MUSCLE GOAL",
   "@onboardingGoalsMuscleSectionLabel": {},
-
   "onboardingGoalsMuscleLoss": "Reduce muscle mass",
   "@onboardingGoalsMuscleLoss": {},
-
   "onboardingGoalsMuscleMaintain": "Maintain my muscles",
   "@onboardingGoalsMuscleMaintain": {},
-
   "onboardingGoalsMuscleGain": "Build muscle",
   "@onboardingGoalsMuscleGain": {},
-
   "onboardingGoalsTargetWeightSectionLabel": "TARGET WEIGHT",
   "@onboardingGoalsTargetWeightSectionLabel": {},
-
   "onboardingGoalsMonthsUnit": "months",
   "@onboardingGoalsMonthsUnit": {},
-
   "onboardingGoalsMonthMin": "1 month",
   "@onboardingGoalsMonthMin": {},
-
   "onboardingGoalsMonthMax": "12 months",
   "@onboardingGoalsMonthMax": {},
-
   "onboardingGoalsMotivationsLabel": "YOUR MOTIVATIONS",
   "@onboardingGoalsMotivationsLabel": {},
-
   "onboardingGoalsMotivationsHint": "What motivates you?",
   "@onboardingGoalsMotivationsHint": {},
-
   "onboardingGoalsCookingTimeSectionLabel": "COOKING TIME",
   "@onboardingGoalsCookingTimeSectionLabel": {},
-
   "onboardingGoalsCookingQuick": "Quick (< 30 min)",
   "@onboardingGoalsCookingQuick": {},
-
   "onboardingGoalsCookingMedium": "Medium (30–60 min)",
   "@onboardingGoalsCookingMedium": {},
-
   "onboardingGoalsCookingAny": "No preference",
   "@onboardingGoalsCookingAny": {},
-
   "onboardingGoalsBatchSectionLabel": "BATCH COOKING",
   "@onboardingGoalsBatchSectionLabel": {},
-
   "onboardingGoalsBatchMaxPortions": "Max portions per session",
   "@onboardingGoalsBatchMaxPortions": {},
-
   "onboardingDietNoPorkDesc": "Exclude all dishes containing pork",
   "@onboardingDietNoPorkDesc": {},
-
   "onboardingDietNoMeatLabel": "No Meat",
   "@onboardingDietNoMeatLabel": {},
-
   "onboardingDietNoMeatDesc": "Vegetarian options only",
   "@onboardingDietNoMeatDesc": {},
-
   "onboardingDietGlutenFreeDesc": "Exclude gluten from your diet",
   "@onboardingDietGlutenFreeDesc": {},
-
   "onboardingDietLactoseFreeDesc": "Exclude dairy products",
   "@onboardingDietLactoseFreeDesc": {},
-
   "onboardingRegionsTitle": "Regional Inspirations",
   "@onboardingRegionsTitle": {},
-
   "onboardingRegionsSubtitle": "Select your preferred region for targeted recommendations.",
   "@onboardingRegionsSubtitle": {},
-
   "mealDetailNotFound": "Meal not found",
   "@mealDetailNotFound": {},
-
   "mealDetailConsumed": "Meal consumed",
   "@mealDetailConsumed": {},
-
   "mealDetailMarkConsumed": "Mark as consumed",
   "@mealDetailMarkConsumed": {},
-
   "mealDetailDescription": "Description",
   "@mealDetailDescription": {},
-
   "mealDetailSwapRecipe": "Change recipe",
   "@mealDetailSwapRecipe": {},
-
   "mealDetailPersonalMeal": "Personal Meal (AI)",
   "@mealDetailPersonalMeal": {},
-
   "mealDetailConsumeFirst": "Consume this meal first",
   "@mealDetailConsumeFirst": {},
-
   "mealDetailEditReview": "Edit your review",
   "@mealDetailEditReview": {},
-
   "mealDetailLeaveReview": "Leave a review",
   "@mealDetailLeaveReview": {},
-
   "mealDetailViewFullRecipe": "View full recipe",
   "@mealDetailViewFullRecipe": {},
-
   "mealDetailBatchPrep": "Batch preparation",
   "@mealDetailBatchPrep": {},
-
   "mealDetailBatchSession": "Batch cooking session",
   "@mealDetailBatchSession": {},
-
   "recipeDetailTotalRecipe": "Total recipe",
   "@recipeDetailTotalRecipe": {},
-
   "recipeDetailPerServing": "Per serving",
   "@recipeDetailPerServing": {},
-
   "recipeDetailReviews": "Reviews",
   "@recipeDetailReviews": {},
-
   "recipeDetailRatingTaste": "Taste",
   "@recipeDetailRatingTaste": {},
-
   "recipeDetailRatingEase": "Ease",
   "@recipeDetailRatingEase": {},
-
   "recipeDetailRatingSatiety": "Satiety",
   "@recipeDetailRatingSatiety": {},
-
   "batchCookingThisWeek": "This week",
   "@batchCookingThisWeek": {},
-
   "batchCookingOngoing": "Your ongoing preparations",
   "@batchCookingOngoing": {},
-
   "batchCookingNoSessionsTitle": "No sessions this week",
   "@batchCookingNoSessionsTitle": {},
-
   "batchCookingNoSessionsBody": "Your batch sessions will appear here automatically when a recipe is planned multiple times.",
   "@batchCookingNoSessionsBody": {},
-
   "batchCookingDefaultRecipe": "Recipe",
   "@batchCookingDefaultRecipe": {},
-
   "batchDetailPreparation": "Preparation",
   "@batchDetailPreparation": {},
-
   "batchDetailPortionsUsed": "Portions used",
   "@batchDetailPortionsUsed": {},
-
   "batchDetailPortionsUsedCount": "{count} used",
   "@batchDetailPortionsUsedCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "batchDetailStartCooking": "Start cooking",
   "@batchDetailStartCooking": {},
-
   "commonAdd": "Add",
   "@commonAdd": {},
-
   "mealPlannerAddSnack": "Add a snack",
   "@mealPlannerAddSnack": {},
-
   "mealPlannerAddAnotherSnack": "Add another snack",
   "@mealPlannerAddAnotherSnack": {},
-
   "snackPickerTitle": "Choose a snack",
   "@snackPickerTitle": {},
-
   "snackPickerEstimatedQty": "Estimated quantity",
   "@snackPickerEstimatedQty": {},
-
   "snackPickerPersonal": "Personal snack",
   "@snackPickerPersonal": {},
-
   "snackPickerNoResults": "No recipe found",
   "@snackPickerNoResults": {},
-
   "fanModeLoadError": "Loading error",
   "@fanModeLoadError": {},
-
   "fanModeCreatorsTitle": "Creators to support",
   "@fanModeCreatorsTitle": {},
-
   "fanModeCreatorsSubtitle": "Your dominant creator is highlighted.",
   "@fanModeCreatorsSubtitle": {},
-
   "fanModeNoCreatorsTitle": "No eligible creators",
   "@fanModeNoCreatorsTitle": {},
-
   "fanModeNoCreatorsSubtitle": "Creators must publish 30 recipes to be eligible.",
   "@fanModeNoCreatorsSubtitle": {},
-
   "fanModeActivateTitle": "Activate Fan Mode",
   "@fanModeActivateTitle": {},
-
   "fanModeActivateContent": "You are about to support {name} with €1/month, included in your Akeli subscription.\n\nRule 90/10: 90% of your meals must come from this creator's catalog (max 9 external recipes per month).\n\nActive from the 1st of next month.",
   "@fanModeActivateContent": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "fanModeConfirm": "Confirm",
   "@fanModeConfirm": {},
-
   "fanModeActivateError": "Error during activation.",
   "@fanModeActivateError": {},
-
   "fanModeActivateSuccess": "You are now supporting {name}!",
   "@fanModeActivateSuccess": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "fanModeRecipesThisMonth": "Your recipes this month",
   "@fanModeRecipesThisMonth": {},
-
   "fanModeNoRecipesThisMonth": "No recipes recorded this month",
   "@fanModeNoRecipesThisMonth": {},
-
   "fanModeTotalMeals": "{count} meals recorded",
   "@fanModeTotalMeals": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "fanModeRecipeCount": "{count} recipes",
   "@fanModeRecipeCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "fanModeFanCount": "{count} fans",
   "@fanModeFanCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "fanModeSupport": "Support",
   "@fanModeSupport": {},
-
   "fanModeQuit": "Leave Fan Mode",
   "@fanModeQuit": {},
-
   "fanModeQuitContent": "Your support will end at the end of the current month.",
   "@fanModeQuitContent": {},
-
   "fanModeKeep": "Keep",
   "@fanModeKeep": {},
-
   "fanModeQuitConfirm": "Leave",
   "@fanModeQuitConfirm": {},
-
   "fanModeCancelled": "Fan Mode cancelled.",
   "@fanModeCancelled": {},
-
   "fanModeStatusPending": "⏳ Active from the 1st of next month",
   "@fanModeStatusPending": {},
-
   "fanModeStatusActive": "❤️ Fan Mode active",
   "@fanModeStatusActive": {},
-
   "fanModeExternalTitle": "External recipes this month",
   "@fanModeExternalTitle": {},
-
   "fanModeExternalSubtitle": "Recipes outside catalog",
   "@fanModeExternalSubtitle": {},
-
   "fanModeEngagementTitle": "Fan Mode Commitment",
   "@fanModeEngagementTitle": {},
-
   "fanModeEngagementYouSupport": "You support ",
   "@fanModeEngagementYouSupport": {},
-
   "fanModeEngagementWith": " with ",
   "@fanModeEngagementWith": {},
-
   "fanModeEngagementGuaranteed": "€1/month guaranteed",
   "@fanModeEngagementGuaranteed": {},
-
   "fanModeEngagementIncluded": ", included in your subscription.\n\nFan Rule 90/10: 90% of your meals must come from this creator's catalog. You can use up to ",
   "@fanModeEngagementIncluded": {},
-
   "fanModeEngagementExternalCount": "9 external recipes",
   "@fanModeEngagementExternalCount": {},
-
   "fanModeEngagementPerMonth": " per month.",
   "@fanModeEngagementPerMonth": {},
-
   "fanModeDefaultCreator": "your creator",
   "@fanModeDefaultCreator": {},
-
   "commonLoadError": "Loading error",
   "@commonLoadError": {},
-
   "commonGenericError": "An error occurred. Please try again.",
   "@commonGenericError": {},
-
   "groupDetailTitle": "Group Details",
   "@groupDetailTitle": {},
-
   "groupDetailUnknownGroup": "Unknown group",
   "@groupDetailUnknownGroup": {},
-
   "groupDetailTabMembers": "Members",
   "@groupDetailTabMembers": {},
-
   "groupDetailTabPhotos": "Photos",
   "@groupDetailTabPhotos": {},
-
   "groupDetailTabRecipes": "Recipes",
   "@groupDetailTabRecipes": {},
-
   "groupDetailDmAlreadySent": "Request already sent",
   "@groupDetailDmAlreadySent": {},
-
   "groupDetailDmSentTo": "Request sent to {name}",
   "@groupDetailDmSentTo": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "groupDetailExcludeTitle": "Exclude {name}?",
   "@groupDetailExcludeTitle": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-
   "groupDetailExcludeContent": "This person will lose access to the group and group chat.",
   "@groupDetailExcludeContent": {},
-
   "groupDetailExclude": "Exclude",
   "@groupDetailExclude": {},
-
   "groupDetailMemberExcluded": "Member excluded from group",
   "@groupDetailMemberExcluded": {},
-
   "groupDetailNotAdmin": "You are no longer an administrator of this group",
   "@groupDetailNotAdmin": {},
-
   "groupDetailInvite": "Invite",
   "@groupDetailInvite": {},
-
   "groupDetailNoMembersTitle": "No members",
   "@groupDetailNoMembersTitle": {},
-
   "groupDetailNoMembersSubtitle": "Members will appear here.",
   "@groupDetailNoMembersSubtitle": {},
-
   "groupDetailNoPhotosTitle": "No shared photos",
   "@groupDetailNoPhotosTitle": {},
-
   "groupDetailNoPhotosSubtitle": "Photos sent in the chat will appear here.",
   "@groupDetailNoPhotosSubtitle": {},
-
   "groupDetailNoRecipesTitle": "No shared recipes",
   "@groupDetailNoRecipesTitle": {},
-
   "groupDetailNoRecipesSubtitle": "Recipes shared in the chat will appear here.",
   "@groupDetailNoRecipesSubtitle": {},
-
   "groupDetailInvitesSent": "Invitations sent",
   "@groupDetailInvitesSent": {},
-
   "groupDetailInviteTitle": "Invite members",
   "@groupDetailInviteTitle": {},
-
   "groupDetailNoEligibleTitle": "No eligible contacts",
   "@groupDetailNoEligibleTitle": {},
-
   "groupDetailNoEligibleSubtitle": "You don't have any private conversations with users to invite yet.",
   "@groupDetailNoEligibleSubtitle": {},
-
   "groupDetailInviteCount": "Invite ({count})",
   "@groupDetailInviteCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "groupDetailPrivateMessage": "Private message",
   "@groupDetailPrivateMessage": {},
-
   "groupDetailExcludeFromGroup": "Exclude from group",
   "@groupDetailExcludeFromGroup": {},
-
   "allergenPickerHint": "e.g. peanuts, nuts...",
   "@allergenPickerHint": {},
-
   "allergenPickerAdd": "Add \"{query}\"",
   "@allergenPickerAdd": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
-
   "allergenPickerSuggestionSent": "Suggestion sent for review.",
   "@allergenPickerSuggestionSent": {},
-
   "ingredientDetailOptional": "Optional",
   "@ingredientDetailOptional": {},
-
   "ingredientDetailTagHighProtein": "High protein",
   "@ingredientDetailTagHighProtein": {},
-
   "ingredientDetailTagLowFat": "Low fat",
   "@ingredientDetailTagLowFat": {},
-
   "ingredientDetailTagGlutenFree": "Gluten free",
   "@ingredientDetailTagGlutenFree": {},
-
   "ingredientDetailTagAfricanStaple": "African staple",
   "@ingredientDetailTagAfricanStaple": {},
-
   "ingredientDetailTagHardToFindEu": "Hard to find in Europe",
   "@ingredientDetailTagHardToFindEu": {},
-
   "ingredientDetailNutritionTitle": "Nutrition (per 100g)",
   "@ingredientDetailNutritionTitle": {},
-
   "ingredientDetailEnergy": "Energy",
   "@ingredientDetailEnergy": {},
-
   "cookingSessionTitle": "Cooking Session",
   "@cookingSessionTitle": {},
-
   "cookingSessionSubtitle": "Organize your meals for the week",
   "@cookingSessionSubtitle": {},
-
   "cookingSessionComingSoon": "Coming soon",
   "@cookingSessionComingSoon": {},
-
   "cookingSessionComingSoonDesc": "This feature will be available in a future update",
   "@cookingSessionComingSoonDesc": {},
-
   "cookingSessionGotIt": "Got it",
   "@cookingSessionGotIt": {},
-
   "journeyCalendarLegendAll": "All",
   "@journeyCalendarLegendAll": {},
-
   "journeyCalendarLegendPartial": "Partial",
   "@journeyCalendarLegendPartial": {},
-
   "journeyCalendarLegendNone": "None",
   "@journeyCalendarLegendNone": {},
-
   "journeySummaryDays": "Journey days",
   "@journeySummaryDays": {},
-
   "journeySummaryTracked": "Days tracked",
   "@journeySummaryTracked": {},
-
   "journeySummaryMeals": "Meals consumed",
   "@journeySummaryMeals": {},
-
   "journeySummaryConsistency": "Consistency",
   "@journeySummaryConsistency": {},
-
   "journeyGoalsWeight": "⚖️  Weight",
   "@journeyGoalsWeight": {},
-
   "journeyGoalsCalories": "🎯  Calories",
   "@journeyGoalsCalories": {},
-
   "journeyGoalsProtein": "💪  Protein",
   "@journeyGoalsProtein": {},
-
   "journeyGoalsCarbs": "🌾  Carbs",
   "@journeyGoalsCarbs": {},
-
   "journeyGoalsFat": "🥑  Fat",
   "@journeyGoalsFat": {},
-
   "journeyGoalsCalorieHitSubtitle": "You hit your calorie goal {pct}% of tracked days.",
   "@journeyGoalsCalorieHitSubtitle": {
-    "placeholders": { "pct": { "type": "int" } }
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
   },
-
   "subscriptionMyTitle": "My Subscription",
   "@subscriptionMyTitle": {},
-
   "subscriptionActiveTitle": "Active Subscription",
   "@subscriptionActiveTitle": {},
-
   "subscriptionPremiumBadge": "Akeli Premium",
   "@subscriptionPremiumBadge": {},
-
   "subscriptionActiveThankYou": "Thank you for being part of the Akeli community.",
   "@subscriptionActiveThankYou": {},
-
   "subscriptionTagline": "Personalized African nutrition",
   "@subscriptionTagline": {},
-
   "subscriptionIncludedTitle": "What's included",
   "@subscriptionIncludedTitle": {},
-
   "subscriptionPerMonth": "/ month",
   "@subscriptionPerMonth": {},
-
   "subscriptionCancelAnytime": "Cancel anytime via the Store",
   "@subscriptionCancelAnytime": {},
-
   "subscriptionSubscribeViaStore": "Subscribe via the Store",
   "@subscriptionSubscribeViaStore": {},
-
   "subscriptionMobileOnly": "Subscription available on iOS and Android only.",
   "@subscriptionMobileOnly": {},
-
   "subscriptionFeature1": "Personalized African recipes with AI",
   "@subscriptionFeature1": {},
-
   "subscriptionFeature2": "Adapted weekly meal plan",
   "@subscriptionFeature2": {},
-
   "subscriptionFeature3": "Detailed nutritional tracking",
   "@subscriptionFeature3": {},
-
   "subscriptionFeature4": "Nutritional AI assistant",
   "@subscriptionFeature4": {},
-
   "subscriptionFeature5": "Fan Mode — support your creators",
   "@subscriptionFeature5": {},
-
   "subscriptionFeature6": "Community and discussion groups",
   "@subscriptionFeature6": {},
-
   "subscriptionFeature7": "Automatic shopping list",
   "@subscriptionFeature7": {},
-
   "subscriptionActiveBadge": "Active Premium Subscription",
   "@subscriptionActiveBadge": {},
-
   "subscriptionRenewalDate": "Next renewal: {date}",
   "@subscriptionRenewalDate": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
-
   "subscriptionPlatformIos": "Subscription via App Store",
   "@subscriptionPlatformIos": {},
-
   "subscriptionPlatformAndroid": "Subscription via Google Play",
   "@subscriptionPlatformAndroid": {},
-
   "journalingNewEntry": "New entry",
   "@journalingNewEntry": {},
-
   "journalingNewEntrySubtitle": "Note your culinary experience",
   "@journalingNewEntrySubtitle": {},
-
   "journalingPhotos": "Photos",
   "@journalingPhotos": {},
-
   "journalingAddPhotos": "Add photos",
   "@journalingAddPhotos": {},
-
   "journalingMealType": "Meal type",
   "@journalingMealType": {},
-
   "journalingDescription": "Description",
   "@journalingDescription": {},
-
   "journalingDescriptionHint": "How was this meal? Tastes, textures, emotions...",
   "@journalingDescriptionHint": {},
-
   "journalingDescriptionRequired": "Please add a description",
   "@journalingDescriptionRequired": {},
-
   "journalingSaving": "Saving...",
   "@journalingSaving": {},
-
   "journalingSaveEntry": "Save entry",
   "@journalingSaveEntry": {},
-
   "journalingEntrySaved": "Entry saved successfully!",
   "@journalingEntrySaved": {},
-
   "journalingSaveError": "Error saving entry",
   "@journalingSaveError": {},
-
   "aiAssistantOnline": "Online",
   "@aiAssistantOnline": {},
-
   "aiAssistantNewConversation": "New conversation",
   "@aiAssistantNewConversation": {},
-
   "aiAssistantToday": "TODAY",
   "@aiAssistantToday": {},
-
   "aiAssistantError": "Sorry, an error occurred. Please try again in a moment.",
   "@aiAssistantError": {},
-
   "aiAssistantWelcomeTitle": "Hello, I'm your Akeli nutritional assistant.",
   "@aiAssistantWelcomeTitle": {},
-
   "aiAssistantWelcomeSubtitle": "Ask me your questions about nutrition, African recipes or your meal plan.",
   "@aiAssistantWelcomeSubtitle": {},
-
   "aiAssistantSuggestions": "Suggestions",
   "@aiAssistantSuggestions": {},
-
   "aiAssistantMessageHint": "Message...",
   "@aiAssistantMessageHint": {},
-
   "aiAssistantSuggestion1": "Which protein-rich foods suit my culture?",
   "@aiAssistantSuggestion1": {},
-
   "aiAssistantSuggestion2": "What is my recommended caloric intake?",
   "@aiAssistantSuggestion2": {},
-
   "aiAssistantSuggestion3": "How to lose weight with African cuisine?",
   "@aiAssistantSuggestion3": {},
-
   "aiAssistantSuggestion4": "Give me a recipe for tonight.",
   "@aiAssistantSuggestion4": {},
-
   "referralCodeLabel": "Your referral code",
   "@referralCodeLabel": {},
-
   "referralReferreeCount": "{count, plural, one{{count} referral} other{{count} referrals}}",
   "@referralReferreeCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "referralShareTitle": "Share the Oasis",
   "@referralShareTitle": {},
-
   "referralShareBody": "Invite your friends to discover Akeli Oasis. For every friend who signs up with your code, you'll receive an exclusive wellness ritual invitation, and they'll get a privileged welcome.",
   "@referralShareBody": {},
-
   "referralChangeCodeTitle": "Change code",
   "@referralChangeCodeTitle": {},
-
   "referralEditCode": "Edit code",
   "@referralEditCode": {},
-
   "referralNewCodeLabel": "New code",
   "@referralNewCodeLabel": {},
-
   "referralNewCodeHint": "Enter a new code",
   "@referralNewCodeHint": {},
-
   "referralCodeUpdated": "Code updated successfully!",
   "@referralCodeUpdated": {},
-
   "supportHeaderTitle": "How can we help you?",
   "@supportHeaderTitle": {},
-
   "supportHeaderSubtitle": "Our team is here to answer your questions",
   "@supportHeaderSubtitle": {},
-
   "supportSubjectLabel": "Subject",
   "@supportSubjectLabel": {},
-
   "supportSubjectHint": "e.g. Login issue...",
   "@supportSubjectHint": {},
-
   "supportSubjectRequired": "Please enter a subject",
   "@supportSubjectRequired": {},
-
   "supportEmailHint": "your@email.com",
   "@supportEmailHint": {},
-
   "supportEmailRequired": "Please enter your email",
   "@supportEmailRequired": {},
-
   "supportEmailInvalid": "Please enter a valid email",
   "@supportEmailInvalid": {},
-
   "supportMessageLabel": "Message",
   "@supportMessageLabel": {},
-
   "supportMessageHint": "Describe your issue...",
   "@supportMessageHint": {},
-
   "supportMessageRequired": "Please enter your message",
   "@supportMessageRequired": {},
-
   "supportMessageTooShort": "Message must be at least 10 characters",
   "@supportMessageTooShort": {},
-
   "supportAddScreenshot": "Add a screenshot",
   "@supportAddScreenshot": {},
-
   "supportSendMessage": "Send message",
   "@supportSendMessage": {},
-
   "supportMessageSent": "Message sent successfully!",
   "@supportMessageSent": {},
-
   "supportSendError": "Error sending. Please try again.",
   "@supportSendError": {},
-
   "supportChangeScreenshot": "Change screenshot",
   "@supportChangeScreenshot": {},
-
   "savedRecipesEligibilityNotLoggedIn": "Not logged in",
   "@savedRecipesEligibilityNotLoggedIn": {},
-
   "savedRecipesEligibilityNoData": "No data found",
   "@savedRecipesEligibilityNoData": {},
-
   "savedRecipesEligibilityTitle": "Generate from your favorites",
   "@savedRecipesEligibilityTitle": {},
-
   "savedRecipesEligibilityDesc": "If you have enough saved recipes, you can ask Akeli to generate your meal plans only from your favorites, rather than through our recommendations.",
   "@savedRecipesEligibilityDesc": {},
-
   "savedRecipesEligibilityProgress": "Progress",
   "@savedRecipesEligibilityProgress": {},
-
   "savedRecipesEligibilityMissing": "{count, plural, one{{count} recipe missing} other{{count} recipes missing}}",
   "@savedRecipesEligibilityMissing": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "savedRecipesEligibilityToggleTitle": "Use favorites only",
   "@savedRecipesEligibilityToggleTitle": {},
-
   "savedRecipesEligibilityEnabled": "Enabled",
   "@savedRecipesEligibilityEnabled": {},
-
   "savedRecipesEligibilityBlocked": "Locked: You need at least {target} recipes for each category above.",
   "@savedRecipesEligibilityBlocked": {
-    "placeholders": { "target": { "type": "int" } }
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
   },
-
   "savedRecipesEligibilityShortfallToast": "{mealType}: save {needed} more (currently {saved}/{target})",
   "@savedRecipesEligibilityShortfallToast": {
     "placeholders": {
-      "mealType": { "type": "String" },
-      "needed": { "type": "int" },
-      "saved": { "type": "int" },
-      "target": { "type": "int" }
+      "mealType": {
+        "type": "String"
+      },
+      "needed": {
+        "type": "int"
+      },
+      "saved": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
     }
   },
-
   "legalPrivacyTitle": "Privacy Policy",
   "@legalPrivacyTitle": {},
-
   "legalPrivacyHeroTitle": "Your data is protected",
   "@legalPrivacyHeroTitle": {},
-
   "legalPrivacyHeroSubtitle": "We are committed to protecting your privacy in accordance with GDPR",
   "@legalPrivacyHeroSubtitle": {},
-
   "legalPrivacySummaryTitle": "In brief",
   "@legalPrivacySummaryTitle": {},
-
   "legalPrivacyCollectionTitle": "Minimal collection",
   "@legalPrivacyCollectionTitle": {},
-
   "legalPrivacyCollectionDesc": "Only data necessary for the app to function",
   "@legalPrivacyCollectionDesc": {},
-
   "legalPrivacySecurityTitle": "Maximum security",
   "@legalPrivacySecurityTitle": {},
-
   "legalPrivacySecurityDesc": "End-to-end encryption and secure storage",
   "@legalPrivacySecurityDesc": {},
-
   "legalPrivacyControlTitle": "Total control",
   "@legalPrivacyControlTitle": {},
-
   "legalPrivacyControlDesc": "You can access, modify or delete your data at any time",
   "@legalPrivacyControlDesc": {},
-
   "legalPrivacySection1Title": "1. Data collection",
   "@legalPrivacySection1Title": {},
-
   "legalPrivacySection1Content": "We collect only the data needed to provide you with the best experience:\n\n• Profile information (name, email, dietary preferences)\n• Navigation history within the app\n• Health data you choose to share\n• Content preferences and interactions",
   "@legalPrivacySection1Content": {},
-
   "legalPrivacySection2Title": "2. Data use",
   "@legalPrivacySection2Title": {},
-
   "legalPrivacySection2Content": "Your data allows us to:\n\n• Personalize your recipe recommendations\n• Continuously improve our service\n• Send you relevant notifications\n• Ensure the security of your account",
   "@legalPrivacySection2Content": {},
-
   "legalPrivacySection3Title": "3. Your GDPR rights",
   "@legalPrivacySection3Title": {},
-
   "legalPrivacyRightAccess": "Access",
   "@legalPrivacyRightAccess": {},
-
   "legalPrivacyRightAccessDesc": "View your data",
   "@legalPrivacyRightAccessDesc": {},
-
   "legalPrivacyRightRectification": "Rectification",
   "@legalPrivacyRightRectification": {},
-
   "legalPrivacyRightRectificationDesc": "Modify your information",
   "@legalPrivacyRightRectificationDesc": {},
-
   "legalPrivacyRightErasure": "Erasure",
   "@legalPrivacyRightErasure": {},
-
   "legalPrivacyRightErasureDesc": "Delete your account",
   "@legalPrivacyRightErasureDesc": {},
-
   "legalPrivacyRightPortability": "Portability",
   "@legalPrivacyRightPortability": {},
-
   "legalPrivacyRightPortabilityDesc": "Export your data",
   "@legalPrivacyRightPortabilityDesc": {},
-
   "legalPrivacySection4Title": "4. Data sharing",
   "@legalPrivacySection4Title": {},
-
   "legalPrivacySection4Content": "We never sell your personal data.\n\nIt may only be shared with:\n• Our technical providers hosted in the EU\n• Legal authorities if required by law\n• Your favourite creators (only with your explicit consent)",
   "@legalPrivacySection4Content": {},
-
   "legalPrivacySection5Title": "5. Retention",
   "@legalPrivacySection5Title": {},
-
   "legalPrivacySection5Content": "Your data is retained:\n• As long as your account is active\n• Up to 3 years after your last login\n• Immediately deleted upon account deletion request",
   "@legalPrivacySection5Content": {},
-
   "legalPrivacyDpoTitle": "DPO Contact",
   "@legalPrivacyDpoTitle": {},
-
   "legalPrivacyDpoEmail": "dpo@akeli.app",
   "@legalPrivacyDpoEmail": {},
-
   "legalPrivacyDpoDesc": "Our data protection officer responds within 48 business hours to any request regarding your personal data.",
   "@legalPrivacyDpoDesc": {},
-
   "legalPrivacyVersion": "Version 1.0 • Last updated: January 2026",
   "@legalPrivacyVersion": {},
-
   "legalTermsTitle": "Terms of Service",
   "@legalTermsTitle": {},
-
   "legalTermsHeroTitle": "Welcome to Akeli",
   "@legalTermsHeroTitle": {},
-
   "legalTermsHeroSubtitle": "By using our app, you accept these terms",
   "@legalTermsHeroSubtitle": {},
-
   "legalTermsArticle1Title": "Access to service",
   "@legalTermsArticle1Title": {},
-
   "legalTermsArticle1Content": "Akeli is a free mobile app dedicated to African nutrition and traditional recipes.\n\nAccess to the service requires:\n• A compatible iOS or Android smartphone\n• An internet connection to sync data\n• Creating a user account\n\nCertain premium features (Fan Mode, personalized plans) are available via subscription.",
   "@legalTermsArticle1Content": {},
-
   "legalTermsArticle2Title": "User account",
   "@legalTermsArticle2Title": {},
-
   "legalTermsArticle2Content": "You are responsible for:\n• The confidentiality of your credentials\n• The accuracy of the information provided\n• All activities carried out from your account\n\nWe reserve the right to suspend or delete any account that violates these terms.",
   "@legalTermsArticle2Content": {},
-
   "legalTermsArticle3Title": "Intellectual property",
   "@legalTermsArticle3Title": {},
-
   "legalTermsArticle3Content": "All content on Akeli (recipes, texts, images, logos) is the exclusive property of Akeli or its partners.\n\nProhibited:\n• Reproduction without authorization\n• Unauthorized commercial use\n• Modification or alteration of content\n\nCreators retain rights to their published recipes.",
   "@legalTermsArticle3Content": {},
-
   "legalTermsArticle4Title": "Liability",
   "@legalTermsArticle4Title": {},
-
   "legalTermsArticle4Content": "Akeli provides nutritional information for informational purposes only.\n\nWe cannot be held responsible for:\n• Errors in nutritional information\n• Allergic reactions or health problems related to recipes\n• Temporary service interruptions for maintenance\n\nAlways consult a healthcare professional for medical advice.",
   "@legalTermsArticle4Content": {},
-
   "legalTermsArticle5Title": "Subscriptions and payments",
   "@legalTermsArticle5Title": {},
-
   "legalTermsArticle5Content": "Fan Mode subscriptions (€3/month) are billed monthly via the stores (Google Play / App Store).\n\n• Cancellation possible at any time\n• Access maintained until the end of the paid period\n• No partial refund\n\nCreators receive 70% of revenue generated by their subscribers.",
   "@legalTermsArticle5Content": {},
-
   "legalTermsArticle6Title": "Modifications",
   "@legalTermsArticle6Title": {},
-
   "legalTermsArticle6Content": "We reserve the right to modify these terms at any time.\n\nUsers will be notified:\n• By push notification for major changes\n• By email if the modification impacts personal data\n\nContinued use constitutes acceptance of the new terms.",
   "@legalTermsArticle6Content": {},
-
   "legalTermsContactTitle": "Contact",
   "@legalTermsContactTitle": {},
-
   "legalTermsContactEmail": "legal@akeli.app",
   "@legalTermsContactEmail": {},
-
   "legalTermsVersion": "Version 1.0 • Last updated: January 2026",
   "@legalTermsVersion": {},
-
   "mealScheduleTitle": "Meal Schedule",
   "@mealScheduleTitle": {},
   "mealScheduleSubtitle": "Define which meals you want each day",
@@ -2461,7 +1822,11 @@
   "@mealScheduleSave": {},
   "mealScheduleCalorieTotal": "{total}% of daily calories",
   "@mealScheduleCalorieTotal": {
-    "placeholders": { "total": { "type": "String" } }
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
   },
   "mealScheduleCalorieTotalError": "Total must equal 100%",
   "@mealScheduleCalorieTotalError": {},
@@ -2515,7 +1880,11 @@
   "@mealScheduleVariety15Days": {},
   "mealScheduleVarietyDisablesSavedOnly": "Switching to {days}-day variety will turn off \"use only saved recipes\" — you don't have enough saved recipes for this level of variety.",
   "@mealScheduleVarietyDisablesSavedOnly": {
-    "placeholders": { "days": { "type": "int" } }
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
   },
   "mealScheduleRandomTitle": "Randomize schedule",
   "@mealScheduleRandomTitle": {},
@@ -2536,8 +1905,12 @@
   "nutritionPlanBmrTdeeLabel": "BMR: {bmr} kcal  |  TDEE: {tdee} kcal",
   "@nutritionPlanBmrTdeeLabel": {
     "placeholders": {
-      "bmr": { "type": "String" },
-      "tdee": { "type": "String" }
+      "bmr": {
+        "type": "String"
+      },
+      "tdee": {
+        "type": "String"
+      }
     }
   },
   "nutritionPlanMacrosSection": "2. Macros",
@@ -2551,7 +1924,9 @@
   "nutritionPlanSaveError": "Error while saving: {error}",
   "@nutritionPlanSaveError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "nutritionToday": "Today",
@@ -2581,7 +1956,9 @@
   "dietPlanError": "Error: {error}",
   "@dietPlanError": {
     "placeholders": {
-      "error": { "type": "String" }
+      "error": {
+        "type": "String"
+      }
     }
   },
   "dietPlanWeightEvolution": "WEIGHT PROGRESS",
@@ -2633,13 +2010,17 @@
   "onboardingGoalPaceLoss": "Loss Pace: {pace} kg/week",
   "@onboardingGoalPaceLoss": {
     "placeholders": {
-      "pace": { "type": "String" }
+      "pace": {
+        "type": "String"
+      }
     }
   },
   "onboardingGoalPaceGain": "Gain Pace: {pace} kg/week",
   "@onboardingGoalPaceGain": {
     "placeholders": {
-      "pace": { "type": "String" }
+      "pace": {
+        "type": "String"
+      }
     }
   },
   "onboardingWarningUnderweightTarget": "Warning: Target weight results in a BMI under 18.5",
@@ -2659,446 +2040,678 @@
   "onboardingValidationAgeMin": "Age must be at least 15",
   "@onboardingValidationAgeMin": {},
   "onboardingValidationAgeMax": "Age must be at most 100",
-      "onboardingValidationAgeMax": "Age must be at most 100",
-    "@onboardingValidationAgeMax": {},
-
-    "beautyAnalyticsTitle": "Beauty & Rituals Tracking",
-    "@beautyAnalyticsTitle": {},
-    "beautyAnalyticsNewCheckinTooltip": "New Beauty Check-In",
-    "@beautyAnalyticsNewCheckinTooltip": {},
-    "beautyAnalyticsHeaderBadge": "DIAGNOSTIC & RITUAL TRACKING",
-    "@beautyAnalyticsHeaderBadge": {},
-    "beautyAnalyticsHeaderTitle": "Beauty Dashboard 👑",
-    "@beautyAnalyticsHeaderTitle": {},
-    "beautyAnalyticsHeaderSubtitle": "Analyze your ritual consistency, hair growth and complexion evolution.",
-    "@beautyAnalyticsHeaderSubtitle": {},
-    "beautyAnalyticsTimeframe7d": "7 Days",
-    "@beautyAnalyticsTimeframe7d": {},
-    "beautyAnalyticsTimeframe30d": "30 Days",
-    "@beautyAnalyticsTimeframe30d": {},
-    "beautyAnalyticsTimeframe90d": "90 Days",
-    "@beautyAnalyticsTimeframe90d": {},
-    "beautyAnalyticsTimeframeAll": "All",
-    "@beautyAnalyticsTimeframeAll": {},
-    "beautyAnalyticsNewCheckinFab": "New Check-In",
-    "@beautyAnalyticsNewCheckinFab": {},
-    "beautyAnalyticsAdherenceLabel": "Ritual Adherence",
-    "@beautyAnalyticsAdherenceLabel": {},
-    "beautyAnalyticsAdherenceFraction": "({completed}/{total} treatments)",
-    "@beautyAnalyticsAdherenceFraction": {
-      "placeholders": { "completed": { "type": "String" }, "total": { "type": "String" } }
-    },
-    "beautyAnalyticsLoadError": "Error loading check-ins: {error}",
-    "@beautyAnalyticsLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "beautyAnalyticsHairSectionTitle": "Hair Diagnostic 👑",
-    "@beautyAnalyticsHairSectionTitle": {},
-    "beautyAnalyticsHairLengthLabel": "Length",
-    "@beautyAnalyticsHairLengthLabel": {},
-    "beautyAnalyticsValueCm": "{value} cm",
-    "@beautyAnalyticsValueCm": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsValueOutOfTen": "{value}/10",
-    "@beautyAnalyticsValueOutOfTen": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairLengthGrowthPositive": "+{value} cm gained",
-    "@beautyAnalyticsHairLengthGrowthPositive": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairLengthGrowthNegative": "{value} cm",
-    "@beautyAnalyticsHairLengthGrowthNegative": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsHairStrengthLabel": "Strength & Density",
-    "@beautyAnalyticsHairStrengthLabel": {},
-    "beautyAnalyticsHairStrengthSubtitle": "Resistance score",
-    "@beautyAnalyticsHairStrengthSubtitle": {},
-    "beautyAnalyticsSheddingLabel": "Shedding Level (Anti-Breakage)",
-    "@beautyAnalyticsSheddingLabel": {},
-    "beautyAnalyticsSheddingModerate": "Moderate",
-    "@beautyAnalyticsSheddingModerate": {},
-    "beautyAnalyticsSheddingLow": "Low (Ideal)",
-    "@beautyAnalyticsSheddingLow": {},
-    "beautyAnalyticsSheddingHigh": "High (Attention)",
-    "@beautyAnalyticsSheddingHigh": {},
-    "beautyAnalyticsSkinSectionTitle": "Skin Diagnostic ✨",
-    "@beautyAnalyticsSkinSectionTitle": {},
-    "beautyAnalyticsSkinHydrationLabel": "Skin Hydration",
-    "@beautyAnalyticsSkinHydrationLabel": {},
-    "beautyAnalyticsSkinHydrationSubtitle": "Moisture barrier",
-    "@beautyAnalyticsSkinHydrationSubtitle": {},
-    "beautyAnalyticsSkinClarityLabel": "Radiance & Complexion",
-    "@beautyAnalyticsSkinClarityLabel": {},
-    "beautyAnalyticsSkinClaritySubtitle": "Skin clarity",
-    "@beautyAnalyticsSkinClaritySubtitle": {},
-    "beautyAnalyticsHistoryTitle": "Log History 📖",
-    "@beautyAnalyticsHistoryTitle": {},
-    "beautyAnalyticsHistoryCount": "{count, plural, one{{count} log} other{{count} logs}}",
-    "@beautyAnalyticsHistoryCount": {
-      "placeholders": { "count": { "type": "int" } }
-    },
-    "beautyAnalyticsHistoryEmpty": "No beauty check-ins recorded yet.",
-    "@beautyAnalyticsHistoryEmpty": {},
-    "beautyAnalyticsHistoryEntryNumber": "Check-In #{number}",
-    "@beautyAnalyticsHistoryEntryNumber": {
-      "placeholders": { "number": { "type": "String" } }
-    },
-    "beautyAnalyticsChipLength": "📏 {value} cm",
-    "@beautyAnalyticsChipLength": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipStrength": "💪 Strength: {value}/10",
-    "@beautyAnalyticsChipStrength": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipHydration": "💧 Hydration: {value}/10",
-    "@beautyAnalyticsChipHydration": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyAnalyticsChipClarity": "✨ Radiance: {value}/10",
-    "@beautyAnalyticsChipClarity": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-
-    "beautyOnboardingTitle": "Botanical Beauty Profile",
-    "@beautyOnboardingTitle": {},
-    "beautyOnboardingBackButton": "Back",
-    "@beautyOnboardingBackButton": {},
-    "beautyOnboardingNextButton": "Next Step ➔",
-    "@beautyOnboardingNextButton": {},
-    "beautyOnboardingSubmitButton": "Confirm & Generate My 30-Day Plan ✨",
-    "@beautyOnboardingSubmitButton": {},
-    "beautyOnboardingStep1Title": "👑 Hair Fingerprint",
-    "@beautyOnboardingStep1Title": {},
-    "beautyOnboardingStep1Subtitle": "Define the precise composition and porosity of your hair to personalize your botanical care.",
-    "@beautyOnboardingStep1Subtitle": {},
-    "beautyOnboardingHairCompositionLabel": "Hair Composition & Texture",
-    "@beautyOnboardingHairCompositionLabel": {},
-    "beautyOnboardingHairType4c": "4C — Very Tight Coily (Z-Pattern, Strong Shrinkage)",
-    "@beautyOnboardingHairType4c": {},
-    "beautyOnboardingHairType4b": "4B — Zigzag Coily (Defined Z-Shaped Curls)",
-    "@beautyOnboardingHairType4b": {},
-    "beautyOnboardingHairType4a": "4A — S-Pattern Coily (Dense Spirals)",
-    "@beautyOnboardingHairType4a": {},
-    "beautyOnboardingHairType3c": "3C — Dense Curly (Tight Spirals)",
-    "@beautyOnboardingHairType3c": {},
-    "beautyOnboardingHairType3b": "3B — Tight Corkscrew Curls",
-    "@beautyOnboardingHairType3b": {},
-    "beautyOnboardingHairType3a": "3A — Loose, Soft Curls",
-    "@beautyOnboardingHairType3a": {},
-    "beautyOnboardingHairType2c": "2C — Thick Waves",
-    "@beautyOnboardingHairType2c": {},
-    "beautyOnboardingHairType2b": "2B — Defined Waves",
-    "@beautyOnboardingHairType2b": {},
-    "beautyOnboardingHairType2a": "2A — Light Waves",
-    "@beautyOnboardingHairType2a": {},
-    "beautyOnboardingHairType1c": "1C — Thick Straight Hair",
-    "@beautyOnboardingHairType1c": {},
-    "beautyOnboardingHairType1b": "1B — Medium Straight Hair",
-    "@beautyOnboardingHairType1b": {},
-    "beautyOnboardingHairType1a": "1A — Very Fine Straight Hair",
-    "@beautyOnboardingHairType1a": {},
-    "beautyOnboardingHairTypeLocks": "Locks / Dreadlocks (Locked)",
-    "@beautyOnboardingHairTypeLocks": {},
-    "beautyOnboardingHairTypeTransition": "Transitioning Hair (Post-Relaxer)",
-    "@beautyOnboardingHairTypeTransition": {},
-    "beautyOnboardingHairTypeProtective": "Care Under Braids / Wig",
-    "@beautyOnboardingHairTypeProtective": {},
-    "beautyOnboardingPorosityLabel": "Hair Porosity",
-    "@beautyOnboardingPorosityLabel": {},
-    "beautyOnboardingPorosityLow": "Low (Closed cuticles)",
-    "@beautyOnboardingPorosityLow": {},
-    "beautyOnboardingPorosityMedium": "Medium (Perfect balance)",
-    "@beautyOnboardingPorosityMedium": {},
-    "beautyOnboardingPorosityHigh": "Highly Porous (Open cuticles)",
-    "@beautyOnboardingPorosityHigh": {},
-    "beautyOnboardingScalpLabel": "Scalp Condition",
-    "@beautyOnboardingScalpLabel": {},
-    "beautyOnboardingScalpNormal": "Normal / Balanced",
-    "@beautyOnboardingScalpNormal": {},
-    "beautyOnboardingScalpDry": "Dry & Itchy",
-    "@beautyOnboardingScalpDry": {},
-    "beautyOnboardingScalpOily": "Oily / Dandruff",
-    "@beautyOnboardingScalpOily": {},
-    "beautyOnboardingScalpSensitive": "Sensitive / Irritated",
-    "@beautyOnboardingScalpSensitive": {},
-    "beautyOnboardingStep2Title": "✨ Deep Skin Diagnostic",
-    "@beautyOnboardingStep2Title": {},
-    "beautyOnboardingStep2Subtitle": "Analyze the overall typology and specific challenges of your skin (face & body).",
-    "@beautyOnboardingStep2Subtitle": {},
-    "beautyOnboardingSkinTypeLabel": "Skin Composition & Typology",
-    "@beautyOnboardingSkinTypeLabel": {},
-    "beautyOnboardingSkinTypeMixte": "Combination Skin (Shiny T-Zone, normal/dry cheeks)",
-    "@beautyOnboardingSkinTypeMixte": {},
-    "beautyOnboardingSkinTypeSeche": "Dry & Dehydrated Skin (Tightness & flaking)",
-    "@beautyOnboardingSkinTypeSeche": {},
-    "beautyOnboardingSkinTypeGrasse": "Oily & Acne-Prone Skin (Excess sebum, enlarged pores)",
-    "@beautyOnboardingSkinTypeGrasse": {},
-    "beautyOnboardingSkinTypeSensible": "Sensitive & Reactive Skin (Redness, rosacea)",
-    "@beautyOnboardingSkinTypeSensible": {},
-    "beautyOnboardingSkinTypeHyperpigmentation": "Hyperpigmentation-Prone Skin (Dark spots, melasma)",
-    "@beautyOnboardingSkinTypeHyperpigmentation": {},
-    "beautyOnboardingSkinTypeMature": "Mature Skin (Loss of firmness & expression lines)",
-    "@beautyOnboardingSkinTypeMature": {},
-    "beautyOnboardingSkinTypeNormale": "Normal / Balanced Skin",
-    "@beautyOnboardingSkinTypeNormale": {},
-    "beautyOnboardingSkinConcernsLabel": "Skin Concerns (Face & Neckline)",
-    "@beautyOnboardingSkinConcernsLabel": {},
-    "beautyOnboardingConcernHyperpigmentation": "🌖 Dark Spots & Uneven Tone",
-    "@beautyOnboardingConcernHyperpigmentation": {},
-    "beautyOnboardingConcernAcne": "🌋 Blemishes & Imperfections",
-    "@beautyOnboardingConcernAcne": {},
-    "beautyOnboardingConcernDehydration": "💧 Deep Dehydration & Loss of Radiance",
-    "@beautyOnboardingConcernDehydration": {},
-    "beautyOnboardingConcernBarrier": "🛡️ Weakened Skin Barrier & Sensitivity",
-    "@beautyOnboardingConcernBarrier": {},
-    "beautyOnboardingConcernSebum": "✨ Excess Shine & Enlarged Pores",
-    "@beautyOnboardingConcernSebum": {},
-    "beautyOnboardingConcernAging": "🌿 Loss of Elasticity & Expression Lines",
-    "@beautyOnboardingConcernAging": {},
-    "beautyOnboardingBodyProfileLabel": "Body Specifics",
-    "@beautyOnboardingBodyProfileLabel": {},
-    "beautyOnboardingBodyNormal": "Normal / No Issues",
-    "@beautyOnboardingBodyNormal": {},
-    "beautyOnboardingBodyKeratose": "Keratosis Pilaris (Goosebumps)",
-    "@beautyOnboardingBodyKeratose": {},
-    "beautyOnboardingBodyEczema": "Eczema / Prone to Flare-ups",
-    "@beautyOnboardingBodyEczema": {},
-    "beautyOnboardingBodyVergetures": "Stretch Mark Prevention",
-    "@beautyOnboardingBodyVergetures": {},
-    "beautyOnboardingBodyDrySkin": "Very Dry Body Skin (Crocodile)",
-    "@beautyOnboardingBodyDrySkin": {},
-    "beautyOnboardingStep3Title": "🌱 Beauty Goals & Priorities",
-    "@beautyOnboardingStep3Title": {},
-    "beautyOnboardingStep3Subtitle": "Select your hair and skin priorities to calibrate your 30-day routine.",
-    "@beautyOnboardingStep3Subtitle": {},
-    "beautyOnboardingHairGoalsLabel": "Hair Goals 👑",
-    "@beautyOnboardingHairGoalsLabel": {},
-    "beautyOnboardingGoalHairGrowth": "🌱 Growth, Density & Length",
-    "@beautyOnboardingGoalHairGrowth": {},
-    "beautyOnboardingGoalAntiBreakage": "🛡️ Strength, Retention & Anti-Breakage",
-    "@beautyOnboardingGoalAntiBreakage": {},
-    "beautyOnboardingGoalHairMoisture": "💧 Deep Hydration & Definition",
-    "@beautyOnboardingGoalHairMoisture": {},
-    "beautyOnboardingGoalScalpSoothing": "💆 Scalp Balance & Soothing",
-    "@beautyOnboardingGoalScalpSoothing": {},
-    "beautyOnboardingSkinGoalsLabel": "Skin & Complexion Goals ✨",
-    "@beautyOnboardingSkinGoalsLabel": {},
-    "beautyOnboardingGoalSkinGlow": "✨ Radiance & Even Complexion",
-    "@beautyOnboardingGoalSkinGlow": {},
-    "beautyOnboardingGoalAntiSpot": "🌖 Reducing Spots & Hyperpigmentation",
-    "@beautyOnboardingGoalAntiSpot": {},
-    "beautyOnboardingGoalSkinMoisture": "💧 Hydration & Skin Suppleness",
-    "@beautyOnboardingGoalSkinMoisture": {},
-    "beautyOnboardingGoalAntiImperfection": "🌋 Clarifying & Anti-Blemish",
-    "@beautyOnboardingGoalAntiImperfection": {},
-    "beautyOnboardingGoalSkinBarrier": "🛡️ Strengthening the Skin Barrier",
-    "@beautyOnboardingGoalSkinBarrier": {},
-    "beautyOnboardingStep4Title": "📊 First Baseline Check-In (First Beauty Log)",
-    "@beautyOnboardingStep4Title": {},
-    "beautyOnboardingStep4Subtitle": "Enter your starting measurements and observations. This first log will serve as your baseline to measure your progress over 30 days.",
-    "@beautyOnboardingStep4Subtitle": {},
-    "beautyOnboardingHairLengthLabel": "📏 Current Hair Length",
-    "@beautyOnboardingHairLengthLabel": {},
-    "beautyOnboardingValueCm": "{value} cm",
-    "@beautyOnboardingValueCm": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyOnboardingHairStrengthLabel": "💪 Hair Strength & Resistance",
-    "@beautyOnboardingHairStrengthLabel": {},
-    "beautyOnboardingValueOutOfTen": "{value}/10",
-    "@beautyOnboardingValueOutOfTen": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyOnboardingSheddingRateLabel": "📊 Current Shedding Rate",
-    "@beautyOnboardingSheddingRateLabel": {},
-    "beautyOnboardingSheddingLow": "Low",
-    "@beautyOnboardingSheddingLow": {},
-    "beautyOnboardingSheddingModerate": "Moderate",
-    "@beautyOnboardingSheddingModerate": {},
-    "beautyOnboardingSheddingHigh": "High",
-    "@beautyOnboardingSheddingHigh": {},
-    "beautyOnboardingSkinHydrationLabel": "💧 Skin Hydration Level",
-    "@beautyOnboardingSkinHydrationLabel": {},
-    "beautyOnboardingSkinClarityLabel": "✨ Complexion Radiance & Clarity",
-    "@beautyOnboardingSkinClarityLabel": {},
-    "beautyOnboardingNotesLabel": "📝 Initial Notes & Observations",
-    "@beautyOnboardingNotesLabel": {},
-    "beautyOnboardingNotesHint": "Notes on the condition of your hair and skin...",
-    "@beautyOnboardingNotesHint": {},
-    "beautyOnboardingDefaultNotes": "Initial beauty profile check-in",
-    "@beautyOnboardingDefaultNotes": {},
-    "beautyOnboardingSummaryTitle": "📋 Summary & Confirmation",
-    "@beautyOnboardingSummaryTitle": {},
-    "beautyOnboardingSummarySubtitle": "Review your beauty profile summary before activating your personalized 30-day program.",
-    "@beautyOnboardingSummarySubtitle": {},
-    "beautyOnboardingSummaryHairCardTitle": "👑 Hair Profile",
-    "@beautyOnboardingSummaryHairCardTitle": {},
-    "beautyOnboardingSummaryHairTypeRow": "Texture / Type:",
-    "@beautyOnboardingSummaryHairTypeRow": {},
-    "beautyOnboardingSummaryPorosityRow": "Porosity:",
-    "@beautyOnboardingSummaryPorosityRow": {},
-    "beautyOnboardingSummaryPorosityLowValue": "Low",
-    "@beautyOnboardingSummaryPorosityLowValue": {},
-    "beautyOnboardingSummaryPorosityHighValue": "Porous",
-    "@beautyOnboardingSummaryPorosityHighValue": {},
-    "beautyOnboardingSummaryPorosityMediumValue": "Medium",
-    "@beautyOnboardingSummaryPorosityMediumValue": {},
-    "beautyOnboardingSummaryScalpRow": "Scalp:",
-    "@beautyOnboardingSummaryScalpRow": {},
-    "beautyOnboardingSummaryScalpDryValue": "Dry",
-    "@beautyOnboardingSummaryScalpDryValue": {},
-    "beautyOnboardingSummaryScalpOilyValue": "Oily",
-    "@beautyOnboardingSummaryScalpOilyValue": {},
-    "beautyOnboardingSummaryScalpSensitiveValue": "Sensitive",
-    "@beautyOnboardingSummaryScalpSensitiveValue": {},
-    "beautyOnboardingSummaryScalpNormalValue": "Normal",
-    "@beautyOnboardingSummaryScalpNormalValue": {},
-    "beautyOnboardingSummarySkinCardTitle": "✨ Skin Diagnostic",
-    "@beautyOnboardingSummarySkinCardTitle": {},
-    "beautyOnboardingSummarySkinTypeRow": "Typology:",
-    "@beautyOnboardingSummarySkinTypeRow": {},
-    "beautyOnboardingSummaryConcernsRow": "Concerns:",
-    "@beautyOnboardingSummaryConcernsRow": {},
-    "beautyOnboardingSummaryConcernsNone": "None",
-    "@beautyOnboardingSummaryConcernsNone": {},
-    "beautyOnboardingSummaryBodyProfileRow": "Body Specifics:",
-    "@beautyOnboardingSummaryBodyProfileRow": {},
-    "beautyOnboardingSummaryGoalsCardTitle": "🌱 Selected Goals",
-    "@beautyOnboardingSummaryGoalsCardTitle": {},
-    "beautyOnboardingSummaryFirstLogCardTitle": "📊 First Check-In Measurements",
-    "@beautyOnboardingSummaryFirstLogCardTitle": {},
-    "beautyOnboardingSummaryHairLengthRow": "Hair Length:",
-    "@beautyOnboardingSummaryHairLengthRow": {},
-    "beautyOnboardingSummaryHairStrengthRow": "Hair Strength:",
-    "@beautyOnboardingSummaryHairStrengthRow": {},
-    "beautyOnboardingSummarySheddingRow": "Shedding Rate:",
-    "@beautyOnboardingSummarySheddingRow": {},
-    "beautyOnboardingSummarySkinHydrationRow": "Skin Hydration:",
-    "@beautyOnboardingSummarySkinHydrationRow": {},
-    "beautyOnboardingSummaryClarityRow": "Complexion Radiance:",
-    "@beautyOnboardingSummaryClarityRow": {},
-    "beautyOnboardingSummaryNotesRow": "Notes:",
-    "@beautyOnboardingSummaryNotesRow": {},
-    "beautyOnboardingSummaryEditTooltip": "Edit",
-    "@beautyOnboardingSummaryEditTooltip": {},
-    "beautyOnboardingSaveErrorSnackbar": "Error saving: {error}",
-    "@beautyOnboardingSaveErrorSnackbar": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-
-    "beautyCheckinTitle": "Beauty Check-In & Evolution",
-    "@beautyCheckinTitle": {},
-    "beautyCheckinSubtitle": "Record your monthly hair length and skin barrier check-in.",
-    "@beautyCheckinSubtitle": {},
-    "beautyCheckinHairLengthLabel": "Hair Length: {value} cm",
-    "@beautyCheckinHairLengthLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinHairStrengthLabel": "Hair Strength Score: {value} / 10",
-    "@beautyCheckinHairStrengthLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinHairThicknessLabel": "Hair Thickness Score: {value} / 10",
-    "@beautyCheckinHairThicknessLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinSkinHydrationLabel": "Skin Hydration Level: {value} / 10",
-    "@beautyCheckinSkinHydrationLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinSkinClarityLabel": "Skin Clarity Score: {value} / 10",
-    "@beautyCheckinSkinClarityLabel": {
-      "placeholders": { "value": { "type": "String" } }
-    },
-    "beautyCheckinNotesLabel": "Check-in Journal Notes (Optional)",
-    "@beautyCheckinNotesLabel": {},
-    "beautyCheckinNotesHint": "e.g. Hair feeling noticeably softer after Chébé mask!",
-    "@beautyCheckinNotesHint": {},
-    "beautyCheckinSaveButton": "Save Progress Check-In",
-    "@beautyCheckinSaveButton": {},
-    "beautyCheckinSheddingLabel": "Hair Shedding Rate",
-    "@beautyCheckinSheddingLabel": {},
-    "beautyCheckinSheddingLow": "Low",
-    "@beautyCheckinSheddingLow": {},
-    "beautyCheckinSheddingModerate": "Moderate",
-    "@beautyCheckinSheddingModerate": {},
-    "beautyCheckinSheddingHigh": "High",
-    "@beautyCheckinSheddingHigh": {},
-
-    "todayBeautyRoutinesTitle": "Today's Rituals 👑",
-    "@todayBeautyRoutinesTitle": {},
-    "todayBeautyRoutinesPlanningLink": "Plan (30d)",
-    "@todayBeautyRoutinesPlanningLink": {},
-    "todayBeautyRoutinesEmptyTitle": "No rituals today",
-    "@todayBeautyRoutinesEmptyTitle": {},
-    "todayBeautyRoutinesEmptySubtitle": "Generate your monthly plan in the Routine tab.",
-    "@todayBeautyRoutinesEmptySubtitle": {},
-    "todayBeautyRoutinesRestDay": "Rest day for your scalp & skin!",
-    "@todayBeautyRoutinesRestDay": {},
-    "todayBeautyRoutinesLoadError": "Error loading rituals: {error}",
-    "@todayBeautyRoutinesLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "todayBeautyRoutinesTierLabel": "Tier: {tier}",
-    "@todayBeautyRoutinesTierLabel": {
-      "placeholders": { "tier": { "type": "String" } }
-    },
-    "todayBeautyRoutinesDefaultLabel": "Ritual",
-    "@todayBeautyRoutinesDefaultLabel": {},
-
-    "beautyPlannerLoadError": "Error loading care plan: {error}",
-    "@beautyPlannerLoadError": {
-      "placeholders": { "error": { "type": "String" } }
-    },
-    "beautyPlannerHeaderTitle": "My Monthly Care Plan",
-    "@beautyPlannerHeaderTitle": {},
-    "beautyPlannerHeaderSubtitle": "Personalized hair & skin care routines (30 days).",
-    "@beautyPlannerHeaderSubtitle": {},
-    "beautyPlannerDailySectionTitle": "💧 Daily Care (Hydration)",
-    "@beautyPlannerDailySectionTitle": {},
-    "beautyPlannerWeeklySectionTitle": "🌿 Weekly Care (Masks & Baths)",
-    "@beautyPlannerWeeklySectionTitle": {},
-    "beautyPlannerMonthlySectionTitle": "✨ Monthly & Protein Care",
-    "@beautyPlannerMonthlySectionTitle": {},
-    "beautyPlannerSectionCount": "{count, plural, one{{count} treatment} other{{count} treatments}}",
-    "@beautyPlannerSectionCount": {
-      "placeholders": { "count": { "type": "int" } }
-    },
-    "beautyPlannerDayLabel": "Day {day}",
-    "@beautyPlannerDayLabel": {
-      "placeholders": { "day": { "type": "String" } }
-    },
-    "beautyPlannerEmptyTitle": "No Active Care Plan",
-    "@beautyPlannerEmptyTitle": {},
-    "beautyPlannerEmptySubtitle": "Generate your monthly hair and skin care routine tailored to your profile.",
-    "@beautyPlannerEmptySubtitle": {},
-    "beautyPlannerGenerateButton": "Generate My Beauty Plan",
-    "@beautyPlannerGenerateButton": {},
-
-    "colorSetModalTitle": "Customize Color Theme",
-    "@colorSetModalTitle": {},
-    "colorSetModalSubtitle": "Select a Primary & Secondary color palette.",
-    "@colorSetModalSubtitle": {},
-    "colorSetModalPresetTealName": "Teal & Amber (Nutrition)",
-    "@colorSetModalPresetTealName": {},
-    "colorSetModalPresetTealDesc": "Balanced, healthy and energizing.",
-    "@colorSetModalPresetTealDesc": {},
-    "colorSetModalPresetRoseName": "Rose & Gold (Beauty)",
-    "@colorSetModalPresetRoseName": {},
-    "colorSetModalPresetRoseDesc": "Editorial luxury, organic care & radiance.",
-    "@colorSetModalPresetRoseDesc": {},
-    "colorSetModalPresetSageName": "Sage & Bronze (Botanical)",
-    "@colorSetModalPresetSageName": {},
-    "colorSetModalPresetSageDesc": "Ancestral plants & nature.",
-    "@colorSetModalPresetSageDesc": {},
-    "colorSetModalPresetTerracottaName": "Terracotta & Clay (Sun)",
-    "@colorSetModalPresetTerracottaName": {},
-    "colorSetModalPresetTerracottaDesc": "Earthy African tones & warmth.",
-    "@colorSetModalPresetTerracottaDesc": {},
-    "colorSetModalApplyButton": "Apply This Palette",
-    "@colorSetModalApplyButton": {}
+  "@onboardingValidationAgeMax": {},
+  "beautyAnalyticsTitle": "Beauty & Rituals Tracking",
+  "@beautyAnalyticsTitle": {},
+  "beautyAnalyticsNewCheckinTooltip": "New Beauty Check-In",
+  "@beautyAnalyticsNewCheckinTooltip": {},
+  "beautyAnalyticsHeaderBadge": "DIAGNOSTIC & RITUAL TRACKING",
+  "@beautyAnalyticsHeaderBadge": {},
+  "beautyAnalyticsHeaderTitle": "Beauty Dashboard 👑",
+  "@beautyAnalyticsHeaderTitle": {},
+  "beautyAnalyticsHeaderSubtitle": "Analyze your ritual consistency, hair growth and complexion evolution.",
+  "@beautyAnalyticsHeaderSubtitle": {},
+  "beautyAnalyticsTimeframe7d": "7 Days",
+  "@beautyAnalyticsTimeframe7d": {},
+  "beautyAnalyticsTimeframe30d": "30 Days",
+  "@beautyAnalyticsTimeframe30d": {},
+  "beautyAnalyticsTimeframe90d": "90 Days",
+  "@beautyAnalyticsTimeframe90d": {},
+  "beautyAnalyticsTimeframeAll": "All",
+  "@beautyAnalyticsTimeframeAll": {},
+  "beautyAnalyticsNewCheckinFab": "New Check-In",
+  "@beautyAnalyticsNewCheckinFab": {},
+  "beautyAnalyticsAdherenceLabel": "Ritual Adherence",
+  "@beautyAnalyticsAdherenceLabel": {},
+  "beautyAnalyticsAdherenceFraction": "({completed}/{total} treatments)",
+  "@beautyAnalyticsAdherenceFraction": {
+    "placeholders": {
+      "completed": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsLoadError": "Error loading check-ins: {error}",
+  "@beautyAnalyticsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairSectionTitle": "Hair Diagnostic 👑",
+  "@beautyAnalyticsHairSectionTitle": {},
+  "beautyAnalyticsHairLengthLabel": "Length",
+  "@beautyAnalyticsHairLengthLabel": {},
+  "beautyAnalyticsValueCm": "{value} cm",
+  "@beautyAnalyticsValueCm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsValueOutOfTen": "{value}/10",
+  "@beautyAnalyticsValueOutOfTen": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairLengthGrowthPositive": "+{value} cm gained",
+  "@beautyAnalyticsHairLengthGrowthPositive": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairLengthGrowthNegative": "{value} cm",
+  "@beautyAnalyticsHairLengthGrowthNegative": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsHairStrengthLabel": "Strength & Density",
+  "@beautyAnalyticsHairStrengthLabel": {},
+  "beautyAnalyticsHairStrengthSubtitle": "Resistance score",
+  "@beautyAnalyticsHairStrengthSubtitle": {},
+  "beautyAnalyticsSheddingLabel": "Shedding Level (Anti-Breakage)",
+  "@beautyAnalyticsSheddingLabel": {},
+  "beautyAnalyticsSheddingModerate": "Moderate",
+  "@beautyAnalyticsSheddingModerate": {},
+  "beautyAnalyticsSheddingLow": "Low (Ideal)",
+  "@beautyAnalyticsSheddingLow": {},
+  "beautyAnalyticsSheddingHigh": "High (Attention)",
+  "@beautyAnalyticsSheddingHigh": {},
+  "beautyAnalyticsSkinSectionTitle": "Skin Diagnostic ✨",
+  "@beautyAnalyticsSkinSectionTitle": {},
+  "beautyAnalyticsSkinHydrationLabel": "Skin Hydration",
+  "@beautyAnalyticsSkinHydrationLabel": {},
+  "beautyAnalyticsSkinHydrationSubtitle": "Moisture barrier",
+  "@beautyAnalyticsSkinHydrationSubtitle": {},
+  "beautyAnalyticsSkinClarityLabel": "Radiance & Complexion",
+  "@beautyAnalyticsSkinClarityLabel": {},
+  "beautyAnalyticsSkinClaritySubtitle": "Skin clarity",
+  "@beautyAnalyticsSkinClaritySubtitle": {},
+  "beautyAnalyticsHistoryTitle": "Log History 📖",
+  "@beautyAnalyticsHistoryTitle": {},
+  "beautyAnalyticsHistoryCount": "{count, plural, one{{count} log} other{{count} logs}}",
+  "@beautyAnalyticsHistoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beautyAnalyticsHistoryEmpty": "No beauty check-ins recorded yet.",
+  "@beautyAnalyticsHistoryEmpty": {},
+  "beautyAnalyticsHistoryEntryNumber": "Check-In #{number}",
+  "@beautyAnalyticsHistoryEntryNumber": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipLength": "📏 {value} cm",
+  "@beautyAnalyticsChipLength": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipStrength": "💪 Strength: {value}/10",
+  "@beautyAnalyticsChipStrength": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipHydration": "💧 Hydration: {value}/10",
+  "@beautyAnalyticsChipHydration": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyAnalyticsChipClarity": "✨ Radiance: {value}/10",
+  "@beautyAnalyticsChipClarity": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingTitle": "Botanical Beauty Profile",
+  "@beautyOnboardingTitle": {},
+  "beautyOnboardingBackButton": "Back",
+  "@beautyOnboardingBackButton": {},
+  "beautyOnboardingNextButton": "Next Step ➔",
+  "@beautyOnboardingNextButton": {},
+  "beautyOnboardingSubmitButton": "Confirm & Generate My 30-Day Plan ✨",
+  "@beautyOnboardingSubmitButton": {},
+  "beautyOnboardingStep1Title": "👑 Hair Fingerprint",
+  "@beautyOnboardingStep1Title": {},
+  "beautyOnboardingStep1Subtitle": "Define the precise composition and porosity of your hair to personalize your botanical care.",
+  "@beautyOnboardingStep1Subtitle": {},
+  "beautyOnboardingHairCompositionLabel": "Hair Composition & Texture",
+  "@beautyOnboardingHairCompositionLabel": {},
+  "beautyOnboardingHairType4c": "4C — Very Tight Coily (Z-Pattern, Strong Shrinkage)",
+  "@beautyOnboardingHairType4c": {},
+  "beautyOnboardingHairType4b": "4B — Zigzag Coily (Defined Z-Shaped Curls)",
+  "@beautyOnboardingHairType4b": {},
+  "beautyOnboardingHairType4a": "4A — S-Pattern Coily (Dense Spirals)",
+  "@beautyOnboardingHairType4a": {},
+  "beautyOnboardingHairType3c": "3C — Dense Curly (Tight Spirals)",
+  "@beautyOnboardingHairType3c": {},
+  "beautyOnboardingHairType3b": "3B — Tight Corkscrew Curls",
+  "@beautyOnboardingHairType3b": {},
+  "beautyOnboardingHairType3a": "3A — Loose, Soft Curls",
+  "@beautyOnboardingHairType3a": {},
+  "beautyOnboardingHairType2c": "2C — Thick Waves",
+  "@beautyOnboardingHairType2c": {},
+  "beautyOnboardingHairType2b": "2B — Defined Waves",
+  "@beautyOnboardingHairType2b": {},
+  "beautyOnboardingHairType2a": "2A — Light Waves",
+  "@beautyOnboardingHairType2a": {},
+  "beautyOnboardingHairType1c": "1C — Thick Straight Hair",
+  "@beautyOnboardingHairType1c": {},
+  "beautyOnboardingHairType1b": "1B — Medium Straight Hair",
+  "@beautyOnboardingHairType1b": {},
+  "beautyOnboardingHairType1a": "1A — Very Fine Straight Hair",
+  "@beautyOnboardingHairType1a": {},
+  "beautyOnboardingHairTypeLocks": "Locks / Dreadlocks (Locked)",
+  "@beautyOnboardingHairTypeLocks": {},
+  "beautyOnboardingHairTypeTransition": "Transitioning Hair (Post-Relaxer)",
+  "@beautyOnboardingHairTypeTransition": {},
+  "beautyOnboardingHairTypeProtective": "Care Under Braids / Wig",
+  "@beautyOnboardingHairTypeProtective": {},
+  "beautyOnboardingPorosityLabel": "Hair Porosity",
+  "@beautyOnboardingPorosityLabel": {},
+  "beautyOnboardingPorosityLow": "Low (Closed cuticles)",
+  "@beautyOnboardingPorosityLow": {},
+  "beautyOnboardingPorosityMedium": "Medium (Perfect balance)",
+  "@beautyOnboardingPorosityMedium": {},
+  "beautyOnboardingPorosityHigh": "Highly Porous (Open cuticles)",
+  "@beautyOnboardingPorosityHigh": {},
+  "beautyOnboardingScalpLabel": "Scalp Condition",
+  "@beautyOnboardingScalpLabel": {},
+  "beautyOnboardingScalpNormal": "Normal / Balanced",
+  "@beautyOnboardingScalpNormal": {},
+  "beautyOnboardingScalpDry": "Dry & Itchy",
+  "@beautyOnboardingScalpDry": {},
+  "beautyOnboardingScalpOily": "Oily / Dandruff",
+  "@beautyOnboardingScalpOily": {},
+  "beautyOnboardingScalpSensitive": "Sensitive / Irritated",
+  "@beautyOnboardingScalpSensitive": {},
+  "beautyOnboardingStep2Title": "✨ Deep Skin Diagnostic",
+  "@beautyOnboardingStep2Title": {},
+  "beautyOnboardingStep2Subtitle": "Analyze the overall typology and specific challenges of your skin (face & body).",
+  "@beautyOnboardingStep2Subtitle": {},
+  "beautyOnboardingSkinTypeLabel": "Skin Composition & Typology",
+  "@beautyOnboardingSkinTypeLabel": {},
+  "beautyOnboardingSkinTypeMixte": "Combination Skin (Shiny T-Zone, normal/dry cheeks)",
+  "@beautyOnboardingSkinTypeMixte": {},
+  "beautyOnboardingSkinTypeSeche": "Dry & Dehydrated Skin (Tightness & flaking)",
+  "@beautyOnboardingSkinTypeSeche": {},
+  "beautyOnboardingSkinTypeGrasse": "Oily & Acne-Prone Skin (Excess sebum, enlarged pores)",
+  "@beautyOnboardingSkinTypeGrasse": {},
+  "beautyOnboardingSkinTypeSensible": "Sensitive & Reactive Skin (Redness, rosacea)",
+  "@beautyOnboardingSkinTypeSensible": {},
+  "beautyOnboardingSkinTypeHyperpigmentation": "Hyperpigmentation-Prone Skin (Dark spots, melasma)",
+  "@beautyOnboardingSkinTypeHyperpigmentation": {},
+  "beautyOnboardingSkinTypeMature": "Mature Skin (Loss of firmness & expression lines)",
+  "@beautyOnboardingSkinTypeMature": {},
+  "beautyOnboardingSkinTypeNormale": "Normal / Balanced Skin",
+  "@beautyOnboardingSkinTypeNormale": {},
+  "beautyOnboardingSkinConcernsLabel": "Skin Concerns (Face & Neckline)",
+  "@beautyOnboardingSkinConcernsLabel": {},
+  "beautyOnboardingConcernHyperpigmentation": "🌖 Dark Spots & Uneven Tone",
+  "@beautyOnboardingConcernHyperpigmentation": {},
+  "beautyOnboardingConcernAcne": "🌋 Blemishes & Imperfections",
+  "@beautyOnboardingConcernAcne": {},
+  "beautyOnboardingConcernDehydration": "💧 Deep Dehydration & Loss of Radiance",
+  "@beautyOnboardingConcernDehydration": {},
+  "beautyOnboardingConcernBarrier": "🛡️ Weakened Skin Barrier & Sensitivity",
+  "@beautyOnboardingConcernBarrier": {},
+  "beautyOnboardingConcernSebum": "✨ Excess Shine & Enlarged Pores",
+  "@beautyOnboardingConcernSebum": {},
+  "beautyOnboardingConcernAging": "🌿 Loss of Elasticity & Expression Lines",
+  "@beautyOnboardingConcernAging": {},
+  "beautyOnboardingBodyProfileLabel": "Body Specifics",
+  "@beautyOnboardingBodyProfileLabel": {},
+  "beautyOnboardingBodyNormal": "Normal / No Issues",
+  "@beautyOnboardingBodyNormal": {},
+  "beautyOnboardingBodyKeratose": "Keratosis Pilaris (Goosebumps)",
+  "@beautyOnboardingBodyKeratose": {},
+  "beautyOnboardingBodyEczema": "Eczema / Prone to Flare-ups",
+  "@beautyOnboardingBodyEczema": {},
+  "beautyOnboardingBodyVergetures": "Stretch Mark Prevention",
+  "@beautyOnboardingBodyVergetures": {},
+  "beautyOnboardingBodyDrySkin": "Very Dry Body Skin (Crocodile)",
+  "@beautyOnboardingBodyDrySkin": {},
+  "beautyOnboardingStep3Title": "🌱 Beauty Goals & Priorities",
+  "@beautyOnboardingStep3Title": {},
+  "beautyOnboardingStep3Subtitle": "Select your hair and skin priorities to calibrate your 30-day routine.",
+  "@beautyOnboardingStep3Subtitle": {},
+  "beautyOnboardingHairGoalsLabel": "Hair Goals 👑",
+  "@beautyOnboardingHairGoalsLabel": {},
+  "beautyOnboardingGoalHairGrowth": "🌱 Growth, Density & Length",
+  "@beautyOnboardingGoalHairGrowth": {},
+  "beautyOnboardingGoalAntiBreakage": "🛡️ Strength, Retention & Anti-Breakage",
+  "@beautyOnboardingGoalAntiBreakage": {},
+  "beautyOnboardingGoalHairMoisture": "💧 Deep Hydration & Definition",
+  "@beautyOnboardingGoalHairMoisture": {},
+  "beautyOnboardingGoalScalpSoothing": "💆 Scalp Balance & Soothing",
+  "@beautyOnboardingGoalScalpSoothing": {},
+  "beautyOnboardingSkinGoalsLabel": "Skin & Complexion Goals ✨",
+  "@beautyOnboardingSkinGoalsLabel": {},
+  "beautyOnboardingGoalSkinGlow": "✨ Radiance & Even Complexion",
+  "@beautyOnboardingGoalSkinGlow": {},
+  "beautyOnboardingGoalAntiSpot": "🌖 Reducing Spots & Hyperpigmentation",
+  "@beautyOnboardingGoalAntiSpot": {},
+  "beautyOnboardingGoalSkinMoisture": "💧 Hydration & Skin Suppleness",
+  "@beautyOnboardingGoalSkinMoisture": {},
+  "beautyOnboardingGoalAntiImperfection": "🌋 Clarifying & Anti-Blemish",
+  "@beautyOnboardingGoalAntiImperfection": {},
+  "beautyOnboardingGoalSkinBarrier": "🛡️ Strengthening the Skin Barrier",
+  "@beautyOnboardingGoalSkinBarrier": {},
+  "beautyOnboardingStep4Title": "📊 First Baseline Check-In (First Beauty Log)",
+  "@beautyOnboardingStep4Title": {},
+  "beautyOnboardingStep4Subtitle": "Enter your starting measurements and observations. This first log will serve as your baseline to measure your progress over 30 days.",
+  "@beautyOnboardingStep4Subtitle": {},
+  "beautyOnboardingHairLengthLabel": "📏 Current Hair Length",
+  "@beautyOnboardingHairLengthLabel": {},
+  "beautyOnboardingValueCm": "{value} cm",
+  "@beautyOnboardingValueCm": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingHairStrengthLabel": "💪 Hair Strength & Resistance",
+  "@beautyOnboardingHairStrengthLabel": {},
+  "beautyOnboardingValueOutOfTen": "{value}/10",
+  "@beautyOnboardingValueOutOfTen": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyOnboardingSheddingRateLabel": "📊 Current Shedding Rate",
+  "@beautyOnboardingSheddingRateLabel": {},
+  "beautyOnboardingSheddingLow": "Low",
+  "@beautyOnboardingSheddingLow": {},
+  "beautyOnboardingSheddingModerate": "Moderate",
+  "@beautyOnboardingSheddingModerate": {},
+  "beautyOnboardingSheddingHigh": "High",
+  "@beautyOnboardingSheddingHigh": {},
+  "beautyOnboardingSkinHydrationLabel": "💧 Skin Hydration Level",
+  "@beautyOnboardingSkinHydrationLabel": {},
+  "beautyOnboardingSkinClarityLabel": "✨ Complexion Radiance & Clarity",
+  "@beautyOnboardingSkinClarityLabel": {},
+  "beautyOnboardingNotesLabel": "📝 Initial Notes & Observations",
+  "@beautyOnboardingNotesLabel": {},
+  "beautyOnboardingNotesHint": "Notes on the condition of your hair and skin...",
+  "@beautyOnboardingNotesHint": {},
+  "beautyOnboardingDefaultNotes": "Initial beauty profile check-in",
+  "@beautyOnboardingDefaultNotes": {},
+  "beautyOnboardingSummaryTitle": "📋 Summary & Confirmation",
+  "@beautyOnboardingSummaryTitle": {},
+  "beautyOnboardingSummarySubtitle": "Review your beauty profile summary before activating your personalized 30-day program.",
+  "@beautyOnboardingSummarySubtitle": {},
+  "beautyOnboardingSummaryHairCardTitle": "👑 Hair Profile",
+  "@beautyOnboardingSummaryHairCardTitle": {},
+  "beautyOnboardingSummaryHairTypeRow": "Texture / Type:",
+  "@beautyOnboardingSummaryHairTypeRow": {},
+  "beautyOnboardingSummaryPorosityRow": "Porosity:",
+  "@beautyOnboardingSummaryPorosityRow": {},
+  "beautyOnboardingSummaryPorosityLowValue": "Low",
+  "@beautyOnboardingSummaryPorosityLowValue": {},
+  "beautyOnboardingSummaryPorosityHighValue": "Porous",
+  "@beautyOnboardingSummaryPorosityHighValue": {},
+  "beautyOnboardingSummaryPorosityMediumValue": "Medium",
+  "@beautyOnboardingSummaryPorosityMediumValue": {},
+  "beautyOnboardingSummaryScalpRow": "Scalp:",
+  "@beautyOnboardingSummaryScalpRow": {},
+  "beautyOnboardingSummaryScalpDryValue": "Dry",
+  "@beautyOnboardingSummaryScalpDryValue": {},
+  "beautyOnboardingSummaryScalpOilyValue": "Oily",
+  "@beautyOnboardingSummaryScalpOilyValue": {},
+  "beautyOnboardingSummaryScalpSensitiveValue": "Sensitive",
+  "@beautyOnboardingSummaryScalpSensitiveValue": {},
+  "beautyOnboardingSummaryScalpNormalValue": "Normal",
+  "@beautyOnboardingSummaryScalpNormalValue": {},
+  "beautyOnboardingSummarySkinCardTitle": "✨ Skin Diagnostic",
+  "@beautyOnboardingSummarySkinCardTitle": {},
+  "beautyOnboardingSummarySkinTypeRow": "Typology:",
+  "@beautyOnboardingSummarySkinTypeRow": {},
+  "beautyOnboardingSummaryConcernsRow": "Concerns:",
+  "@beautyOnboardingSummaryConcernsRow": {},
+  "beautyOnboardingSummaryConcernsNone": "None",
+  "@beautyOnboardingSummaryConcernsNone": {},
+  "beautyOnboardingSummaryBodyProfileRow": "Body Specifics:",
+  "@beautyOnboardingSummaryBodyProfileRow": {},
+  "beautyOnboardingSummaryGoalsCardTitle": "🌱 Selected Goals",
+  "@beautyOnboardingSummaryGoalsCardTitle": {},
+  "beautyOnboardingSummaryFirstLogCardTitle": "📊 First Check-In Measurements",
+  "@beautyOnboardingSummaryFirstLogCardTitle": {},
+  "beautyOnboardingSummaryHairLengthRow": "Hair Length:",
+  "@beautyOnboardingSummaryHairLengthRow": {},
+  "beautyOnboardingSummaryHairStrengthRow": "Hair Strength:",
+  "@beautyOnboardingSummaryHairStrengthRow": {},
+  "beautyOnboardingSummarySheddingRow": "Shedding Rate:",
+  "@beautyOnboardingSummarySheddingRow": {},
+  "beautyOnboardingSummarySkinHydrationRow": "Skin Hydration:",
+  "@beautyOnboardingSummarySkinHydrationRow": {},
+  "beautyOnboardingSummaryClarityRow": "Complexion Radiance:",
+  "@beautyOnboardingSummaryClarityRow": {},
+  "beautyOnboardingSummaryNotesRow": "Notes:",
+  "@beautyOnboardingSummaryNotesRow": {},
+  "beautyOnboardingSummaryEditTooltip": "Edit",
+  "@beautyOnboardingSummaryEditTooltip": {},
+  "beautyOnboardingSaveErrorSnackbar": "Error saving: {error}",
+  "@beautyOnboardingSaveErrorSnackbar": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinTitle": "Beauty Check-In & Evolution",
+  "@beautyCheckinTitle": {},
+  "beautyCheckinSubtitle": "Record your monthly hair length and skin barrier check-in.",
+  "@beautyCheckinSubtitle": {},
+  "beautyCheckinHairLengthLabel": "Hair Length: {value} cm",
+  "@beautyCheckinHairLengthLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinHairStrengthLabel": "Hair Strength Score: {value} / 10",
+  "@beautyCheckinHairStrengthLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinHairThicknessLabel": "Hair Thickness Score: {value} / 10",
+  "@beautyCheckinHairThicknessLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinSkinHydrationLabel": "Skin Hydration Level: {value} / 10",
+  "@beautyCheckinSkinHydrationLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinSkinClarityLabel": "Skin Clarity Score: {value} / 10",
+  "@beautyCheckinSkinClarityLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyCheckinNotesLabel": "Check-in Journal Notes (Optional)",
+  "@beautyCheckinNotesLabel": {},
+  "beautyCheckinNotesHint": "e.g. Hair feeling noticeably softer after Chébé mask!",
+  "@beautyCheckinNotesHint": {},
+  "beautyCheckinSaveButton": "Save Progress Check-In",
+  "@beautyCheckinSaveButton": {},
+  "beautyCheckinSheddingLabel": "Hair Shedding Rate",
+  "@beautyCheckinSheddingLabel": {},
+  "beautyCheckinSheddingLow": "Low",
+  "@beautyCheckinSheddingLow": {},
+  "beautyCheckinSheddingModerate": "Moderate",
+  "@beautyCheckinSheddingModerate": {},
+  "beautyCheckinSheddingHigh": "High",
+  "@beautyCheckinSheddingHigh": {},
+  "todayBeautyRoutinesTitle": "Today's Rituals 👑",
+  "@todayBeautyRoutinesTitle": {},
+  "todayBeautyRoutinesPlanningLink": "Plan (30d)",
+  "@todayBeautyRoutinesPlanningLink": {},
+  "todayBeautyRoutinesEmptyTitle": "No rituals today",
+  "@todayBeautyRoutinesEmptyTitle": {},
+  "todayBeautyRoutinesEmptySubtitle": "Generate your monthly plan in the Routine tab.",
+  "@todayBeautyRoutinesEmptySubtitle": {},
+  "todayBeautyRoutinesRestDay": "Rest day for your scalp & skin!",
+  "@todayBeautyRoutinesRestDay": {},
+  "todayBeautyRoutinesLoadError": "Error loading rituals: {error}",
+  "@todayBeautyRoutinesLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBeautyRoutinesTierLabel": "Tier: {tier}",
+  "@todayBeautyRoutinesTierLabel": {
+    "placeholders": {
+      "tier": {
+        "type": "String"
+      }
+    }
+  },
+  "todayBeautyRoutinesDefaultLabel": "Ritual",
+  "@todayBeautyRoutinesDefaultLabel": {},
+  "beautyPlannerLoadError": "Error loading care plan: {error}",
+  "@beautyPlannerLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyPlannerHeaderTitle": "My Monthly Care Plan",
+  "@beautyPlannerHeaderTitle": {},
+  "beautyPlannerHeaderSubtitle": "Personalized hair & skin care routines (30 days).",
+  "@beautyPlannerHeaderSubtitle": {},
+  "beautyPlannerDailySectionTitle": "💧 Daily Care (Hydration)",
+  "@beautyPlannerDailySectionTitle": {},
+  "beautyPlannerWeeklySectionTitle": "🌿 Weekly Care (Masks & Baths)",
+  "@beautyPlannerWeeklySectionTitle": {},
+  "beautyPlannerMonthlySectionTitle": "✨ Monthly & Protein Care",
+  "@beautyPlannerMonthlySectionTitle": {},
+  "beautyPlannerSectionCount": "{count, plural, one{{count} treatment} other{{count} treatments}}",
+  "@beautyPlannerSectionCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "beautyPlannerDayLabel": "Day {day}",
+  "@beautyPlannerDayLabel": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "beautyPlannerEmptyTitle": "No Active Care Plan",
+  "@beautyPlannerEmptyTitle": {},
+  "beautyPlannerEmptySubtitle": "Generate your monthly hair and skin care routine tailored to your profile.",
+  "@beautyPlannerEmptySubtitle": {},
+  "beautyPlannerGenerateButton": "Generate My Beauty Plan",
+  "@beautyPlannerGenerateButton": {},
+  "colorSetModalTitle": "Customize Color Theme",
+  "@colorSetModalTitle": {},
+  "colorSetModalSubtitle": "Select a Primary & Secondary color palette.",
+  "@colorSetModalSubtitle": {},
+  "colorSetModalPresetTealName": "Teal & Amber (Nutrition)",
+  "@colorSetModalPresetTealName": {},
+  "colorSetModalPresetTealDesc": "Balanced, healthy and energizing.",
+  "@colorSetModalPresetTealDesc": {},
+  "colorSetModalPresetRoseName": "Rose & Gold (Beauty)",
+  "@colorSetModalPresetRoseName": {},
+  "colorSetModalPresetRoseDesc": "Editorial luxury, organic care & radiance.",
+  "@colorSetModalPresetRoseDesc": {},
+  "colorSetModalPresetSageName": "Sage & Bronze (Botanical)",
+  "@colorSetModalPresetSageName": {},
+  "colorSetModalPresetSageDesc": "Ancestral plants & nature.",
+  "@colorSetModalPresetSageDesc": {},
+  "colorSetModalPresetTerracottaName": "Terracotta & Clay (Sun)",
+  "@colorSetModalPresetTerracottaName": {},
+  "colorSetModalPresetTerracottaDesc": "Earthy African tones & warmth.",
+  "@colorSetModalPresetTerracottaDesc": {},
+  "colorSetModalApplyButton": "Apply This Palette",
+  "@colorSetModalApplyButton": {},
+  "mainShellTabRoutines": "Routines",
+  "@mainShellTabRoutines": {},
+  "mainShellTabRemedies": "Remedies",
+  "@mainShellTabRemedies": {},
+  "sduiErrorTitle": "Unable to load layout",
+  "@sduiErrorTitle": {},
+  "sduiUnknownError": "Unknown error",
+  "@sduiUnknownError": {},
+  "sduiRetryButton": "Try Again",
+  "@sduiRetryButton": {},
+  "sduiEmptyTitle": "No content for {mode} mode",
+  "@sduiEmptyTitle": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "sduiEmptySubtitle": "Check back later for updates",
+  "@sduiEmptySubtitle": {},
+  "modeSelectorTitle": "App Mode (SDUI)",
+  "@modeSelectorTitle": {},
+  "modeSelectorSubtitle": "Switch between Nutrition and Beauty",
+  "@modeSelectorSubtitle": {},
+  "modeSelectorSwitched": "Switched to {mode} mode",
+  "@modeSelectorSwitched": {
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      }
+    }
+  },
+  "modeDescNutrition": "Meal planning, macros, and adapted recipes",
+  "@modeDescNutrition": {},
+  "modeDescBeauty": "Skin & hair care routines, traditional remedies",
+  "@modeDescBeauty": {},
+  "modeDescHealth": "Health metrics tracking, weight and vitals",
+  "@modeDescHealth": {},
+  "modeDescSport": "Workout programs and activity tracking",
+  "@modeDescSport": {},
+  "modeDescFamily": "Family nutrition and meal management",
+  "@modeDescFamily": {},
+  "closeButton": "Close",
+  "@closeButton": {},
+  "modeNameNutrition": "Nutrition",
+  "@modeNameNutrition": {},
+  "modeNameBeauty": "Beauty",
+  "@modeNameBeauty": {},
+  "modeNameHealth": "Health",
+  "@modeNameHealth": {},
+  "modeNameSport": "Sport",
+  "@modeNameSport": {},
+  "modeNameFamily": "Family",
+  "@modeNameFamily": {},
+  "settingsDiagnosticCheveuxPeau": "Hair & Skin Diagnostic",
+  "@settingsDiagnosticCheveuxPeau": {},
+  "settingsPlanificationSoins": "Care Planning",
+  "@settingsPlanificationSoins": {},
+  "settingsModeApplication": "App Mode (SDUI)",
+  "@settingsModeApplication": {},
+  "healthProfileSensitiveScalpTitle": "Sensitive / Reactive Scalp",
+  "@healthProfileSensitiveScalpTitle": {},
+  "healthProfileSensitiveScalpSubtitle": "Prone to itching or redness",
+  "@healthProfileSensitiveScalpSubtitle": {},
+  "healthProfileSaveSuccess": "Profile saved successfully!",
+  "@healthProfileSaveSuccess": {},
+  "healthProfileSaveError": "Error while saving",
+  "@healthProfileSaveError": {},
+  "aiAssistantBeautyTitle": "AI Beauty & Care Assistant",
+  "@aiAssistantBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion1": "What is the best moisturizing routine for 4C hair?",
+  "@aiAssistantBeautySuggestion1": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion2": "How to use raw shea butter against acne and dark spots?",
+  "@aiAssistantBeautySuggestion2": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion3": "Which natural ingredients promote hair growth and stop breakage?",
+  "@aiAssistantBeautySuggestion3": {
+    "description": "Added for Beauty mode"
+  },
+  "aiAssistantBeautySuggestion4": "Suggest a homemade soothing scalp mask.",
+  "@aiAssistantBeautySuggestion4": {
+    "description": "Added for Beauty mode"
+  },
+  "nutritionPlanBeautyTitle": "My Care & Routine Program",
+  "@nutritionPlanBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "supportBeautyTitle": "Beauty & Care Support",
+  "@supportBeautyTitle": {
+    "description": "Added for Beauty mode"
+  },
+  "communityPublicGroup": "Public group",
+  "@communityPublicGroup": {
+    "description": "Added for community sweep"
+  },
+  "communityError": "Error: {error}",
+  "@communityError": {
+    "description": "Error message with error details",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "communityMembersCount": "{count} members",
+  "@communityMembersCount": {
+    "description": "Number of members in a group",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "communityRefuseError": "Error while refusing",
+  "@communityRefuseError": {
+    "description": "Added for community sweep"
+  },
+  "communityRefuse": "Refuse",
+  "@communityRefuse": {
+    "description": "Added for community sweep"
+  },
+  "communityAcceptError": "Error while accepting",
+  "@communityAcceptError": {
+    "description": "Added for community sweep"
+  },
+  "communityAccept": "Accept",
+  "@communityAccept": {
+    "description": "Added for community sweep"
+  }
 }

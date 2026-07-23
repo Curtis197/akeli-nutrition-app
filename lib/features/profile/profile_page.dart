@@ -488,17 +488,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> with SingleTickerProv
                                 child: Text(l10n.profileLoadError2, style: const TextStyle(color: AkeliColors.outline)),
                               ),
                               data: (recipes) {
-                                if (recipes.isEmpty) {
+                                // Client-side mode filter — stopgap until userLikedRecipesProvider
+                                // (lib/providers/profile_tabs_provider.dart) filters server-side.
+                                final currentMode = ref.watch(currentModeProvider);
+                                final modeFilteredRecipes = recipes
+                                    .where((recipe) => recipe.mode == (currentMode == AppMode.beauty ? 'beauty' : 'nutrition'))
+                                    .toList();
+                                if (modeFilteredRecipes.isEmpty) {
                                   return Center(
                                     child: Text(l10n.profileNoLikedRecipes, style: const TextStyle(color: AkeliColors.outline)),
                                   );
                                 }
                                 return ListView.separated(
                                   padding: const EdgeInsets.symmetric(vertical: 8),
-                                  itemCount: recipes.length,
+                                  itemCount: modeFilteredRecipes.length,
                                   separatorBuilder: (_, __) => const SizedBox(height: 16),
                                   itemBuilder: (context, index) {
-                                    final r = recipes[index];
+                                    final r = modeFilteredRecipes[index];
                                     return GestureDetector(
                                       onTap: () {
                                         context.push(AkeliRoutes.recipeDetailPath(r.id));
