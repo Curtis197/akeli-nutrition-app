@@ -21,17 +21,17 @@ BEGIN;
 SELECT plan(8);
 
 INSERT INTO auth.users (id, email, role, created_at, updated_at) VALUES
-  ('j3000001-0000-0000-0000-000000000001', 'planintegrity.user@akeli.test', 'authenticated', now(), now())
+  ('a3000001-0000-0000-0000-000000000001', 'planintegrity.user@akeli.test', 'authenticated', now(), now())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale) VALUES
-  ('j3000001-0000-0000-0000-000000000001', true, false, now(), 'fr')
+  ('a3000001-0000-0000-0000-000000000001', true, false, now(), 'fr')
 ON CONFLICT (id) DO NOTHING;
 
-SET LOCAL "request.jwt.claims" TO '{"sub": "j3000001-0000-0000-0000-000000000001"}';
+SET LOCAL "request.jwt.claims" TO '{"sub": "a3000001-0000-0000-0000-000000000001"}';
 
 SELECT lives_ok(
-  $$ SELECT generate_beauty_plan('j3000001-0000-0000-0000-000000000001'::uuid, CURRENT_DATE, 30) $$,
+  $$ SELECT generate_beauty_plan('a3000001-0000-0000-0000-000000000001'::uuid, CURRENT_DATE, 30) $$,
   'generate_beauty_plan executes for a full 30-day plan'
 );
 
@@ -40,7 +40,7 @@ SELECT is(
   (SELECT count(DISTINCT bps.day_number)::int
    FROM beauty_plan_slot bps
    JOIN beauty_plan bp ON bp.id = bps.plan_id
-   WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+   WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
      AND bp.start_date = CURRENT_DATE),
   30,
   'all 30 days of the plan have at least one slot'
@@ -54,7 +54,7 @@ SELECT is(
      SELECT bps.day_number, bps.recipe_id
      FROM beauty_plan_slot bps
      JOIN beauty_plan bp ON bp.id = bps.plan_id
-     WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+     WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
        AND bp.start_date = CURRENT_DATE
      GROUP BY bps.day_number, bps.recipe_id
      HAVING count(*) > 1
@@ -67,7 +67,7 @@ SELECT is(
 SELECT is(
   (SELECT count(*)::int FROM beauty_plan_slot bps
    JOIN beauty_plan bp ON bp.id = bps.plan_id
-   WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+   WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
      AND bp.start_date = CURRENT_DATE
      AND bps.frequency_tier = '2x_month'),
   2,
@@ -78,7 +78,7 @@ SELECT is(
 SELECT is(
   (SELECT count(*)::int FROM beauty_plan_slot bps
    JOIN beauty_plan bp ON bp.id = bps.plan_id
-   WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+   WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
      AND bp.start_date = CURRENT_DATE
      AND bps.frequency_tier = '1x_month'),
   1,
@@ -89,7 +89,7 @@ SELECT is(
 SELECT is(
   (SELECT count(*)::int FROM beauty_plan_slot bps
    JOIN beauty_plan bp ON bp.id = bps.plan_id
-   WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+   WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
      AND bp.start_date = CURRENT_DATE
      AND bps.day_number = 30
      AND bps.frequency_tier = '2x_month'),
@@ -101,7 +101,7 @@ SELECT is(
 SELECT is(
   (SELECT count(*)::int FROM beauty_plan_slot bps
    JOIN beauty_plan bp ON bp.id = bps.plan_id
-   WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001'
+   WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001'
      AND bp.start_date = CURRENT_DATE
      AND bps.day_number = 30
      AND bps.frequency_tier = '1x_month'),
@@ -113,11 +113,11 @@ SELECT is(
 SELECT ok(
   (SELECT
      (SELECT bps.recipe_id FROM beauty_plan_slot bps JOIN beauty_plan bp ON bp.id = bps.plan_id
-      WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001' AND bp.start_date = CURRENT_DATE
+      WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001' AND bp.start_date = CURRENT_DATE
         AND bps.day_number = 30 AND bps.frequency_tier = '2x_month')
      IS DISTINCT FROM
      (SELECT bps.recipe_id FROM beauty_plan_slot bps JOIN beauty_plan bp ON bp.id = bps.plan_id
-      WHERE bp.user_id = 'j3000001-0000-0000-0000-000000000001' AND bp.start_date = CURRENT_DATE
+      WHERE bp.user_id = 'a3000001-0000-0000-0000-000000000001' AND bp.start_date = CURRENT_DATE
         AND bps.day_number = 30 AND bps.frequency_tier = '1x_month')
   ),
   'day 30''s 2x_month and 1x_month slots reference two different recipes, not a duplicate'

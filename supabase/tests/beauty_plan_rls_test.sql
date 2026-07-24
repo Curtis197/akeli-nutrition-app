@@ -14,8 +14,8 @@ INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale) V
 ON CONFLICT (id) DO NOTHING;
 
 -- ── Seed: beauty_plan + slot owned by user A ────────────────────────────────
-INSERT INTO recipe (id, title, instructions, is_published, mode, frequency, created_at)
-VALUES ('b2000001-0000-0000-0000-000000000010', 'RLS Test Recipe', 'Steps.', true, 'beauty', 'daily', now())
+INSERT INTO recipe (id, title, is_published, mode, frequency, created_at)
+VALUES ('b2000001-0000-0000-0000-000000000010', 'RLS Test Recipe', true, 'beauty', 'daily', now())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO beauty_plan (id, user_id, start_date, end_date, is_active)
@@ -52,25 +52,37 @@ SELECT is(
   'T4: other user cannot select user A''s beauty_plan_slot row'
 );
 
+-- A writable CTE (WITH ... UPDATE/DELETE ... RETURNING) cannot be nested
+-- inside a function-call argument like is()'s first parameter -- Postgres
+-- requires it to be a top-level statement. Run the mutating statement at the
+-- top level instead (RLS silently filters it to 0 affected rows, no error),
+-- then RESET ROLE to re-check the row's true state as superuser (bypassing
+-- RLS) to confirm the write had no effect.
+UPDATE beauty_plan SET end_date = end_date + 1
+WHERE id = 'b2000001-0000-0000-0000-000000000020';
+
+RESET ROLE;
 SELECT is(
-  (WITH upd AS (
-      UPDATE beauty_plan SET end_date = end_date + 1
-      WHERE id = 'b2000001-0000-0000-0000-000000000020'
-      RETURNING id
-   ) SELECT count(*)::int FROM upd),
-  0,
-  'T5: other user UPDATE on user A''s plan affects 0 rows'
+  (SELECT end_date FROM beauty_plan WHERE id = 'b2000001-0000-0000-0000-000000000020'),
+  (CURRENT_DATE + 6)::date,
+  'T5: other user UPDATE on user A''s plan affects 0 rows (end_date unchanged)'
 );
 
+SET LOCAL request.jwt.claims = '{"sub":"b2000001-0000-0000-0000-000000000002"}';
+SET LOCAL ROLE authenticated;
+
+DELETE FROM beauty_plan_slot
+WHERE id = 'b2000001-0000-0000-0000-000000000030';
+
+RESET ROLE;
 SELECT is(
-  (WITH del AS (
-      DELETE FROM beauty_plan_slot
-      WHERE id = 'b2000001-0000-0000-0000-000000000030'
-      RETURNING id
-   ) SELECT count(*)::int FROM del),
-  0,
-  'T6: other user DELETE on user A''s slot affects 0 rows'
+  (SELECT count(*)::int FROM beauty_plan_slot WHERE id = 'b2000001-0000-0000-0000-000000000030'),
+  1,
+  'T6: other user DELETE on user A''s slot affects 0 rows (row still exists)'
 );
+
+SET LOCAL request.jwt.claims = '{"sub":"b2000001-0000-0000-0000-000000000002"}';
+SET LOCAL ROLE authenticated;
 
 SELECT throws_ok(
   $$ INSERT INTO beauty_plan (user_id, start_date, end_date, is_active)

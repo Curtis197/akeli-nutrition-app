@@ -48,8 +48,13 @@ SELECT is(
 RESET ROLE;
 
 -- Sanity: the policy definition itself uses the corrected subquery idiom.
+-- pg_get_expr (which populates pg_policies.qual) always fully table-qualifies
+-- column references and reformats whitespace, so it renders as
+-- "SELECT creator.id\n   FROM creator" rather than the hand-written
+-- "SELECT id FROM creator" -- match loosely on the idiom's shape instead of
+-- literal source text.
 SELECT ok(
-  (SELECT qual FROM pg_policies WHERE tablename = 'creator_monthly_payouts' AND policyname = 'Creators view own payouts') LIKE '%SELECT id FROM creator%',
+  (SELECT qual FROM pg_policies WHERE tablename = 'creator_monthly_payouts' AND policyname = 'Creators view own payouts') LIKE '%SELECT%FROM creator%WHERE%creator.user_id = auth.uid()%',
   'RLS policy uses the creator-ownership subquery idiom, not a raw auth.uid() = creator_id comparison'
 );
 

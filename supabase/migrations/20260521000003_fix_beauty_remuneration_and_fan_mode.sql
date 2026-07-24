@@ -73,7 +73,12 @@ CREATE TABLE beauty_care_logs (
 );
 
 -- Monthly Payouts (Calculated Snapshot)
-CREATE TABLE creator_monthly_payouts (
+-- IF NOT EXISTS: 20260721000013_beauty_payouts_revenue_value.sql later
+-- (re)defines this table for the real proportional-payout model and is the
+-- version actually live in production. On a fresh install this migration
+-- creates the table first; on an install where 20260721000013's shape
+-- already exists, this is a safe no-op.
+CREATE TABLE IF NOT EXISTS creator_monthly_payouts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creator_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     period_month DATE, -- e.g., 2024-02-01

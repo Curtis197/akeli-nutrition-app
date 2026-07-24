@@ -17,9 +17,9 @@ ON CONFLICT (id) DO NOTHING;
 -- later than 0010's, so with NO frequency filter at all (the pre-fix bug)
 -- recommend_recipes(p_limit=>1, p_mode=>'beauty') deterministically
 -- returns 0011 for every one of the three month-tier calls.
-INSERT INTO recipe (id, title, instructions, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at) VALUES
-  ('b4000001-0000-0000-0000-000000000010', 'Test 2x Month Clarifying Treatment', 'Steps.', true, 'beauty', 'both', 'protein_clarifying_care', '2x_month', '2099-01-01'::timestamptz),
-  ('b4000001-0000-0000-0000-000000000011', 'Test 1x Month Detox Mask', 'Steps.', true, 'beauty', 'both', 'monthly_detox_checkin', '1x_month', '2099-01-02'::timestamptz)
+INSERT INTO recipe (id, title, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at) VALUES
+  ('b4000001-0000-0000-0000-000000000010', 'Test 2x Month Clarifying Treatment', true, 'beauty', 'both', 'protein_clarifying_care', '2x_month', '2099-01-01'::timestamptz),
+  ('b4000001-0000-0000-0000-000000000011', 'Test 1x Month Detox Mask', true, 'beauty', 'both', 'monthly_detox_checkin', '1x_month', '2099-01-02'::timestamptz)
 ON CONFLICT (id) DO NOTHING;
 
 SET LOCAL "request.jwt.claims" TO '{"sub": "b4000001-0000-0000-0000-000000000001"}';

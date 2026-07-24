@@ -27,16 +27,17 @@ BEGIN
   VALUES ('00000000-0000-0000-0000-000000000301', '00000000-0000-0000-0000-000000000203', 'RR Test Creator')
   ON CONFLICT (id) DO NOTHING;
 
+  -- fan_subscription has no UNIQUE(user_id, status) constraint as of
+  -- 20260717053537_reconcile_local_with_prod_schema.sql (dropped to match
+  -- production) -- plain INSERT is safe inside this rolled-back transaction.
   INSERT INTO fan_subscription (user_id, creator_id, status)
-  VALUES ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000301', 'active')
-  ON CONFLICT (user_id, status) DO NOTHING;
+  VALUES ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000301', 'active');
 
-  INSERT INTO recipe (id, creator_id, title, instructions, is_published, mode)
+  INSERT INTO recipe (id, creator_id, title, is_published, mode)
   VALUES (
     '00000000-0000-0000-0000-000000000401',
     '00000000-0000-0000-0000-000000000301',
     'RR Test Fan Recipe',
-    'Mix and apply.',
     true,
     'beauty'
   )

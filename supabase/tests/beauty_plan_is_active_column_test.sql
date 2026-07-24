@@ -12,8 +12,8 @@ VALUES ('b1000001-0000-0000-0000-000000000001', true, false, now(), 'fr')
 ON CONFLICT (id) DO NOTHING;
 
 -- ── Seed: one published beauty recipe with a 'daily' frequency ──────────────
-INSERT INTO recipe (id, title, instructions, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at)
-VALUES ('b1000001-0000-0000-0000-000000000010', 'Test Daily Hydration Mask', 'Apply and rinse.', true, 'beauty', 'both', 'daily_hydration', 'daily', now())
+INSERT INTO recipe (id, title, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at)
+VALUES ('b1000001-0000-0000-0000-000000000010', 'Test Daily Hydration Mask', true, 'beauty', 'both', 'daily_hydration', 'daily', now())
 ON CONFLICT (id) DO NOTHING;
 
 SET LOCAL "request.jwt.claims" TO '{"sub": "b1000001-0000-0000-0000-000000000001"}';

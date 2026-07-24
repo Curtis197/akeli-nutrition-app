@@ -10,9 +10,15 @@ INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale) V
   ('b6000001-0000-0000-0000-000000000001', true, false, now(), 'fr')
 ON CONFLICT (id) DO NOTHING;
 
--- Temporarily mark ALL recipes as unpublished so recommend_recipes()
--- returns zero rows for every tier.
-UPDATE recipe SET is_published = false;
+-- Unpublish only the 'daily' and '1x_week' tagged recipes so their
+-- frequency-scoped recommend_recipes() call returns zero rows, forcing the
+-- v_found fallback to the p_mode=>beauty (no frequency filter) branch. The
+-- rest of the seeded catalog (2x_week/2x_month/1x_month recipes) stays
+-- published so that fallback branch has a non-empty pool to draw from --
+-- recommend_recipes() always filters is_published=true with no deeper
+-- fallback (by design: unpublished recipes must never be recommended), so a
+-- blanket unpublish would make T2/T3's fallback unsatisfiable by construction.
+UPDATE recipe SET is_published = false WHERE frequency IN ('daily', '1x_week');
 
 SET LOCAL "request.jwt.claims" TO '{"sub": "b6000001-0000-0000-0000-000000000001"}';
 

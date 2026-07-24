@@ -20,16 +20,20 @@ INSERT INTO creator (id, user_id, display_name, created_at, updated_at) VALUES
   ('b3000001-0000-0000-0000-000000000005', 'b3000001-0000-0000-0000-000000000003', 'Other Creator Test', now(), now())
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO fan_subscription (user_id, creator_id, status, effective_from) VALUES
-  ('b3000001-0000-0000-0000-000000000001', 'b3000001-0000-0000-0000-000000000004', 'active', CURRENT_DATE)
-ON CONFLICT (user_id, status) DO NOTHING;
+-- fan_subscription no longer has a UNIQUE(user_id, status) constraint or an
+-- effective_from column as of 20260717053537_reconcile_local_with_prod_schema.sql
+-- (both dropped to match actual production schema) -- this is a fresh
+-- synthetic row inside a transaction that gets rolled back at the end of
+-- this test file, so a plain INSERT with no conflict target is safe.
+INSERT INTO fan_subscription (user_id, creator_id, status) VALUES
+  ('b3000001-0000-0000-0000-000000000001', 'b3000001-0000-0000-0000-000000000004', 'active');
 
 -- created_at far in the future so these two synthetic recipes always beat
 -- the 6 permanently-seeded 'daily' starter recipes on the created_at DESC
 -- tie-break inside recommend_recipes's no-vector branch.
-INSERT INTO recipe (id, title, instructions, is_published, mode, beauty_type, beauty_sub_type, frequency, creator_id, created_at) VALUES
-  ('b3000001-0000-0000-0000-000000000010', 'Fan Creator Daily Recipe', 'Steps.', true, 'beauty', 'both', 'daily_hydration', 'daily', 'b3000001-0000-0000-0000-000000000004', '2099-01-01'::timestamptz),
-  ('b3000001-0000-0000-0000-000000000011', 'Other Creator Daily Recipe', 'Steps.', true, 'beauty', 'both', 'daily_hydration', 'daily', 'b3000001-0000-0000-0000-000000000005', '2099-01-02'::timestamptz)
+INSERT INTO recipe (id, title, is_published, mode, beauty_type, beauty_sub_type, frequency, creator_id, created_at) VALUES
+  ('b3000001-0000-0000-0000-000000000010', 'Fan Creator Daily Recipe', true, 'beauty', 'both', 'daily_hydration', 'daily', 'b3000001-0000-0000-0000-000000000004', '2099-01-01'::timestamptz),
+  ('b3000001-0000-0000-0000-000000000011', 'Other Creator Daily Recipe', true, 'beauty', 'both', 'daily_hydration', 'daily', 'b3000001-0000-0000-0000-000000000005', '2099-01-02'::timestamptz)
 ON CONFLICT (id) DO NOTHING;
 
 -- Helper: next Monday on/after CURRENT_DATE, so a 2-day plan covers only

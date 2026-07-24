@@ -1,0 +1,16 @@
+-- Migration: Drop the stale 3-arg generate_groups_personalized overload left
+-- behind by 20260722110600_add_mode_filter_generate_groups_personalized.sql.
+-- File: supabase/migrations/20260724000001_fix_generate_groups_personalized_stale_overload.sql
+--
+-- Same root cause class as 20260724000000_fix_recommend_recipes_stale_overload_signatures.sql:
+-- CREATE OR REPLACE FUNCTION with an added parameter creates a NEW overload
+-- rather than replacing the existing one when the signature (arg count/types)
+-- differs. Area C Task added generate_groups_personalized(uuid,int,uuid[],text)
+-- but never dropped the pre-existing generate_groups_personalized(uuid,int,uuid[]).
+--
+-- Verified live via `SELECT oid::regprocedure FROM pg_proc WHERE proname =
+-- 'generate_groups_personalized'` -- both overloads exist today. Any caller
+-- omitting p_mode (all pre-existing app call sites) now hits
+-- "function generate_groups_personalized(...) is not unique" instead of the
+-- intended NULL-default, no-filter behavior.
+DROP FUNCTION IF EXISTS generate_groups_personalized(uuid, integer, uuid[]);

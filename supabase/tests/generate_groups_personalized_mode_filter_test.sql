@@ -42,6 +42,10 @@ BEGIN
 END;
 $$;
 
+-- Scoped to this test's own fixture group IDs -- the community_group table
+-- already carries other legitimately-seeded, mode='beauty' production groups
+-- (e.g. 'Secret du Chébé & Pousse 4C'), which correctly also match a
+-- p_mode='beauty' filter and must not be treated as a false positive here.
 SELECT CASE current_setting('pgtap_test.mode_param_exists', true)
   WHEN 'true' THEN (
     SELECT is(
@@ -50,9 +54,9 @@ SELECT CASE current_setting('pgtap_test.mode_param_exists', true)
         p_limit   => 20,
         p_exclude => '{}'::uuid[],
         p_mode    => 'beauty'
-      )),
+      ) WHERE group_id IN ('70000001-0000-0000-0000-000000000002'::uuid, '70000001-0000-0000-0000-000000000003'::uuid)),
       ARRAY['70000001-0000-0000-0000-000000000003'::uuid],
-      'p_mode=beauty returns only the seeded beauty-mode group'
+      'p_mode=beauty returns only the seeded beauty-mode group (scoped to this test''s fixtures)'
     )
   )
   ELSE fail('generate_groups_personalized(...,p_mode) not callable yet — Finding #7 fix not applied')

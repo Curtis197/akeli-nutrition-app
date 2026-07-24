@@ -11,10 +11,10 @@ INSERT INTO user_profile (id, onboarding_done, is_creator, created_at, locale) V
 ON CONFLICT (id) DO NOTHING;
 
 -- Three synthetic published recipes to act as the saved pool
-INSERT INTO recipe (id, title, instructions, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at) VALUES
-  ('b7000001-0000-0000-0000-000000000010', 'Saved Recipe Daily', 'Steps.', true, 'beauty', 'both', 'daily_hydration', 'daily', now()),
-  ('b7000001-0000-0000-0000-000000000011', 'Saved Recipe 2x Month', 'Steps.', true, 'beauty', 'both', 'protein_clarifying_care', '2x_month', now()),
-  ('b7000001-0000-0000-0000-000000000012', 'Saved Recipe 1x Month', 'Steps.', true, 'beauty', 'both', 'monthly_detox_checkin', '1x_month', now())
+INSERT INTO recipe (id, title, is_published, mode, beauty_type, beauty_sub_type, frequency, created_at) VALUES
+  ('b7000001-0000-0000-0000-000000000010', 'Saved Recipe Daily', true, 'beauty', 'both', 'daily_hydration', 'daily', now()),
+  ('b7000001-0000-0000-0000-000000000011', 'Saved Recipe 2x Month', true, 'beauty', 'both', 'protein_clarifying_care', '2x_month', now()),
+  ('b7000001-0000-0000-0000-000000000012', 'Saved Recipe 1x Month', true, 'beauty', 'both', 'monthly_detox_checkin', '1x_month', now())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO recipe_save (user_id, recipe_id) VALUES
