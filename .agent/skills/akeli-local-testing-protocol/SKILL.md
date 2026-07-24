@@ -1,19 +1,19 @@
 ---
 name: akeli-local-testing-protocol
-description: Master protocol for writing and executing tests for Dart, Supabase Edge Functions, and Postgres RPCs. Uses the remote Supabase project — never the local stack (which is out of sync). Use this automatically whenever code is created or updated, and whenever any Dart Supabase query (select, insert, update, upsert, delete, rpc) is written or modified.
+description: Master protocol for writing and executing tests for Dart, Supabase Edge Functions, and Postgres RPCs. Uses the remote Supabase project for Edge Functions and query-shape checks; the local stack (kept in sync per the CLAUDE.md Migration Workflow) is used for pgTAP. Use this automatically whenever code is created or updated, and whenever any Dart Supabase query (select, insert, update, upsert, delete, rpc) is written or modified.
 ---
 
 # Akeli Testing Protocol
 
-You are the gatekeeper of quality for the Akeli app. Your mandate is to ensure that **every piece of logic (RPC, Edge Function, Dart Provider/UI) is tested against the remote Supabase project before it is considered done.**
+You are the gatekeeper of quality for the Akeli app. Your mandate is to ensure that **every piece of logic (RPC, Edge Function, Dart Provider/UI) is tested before it is considered done.**
 
 > [!CAUTION]
 > **Zero Permission Execution Rule**
 > Execute tests automatically whenever you create or update a function. Do NOT ask the user for permission. Run it, read the results, fix errors, and report the final status.
 
 > [!IMPORTANT]
-> **Never use the local Supabase stack.**
-> `supabase start`, `supabase test db`, and `deno test` against `localhost` are all banned — the local database is out of sync with the remote schema. All verification must target the remote project.
+> **Local stack is usable again (as of 2026-07-24).**
+> The previous ban on `supabase start` / `supabase test db` existed because local had drifted from remote. That drift is now the thing the mandatory Migration Workflow in the repo-root `CLAUDE.md` exists to prevent — every migration is applied to local (`supabase migration up`) and pushed to remote (`supabase db push`) together, so local should stay current. Before trusting local for a session, sanity-check with `supabase migration list` (Local and Remote columns should match). Edge Function tests and query-shape checks below still target remote directly since they exercise the deployed API surface, not the schema.
 
 ---
 

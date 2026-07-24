@@ -104,8 +104,8 @@ supabase/
 # Start local Supabase
 supabase start
 
-# Apply migrations
-supabase db push
+# Apply pending migrations to the LOCAL database
+supabase migration up
 
 # Seed reference data
 psql -h localhost -p 54322 -U postgres -d postgres -f supabase/seed/01_reference_data.sql
@@ -120,10 +120,10 @@ supabase status
 ### Deploy to Production
 
 ```bash
-# Link to project
+# Link to project (already linked to Akeli V1 — only needed once per machine)
 supabase link --project-ref YOUR_PROJECT_REF
 
-# Push migrations
+# Push pending migrations to the REMOTE (linked) database
 supabase db push
 
 # Deploy edge functions
@@ -134,6 +134,15 @@ for dir in */; do
   fi
 done
 ```
+
+### ⚠️ Migration sync policy
+
+**Every migration must be applied to local (`supabase migration up`) AND
+pushed to remote (`supabase db push`) in the same session it's created —
+never one without the other.** See the "Migration Workflow" section in the
+repo-root `CLAUDE.md` for the full mandatory sequence. Run
+`supabase migration list` any time to check both sides are in sync (the
+`Local` and `Remote` columns must match for every row).
 
 ---
 

@@ -183,3 +183,46 @@ appears in Dart code.
    "@screenCount": { "placeholders": { "count": { "type": "int" } } }
    ```
 8. Run `flutter gen-l10n` after every ARB change before building/analyzing.
+
+## Migration Workflow — Mandatory, Zero Exceptions
+
+Every migration created in this project MUST be applied to **both** the local
+database and the linked remote project (`Akeli V1`) in the same work session
+it is created. Never leave a migration file in `supabase/migrations/` applied
+to only one side — that drift is exactly what caused past incidents (see
+`supabase/README.md` and the local/prod schema drift history).
+
+### Required sequence, every time a migration is created or edited
+
+1. Create the file with a timestamp prefix (`supabase migration new <name>`,
+   or hand-authored `YYYYMMDDHHMMSS_description.sql`) and write the SQL.
+2. Apply it locally immediately:
+   ```bash
+   supabase migration up
+   ```
+3. Push it to the linked remote project immediately after — do not batch
+   several migrations before pushing:
+   ```bash
+   supabase db push
+   ```
+4. Verify both sides recorded it before doing anything else:
+   ```bash
+   supabase migration list
+   ```
+   The new timestamp MUST appear in **both** the `Local` and `Remote`
+   columns. If either is blank, stop and fix it — do not start another task
+   with a dangling migration.
+5. Only after step 4 passes, commit the migration file to git.
+
+### Rules
+
+- Never create a migration "for later." If it's written, it gets applied to
+  both databases before you touch anything else.
+- If `supabase db push` fails (remote ahead, conflict, etc.), resolve it
+  immediately rather than leaving the databases diverged.
+- Migrations containing `DROP`, `TRUNCATE`, or unfiltered `DELETE FROM` need
+  extra care: confirm with the user before pushing, and never bulk-push a
+  backlog of unreviewed destructive migrations.
+- Before adding a new migration, run `supabase migration list` — if local and
+  remote have already drifted, stop and reconcile the existing drift before
+  stacking new migrations on top of it.
