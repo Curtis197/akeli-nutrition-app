@@ -1,0 +1,18 @@
+-- Migration: enable pg_cron before anything tries to use it.
+--
+-- Root cause of a class of bugs: `CREATE EXTENSION pg_cron` only existed in
+-- 20260724072945_reconcile_undocumented_remote_changes.sql (a `db pull`
+-- snapshot of production, which already had pg_cron enabled out-of-band).
+-- On a from-scratch replay (any fresh install, CI run, or new dev machine),
+-- five earlier migrations register cron jobs
+-- (20260531210607_register_batch_meal_plan_cron.sql,
+-- 20260602000004_register_meal_reminder_cron.sql,
+-- 20260703000001_register_recalculate_nutrition_plans_cron.sql,
+-- 20260716200000_deferred_unpublish.sql,
+-- 20260722110300_register_compute_monthly_beauty_revenue_cron.sql) — every
+-- one of them runs before pg_cron exists, so their own
+-- `IF EXISTS (schema 'cron')` guard is false and registration is silently
+-- skipped. Timestamped one second before the first cron consumer
+-- (20260531210607) so it's available for every registration migration
+-- that follows.
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
