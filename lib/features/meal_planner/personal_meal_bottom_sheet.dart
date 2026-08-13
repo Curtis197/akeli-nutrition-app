@@ -67,14 +67,24 @@ class _PersonalMealBottomSheetState extends ConsumerState<PersonalMealBottomShee
 
   Future<void> _pickImage(ImageSource source) async {
     _logger.userAction('Pick image tapped', screen: 'PersonalMealBottomSheet', metadata: {'source': source.name});
-    final picker = ImagePicker();
-    final file = await picker.pickImage(source: source, imageQuality: 70);
-    if (file != null) {
-      final bytes = await file.readAsBytes();
-      setState(() {
-        _imageBase64 = base64Encode(bytes);
-        _mimeType = 'image/jpeg';
-      });
+    try {
+      final picker = ImagePicker();
+      final file = await picker.pickImage(source: source, imageQuality: 70);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        setState(() {
+          _imageBase64 = base64Encode(bytes);
+          _mimeType = 'image/jpeg';
+        });
+      }
+    } catch (e, st) {
+      _logger.e('🚫 Permission: pickImage denied or failed | source: ${source.name} | $e', error: e, stackTrace: st);
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.mealPlannerError(e.toString()))),
+        );
+      }
     }
   }
 
