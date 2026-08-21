@@ -51,7 +51,7 @@ jobs:
           } > android/key.properties
 
       - name: Build release AAB
-        run: flutter build appbundle --release --build-number=${{ github.run_number }}
+        run: flutter build appbundle --release
 
       - name: Upload to Google Play (internal track)
         # TODO: pin to a full commit SHA for supply-chain safety, e.g.:
