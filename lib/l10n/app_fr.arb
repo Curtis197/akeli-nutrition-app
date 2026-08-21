@@ -56,6 +56,8 @@
   "authOrDivider": "ou",
   "authContinueWithGoogle": "Continuer avec Google",
   "authErrorGoogleSignIn": "Connexion Google échouée. Réessayez.",
+  "authContinueWithApple": "Continuer avec Apple",
+  "authErrorAppleSignIn": "Connexion Apple échouée. Réessayez.",
 
   "homeGreeting": "Bonjour, {name} !",
   "homeGreetingFallback": "Bonjour !",

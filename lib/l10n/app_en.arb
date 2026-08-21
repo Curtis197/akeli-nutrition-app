@@ -152,6 +152,12 @@
   "authErrorGoogleSignIn": "Google Sign-In failed. Please try again.",
   "@authErrorGoogleSignIn": {},
 
+  "authContinueWithApple": "Continue with Apple",
+  "@authContinueWithApple": {},
+
+  "authErrorAppleSignIn": "Sign in with Apple failed. Please try again.",
+  "@authErrorAppleSignIn": {},
+
   "homeGreeting": "Hello, {name}!",
   "@homeGreeting": {
     "placeholders": { "name": { "type": "String" } }

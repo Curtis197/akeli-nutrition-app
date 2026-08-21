@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/supabase_client.dart';
 import '../core/google_sign_in_client.dart';
@@ -301,6 +305,66 @@ class AuthNotifier extends AsyncNotifier<void> {
     );
     _logger.auth('signInWithGoogle SUCCESS | userId: ${client.auth.currentUser?.id}');
     _logger.provider('AuthNotifier → data (signInWithGoogle success)');
+  }
+
+  Future<void> signInWithApple() async {
+    _logger.auth('signInWithApple BEFORE');
+    _logger.provider('AuthNotifier → loading (signInWithApple)');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final rawNonce = _generateAppleRawNonce();
+        final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+        _logger.auth('signInWithApple | launching native sheet');
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          nonce: hashedNonce,
+        );
+        final idToken = credential.identityToken;
+        if (idToken == null) {
+          throw Exception('Sign in with Apple: no identity token received');
+        }
+
+        final client = ref.read(supabaseClientProvider);
+        _logger.db('BEFORE | op: signInWithIdToken | provider: apple');
+        await client.auth.signInWithIdToken(
+          provider: OAuthProvider.apple,
+          idToken: idToken,
+          nonce: rawNonce,
+        );
+        _logger.auth('signInWithApple SUCCESS | userId: ${client.auth.currentUser?.id}');
+        _logger.provider('AuthNotifier → data (signInWithApple success)');
+      } on SignInWithAppleAuthorizationException catch (e, st) {
+        if (e.code == AuthorizationErrorCode.canceled) {
+          _logger.auth('signInWithApple CANCELLED | user dismissed sheet');
+          return;
+        }
+        _logger.auth('signInWithApple ERROR | AuthorizationException: ${e.code} | ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithApple AuthorizationException)');
+        rethrow;
+      } on AuthException catch (e, st) {
+        _logger.auth('signInWithApple ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithApple AuthException)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('signInWithApple ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (signInWithApple unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  /// Raw nonce for Sign in with Apple: the SHA-256 hash goes to Apple's
+  /// authorization request, the raw value goes to Supabase's
+  /// `signInWithIdToken` so it can verify the identity token was issued for
+  /// this exact request.
+  String _generateAppleRawNonce([int length = 32]) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
   }
 
   Future<void> deleteAccount() async {

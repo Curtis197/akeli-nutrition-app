@@ -173,6 +173,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get authErrorGoogleSignIn => 'Connexion Google échouée. Réessayez.';
 
   @override
+  String get authContinueWithApple => 'Continuer avec Apple';
+
+  @override
+  String get authErrorAppleSignIn => 'Connexion Apple échouée. Réessayez.';
+
+  @override
   String homeGreeting(String name) {
     return 'Bonjour, $name !';
   }

@@ -1,8 +1,10 @@
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
 import '../../providers/auth_provider.dart';
@@ -114,6 +116,21 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
   }
 
+  Future<void> _signInWithApple() async {
+    final l10n = AppLocalizations.of(context);
+    _logger.userAction('Apple Sign-In button tapped', screen: 'AuthPage');
+    setState(() => _errorMessage = null);
+    await ref.read(authNotifierProvider.notifier).signInWithApple();
+    if (!mounted) return;
+    final s = ref.read(authNotifierProvider);
+    if (s.hasError) {
+      _logger.auth('Apple signIn ERROR displayed | error: ${s.error}');
+      setState(() => _errorMessage = _friendly(s.error.toString(), l10n));
+    } else {
+      _logger.auth('Apple signIn SUCCESS | router redirect will handle navigation');
+    }
+  }
+
   String _friendly(String raw, AppLocalizations l10n) {
     if (raw.contains('Invalid login credentials')) return l10n.authErrorInvalidCredentials;
     if (raw.contains('User already registered')) return l10n.authErrorEmailInUse;
@@ -125,6 +142,10 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     if (raw.contains('sign_in_failed') || raw.contains('ApiException') ||
         raw.contains('Google Sign-In')) {
       return l10n.authErrorGoogleSignIn;
+    }
+    if (raw.contains('Sign in with Apple') ||
+        raw.contains('SignInWithAppleAuthorizationException')) {
+      return l10n.authErrorAppleSignIn;
     }
     return l10n.authErrorGeneric;
   }
@@ -365,6 +386,16 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               : _GoogleSignInButton(
                                   onPressed: isLoading ? null : _signInWithGoogle,
                                 ),
+                          if (!kIsWeb && Platform.isIOS) ...[
+                            const SizedBox(height: AkeliSpacing.sm),
+                            SignInWithAppleButton(
+                              text: l10n.authContinueWithApple,
+                              height: 50,
+                              borderRadius: BorderRadius.circular(16),
+                              onPressed:
+                                  isLoading ? () {} : _signInWithApple,
+                            ),
+                          ],
                         ],
                       ),
                     ),

@@ -171,6 +171,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Google Sign-In failed. Please try again.';
 
   @override
+  String get authContinueWithApple => 'Continue with Apple';
+
+  @override
+  String get authErrorAppleSignIn =>
+      'Sign in with Apple failed. Please try again.';
+
+  @override
   String homeGreeting(String name) {
     return 'Hello, $name!';
   }
