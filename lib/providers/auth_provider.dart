@@ -367,6 +367,129 @@ class AuthNotifier extends AsyncNotifier<void> {
     return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
   }
 
+  /// Links an Apple identity to the currently signed-in user, so the same
+  /// account can be reached via email, Google, or Apple. Requires "Allow
+  /// manual linking" enabled in Supabase Dashboard → Authentication.
+  Future<void> linkAppleIdentity() async {
+    _logger.auth('linkAppleIdentity BEFORE');
+    _logger.provider('AuthNotifier → loading (linkAppleIdentity)');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        final rawNonce = _generateAppleRawNonce();
+        final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+        _logger.auth('linkAppleIdentity | launching native sheet');
+        final credential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          nonce: hashedNonce,
+        );
+        final idToken = credential.identityToken;
+        if (idToken == null) {
+          throw Exception('Sign in with Apple: no identity token received');
+        }
+
+        final client = ref.read(supabaseClientProvider);
+        _logger.db('BEFORE | op: linkIdentityWithIdToken | provider: apple');
+        await client.auth.linkIdentityWithIdToken(
+          provider: OAuthProvider.apple,
+          idToken: idToken,
+          nonce: rawNonce,
+        );
+        _logger.auth('linkAppleIdentity SUCCESS | userId: ${client.auth.currentUser?.id}');
+        _logger.provider('AuthNotifier → data (linkAppleIdentity success)');
+      } on SignInWithAppleAuthorizationException catch (e, st) {
+        if (e.code == AuthorizationErrorCode.canceled) {
+          _logger.auth('linkAppleIdentity CANCELLED | user dismissed sheet');
+          return;
+        }
+        _logger.auth('linkAppleIdentity ERROR | AuthorizationException: ${e.code} | ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkAppleIdentity AuthorizationException)');
+        rethrow;
+      } on AuthException catch (e, st) {
+        _logger.auth('linkAppleIdentity ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkAppleIdentity AuthException)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('linkAppleIdentity ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkAppleIdentity unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  /// Links a Google identity to the currently signed-in user. Requires
+  /// "Allow manual linking" enabled in Supabase Dashboard → Authentication.
+  Future<void> linkGoogleIdentity() async {
+    _logger.auth('linkGoogleIdentity BEFORE');
+    _logger.provider('AuthNotifier → loading (linkGoogleIdentity)');
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        _logger.auth('linkGoogleIdentity | launching picker');
+        final googleUser = await GoogleSignIn.instance.authenticate();
+        final idToken = googleUser.authentication.idToken;
+        if (idToken == null) {
+          throw Exception('Google Sign-In: no ID token received');
+        }
+
+        final client = ref.read(supabaseClientProvider);
+        _logger.db('BEFORE | op: linkIdentityWithIdToken | provider: google');
+        await client.auth.linkIdentityWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          nonce: googleSignInRawNonce,
+        );
+        _logger.auth('linkGoogleIdentity SUCCESS | userId: ${client.auth.currentUser?.id}');
+        _logger.provider('AuthNotifier → data (linkGoogleIdentity success)');
+      } on GoogleSignInException catch (e, st) {
+        if (e.code == GoogleSignInExceptionCode.canceled) {
+          _logger.auth('linkGoogleIdentity CANCELLED | user dismissed picker');
+          return;
+        }
+        _logger.auth('linkGoogleIdentity ERROR | GoogleSignInException: ${e.code} | ${e.description}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkGoogleIdentity GoogleSignInException)');
+        rethrow;
+      } on AuthException catch (e, st) {
+        _logger.auth('linkGoogleIdentity ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkGoogleIdentity AuthException)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('linkGoogleIdentity ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (linkGoogleIdentity unexpected)');
+        rethrow;
+      }
+    });
+  }
+
+  /// Unlinks an identity from the currently signed-in user. Supabase
+  /// rejects unlinking the last remaining identity, so callers should only
+  /// offer this when the user has 2+ linked identities.
+  Future<void> unlinkIdentity(UserIdentity identity) async {
+    _logger.auth('unlinkIdentity BEFORE | provider: ${identity.provider}');
+    _logger.provider('AuthNotifier → loading (unlinkIdentity)');
+    final client = ref.read(supabaseClientProvider);
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      try {
+        _logger.db('BEFORE | op: unlinkIdentity | provider: ${identity.provider}');
+        await client.auth.unlinkIdentity(identity);
+        _logger.auth('unlinkIdentity SUCCESS | provider: ${identity.provider}');
+        _logger.provider('AuthNotifier → data (unlinkIdentity success)');
+      } on AuthException catch (e, st) {
+        _logger.auth('unlinkIdentity ERROR | AuthException: ${e.message}', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (unlinkIdentity AuthException)');
+        rethrow;
+      } catch (e, st) {
+        _logger.auth('unlinkIdentity ERROR | unexpected: $e', error: e, stackTrace: st);
+        _logger.provider('AuthNotifier → error (unlinkIdentity unexpected)');
+        rethrow;
+      }
+    });
+  }
+
   Future<void> deleteAccount() async {
     _logger.auth('deleteAccount BEFORE');
     _logger.provider('AuthNotifier → loading (deleteAccount)');

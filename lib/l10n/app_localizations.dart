@@ -1862,6 +1862,96 @@ abstract class AppLocalizations {
   /// **'An error occurred. Please try again.'**
   String get accountErrorGeneric;
 
+  /// No description provided for @accountLinkedAccountsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'LINKED ACCOUNTS'**
+  String get accountLinkedAccountsSection;
+
+  /// No description provided for @accountProviderEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get accountProviderEmail;
+
+  /// No description provided for @accountProviderGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Google'**
+  String get accountProviderGoogle;
+
+  /// No description provided for @accountProviderApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get accountProviderApple;
+
+  /// No description provided for @accountLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked'**
+  String get accountLinked;
+
+  /// No description provided for @accountLinkButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Link'**
+  String get accountLinkButton;
+
+  /// No description provided for @accountUnlinkButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get accountUnlinkButton;
+
+  /// No description provided for @accountUnlinkConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink this account?'**
+  String get accountUnlinkConfirmTitle;
+
+  /// No description provided for @accountUnlinkConfirmContent.
+  ///
+  /// In en, this message translates to:
+  /// **'You won\'t be able to sign in with this account anymore.'**
+  String get accountUnlinkConfirmContent;
+
+  /// No description provided for @accountLinkSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account linked successfully.'**
+  String get accountLinkSuccess;
+
+  /// No description provided for @accountLinkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to link account. Please try again.'**
+  String get accountLinkError;
+
+  /// No description provided for @accountLinkErrorAlreadyLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is already linked to another user.'**
+  String get accountLinkErrorAlreadyLinked;
+
+  /// No description provided for @accountLinkErrorDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Account linking isn\'t enabled. Contact support.'**
+  String get accountLinkErrorDisabled;
+
+  /// No description provided for @accountUnlinkSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account unlinked successfully.'**
+  String get accountUnlinkSuccess;
+
+  /// No description provided for @accountUnlinkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to unlink account. Please try again.'**
+  String get accountUnlinkError;
+
   /// No description provided for @healthProfileTitle.
   ///
   /// In en, this message translates to:

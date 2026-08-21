@@ -944,6 +944,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountErrorGeneric => 'An error occurred. Please try again.';
 
   @override
+  String get accountLinkedAccountsSection => 'LINKED ACCOUNTS';
+
+  @override
+  String get accountProviderEmail => 'Email';
+
+  @override
+  String get accountProviderGoogle => 'Google';
+
+  @override
+  String get accountProviderApple => 'Apple';
+
+  @override
+  String get accountLinked => 'Linked';
+
+  @override
+  String get accountLinkButton => 'Link';
+
+  @override
+  String get accountUnlinkButton => 'Unlink';
+
+  @override
+  String get accountUnlinkConfirmTitle => 'Unlink this account?';
+
+  @override
+  String get accountUnlinkConfirmContent =>
+      'You won\'t be able to sign in with this account anymore.';
+
+  @override
+  String get accountLinkSuccess => 'Account linked successfully.';
+
+  @override
+  String get accountLinkError => 'Failed to link account. Please try again.';
+
+  @override
+  String get accountLinkErrorAlreadyLinked =>
+      'This account is already linked to another user.';
+
+  @override
+  String get accountLinkErrorDisabled =>
+      'Account linking isn\'t enabled. Contact support.';
+
+  @override
+  String get accountUnlinkSuccess => 'Account unlinked successfully.';
+
+  @override
+  String get accountUnlinkError =>
+      'Failed to unlink account. Please try again.';
+
+  @override
   String get healthProfileTitle => 'Health & Goals';
 
   @override

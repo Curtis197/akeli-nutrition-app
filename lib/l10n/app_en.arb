@@ -903,6 +903,51 @@
   "accountErrorGeneric": "An error occurred. Please try again.",
   "@accountErrorGeneric": {},
 
+  "accountLinkedAccountsSection": "LINKED ACCOUNTS",
+  "@accountLinkedAccountsSection": {},
+
+  "accountProviderEmail": "Email",
+  "@accountProviderEmail": {},
+
+  "accountProviderGoogle": "Google",
+  "@accountProviderGoogle": {},
+
+  "accountProviderApple": "Apple",
+  "@accountProviderApple": {},
+
+  "accountLinked": "Linked",
+  "@accountLinked": {},
+
+  "accountLinkButton": "Link",
+  "@accountLinkButton": {},
+
+  "accountUnlinkButton": "Unlink",
+  "@accountUnlinkButton": {},
+
+  "accountUnlinkConfirmTitle": "Unlink this account?",
+  "@accountUnlinkConfirmTitle": {},
+
+  "accountUnlinkConfirmContent": "You won't be able to sign in with this account anymore.",
+  "@accountUnlinkConfirmContent": {},
+
+  "accountLinkSuccess": "Account linked successfully.",
+  "@accountLinkSuccess": {},
+
+  "accountLinkError": "Failed to link account. Please try again.",
+  "@accountLinkError": {},
+
+  "accountLinkErrorAlreadyLinked": "This account is already linked to another user.",
+  "@accountLinkErrorAlreadyLinked": {},
+
+  "accountLinkErrorDisabled": "Account linking isn't enabled. Contact support.",
+  "@accountLinkErrorDisabled": {},
+
+  "accountUnlinkSuccess": "Account unlinked successfully.",
+  "@accountUnlinkSuccess": {},
+
+  "accountUnlinkError": "Failed to unlink account. Please try again.",
+  "@accountUnlinkError": {},
+
   "healthProfileTitle": "Health & Goals",
   "@healthProfileTitle": {},
 

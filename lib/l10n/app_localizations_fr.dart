@@ -954,6 +954,56 @@ class AppLocalizationsFr extends AppLocalizations {
       'Une erreur est survenue. Veuillez réessayer.';
 
   @override
+  String get accountLinkedAccountsSection => 'COMPTES LIÉS';
+
+  @override
+  String get accountProviderEmail => 'Email';
+
+  @override
+  String get accountProviderGoogle => 'Google';
+
+  @override
+  String get accountProviderApple => 'Apple';
+
+  @override
+  String get accountLinked => 'Lié';
+
+  @override
+  String get accountLinkButton => 'Lier';
+
+  @override
+  String get accountUnlinkButton => 'Délier';
+
+  @override
+  String get accountUnlinkConfirmTitle => 'Délier ce compte ?';
+
+  @override
+  String get accountUnlinkConfirmContent =>
+      'Vous ne pourrez plus vous connecter avec ce compte.';
+
+  @override
+  String get accountLinkSuccess => 'Compte lié avec succès.';
+
+  @override
+  String get accountLinkError =>
+      'Échec de la liaison du compte. Veuillez réessayer.';
+
+  @override
+  String get accountLinkErrorAlreadyLinked =>
+      'Ce compte est déjà lié à un autre utilisateur.';
+
+  @override
+  String get accountLinkErrorDisabled =>
+      'La liaison de comptes n\'est pas activée. Contactez le support.';
+
+  @override
+  String get accountUnlinkSuccess => 'Compte délié avec succès.';
+
+  @override
+  String get accountUnlinkError =>
+      'Échec de la suppression de la liaison. Veuillez réessayer.';
+
+  @override
   String get healthProfileTitle => 'Santé & Objectifs';
 
   @override

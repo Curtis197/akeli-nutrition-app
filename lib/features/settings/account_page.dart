@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show UserIdentity;
 import '../../core/logger.dart';
 import '../../core/router.dart';
 import '../../core/theme.dart';
@@ -27,6 +29,9 @@ class _AccountPageState extends ConsumerState<AccountPage> {
   bool _obscureConfirm = true;
   bool _savingPassword = false;
   bool _deletingAccount = false;
+  bool _linkingApple = false;
+  bool _linkingGoogle = false;
+  String? _unlinkingIdentityId;
 
   String? _passwordError;
 
@@ -130,6 +135,14 @@ class _AccountPageState extends ConsumerState<AccountPage> {
               ),
             ),
 
+            if (!kIsWeb) ...[
+              const SizedBox(height: 24),
+              _SectionCard(
+                title: l10n.accountLinkedAccountsSection,
+                child: _buildLinkedAccounts(l10n, user?.identities ?? const <UserIdentity>[]),
+              ),
+            ],
+
             if (canChangePassword) ...[
               const SizedBox(height: 24),
 
@@ -229,6 +242,151 @@ class _AccountPageState extends ConsumerState<AccountPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildLinkedAccounts(AppLocalizations l10n, List<UserIdentity> identities) {
+    final linkedProviders = identities.map((i) => i.provider).toSet();
+    final canUnlink = identities.length > 1;
+
+    UserIdentity? identityFor(String provider) {
+      for (final identity in identities) {
+        if (identity.provider == provider) return identity;
+      }
+      return null;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _LinkedProviderRow(
+          icon: Icons.mail_outline_rounded,
+          label: l10n.accountProviderEmail,
+          linked: linkedProviders.contains('email'),
+          loading: false,
+        ),
+        const Divider(height: 24),
+        _LinkedProviderRow(
+          icon: Icons.g_mobiledata_rounded,
+          label: l10n.accountProviderGoogle,
+          linked: linkedProviders.contains('google'),
+          loading: _linkingGoogle ||
+              _unlinkingIdentityId != null &&
+                  _unlinkingIdentityId == identityFor('google')?.id,
+          onLink: linkedProviders.contains('google') ? null : _linkGoogle,
+          onUnlink: linkedProviders.contains('google') && canUnlink
+              ? () => _unlink(identityFor('google')!)
+              : null,
+        ),
+        const Divider(height: 24),
+        _LinkedProviderRow(
+          icon: Icons.apple_rounded,
+          label: l10n.accountProviderApple,
+          linked: linkedProviders.contains('apple'),
+          loading: _linkingApple ||
+              _unlinkingIdentityId != null &&
+                  _unlinkingIdentityId == identityFor('apple')?.id,
+          onLink: linkedProviders.contains('apple') ? null : _linkApple,
+          onUnlink: linkedProviders.contains('apple') && canUnlink
+              ? () => _unlink(identityFor('apple')!)
+              : null,
+        ),
+      ],
+    );
+  }
+
+  Future<void> _linkApple() async {
+    final l10n = AppLocalizations.of(context);
+    _logger.userAction('Link Apple account tapped', screen: 'AccountPage');
+    setState(() => _linkingApple = true);
+    await ref.read(authNotifierProvider.notifier).linkAppleIdentity();
+    if (!mounted) return;
+    setState(() => _linkingApple = false);
+    final s = ref.read(authNotifierProvider);
+    if (s.hasError) {
+      final raw = s.error.toString();
+      if (raw.contains('cancelled') || raw.contains('canceled')) return;
+      _logger.auth('linkAppleIdentity ERROR displayed | error: $raw');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_friendlyLinkError(l10n, raw)), backgroundColor: AkeliColors.error),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.accountLinkSuccess), backgroundColor: AkeliColors.success),
+      );
+    }
+  }
+
+  Future<void> _linkGoogle() async {
+    final l10n = AppLocalizations.of(context);
+    _logger.userAction('Link Google account tapped', screen: 'AccountPage');
+    setState(() => _linkingGoogle = true);
+    await ref.read(authNotifierProvider.notifier).linkGoogleIdentity();
+    if (!mounted) return;
+    setState(() => _linkingGoogle = false);
+    final s = ref.read(authNotifierProvider);
+    if (s.hasError) {
+      final raw = s.error.toString();
+      if (raw.contains('cancelled') || raw.contains('canceled')) return;
+      _logger.auth('linkGoogleIdentity ERROR displayed | error: $raw');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_friendlyLinkError(l10n, raw)), backgroundColor: AkeliColors.error),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.accountLinkSuccess), backgroundColor: AkeliColors.success),
+      );
+    }
+  }
+
+  Future<void> _unlink(UserIdentity identity) async {
+    final l10n = AppLocalizations.of(context);
+    _logger.userAction('Unlink account tapped', screen: 'AccountPage', metadata: {'provider': identity.provider});
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(l10n.accountUnlinkConfirmTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+        content: Text(l10n.accountUnlinkConfirmContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.commonCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: AkeliColors.error),
+            child: Text(l10n.accountUnlinkButton),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    setState(() => _unlinkingIdentityId = identity.id);
+    await ref.read(authNotifierProvider.notifier).unlinkIdentity(identity);
+    if (!mounted) return;
+    setState(() => _unlinkingIdentityId = null);
+    final s = ref.read(authNotifierProvider);
+    if (s.hasError) {
+      _logger.auth('unlinkIdentity ERROR displayed | error: ${s.error}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.accountUnlinkError), backgroundColor: AkeliColors.error),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.accountUnlinkSuccess), backgroundColor: AkeliColors.success),
+      );
+    }
+  }
+
+  String _friendlyLinkError(AppLocalizations l10n, String raw) {
+    if (raw.contains('already been linked') || raw.contains('identity_already_exists')) {
+      return l10n.accountLinkErrorAlreadyLinked;
+    }
+    if (raw.contains('manual linking') || raw.contains('manual_linking_disabled')) {
+      return l10n.accountLinkErrorDisabled;
+    }
+    return l10n.accountLinkError;
   }
 
   Future<void> _updatePassword() async {
@@ -399,6 +557,76 @@ class _InfoRow extends StatelessWidget {
                     color: AkeliColors.onSurface)),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _LinkedProviderRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool linked;
+  final bool loading;
+  final VoidCallback? onLink;
+  final VoidCallback? onUnlink;
+
+  const _LinkedProviderRow({
+    required this.icon,
+    required this.label,
+    required this.linked,
+    required this.loading,
+    this.onLink,
+    this.onUnlink,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Icon(icon, color: AkeliColors.onSurfaceVariant, size: 22),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AkeliColors.onSurface),
+          ),
+        ),
+        if (loading)
+          const SizedBox(
+            height: 18,
+            width: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else if (linked) ...[
+          Text(
+            l10n.accountLinked,
+            style: const TextStyle(fontSize: 13, color: AkeliColors.success, fontWeight: FontWeight.w600),
+          ),
+          if (onUnlink != null) ...[
+            const SizedBox(width: 12),
+            TextButton(
+              onPressed: onUnlink,
+              style: TextButton.styleFrom(
+                foregroundColor: AkeliColors.error,
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(0, 0),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(l10n.accountUnlinkButton, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+            ),
+          ],
+        ] else
+          TextButton(
+            onPressed: onLink,
+            style: TextButton.styleFrom(
+              foregroundColor: AkeliColors.primary,
+              padding: EdgeInsets.zero,
+              minimumSize: const Size(0, 0),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(l10n.accountLinkButton, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ),
       ],
     );
   }
