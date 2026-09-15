@@ -83,7 +83,7 @@ def get_active_users(days: int = 7) -> list[str]:
                 WHERE consumed_at >= %s
                 UNION
                 SELECT DISTINCT user_id FROM daily_nutrition_log
-                WHERE date >= %s::date
+                WHERE log_date >= %s::date
             """, (since, since))
             return [row[0] for row in cur.fetchall()]
 
