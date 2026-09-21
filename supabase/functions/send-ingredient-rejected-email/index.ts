@@ -5,6 +5,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -50,21 +60,24 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
     const isFr = locale !== 'en';
-    const greetingName = firstName ? `, ${firstName}` : '';
+    const greetingName = firstName ? `, ${escapeHtml(firstName)}` : '';
+    const safeIngredient = escapeHtml(ingredientName);
+    const safeReason = escapeHtml(reason);
+    // The subject is plain text, not HTML, so it keeps the raw name.
     const subject = isFr ? `"${ingredientName}" n'a pas été retenu` : `"${ingredientName}" was not approved`;
 
     const html = isFr
       ? `
         <h2>Bonjour${greetingName},</h2>
-        <p>L'ingrédient que vous avez proposé, <strong>${ingredientName}</strong>, n'a pas été retenu par l'équipe Akeli.</p>
-        <p><strong>Raison :</strong> ${reason}</p>
+        <p>L'ingrédient que vous avez proposé, <strong>${safeIngredient}</strong>, n'a pas été retenu par l'équipe Akeli.</p>
+        <p><strong>Raison :</strong> ${safeReason}</p>
         <p>Vous pouvez le soumettre à nouveau une fois corrigé.</p>
         <p style="color:#888;font-size:12px;margin-top:32px">Ouvrez l'application Akeli pour continuer.</p>
       `
       : `
         <h2>Hello${greetingName},</h2>
-        <p>The ingredient you submitted, <strong>${ingredientName}</strong>, was not approved by the Akeli team.</p>
-        <p><strong>Reason:</strong> ${reason}</p>
+        <p>The ingredient you submitted, <strong>${safeIngredient}</strong>, was not approved by the Akeli team.</p>
+        <p><strong>Reason:</strong> ${safeReason}</p>
         <p>You can submit it again once it's been corrected.</p>
         <p style="color:#888;font-size:12px;margin-top:32px">Open the Akeli app to continue.</p>
       `;

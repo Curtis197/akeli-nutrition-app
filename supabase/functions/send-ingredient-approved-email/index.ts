@@ -5,6 +5,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -44,19 +54,21 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
     const isFr = locale !== 'en';
-    const greetingName = firstName ? `, ${firstName}` : '';
+    const greetingName = firstName ? `, ${escapeHtml(firstName)}` : '';
+    const safeIngredient = escapeHtml(ingredientName);
+    // The subject is plain text, not HTML, so it keeps the raw name.
     const subject = isFr ? `✅ "${ingredientName}" a été validé` : `✅ "${ingredientName}" has been approved`;
 
     const html = isFr
       ? `
         <h2>Bonjour${greetingName} !</h2>
-        <p>Bonne nouvelle : l'ingrédient que vous avez proposé, <strong>${ingredientName}</strong>, vient d'être validé par l'équipe Akeli.</p>
+        <p>Bonne nouvelle : l'ingrédient que vous avez proposé, <strong>${safeIngredient}</strong>, vient d'être validé par l'équipe Akeli.</p>
         <p>Vous pouvez maintenant l'utiliser dans vos recettes et publier celles qui l'attendaient.</p>
         <p style="color:#888;font-size:12px;margin-top:32px">Ouvrez l'application Akeli pour continuer.</p>
       `
       : `
         <h2>Hello${greetingName}!</h2>
-        <p>Good news: the ingredient you submitted, <strong>${ingredientName}</strong>, has just been approved by the Akeli team.</p>
+        <p>Good news: the ingredient you submitted, <strong>${safeIngredient}</strong>, has just been approved by the Akeli team.</p>
         <p>You can now use it in your recipes and publish any that were waiting on it.</p>
         <p style="color:#888;font-size:12px;margin-top:32px">Open the Akeli app to continue.</p>
       `;

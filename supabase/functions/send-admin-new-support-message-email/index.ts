@@ -8,6 +8,28 @@ const corsHeaders = {
 const ADMIN_EMAIL = 'curtiscapre@gmail.com';
 const SUPPORT_URL = 'https://akeli-admin-dashboard.vercel.app/support';
 
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Only http(s) URLs become links; anything else (javascript:, data:, malformed) is dropped.
+function screenshotLink(raw: unknown): string {
+  if (typeof raw !== 'string' || !raw) return '';
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return '';
+    return `<a href="${escapeHtml(url.href)}">View screenshot</a>`;
+  } catch {
+    return '';
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -41,10 +63,10 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
     const rows = [
-      ['From', email],
-      ['Subject', subject],
-      ['Message', content],
-      ['Screenshot', screenshotUrl ? `<a href="${screenshotUrl}">View screenshot</a>` : null],
+      ['From', escapeHtml(email)],
+      ['Subject', escapeHtml(subject)],
+      ['Message', escapeHtml(content)],
+      ['Screenshot', screenshotLink(screenshotUrl)],
     ]
       .filter(([, value]) => value)
       .map(([label, value]) => `<tr><td style="padding:4px 12px 4px 0;color:#888">${label}</td><td>${value}</td></tr>`)

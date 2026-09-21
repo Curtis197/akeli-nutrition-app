@@ -7,6 +7,16 @@ const corsHeaders = {
 
 const ADMIN_EMAIL = 'curtiscapre@gmail.com';
 
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -45,12 +55,12 @@ Deno.serve(async (req) => {
     }
 
     const resend = new Resend(resendApiKey);
-    const recipeUrl = `https://akeli-admin-dashboard.vercel.app/recipes/${recipeId}`;
+    const recipeUrl = `https://akeli-admin-dashboard.vercel.app/recipes/${encodeURIComponent(recipeId)}`;
     const rows = [
-      ['Title', title],
-      ['Mode', mode],
+      ['Title', escapeHtml(title)],
+      ['Mode', escapeHtml(mode)],
       ['Status', isPublished ? 'Published' : 'Draft'],
-      ['Creator', creatorName],
+      ['Creator', escapeHtml(creatorName)],
     ]
       .filter(([, value]) => value)
       .map(([label, value]) => `<tr><td style="padding:4px 12px 4px 0;color:#888">${label}</td><td>${value}</td></tr>`)

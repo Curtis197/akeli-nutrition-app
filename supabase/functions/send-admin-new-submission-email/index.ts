@@ -8,6 +8,16 @@ const corsHeaders = {
 const ADMIN_EMAIL = 'curtiscapre@gmail.com';
 const MODERATION_URL = 'https://akeli-admin-dashboard.vercel.app/moderation';
 
+function escapeHtml(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
@@ -41,12 +51,12 @@ Deno.serve(async (req) => {
 
     const resend = new Resend(resendApiKey);
     const rows = [
-      ['Name', name],
-      ['Name (FR)', nameFr],
-      ['Name (EN)', nameEn],
-      ['Category hint', categoryHint],
-      ['Notes', notes],
-      ['Submitted by', submitterName],
+      ['Name', escapeHtml(name)],
+      ['Name (FR)', escapeHtml(nameFr)],
+      ['Name (EN)', escapeHtml(nameEn)],
+      ['Category hint', escapeHtml(categoryHint)],
+      ['Notes', escapeHtml(notes)],
+      ['Submitted by', escapeHtml(submitterName)],
     ]
       .filter(([, value]) => value)
       .map(([label, value]) => `<tr><td style="padding:4px 12px 4px 0;color:#888">${label}</td><td>${value}</td></tr>`)
