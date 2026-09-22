@@ -176,3 +176,12 @@ Deno.test('send-ingredient-rejected-email escapes name, ingredient and reason in
     assertStringIncludes(html, 'déjà présent &amp; &quot;doublon&quot;');
   }
 });
+
+Deno.test('send-admin-new-beta-tester-signup-email escapes the submitted email', async () => {
+  const { html } = await sendAndCapture('send-admin-new-beta-tester-signup-email', {
+    testerId: 'tester-1',
+    email: `${SCRIPT}@example.com`,
+    platform: 'ios',
+  });
+  assertNoInjectedMarkup(html);
+});
