@@ -185,3 +185,13 @@ Deno.test('send-admin-new-beta-tester-signup-email escapes the submitted email',
   });
   assertNoInjectedMarkup(html);
 });
+
+Deno.test('send-admin-beta-testers-removal-due-email escapes every tester email', async () => {
+  const { html } = await sendAndCapture('send-admin-beta-testers-removal-due-email', {
+    testers: [
+      { id: 't1', email: `${IMG}@example.com`, platform: 'ios', confirmedAt: '2026-09-01T00:00:00.000Z' },
+      { id: 't2', email: `${BOLD}@example.com`, platform: 'android', confirmedAt: '2026-09-02T00:00:00.000Z' },
+    ],
+  });
+  assertNoInjectedMarkup(html);
+});
