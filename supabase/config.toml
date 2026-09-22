@@ -67,6 +67,9 @@ verify_jwt = false
 [functions.send-admin-beta-testers-removal-due-email]
 verify_jwt = false
 
+[functions.send-beta-tester-added-email]
+verify_jwt = false
+
 [functions.notify-group-message]
 verify_jwt = true
 
